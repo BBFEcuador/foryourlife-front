@@ -20,13 +20,6 @@ import AuthLogin from './authForms/AuthLogin.vue';
                 <v-card-text class="pa-sm-10 pa-6">
                   <div class="text-center">
                     <Logo class="mb-5" />
-                    <v-row>
-                      <v-col cols="12" class="d-flex align-center">
-                        <v-divider />
-                        <div class="orbtn">OR</div>
-                        <v-divider />
-                      </v-col>
-                    </v-row>
                   </div>
                   <!---Login Form-->
                   <AuthLogin />
