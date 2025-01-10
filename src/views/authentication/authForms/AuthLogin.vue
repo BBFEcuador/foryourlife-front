@@ -45,7 +45,7 @@ function validate(values: any, { setErrors }: any) {
   </div>
   <Form @submit="validate" class="mt-7 loginForm" v-slot="{ errors, isSubmitting }">
     <div class="mb-6">
-      <v-label>Email Address</v-label>
+      <v-label>Correo electrónico</v-label>
       <v-text-field
         aria-label="email address"
         v-model="username"
@@ -59,7 +59,7 @@ function validate(values: any, { setErrors }: any) {
       ></v-text-field>
     </div>
     <div>
-      <v-label>Password</v-label>
+      <v-label>Contraseña</v-label>
       <v-text-field
         aria-label="password"
         v-model="password"
@@ -84,7 +84,7 @@ function validate(values: any, { setErrors }: any) {
     <div class="d-flex align-center mt-4 mb-7 mb-sm-0">
       <v-checkbox
         v-model="checkbox"
-        :rules="[(v: any) => !!v || 'You must agree to continue!']"
+        :rules="[(v: any) => !!v || 'Tienes que aceptar para continuar!']"
         label="Keep me sign in"
         required
         color="primary"
@@ -92,11 +92,11 @@ function validate(values: any, { setErrors }: any) {
         hide-details
       ></v-checkbox>
       <div class="ml-auto">
-        <router-link to="/forgot-pwd1" class="text-darkText link-hover">Forgot Password?</router-link>
+        <router-link to="/forgot-pwd1" class="text-darkText link-hover">¿Olvidaste tu contraseña?</router-link>
       </div>
     </div>
     <v-btn
-      color="primary"
+      color="darkprimary"
       :loading="isSubmitting"
       block
       class="mt-5"
