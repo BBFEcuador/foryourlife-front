@@ -4,7 +4,6 @@ import SvgSprite from '@/components/shared/SvgSprite.vue';
 import { useAuthStore } from '@/stores/auth';
 import { Form } from 'vee-validate';
 
-const checkbox = ref(false);
 const valid = ref(false);
 const show1 = ref(false);
 const password = ref('admin123');
@@ -40,8 +39,8 @@ function validate(values: any, { setErrors }: any) {
 
 <template>
   <div class="d-flex justify-space-between align-center mt-4">
-    <h3 class="text-h3 text-center mb-0">Login</h3>
-    <router-link to="/register1" class="text-primary text-decoration-none">Don't Have an account?</router-link>
+    <h3 class="text-h3 text-center mb-0">Iniciar Sesión</h3>
+    <router-link to="/register1" class="text-primary text-decoration-none">No tienes una cuenta?</router-link>
   </div>
   <Form @submit="validate" class="mt-7 loginForm" v-slot="{ errors, isSubmitting }">
     <div class="mb-6">
@@ -79,21 +78,6 @@ function validate(values: any, { setErrors }: any) {
           </v-btn>
         </template>
       </v-text-field>
-    </div>
-
-    <div class="d-flex align-center mt-4 mb-7 mb-sm-0">
-      <v-checkbox
-        v-model="checkbox"
-        :rules="[(v: any) => !!v || 'Tienes que aceptar para continuar!']"
-        label="Keep me sign in"
-        required
-        color="primary"
-        class="ms-n2"
-        hide-details
-      ></v-checkbox>
-      <div class="ml-auto">
-        <router-link to="/forgot-pwd1" class="text-darkText link-hover">¿Olvidaste tu contraseña?</router-link>
-      </div>
     </div>
     <v-btn
       color="darkprimary"
