@@ -3,11 +3,12 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import { router } from './router';
 import vuetify from './plugins/vuetify';
-
+import pluginPiniaPersist from 'pinia-plugin-persistedstate';
 import '@/scss/style.scss';
 import { PerfectScrollbarPlugin } from 'vue3-perfect-scrollbar';
 import VueApexCharts from 'vue3-apexcharts';
 import VueTablerIcons from 'vue-tabler-icons';
+import { VueQueryPlugin } from '@tanstack/vue-query';
 
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 
@@ -35,12 +36,14 @@ import '@fontsource/public-sans/700.css';
 import { fakeBackend } from '@/utils/helpers/fake-backend';
 
 const app = createApp(App);
+const pinia = createPinia()
 fakeBackend();
-
+pinia.use(pluginPiniaPersist)
 app.use(router);
 app.use(PerfectScrollbarPlugin);
 app.component('SvgSprite', SvgSprite);
-app.use(createPinia());
+app.use(pinia);
 app.use(VueTablerIcons);
 app.use(VueApexCharts);
+app.use(VueQueryPlugin);
 app.use(vuetify).mount('#app');

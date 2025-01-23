@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Logo from '@/layouts/dashboard/logo/LogoMain.vue';
-import AuthLogin from './authForms/AuthLogin.vue';
+import AuthAdminLogin from './AuthAdminLogin.vue';
+
+
 </script>
 
 <template>
@@ -9,7 +11,6 @@ import AuthLogin from './authForms/AuthLogin.vue';
       <div class="round-1"></div>
       <div class="round-2"></div>
     </div>
-    <!---Login Part-->
     <v-col cols="12" lg="12" class="d-flex align-center">
       <v-container>
         <div class="d-flex align-center justify-center" style="min-height: calc(100vh - 148px)">
@@ -20,9 +21,7 @@ import AuthLogin from './authForms/AuthLogin.vue';
                   <div class="text-center">
                     <Logo class="mb-5" />
                   </div>
-                  <!---Login Form-->
-                  <AuthLogin />
-                  <!---Login Form-->
+                  <AuthAdminLogin />
                 </v-card-text>
               </v-card>
             </v-col>
@@ -30,7 +29,6 @@ import AuthLogin from './authForms/AuthLogin.vue';
         </div>
       </v-container>
     </v-col>
-    <!---Login Part-->
   </v-row>
 </template>
 <style lang="scss">
