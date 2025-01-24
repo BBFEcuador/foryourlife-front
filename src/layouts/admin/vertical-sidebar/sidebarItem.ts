@@ -20,7 +20,7 @@ const sidebarItem: menu[] = [
   {
     title: 'Dashboard',
     icon: 'custom-home-trend',
-    to: '/dashboard/default'
+    to: 'home-admin'
   },
   { header: 'Utilities' },
   {
