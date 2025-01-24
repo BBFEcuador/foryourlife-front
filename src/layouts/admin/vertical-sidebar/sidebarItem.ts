@@ -22,45 +22,11 @@ const sidebarItem: menu[] = [
     icon: 'custom-home-trend',
     to: 'home-admin'
   },
-  { header: 'Utilities' },
   {
-    title: 'Typography',
-    icon: 'custom-typography',
-    to: '/utils/typography'
+    title: 'Usuarios',
+    icon: 'custom-home-trend',
+    to: 'users-admin'
   },
-  {
-    title: 'Colors',
-    icon: 'custom-colorpick',
-    to: '/utils/colors'
-  },
-  {
-    title: 'Shadows',
-    icon: 'custom-shadow',
-    to: '/utils/shadows'
-  },
-  { header: 'Pages' },
-  {
-    title: 'Login',
-    icon: 'custom-shield',
-    to: '/login1'
-  },
-  {
-    title: 'Register',
-    icon: 'custom-register',
-    to: '/register1'
-  },
-  { header: 'Others' },
-  {
-    title: 'Sample Page',
-    icon: 'custom-sample',
-    to: '/starter'
-  },
-  {
-    title: 'Documentation',
-    icon: 'custom-support',
-    to: 'https://phoenixcoded.gitbook.io/able-pro/v/vue/',
-    type: 'external'
-  }
 ];
 
 export default sidebarItem;

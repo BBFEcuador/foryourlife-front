@@ -25,7 +25,17 @@ const AdminRoutes: RouteRecordRaw[] = [
         path: '/admin',
         // beforeEnter: [isUserAuthenticated],
         component: () => import('@/views/admin/AdminDashboard.vue')
-      }
+      },
+      {
+        name: 'settings',
+        path: '/settings',
+        component: () => import('@/views/admin/AdminSettings.vue')
+      },
+      {
+        name: 'users-admin',
+        path: '/users',
+        component: () => import('@/views/admin/AdminUsers.vue')
+      },
     ]
   }
 ];

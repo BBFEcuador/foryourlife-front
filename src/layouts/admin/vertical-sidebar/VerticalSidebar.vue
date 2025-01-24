@@ -49,9 +49,6 @@ const sidebarMenu = shallowRef(sidebarItems);
           <!---End Single Item-->
         </template>
       </v-list>
-      <div class="pa-4">
-        <ExtraBox />
-      </div>
     </perfect-scrollbar>
   </v-navigation-drawer>
 </template>
