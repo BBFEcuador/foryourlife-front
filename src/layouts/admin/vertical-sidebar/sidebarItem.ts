@@ -1,3 +1,5 @@
+import type { StringSchema } from "yup";
+
 export interface menu {
   header?: string;
   title?: string;
@@ -6,6 +8,7 @@ export interface menu {
   divider?: boolean;
   getURL?: boolean;
   chip?: string;
+  id?: number;
   chipColor?: string;
   chipVariant?: string;
   chipIcon?: string;
@@ -16,17 +19,27 @@ export interface menu {
 }
 
 const sidebarItem: menu[] = [
-  { header: 'Dashboard' },
-  {
-    title: 'Dashboard',
-    icon: 'custom-home-trend',
-    to: 'home-admin'
-  },
-  {
-    title: 'Usuarios',
-    icon: 'custom-home-trend',
-    to: 'users-admin'
-  },
-];
+      {
+        title: 'Dashboard',
+        icon: 'material-symbols:dashboard',
+        to: 'home-admin'
+      },
+      {
+        title: 'Usuarios',
+        icon: 'solar:users-group-two-rounded-line-duotone',
+        to: 'users-admin',
+        id: 2
+      },
+      {
+        title: 'Sedes',
+        icon: 'material-symbols:local-convenience-store-outline-sharp',
+        to: 'sedes-admin'
+      },
+      {
+        title: 'Precios',
+        icon: 'solar:tag-price-bold',
+        to: 'prices-admin'
+      },
+    ]
 
 export default sidebarItem;

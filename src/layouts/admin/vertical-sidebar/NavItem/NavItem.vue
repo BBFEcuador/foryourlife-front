@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 const props = defineProps({ item: Object, level: Number });
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 import { string } from 'yup';
+import { Icon } from '@iconify/vue';
 
 const relativeURL = ref(string);
 
@@ -27,7 +28,7 @@ onMounted(async () => {
   >
     <!---If icon-->
     <template v-slot:prepend>
-      <SvgSprite :name="props.item.icon || ''" :level="props.level" />
+      <Icon :icon="props.item.icon || ''" :level="props.level" />
     </template>
     <v-list-item-title>{{ item.title }}</v-list-item-title>
     <!---If Caption-->
@@ -51,7 +52,7 @@ onMounted(async () => {
   >
     <!---If icon-->
     <template v-slot:prepend>
-      <SvgSprite :name="props.item.icon || ''" :level="props.level" />
+      <Icon :icon="props.item.icon || ''" :level="props.level" />
     </template>
     <v-list-item-title>{{ item.title }}</v-list-item-title>
     <!---If Caption-->
