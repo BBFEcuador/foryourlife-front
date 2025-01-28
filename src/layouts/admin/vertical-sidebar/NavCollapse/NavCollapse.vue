@@ -1,6 +1,7 @@
 <script setup>
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 import NavItem from '../NavItem/NavItem.vue';
+import { Icon } from '@iconify/vue';
 
 const props = defineProps({ item: Object, level: Number });
 </script>
@@ -17,7 +18,7 @@ const props = defineProps({ item: Object, level: Number });
       <v-list-item v-bind="props" :value="item.title" rounded color="primary">
         <!---Icon  -->
         <template v-slot:prepend>
-          <SvgSprite :name="item.icon || ''" :level="level" />
+          <Icon :icon="item.icon || ''" :level="level" />
         </template>
         <!---Title  -->
         <v-list-item-title class="mr-auto">{{ item.title }}</v-list-item-title>

@@ -19,67 +19,33 @@ const sidebarItem: menu[] = [
   { header: 'Dashboard' },
   {
     title: 'Dashboard',
-    icon: 'custom-home-trend',
-    to: '#',
-    children:[
-      {
-        title: 'Dashboard',
-        icon: 'custom-home-trend',
-        to: 'home-admin'
-      },
-    ]
+    icon: 'material-symbols:dashboard-2-outline',
+    to: 'home-admin'
   },
+  { header: 'Administrador' },
   {
     title: 'Usuarios',
-    icon: 'custom-home-trend',
-    to: '#',
-    children:[
+    icon: 'solar:users-group-two-rounded-bold',
+    to: 'users-admin',
+    children: [
       {
-        title: 'Dashboard',
-        icon: 'custom-home-trend',
-        to: 'home-admin'
-      },
+        title: 'Usuarios',
+        to: 'users-admin'
+      }
     ]
   },
-  // { header: 'Utilities' },
-  // {
-  //   title: 'Typography',
-  //   icon: 'custom-typography',
-  //   to: '/utils/typography'
-  // },
-  // {
-  //   title: 'Colors',
-  //   icon: 'custom-colorpick',
-  //   to: '/utils/colors'
-  // },
-  // {
-  //   title: 'Shadows',
-  //   icon: 'custom-shadow',
-  //   to: '/utils/shadows'
-  // },
-  // { header: 'Pages' },
-  // {
-  //   title: 'Login',
-  //   icon: 'custom-shield',
-  //   to: '/login1'
-  // },
-  // {
-  //   title: 'Register',
-  //   icon: 'custom-register',
-  //   to: '/register1'
-  // },
-  // { header: 'Others' },
-  // {
-  //   title: 'Sample Page',
-  //   icon: 'custom-sample',
-  //   to: '/starter'
-  // },
-  // {
-  //   title: 'Documentation',
-  //   icon: 'custom-support',
-  //   to: 'https://phoenixcoded.gitbook.io/able-pro/v/vue/',
-  //   type: 'external'
-  // }
+  { header: 'Programa' },
+  { header: 'Ajustes' },
+  {
+    title: 'Generales',
+    icon: 'material-symbols:settings',
+    children: [
+      {
+        title: 'Perfil',
+        to: 'settings'
+      }
+    ]
+  }
 ];
 
 export default sidebarItem;
