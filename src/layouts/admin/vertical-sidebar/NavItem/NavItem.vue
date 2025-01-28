@@ -3,16 +3,9 @@ import { ref, onMounted } from 'vue';
 const props = defineProps({ item: Object, level: Number });
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 import { string } from 'yup';
+import { Icon } from '@iconify/vue';
 
-const relativeURL = ref(string);
 
-onMounted(async () => {
-  try {
-    relativeURL.value = await import.meta.env.BASE_URL;
-  } catch (error) {
-    console.error('Error url not found:', error);
-  }
-});
 </script>
 
 <template>
@@ -27,7 +20,7 @@ onMounted(async () => {
   >
     <!---If icon-->
     <template v-slot:prepend>
-      <SvgSprite :name="props.item.icon || ''" :level="props.level" />
+      <Icon :icon="props.item.icon || ''" :level="props.level" />
     </template>
     <v-list-item-title>{{ item.title }}</v-list-item-title>
     <!---If Caption-->
