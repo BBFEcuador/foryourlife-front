@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/vue-query";
 const postLogin = async (
   LoginApiResponse: LoginAdminRequest
 ): Promise<LoginApiResponse> => {
-  const { data } = await api.post("/auth/admin/login", LoginApiResponse);
+  const { data } = await api.post("/auth/admin-login", LoginApiResponse);
   return data;
 };
 
