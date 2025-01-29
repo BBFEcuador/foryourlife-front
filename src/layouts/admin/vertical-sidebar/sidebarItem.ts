@@ -24,13 +24,16 @@ const sidebarItem: menu[] = [
   },
   { header: 'Administrador' },
   {
-    title: 'Usuarios',
+    title: 'Administrativo',
     icon: 'solar:users-group-two-rounded-bold',
-    to: 'users-admin',
     children: [
       {
         title: 'Usuarios',
         to: 'users-admin'
+      },
+      {
+        title: 'Sedes',
+        to: 'sedes-admin'
       }
     ]
   },
