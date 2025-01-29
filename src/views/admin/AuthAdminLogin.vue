@@ -34,10 +34,9 @@ const onLoginSubmit = () => {
 watch(postLoginMutation.isError, () => {
   if (postLoginMutation.isError.value) {
     const error = postLoginMutation.error.value as AxiosError<ErrorApiResponse>;
-    showErrorToast(error)
+    showErrorToast(error);
   }
 });
-
 
 watch(postLoginMutation.isSuccess, () => {
   if (postLoginMutation.isSuccess.value) {
@@ -58,18 +57,25 @@ watch(postLoginMutation.isSuccess, () => {
   <Form class="mt-7 loginForm" @submit.prevent="onLoginSubmit">
     <div class="mb-6">
       <v-label>Correo electrónico</v-label>
-      <v-text-field v-model="AdminLoginRequest.username"
-        :error-messages="validator.username.$errors.map((x) => x.$message.toString())" color="primary"
-        placeholder="Introduce tu correo" outlined></v-text-field>
+      <v-text-field
+        v-model="AdminLoginRequest.username"
+        :error-messages="validator.username.$errors.map((x) => x.$message.toString())"
+        color="primary"
+        placeholder="Introduce tu correo"
+        outlined
+      ></v-text-field>
     </div>
     <div>
       <v-label>Contraseña</v-label>
-      <v-text-field v-model="AdminLoginRequest.password"
-        :error-messages="validator.password.$errors.map((x) => x.$message.toString())" color="primary"
-        placeholder="Introduce tu contraseña" type="password" outlined></v-text-field>
+      <v-text-field
+        v-model="AdminLoginRequest.password"
+        :error-messages="validator.password.$errors.map((x) => x.$message.toString())"
+        color="primary"
+        placeholder="Introduce tu contraseña"
+        type="password"
+        outlined
+      ></v-text-field>
     </div>
-    <v-btn color="darkprimary" block class="mt-5" variant="flat" size="large" rounded="md" type="submit">
-      Login
-    </v-btn>
+    <v-btn color="darkprimary" block class="mt-5" variant="flat" size="large" rounded="md" type="submit"> Login </v-btn>
   </Form>
 </template>
