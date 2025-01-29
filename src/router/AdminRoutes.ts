@@ -40,6 +40,21 @@ const AdminRoutes: RouteRecordRaw[] = [
         path: 'sedes',
         component: () => import('@/views/admin/sedes/AdminSedes.vue')
       },
+      {
+        name: 'training-admin',
+        path: 'trainers',
+        component: () => import('@/views/admin/training/AdminTraining.vue')
+      },
+      {
+        name: 'programs-admin',
+        path: 'program',
+        component: () => import('@/views/admin/programs/AdminPrograms.vue')
+      },
+      {
+        name: 'participants-admin',
+        path: 'participants',
+        component: () => import('@/views/admin/participants/AdminParticipants.vue')
+      },
     ]
   }
 ];

@@ -36,6 +36,24 @@ const sidebarItem: menu[] = [
     ]
   },
   {
+    title: 'Entrenamiento',
+    icon: 'material-symbols-light:model-training',
+    children: [
+      {
+        title: 'Entrenadores',
+        to: 'training-admin'
+      },
+      {
+        title: 'Programas',
+        to: 'programs-admin'
+      },
+      {
+        title: 'Participantes',
+        to: 'participants-admin'
+      }
+    ]
+  },
+  {
     title: 'Generales',
     icon: 'material-symbols:settings',
     children: [

@@ -38,8 +38,10 @@ const deleteCampus = () => {
                 <template v-slot:top>
                     <v-toolbar class="bg-surface tw-px-3" flat v-motion :initial="{ opacity: 0, x: -10 }"
                         :enter="{ opacity: 1, x: 0 }" :delay="200" :duration="250">
-                        <VTextField hide-details placeholder="Buscar Sede" prepend-inner-icon="mdi-magnify"
-                            v-model="search" class="custom-card" />
+                        <VTextField hide-details placeholder="Buscar Sede"
+                            v-model="search" class="custom-card" >
+                            <Icon icon="mdi-magnify" height="18"></Icon>
+                        </VTextField>
                         <v-spacer></v-spacer>
                     </v-toolbar>
                 </template>
