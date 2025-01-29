@@ -16,13 +16,11 @@ export interface menu {
 }
 
 const sidebarItem: menu[] = [
-  { header: 'Dashboard' },
   {
     title: 'Dashboard',
     icon: 'material-symbols:dashboard-2-outline',
     to: 'home-admin'
   },
-  { header: 'Administrador' },
   {
     title: 'Administrativo',
     icon: 'solar:users-group-two-rounded-bold',
@@ -37,8 +35,6 @@ const sidebarItem: menu[] = [
       }
     ]
   },
-  { header: 'Programa' },
-  { header: 'Ajustes' },
   {
     title: 'Generales',
     icon: 'material-symbols:settings',

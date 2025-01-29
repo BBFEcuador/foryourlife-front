@@ -1,42 +1,71 @@
 <script setup lang="ts">
+import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import useCampus from '@/composables/admin/useCampus';
+import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
 
-const {campus,isError,isFetching} = useCampus();
+const { campus, isError, isFetching } = useCampus();
 const search = ref();
 
+const breadcrumbs = ref([
+    {
+        title: 'Administrativo',
+        disabled: false,
+        href: '#'
+    }
+]);
+
 const headers = [
-    { title: 'id', value: 'country', class: 'my-header-style' },
-    { title: 'Nombre', value: 'city', class: 'my-header-style' },
-    { title: 'Ciudad', value: 'address' },
-    { title: 'Telefono', value: 'phone' },
+    { title: 'País', value: 'country', class: 'my-header-style' },
+    { title: 'Ciudad', value: 'city' },
+    { title: 'Dirección', value: 'address' },
+    { title: 'Teléfono', value: 'phone' },
     { title: 'Acciones', value: 'actions' },
 ];
 
+const editCampus = () => {
+};
+
+const deleteCampus = () => {
+};
+
 </script>
 <template>
-    <v-card elevation="1">
-        <v-card-title> Campus </v-card-title>
-        <v-card-item>
-            <v-progress-circular v-if="isFetching" indeterminate color="primary" />
-            <v-alert v-else-if="isError" type="error" text="Error fetching data" />
-            <v-alert v-else type="success" text="Data fetched successfully" />
-            {{ campus }}
-        </v-card-item>
-        <v-data-table :headers="headers" :items="campus">
-            <template v-slot:no-data>
-                <tr>
-                    <td colspan="3">No data available</td>
-                </tr>
-            </template>
-        </v-data-table>
-    </v-card>
-    <div>
-        sede3s
-    </div>
+    <BaseBreadcrumb :title="'Sedes'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+    <v-row>
+        <v-col cols="12">
+            <v-data-table :headers="headers" :search="search" :items="campus" :loading="isFetching">
+                <template v-slot:top>
+                    <v-toolbar class="bg-surface tw-px-3" flat v-motion :initial="{ opacity: 0, x: -10 }"
+                        :enter="{ opacity: 1, x: 0 }" :delay="200" :duration="250">
+                        <VTextField hide-details placeholder="Buscar Sede" prepend-inner-icon="mdi-magnify"
+                            v-model="search" class="custom-card" />
+                        <v-spacer></v-spacer>
+                    </v-toolbar>
+                </template>
+                <template v-slot:item.actions="{ item }">
+                    <div class="d-flex ga-2">
+                        <v-btn icon color="primary" @click="editCampus()">
+                            <Icon icon="mdi-edit" height="18"/>
+                        </v-btn>
+                        <v-btn small color="error" @click="deleteCampus()" icon>
+                           <Icon icon="mdi-delete" height="18"/>
+                        </v-btn>
+                    </div>
+                </template>
+                <template v-slot:no-data>
+                    <tr>
+                        <td colspan="3">Sin datos</td>
+                    </tr>
+                </template>
+            </v-data-table>
+        </v-col>
+    </v-row>
 </template>
 
 
 <style scoped>
-
+.custom-card {
+    max-width: 400px;
+}
 </style>
