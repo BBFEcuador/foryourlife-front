@@ -17,24 +17,23 @@ const AdminRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/admin',
-    redirect: '/main',
     component: () => import('@/layouts/admin/AdminFullLayout.vue'),
     children: [
       {
         name: 'home-admin',
-        path: '/admin',
+        path: '',
         // beforeEnter: [isUserAuthenticated],
         component: () => import('@/views/admin/AdminDashboard.vue')
       },
       {
         name: 'settings',
-        path: '/settings',
+        path: 'settings',
         component: () => import('@/views/admin/AdminSettings.vue')
       },
       {
         name: 'users-admin',
-        path: '/users',
-        component: () => import('@/views/admin/AdminUsers.vue')
+        path: 'users',
+        component: () => import('@/views/admin/users/AdminUsers.vue')
       },
       {
         name: 'sedes-admin',
@@ -42,7 +41,7 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/sedes/AdminSedes.vue')
       },
     ]
-  },
+  }
 ];
 
 export default AdminRoutes;
