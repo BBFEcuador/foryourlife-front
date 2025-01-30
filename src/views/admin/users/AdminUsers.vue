@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
-import useAdminUsers from '@/composables/admin/useAdminUsers';
+import useAdminUsers from '@/composables/admin/user/useAdminUsers';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
+import { VBtn } from 'vuetify/components';
 
 const { isError, isFetching, users } = useAdminUsers();
 const search = ref();
@@ -39,6 +40,7 @@ const breadcrumbs = ref([
             >
               <VTextField hide-details placeholder="Buscar Sede" v-model="search" class="custom-card" :variant="'outlined'" />
               <v-spacer></v-spacer>
+              <VBtn :to="{ name: 'users-admin-add' }" color="primary" variant="elevated"> crear </VBtn>
             </v-toolbar>
           </template>
           <template v-slot:item.actions="{ item }">

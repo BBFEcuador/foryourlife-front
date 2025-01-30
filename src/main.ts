@@ -9,6 +9,7 @@ import { PerfectScrollbarPlugin } from 'vue3-perfect-scrollbar';
 import VueApexCharts from 'vue3-apexcharts';
 import VueTablerIcons from 'vue-tabler-icons';
 import { VueQueryPlugin } from '@tanstack/vue-query';
+import { MotionPlugin } from '@vueuse/motion';
 
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 
@@ -36,10 +37,11 @@ import '@fontsource/public-sans/700.css';
 import { fakeBackend } from '@/utils/helpers/fake-backend';
 
 const app = createApp(App);
-const pinia = createPinia()
+const pinia = createPinia();
 fakeBackend();
-pinia.use(pluginPiniaPersist)
+pinia.use(pluginPiniaPersist);
 app.use(router);
+app.use(MotionPlugin)
 app.use(PerfectScrollbarPlugin);
 app.component('SvgSprite', SvgSprite);
 app.use(pinia);
