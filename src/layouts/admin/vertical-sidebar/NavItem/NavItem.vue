@@ -1,8 +1,6 @@
 <script setup>
 const props = defineProps({ item: Object, level: Number });
 import { Icon } from '@iconify/vue';
-
-
 </script>
 
 <template>
@@ -12,6 +10,7 @@ import { Icon } from '@iconify/vue';
     :to="item.type === 'external' ? '' : { name: item.to }"
     rounded
     color="primary"
+    exact
     :disabled="item.disabled"
     :target="item.type === 'external' ? '_blank' : ''"
   >
@@ -37,6 +36,7 @@ import { Icon } from '@iconify/vue';
     rounded
     color="primary"
     :disabled="item.disabled"
+    exact
     :target="item.type === 'external' ? '_blank' : ''"
   >
     <!---If icon-->
