@@ -1,20 +1,4 @@
 <script setup lang="ts">
-import { shallowRef } from 'vue';
-
-const footerLink = shallowRef([
-  {
-    title: 'Home',
-    link: 'https://ableproadmin.com/vue/'
-  },
-  {
-    title: 'Documentation',
-    link: 'https://phoenixcoded.gitbook.io/able-pro/v/vue/'
-  },
-  {
-    title: 'Support',
-    link: 'https://phoenixcoded.authordesk.app/'
-  }
-]);
 </script>
 <template>
   <v-footer class="px-0 footer">
