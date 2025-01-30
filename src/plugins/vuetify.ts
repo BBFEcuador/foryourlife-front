@@ -81,6 +81,10 @@ export default createVuetify({
       rounded: 'lg',
       variant: 'outlined'
     },
+    VSelect: {
+      rounded: 'lg',
+      variant: 'outlined'
+    },
     VTooltip: {
       // set v-tooltip default location to top
       location: 'top'
