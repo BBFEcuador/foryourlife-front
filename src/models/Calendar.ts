@@ -1,5 +1,5 @@
 export interface Calendar {
-    id: number;
+    id: string;
     title: string;
     start: string | Date;
     end: string | Date;

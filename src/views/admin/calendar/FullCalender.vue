@@ -66,11 +66,12 @@ import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import useCalendarEvents from '@/composables/admin/calendar/useCalendarEventsSilulation';
+import type { EventInput } from '@fullcalendar/core'; // Importa EventInput
+import { useCalendarEvents } from '@/composables/admin/calendar/useCalendarEventsSilulation';
 import type { Calendar } from '@/models/Calendar';
 
 // Composable para manejar eventos
-const { fetchEventMutation, updateEventDateMutation } = useCalendarEvents();
+const { events, fetchEvents, updateEventDateMutation } = useCalendarEvents();
 
 // Estado del componente
 const calendarOptions = {
@@ -78,7 +79,7 @@ const calendarOptions = {
   initialView: 'dayGridMonth',
   editable: true,
   selectable: true,
-  events: events.value, // Usa los eventos cargados dinámicamente
+  events: events.value as EventInput[], // Asegúrate de que events.value sea del tipo correcto
 };
 
 // Cargar eventos al montar el componente
@@ -92,7 +93,7 @@ const updateFirstEventDate = async () => {
   if (events.value.length > 0) {
     const firstEvent = events.value[0];
     await updateEventDateMutation.mutateAsync({
-      eventId: firstEvent.id,
+      eventId: firstEvent.id, // Esto ya es string
       newStart: '2023-10-20T10:00:00',
       newEnd: '2023-10-20T12:00:00',
     });
@@ -100,6 +101,7 @@ const updateFirstEventDate = async () => {
   }
 };
 </script>
+
 <template>
   <div class="demo-app">
     <div class="demo-app-main">
@@ -114,7 +116,7 @@ const updateFirstEventDate = async () => {
       <v-btn
         color="primary"
         @click="updateFirstEventDate"
-        :loading="updateEventDateMutation.isPending.value"
+        :loading="updateEventDateMutation.isPending"
       >
         Actualizar Fecha del Primer Evento
       </v-btn>
