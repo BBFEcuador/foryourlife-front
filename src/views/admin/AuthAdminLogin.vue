@@ -7,7 +7,6 @@ import { email, required } from '@vuelidate/validators';
 import { AxiosError } from 'axios';
 import useAdminLogin from '@/composables/admin/useAdminLogin';
 import type { LoginAdminRequest } from '@/models/AdminRequest';
-import Swal from 'sweetalert2';
 import { showErrorToast } from '@/service/sweetAlert';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 
@@ -76,6 +75,17 @@ watch(postLoginMutation.isSuccess, () => {
         outlined
       ></v-text-field>
     </div>
-    <v-btn color="darkprimary" block class="mt-5" variant="flat" size="large" rounded="md" type="submit"> Login </v-btn>
+    <v-btn
+      color="darkprimary"
+      block
+      class="mt-5"
+      variant="flat"
+      size="large"
+      rounded="md"
+      type="submit"
+      :loading="postLoginMutation.isPending.value"
+    >
+      Login
+    </v-btn>
   </Form>
 </template>

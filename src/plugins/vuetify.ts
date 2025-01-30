@@ -2,6 +2,7 @@ import { type ThemeDefinition, createVuetify } from 'vuetify';
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
+import '@mdi/font/css/materialdesignicons.css';
 
 const light: ThemeDefinition = {
   dark: false,
@@ -77,7 +78,8 @@ export default createVuetify({
       rounded: 'md'
     },
     VTextField: {
-      rounded: 'lg'
+      rounded: 'lg',
+      variant: 'outlined'
     },
     VTooltip: {
       // set v-tooltip default location to top
