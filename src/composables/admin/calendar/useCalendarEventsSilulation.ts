@@ -7,14 +7,14 @@ import type { Calendar } from '@/models/Calendar';
 // src/composables/useCalendarEvents.ts
 const initialEvents: Calendar[] = [
     {
-      id: '1', // Cambia esto a string
+      id: '1s', // Cambia esto a string
       title: 'Evento 1',
       start: '2023-10-10T10:00:00',
       end: '2023-10-10T12:00:00',
       allDay: false,
     },
     {
-      id: '2', // Cambia esto a string
+      id: '2s', // Cambia esto a string
       title: 'Evento 2',
       start: '2023-10-15T14:00:00',
       end: '2023-10-15T16:00:00',
@@ -53,7 +53,6 @@ const updateEventDate = async (payload: {
     });
   };
 
-// Composable para manejar eventos
 export const useCalendarEvents = () => {
   // Mutación para actualizar la fecha de un evento
   const updateEventDateMutation = useMutation({

@@ -1,22 +1,41 @@
-// src/composables/useCalendar.ts
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import type { Calendar } from '@/models/Calendar';
+import { api } from '@/api/axios';
+import { useQuery } from '@tanstack/vue-query';
 
-// Estado en memoria para los eventos
-const events = ref<Calendar[]>([]);
+const calendar = ref<Calendar[]>([
+  {
+    id: '1',
+    title: 'Focus-96',
+    start: '2025-02-14',
+    end: '2025-02-17',
+    allDay: true,
+    color: '#2196F3',
+    extendedProps: {
+      description: 'This is a meeting',
+      location: 'Conference Room',
+      guests: ['John Doe', 'Jane Smith'],
+    },
+  },
+]);
 
-// Función para cargar eventos (simulado)
-const loadEvents = async () => {
-  return new Promise<Calendar[]>((resolve) => {
-    setTimeout(() => {
-      resolve(events.value);
-    }, 500); // Simula un retraso de 500ms
-  });
-};
+const fetchCalendar = async (): Promise<Calendar[]> =>{
+  const{data} = await api.get('/calendar');
+  return data;
+} 
 
-export function useCalendar() {
-  return {
-    events,
-    loadEvents,
+const useCalendar = () => {
+  const {data, isFetching, isError} = useQuery({queryKey: ['calendar'], queryFn: fetchCalendar});
+    watch(data, () =>{
+      if(data.value){
+        calendar.value = [...data.value];
+      }
+    });
+    return {
+    calendar,
+    isFetching,
+    isError,
   };
 }
+
+export default useCalendar;
