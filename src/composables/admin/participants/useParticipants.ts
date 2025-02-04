@@ -1,6 +1,7 @@
 import { api } from '@/api/axios';
+import type { Criteria } from '@/models/Criteria';
 import type { Participant } from '@/models/Participants';
-import { useQuery } from '@tanstack/vue-query';
+import { useMutation, useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 
 const participants = ref<Participant[]>([]);
@@ -10,8 +11,19 @@ const fetchParticipants = async (): Promise<Participant[]> => {
   return data;
 };
 
+const fetchMatch = async (criteria: Criteria): Promise<Participant[]> => {
+  const { data } = await api.post('/users/match', criteria);
+  return data;
+};
+
 const useParticipants = () => {
-  const { data, isError, isFetching } = useQuery({ queryFn: fetchParticipants, queryKey: ['participants'] });
+  const { data, isError, isFetching, refetch } = useQuery({ queryFn: fetchParticipants, queryKey: ['participants'] });
+  const criteriaMutations = useMutation({
+    mutationFn: fetchMatch,
+    onSuccess(data, variables, context) {
+      participants.value = data;
+    }
+  });
 
   watch(data, () => {
     if (data.value) {
@@ -22,7 +34,10 @@ const useParticipants = () => {
   return {
     participants,
     isParticipantsError: isError,
-    isParticipantsLoading: isFetching
+    isParticipantsLoading: isFetching,
+    criteriaMutations,
+    data,
+    refetchParticipants: refetch
   };
 };
 export default useParticipants;

@@ -10,6 +10,7 @@ import VueApexCharts from 'vue3-apexcharts';
 import VueTablerIcons from 'vue-tabler-icons';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 import { MotionPlugin } from '@vueuse/motion';
+import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 
@@ -41,7 +42,8 @@ const pinia = createPinia();
 fakeBackend();
 pinia.use(pluginPiniaPersist);
 app.use(router);
-app.use(MotionPlugin)
+app.use(autoAnimatePlugin);
+app.use(MotionPlugin);
 app.use(PerfectScrollbarPlugin);
 app.component('SvgSprite', SvgSprite);
 app.use(pinia);
