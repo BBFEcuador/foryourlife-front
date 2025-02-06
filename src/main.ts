@@ -11,6 +11,7 @@ import VueTablerIcons from 'vue-tabler-icons';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 import { MotionPlugin } from '@vueuse/motion';
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
+import 'vue3-toastify/dist/index.css';
 
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 

@@ -12,6 +12,11 @@ const AdminRoutes: RouteRecordRaw[] = [
         name: 'Admin Login',
         path: 'login',
         component: () => import('@/views/admin/AdminLogin.vue')
+      },
+      {
+        name: 'Admin Reset Password',
+        path: 'reset-password',
+        component: () => import('@/views/admin/AdminResetPassword.vue')
       }
     ]
   },

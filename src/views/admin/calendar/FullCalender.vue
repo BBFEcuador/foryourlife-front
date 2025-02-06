@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -74,6 +74,8 @@ const deleteEvent = async () => {
     updateModalShow.value = false;
   }
 };
+const selectedDate = ref<string>('');
+
 </script>
 
 <template>
@@ -89,9 +91,8 @@ const deleteEvent = async () => {
 
   <v-dialog v-model="viewModalShow" max-width="600px">
     <v-card>
-      <!-- Título del evento -->
       <v-card-title class="d-flex align-center">
-        <Icon icon="mdi-calendar" class="mr-2" color="primary"/>
+        <Icon icon="mdi-calendar" class="mr-2" color="primary" />
         <span>{{ currentEvent.title }}</span>
       </v-card-title>
 
@@ -100,46 +101,15 @@ const deleteEvent = async () => {
       <v-card-text>
         <v-row class="my-3">
           <v-col cols="12" sm="6">
-            <v-label class="font-weight-bold">Fecha de inicio:</v-label>
-            <div class="d-flex align-center">
-              <Icon icon="mdi-calendar-start" class="mr-2" color="primary" />
-              <span>{{ formatDate(currentEvent.start) }}</span>
-            </div>
-          </v-col>
-
-          <v-col cols="12" sm="6">
-            <v-label class="font-weight-bold">Fecha de fin:</v-label>
-            <div class="d-flex align-center">
-              <Icon icon="mdi-calendar-end" class="mr-2" color="primary" />
-              <span>{{ formatDate(currentEvent.end) }}</span>
-            </div>
-          </v-col>
-        </v-row>
-
-        <v-row class="my-3">
-          <v-col cols="12">
-            <v-label class="font-weight-bold">Todo el día:</v-label>
-            <div class="d-flex align-center">
-              <Icon icon="mdi-clock" class="mr-2" color="primary"/>
-              <span>{{ currentEvent.allDay ? 'Sí' : 'No' }}</span>
-            </div>
-          </v-col>
-        </v-row>
-
-        <v-row class="my-3">
-          <v-col cols="12">
-            <v-label class="font-weight-bold">Descripción:</v-label>
-            <div class="d-flex align-center">
-              <Icon icon="mdi-text" class="mr-2" color="primary"></Icon>
-              <div class="">C descripcion</div>
-            </div>
+            <v-label class="font-weight-bold mb-4">Fecha de inicio:</v-label>
+            <v-text-field v-model="selectedDate" type="date" label="Selecciona una fecha" outlined>{{ formatDate(currentEvent.start) }}</v-text-field>
           </v-col>
         </v-row>
 
         <v-card-actions>
-          <v-btn color="primary" @click="updateModalShow" class="mr-2">
+          <v-btn color="primary" @click="updateEvent" class="mr-2">
             <Icon icon="mdi-pencil" left />
-            Editar
+            Actualizar
           </v-btn>
           <v-btn color="error" @click="deleteEvent">
             <Icon icon="mdi-delete" left />
@@ -149,7 +119,4 @@ const deleteEvent = async () => {
       </v-card-text>
     </v-card>
   </v-dialog>
-  <v-navigation-drawer location="right" name="Actualizar Evento" mobile v-model="updateModalShow">
-    <div class="">ola</div>
-  </v-navigation-drawer>
 </template>
