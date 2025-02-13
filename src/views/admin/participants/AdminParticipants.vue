@@ -7,12 +7,13 @@ import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 import ParticipantFilters from './ParticipantFilters.vue';
 import type { Criteria, Filter } from '@/models/Criteria';
+import useInvitation from '@/composables/invitation/useInvitation';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
 const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, refetchParticipants, data } = useParticipants();
-
+const {generateInvitationMutation} = useInvitation()
 const headers = [
   { title: 'Nombre', value: 'name', class: 'my-header-style' },
   { title: 'Correo', value: 'email' },
@@ -37,6 +38,23 @@ const onFilterSubmit = (criteria: Criteria) => {
 const onFilterClear = () => {
   criteriaMutations.mutate({ filters: [] as Filter[], limit: 0, offset: 0 });
 };
+
+const showInvitation = ref(false);
+
+const userId = "FFJKHkjhJKHhjfJKJFzx365jjf";
+const invitationLink = ref(`${userId}`);
+const copied = ref(false);
+
+const copyLink = async () => {
+  try {
+    await navigator.clipboard.writeText(invitationLink.value);
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 2000);
+  } catch (err) {
+    console.error("Error al copiar el enlace:", err);
+  }
+};
+
 </script>
 <template>
   <BaseBreadcrumb :title="'Participantes'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
@@ -59,6 +77,20 @@ const onFilterClear = () => {
                 </template>
               </VTextField>
               <VSpacer />
+              
+              <VBtn color="primary" @click="showInvitation = true">
+                <Icon icon="material-symbols:add-rounded" />
+              </VBtn>
+              <v-dialog v-model="showInvitation" width="700">
+                <v-card>
+                  <v-card-title>Invitación</v-card-title>
+                  <v-card-item>
+                    <v-text-field type="text" v-model="invitationLink" readonly />
+                    <VBtn @click="copyLink">Copiar enlace</VBtn>
+                    <p v-if="copied" style="color: green;">¡Enlace copiado!</p>
+                  </v-card-item>
+                </v-card>
+              </v-dialog>
               <VBtn variant="text" @click="showFilters = !showFilters" v-if="lgAndUp">
                 <template #prepend>
                   <Icon icon="material-symbols:filter-alt" height="16" />
