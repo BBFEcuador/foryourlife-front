@@ -27,7 +27,7 @@ const updateEvent = async (event: Calendar) => {
   }
 };
 
-const deleteEvent = async (eventId: number) => {
+const deleteEvent = async (eventId: string) => {
   try {
     await api.delete(`/events/${eventId}`);
     events.value = events.value.filter((e) => e.id !== eventId);

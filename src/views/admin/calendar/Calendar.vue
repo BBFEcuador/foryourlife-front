@@ -44,11 +44,5 @@ const breadcrumbs = ref([
                 <FullCalender />
             </UiParentCard>
         </v-col>
-        <v-col cols="12" lg="4" sm="12">
-            <UiParentCard title="Calendar with Allowed Dates">
-                <v-date-picker color="primary" v-model="seldate" :allowed-dates="allowedDates" min="2016-06-15"
-                    max="2018-03-20" />
-            </UiParentCard>
-        </v-col>
     </v-row>
 </template>

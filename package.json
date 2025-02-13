@@ -48,6 +48,7 @@
     "vue-tabler-icons": "2.21.0",
     "vue3-apexcharts": "1.8.0",
     "vue3-perfect-scrollbar": "2.0.0",
+    "vue3-toastify": "^0.2.8",
     "vuetify": "3.7.6",
     "webpack-plugin-vuetify": "3.0.3",
     "yup": "1.6.1"
