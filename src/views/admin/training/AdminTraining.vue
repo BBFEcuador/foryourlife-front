@@ -8,6 +8,9 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref, watch } from 'vue';
 import TrainerForm from './TrainerForm.vue';
 import { v4 as uuidv4 } from 'uuid';
+import type { AxiosError } from 'axios';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import { showErrorToast } from '@/service/sweetAlert';
 
 const { isError, isFetching, trainers } = useTrainer();
 const { saveTrainerMutations } = useTrainerMutations();
@@ -39,14 +42,23 @@ const onTrainerSubmit = (trainer: Trainers) => {
 
 watch(saveTrainerMutations.isError, () => {
   if (saveTrainerMutations.isError.value) {
+    const error = saveTrainerMutations.error.value as AxiosError<ErrorApiResponse>;
+    showErrorToast(error);
   }
 });
 
 watch(saveTrainerMutations.isSuccess, () => {
   if (saveTrainerMutations.isSuccess.value) {
-    trainers.value.push(saveTrainerMutations.variables.value!);
+    let x = new Set(trainers.value);
+    trainers.value = Array.from(x);
+    showForm.value = false;
   }
 });
+
+const onTrainerSelected = (item: Trainers) => {
+  trainer.value = { ...item };
+  showForm.value = true;
+};
 </script>
 <template>
   <BaseBreadcrumb :title="'Entrenadores'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
@@ -70,6 +82,11 @@ watch(saveTrainerMutations.isSuccess, () => {
               <v-spacer></v-spacer>
               <VBtn variant="tonal" color="success" @click="showForm = true">Agregar</VBtn>
             </v-toolbar>
+          </template>
+          <template #item.actions="{ item }">
+            <VBtn icon variant="tonal" color="success" @click="onTrainerSelected(item)">
+              <Icon icon="tabler:pencil-check" />
+            </VBtn>
           </template>
         </v-data-table>
       </UiParentCard>

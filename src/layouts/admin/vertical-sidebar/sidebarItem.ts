@@ -48,6 +48,10 @@ const sidebarItem: menu[] = [
         to: 'programs-admin'
       },
       {
+        title: 'Equipos',
+        to: 'teams-admin'
+      },
+      {
         title: 'Participantes',
         to: 'participants-admin'
       }

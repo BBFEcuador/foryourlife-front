@@ -45,22 +45,38 @@ const onTrainerSubmit = () => {
   <VRow>
     <VCol cols="12">
       <InputSection label="Nombre">
-        <VTextField placeholder="Nombre del entrenador" v-model="props.trainer.name" />
+        <VTextField
+          placeholder="Nombre del entrenador"
+          v-model="props.trainer.name"
+          :error-messages="validator.name.$errors.map((x) => x.$message.toString())"
+        />
       </InputSection>
     </VCol>
     <VCol cols="12">
       <InputSection label="Email">
-        <VTextField placeholder="Email del entrenador" v-model="props.trainer.email" />
+        <VTextField
+          placeholder="Email del entrenador"
+          v-model="props.trainer.email"
+          :error-messages="validator.email.$errors.map((x) => x.$message.toString())"
+        />
       </InputSection>
     </VCol>
     <VCol cols="12">
       <InputSection label="Password">
-        <VTextField placeholder="Password del entrenador" v-model="props.trainer.password" />
+        <VTextField
+          placeholder="Password del entrenador"
+          v-model="props.trainer.password"
+          :error-messages="validator.password.$errors.map((x) => x.$message.toString())"
+        />
       </InputSection>
     </VCol>
     <VCol cols="12">
       <InputSection label="Phone">
-        <VTextField placeholder="Telefono del entrenador" v-model="props.trainer.phone" />
+        <VTextField
+          placeholder="Telefono del entrenador"
+          v-model="props.trainer.phone"
+          :error-messages="validator.phone.$errors.map((x) => x.$message.toString())"
+        />
       </InputSection>
     </VCol>
     <VCol cols="12">
