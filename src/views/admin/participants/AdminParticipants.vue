@@ -13,7 +13,7 @@ const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
 const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, refetchParticipants, data } = useParticipants();
-const {generateInvitationMutation} = useInvitation()
+const { generateInvitationMutation } = useInvitation()
 const headers = [
   { title: 'Nombre', value: 'name', class: 'my-header-style' },
   { title: 'Correo', value: 'email' },
@@ -40,9 +40,8 @@ const onFilterClear = () => {
 };
 
 const showInvitation = ref(false);
-
 const userId = "FFJKHkjhJKHhjfJKJFzx365jjf";
-const invitationLink = ref(`${userId}`);
+const invitationLink = ref('') 
 const copied = ref(false);
 
 const copyLink = async () => {
@@ -54,6 +53,27 @@ const copyLink = async () => {
     console.error("Error al copiar el enlace:", err);
   }
 };
+
+const handleGenerateInvitation = async () => {
+  const userId = "3936ae5e-0cc1-4375-abc7-520d16999110"; 
+  generateInvitationMutation.mutate(
+    { userId },
+    {
+      onSuccess: (data) => {
+        const { token, userId } = data;
+
+        invitationLink.value = `http://localhost:8080/invite/${userId}?token=${token}`;
+        showInvitation.value = true;
+      },
+      onError: (error) => {
+        console.error('Error al generar la invitación:', error);
+      },
+    }
+  );
+};
+// const onInvit = () => {
+//   generateInvitationMutation.mutate({userId:"3936ae5e-0cc1-4375-abc7-520d16999110"})
+// }
 
 </script>
 <template>
@@ -77,13 +97,13 @@ const copyLink = async () => {
                 </template>
               </VTextField>
               <VSpacer />
-              
-              <VBtn color="primary" @click="showInvitation = true">
+
+              <VBtn color="primary" @click="handleGenerateInvitation">
                 <Icon icon="material-symbols:add-rounded" />
               </VBtn>
               <v-dialog v-model="showInvitation" width="700">
                 <v-card>
-                  <v-card-title>Invitación</v-card-title>
+                  <v-card-title></v-card-title>
                   <v-card-item>
                     <v-text-field type="text" v-model="invitationLink" readonly />
                     <VBtn @click="copyLink">Copiar enlace</VBtn>
@@ -108,7 +128,8 @@ const copyLink = async () => {
         </v-card>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <VDataTable :items="participants" :loading="isParticipantsLoading || criteriaMutations.isPending.value" :headers="headers">
+            <VDataTable :items="participants" :loading="isParticipantsLoading || criteriaMutations.isPending.value"
+              :headers="headers">
             </VDataTable>
           </v-card-text>
         </v-card>
