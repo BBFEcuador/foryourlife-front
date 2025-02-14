@@ -3,7 +3,7 @@ import type { TeamWriteModel } from '@/models/team';
 import { useMutation } from '@tanstack/vue-query';
 
 const saveTeam = async (team: TeamWriteModel): Promise<any> => {
-  const { data } = await api.post('/teams/save', team);
+  const { data } = await api.post('/teams/save1', team);
   return data;
 };
 
