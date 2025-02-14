@@ -3,10 +3,13 @@ import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import useTrainer from '@/composables/admin/trainer/useTrainers';
 import useTrainings from '@/composables/admin/training/useTrainings';
-import type { TeamWriteModel } from '@/models/team';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import type { TeamWriteModel, Training } from '@/models/team';
+import { showErrorToast } from '@/service/sweetAlert';
 import useVuelidate from '@vuelidate/core';
-import { required } from '@vuelidate/validators';
-import { ref } from 'vue';
+import { and, required } from '@vuelidate/validators';
+import type { AxiosError } from 'axios';
+import { ref, watch } from 'vue';
 
 const { saveTeamMutations } = useAdminTeamMutations();
 const { criteriaMutations, isParticipantsError, isParticipantsLoading, participants, refetchParticipants } = useParticipants();
@@ -23,13 +26,31 @@ const rules = {
 };
 
 const validator = useVuelidate(rules, team);
+
+const onSaveTeam = () => {
+  saveTeamMutations.mutate(team.value);
+};
+
+watch(saveTeamMutations.isError, () => {
+  if (saveTeamMutations.isError.value) {
+    const error = saveTeamMutations.error.value as AxiosError<ErrorApiResponse>;
+    showErrorToast(error);
+  }
+});
+
+watch(saveTeamMutations.isSuccess, () => {
+  if (saveTeamMutations.isSuccess.value) {
+    alert('gut');
+  }
+});
 </script>
 
 <template>
   <VTextField placeholder="name" v-model="team.name" />
-  <VSelect multiple :items="participants" item-title="name" return-object placeholder="participantes" />
-  <VSelect :items="trainers" item-title="name" return-object placeholder="entrenador" />
-  <VSelect :items="trainings" item-title="name" return-object placeholder="entrenamiento" />
+  <VSelect multiple :items="participants" item-title="name" return-object placeholder="participantes" v-model="team.users" />
+  <VSelect :items="trainers" item-title="name" item-value="id" placeholder="entrenador" v-model="team.trainer" />
+  <VSelect :items="trainings" item-title="name" item-value="id" placeholder="entrenamiento" v-model="team.training" />
+  <VBtn @click="onSaveTeam">guardar</VBtn>
 </template>
 
 <style scoped></style>
