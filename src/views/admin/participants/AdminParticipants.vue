@@ -93,17 +93,24 @@ const handleGenerateInvitation = async () => {
               </VTextField>
               <VSpacer />
 
-              <VBtn color="primary" @click="handleGenerateInvitation">
-                <Icon icon="material-symbols:add-rounded" />
+              <VBtn icon color="secondary" variant="text" @click="handleGenerateInvitation">
+                <Icon icon="weui:add-friends-filled" height="20" />
               </VBtn>
-              <v-dialog v-model="showInvitation" width="700">
+              <v-dialog v-model="showInvitation" class="mx-auto" width="500">
                 <v-card>
-                  <v-card-title></v-card-title>
-                  <v-card-item>
-                    <v-text-field type="text" v-model="invitationLink" readonly />
-                    <VBtn @click="copyLink">Copiar enlace</VBtn>
-                    <p v-if="copied" style="color: green">¡Enlace copiado!</p>
-                  </v-card-item>
+                    <v-card-title class="text-h3 font-weight-bold">
+                      Invitar Participante
+                    </v-card-title>
+                    <v-card-text>
+                      <v-text-field v-model="invitationLink" readonly outlined dense hide-details class="mb-2">
+                        <template v-slot:append>
+                          <v-btn color="primary" variant="flat" rounded @click="copyLink">
+                            Copiar enlace
+                          </v-btn>
+                        </template>
+                      </v-text-field>
+                      <p v-if="copied" color="success" class="text-caption">¡Enlace copiado!</p>
+                    </v-card-text>
                 </v-card>
               </v-dialog>
               <VBtn variant="text" @click="showFilters = !showFilters" v-if="lgAndUp">
@@ -123,7 +130,8 @@ const handleGenerateInvitation = async () => {
         </v-card>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <VDataTable :items="participants" :loading="isParticipantsLoading || criteriaMutations.isPending.value" :headers="headers">
+            <VDataTable :items="participants" :loading="isParticipantsLoading || criteriaMutations.isPending.value"
+              :headers="headers">
             </VDataTable>
           </v-card-text>
         </v-card>

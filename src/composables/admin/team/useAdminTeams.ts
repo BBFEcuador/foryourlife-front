@@ -8,7 +8,11 @@ const fetchTeams = async (): Promise<any> => {
 
 const useAdminTeams = () => {
   const { data, isFetching, isError } = useQuery({ queryFn: fetchTeams, queryKey: ['admin-teams'] });
-  return {};
+  return {
+    data,
+    isLoading: isFetching,
+    isError,
+  };
 };
 
 export default useAdminTeams;
