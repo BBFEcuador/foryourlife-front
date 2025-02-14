@@ -66,6 +66,11 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/team/AdminTeams.vue')
       },
       {
+        name: 'teams-admin-add',
+        path: 'teams/add',
+        component: () => import('@/views/admin/team/AdminSaveTeam.vue')
+      },
+      {
         name: 'participants-admin',
         path: 'participants',
         component: () => import('@/views/admin/participants/AdminParticipants.vue')

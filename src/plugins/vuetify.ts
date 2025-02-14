@@ -81,6 +81,10 @@ export default createVuetify({
       rounded: 'lg',
       variant: 'outlined'
     },
+    VTextarea: {
+      rounded: 'lg',
+      variant: 'outlined'
+    },
     VSelect: {
       rounded: 'lg',
       variant: 'outlined'

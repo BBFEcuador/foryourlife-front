@@ -8,12 +8,14 @@ import { useDisplay } from 'vuetify';
 import ParticipantFilters from './ParticipantFilters.vue';
 import type { Criteria, Filter } from '@/models/Criteria';
 import useInvitation from '@/composables/invitation/useInvitation';
+import { userStore } from '@/stores/useStore';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
 const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, refetchParticipants, data } = useParticipants();
-const { generateInvitationMutation } = useInvitation()
+const { generateInvitationMutation } = useInvitation();
+const adminStore = userStore();
 const headers = [
   { title: 'Nombre', value: 'name', class: 'my-header-style' },
   { title: 'Correo', value: 'email' },
@@ -40,8 +42,7 @@ const onFilterClear = () => {
 };
 
 const showInvitation = ref(false);
-const userId = "FFJKHkjhJKHhjfJKJFzx365jjf";
-const invitationLink = ref('') 
+const invitationLink = ref('');
 const copied = ref(false);
 
 const copyLink = async () => {
@@ -50,31 +51,25 @@ const copyLink = async () => {
     copied.value = true;
     setTimeout(() => (copied.value = false), 2000);
   } catch (err) {
-    console.error("Error al copiar el enlace:", err);
+    console.error('Error al copiar el enlace:', err);
   }
 };
 
 const handleGenerateInvitation = async () => {
-  const userId = "3936ae5e-0cc1-4375-abc7-520d16999110"; 
+  const userId = adminStore.user.id;
   generateInvitationMutation.mutate(
     { userId },
     {
       onSuccess: (data) => {
-        const { token, userId } = data;
-
-        invitationLink.value = `http://localhost:8080/invite/${userId}?token=${token}`;
+        invitationLink.value = `${window.location.origin}/register/${data}`;
         showInvitation.value = true;
       },
       onError: (error) => {
         console.error('Error al generar la invitación:', error);
-      },
+      }
     }
   );
 };
-// const onInvit = () => {
-//   generateInvitationMutation.mutate({userId:"3936ae5e-0cc1-4375-abc7-520d16999110"})
-// }
-
 </script>
 <template>
   <BaseBreadcrumb :title="'Participantes'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
@@ -107,7 +102,7 @@ const handleGenerateInvitation = async () => {
                   <v-card-item>
                     <v-text-field type="text" v-model="invitationLink" readonly />
                     <VBtn @click="copyLink">Copiar enlace</VBtn>
-                    <p v-if="copied" style="color: green;">¡Enlace copiado!</p>
+                    <p v-if="copied" style="color: green">¡Enlace copiado!</p>
                   </v-card-item>
                 </v-card>
               </v-dialog>
@@ -128,8 +123,7 @@ const handleGenerateInvitation = async () => {
         </v-card>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <VDataTable :items="participants" :loading="isParticipantsLoading || criteriaMutations.isPending.value"
-              :headers="headers">
+            <VDataTable :items="participants" :loading="isParticipantsLoading || criteriaMutations.isPending.value" :headers="headers">
             </VDataTable>
           </v-card-text>
         </v-card>

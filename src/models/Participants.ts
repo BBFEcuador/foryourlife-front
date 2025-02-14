@@ -1,6 +1,7 @@
 export interface Participant {
   id: string;
   email: string;
+  token: string;
   password: string;
   name: string;
   phone: string;
