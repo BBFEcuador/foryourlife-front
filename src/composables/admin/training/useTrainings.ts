@@ -1,5 +1,5 @@
 import { api } from '@/api/axios';
-import type { Training } from '@/models/team';
+import type { Training } from '@/models/Team';
 import { useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 

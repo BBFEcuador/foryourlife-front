@@ -1,5 +1,5 @@
 import { api } from '@/api/axios';
-import type { TeamWriteModel } from '@/models/team';
+import type { TeamWriteModel } from '@/models/Team';
 import { useMutation } from '@tanstack/vue-query';
 
 const saveTeam = async (team: TeamWriteModel): Promise<any> => {

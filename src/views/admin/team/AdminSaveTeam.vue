@@ -4,7 +4,7 @@ import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutation
 import useTrainer from '@/composables/admin/trainer/useTrainers';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
-import type { TeamWriteModel, Training } from '@/models/team';
+import type { TeamWriteModel, Training } from '@/models/Team';
 import { showErrorToast } from '@/service/sweetAlert';
 import useVuelidate from '@vuelidate/core';
 import { and, required } from '@vuelidate/validators';
