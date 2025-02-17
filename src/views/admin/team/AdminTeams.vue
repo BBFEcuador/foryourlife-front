@@ -5,6 +5,8 @@ import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 import type { Criteria, Filter } from '@/models/Criteria';
 import TeamFilters from './TeamFilters.vue';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import { router } from '@/router';
 
 const { data, isError, isLoading, criteriaMutations, refetchTeams } = useAdminTeams();
 
@@ -34,6 +36,14 @@ const headers = ref([
   { title: 'Nivel', value: 'participantLevel.courseLevel' },
   { title: 'Acciones', value: 'actions', width: 50 }
 ]);
+
+const refreshTeams = () => {
+  refetchTeams();
+};
+
+const addTeam = () => {
+  router.push({ name: 'teams-admin-add' });
+};
 const teams = [{
   name: 'Nombre1',
   email: 'correo1',
@@ -76,6 +86,11 @@ const teams = [{
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
             <div class="w-full d-flex">
+              <VBtn variant="text" color="primary" @click="refreshTeams">
+                <template #prepend>
+                  <Icon icon="material-symbols:refresh" height="25" />
+                </template>
+              </VBtn>
               <VTextField placeholder="buscar" hide-details>
                 <template #prepend-inner>
                   <Icon icon="material-symbols:search" />
@@ -93,6 +108,9 @@ const teams = [{
                   <Icon icon="material-symbols:filter-alt" height="16" />
                 </template>
                 <p>Filtros</p>
+              </VBtn>
+              <VBtn color="secondary" variant="text" @click="addTeam">
+                  <Icon icon="weui:add-friends-filled" height="20" class="mr-2" />Nuevo Equipo
               </VBtn>
             </div>
           </v-card-text>
