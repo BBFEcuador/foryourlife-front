@@ -154,7 +154,7 @@ const handleGenerateInvitation = async () => {
         </v-card>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <VDataTable :items="participantsTest" :loading="isParticipantsLoading || criteriaMutations.isPending.value"
+            <VDataTable :items="participants" :loading="isParticipantsLoading || criteriaMutations.isPending.value"
               :headers="headers">
             </VDataTable>
           </v-card-text>

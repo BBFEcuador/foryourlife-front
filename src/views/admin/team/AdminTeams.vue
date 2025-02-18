@@ -44,31 +44,7 @@ const refreshTeams = () => {
 const addTeam = () => {
   router.push({ name: 'teams-admin-add' });
 };
-const teams = [{
-  name: 'Nombre1',
-  email: 'correo1',
-  phone: 'telefono1',
-  participantLevel: { courseLevel: 'nivel1' },
-},
-{
-  name: 'Nombre2',
-  email: 'correo2',
-  phone: 'telefono2',
-  participantLevel: { courseLevel: 'nivel2' },
-},
-{
-  name: 'Nombre3',
-  email: 'correo3',
-  phone: 'telefono3',
-  participantLevel: { courseLevel: 'nivel3' },
-},
-{
-  name: 'Nombre4',
-  email: 'correo4',
-  phone: 'telefono4',
-  participantLevel: { courseLevel: 'nivel3' },
-},
-]
+
 </script>
 
 <template>
@@ -117,7 +93,7 @@ const teams = [{
         </v-card>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <VDataTable :items="teams" :headers="headers">
+            <VDataTable :items="data" :headers="headers">
             </VDataTable>
           </v-card-text>
         </v-card>
