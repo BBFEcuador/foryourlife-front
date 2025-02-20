@@ -153,39 +153,40 @@ const onTrainingSelected = (training: Training) => {
   </v-fade-transition>
 
   <v-dialog v-model="showResume" max-width="600px">
-    <v-card>
-      <v-card-title class="text-h5 bg-primary text-center py-4">Resumen del Equipo</v-card-title>
-      <v-divider></v-divider>
+    <v-card class="d-flex gap-4">
+      <h4 class="text-h4 bg-primary text-center py-4">Resumen del Equipo</h4>
       <v-card-text>
-        <v-list-item-title class="font-weight-bold">Nombre del Equipo:</v-list-item-title>
-        <v-list-item-subtitle class="text-h6">{{ team.name }}</v-list-item-subtitle>
-        <v-card variant="outlined" class="d-flex flex-column align-center justify-center p-4">
+        <h5 class="text-h5">Nombre del Equipo: <strong>{{ team.name }}</strong></h5>
           <v-row>
-            <v-col cols="12" md="6">
-              <h5 class="text-h5 pb-2">Entrenador:</h5>
-              <div class="upload-btn-wrapper position-relative overflow-hidden d-flex justify-center" elevation="10">
-                <v-avatar size="100" class="mt-2">
-                  <v-img :src="getDicebearAvatarUrl(selectedTrainer?.name!)" alt="Avatar" />
-                </v-avatar>
-              </div>
-              <p class="text-12 textSecondary text-center mt-5">
-                {{ selectedTrainer?.name }}
-              </p>
+            <v-col cols="12" sm="6" class="justify-center d-flex align-self-stretch">
+              <v-card height="100%" class="cursor-pointer pa-4 hover:shadow-xl d-flex flex-column justify-space-between"
+                variant="outlined">
+                <h5 class=" text-h5 text-center pb-2">Entrenador:</h5>
+                <div class="upload-btn-wrapper position-relative overflow-hidden d-flex justify-center" elevation="10">
+                  <v-avatar size="100" class="mt-2">
+                    <v-img :src="getDicebearAvatarUrl(selectedTrainer?.name!)" alt="Avatar" />
+                  </v-avatar>
+                </div>
+                <p class="text-12 textSecondary text-center mt-5">
+                  {{ selectedTrainer?.name }}
+                </p>
+              </v-card>
             </v-col>
-            <v-col cols="12" md="6">
-              <h5 class="text-h5 pb-2">Entrenamiento:</h5>
-              <div class="upload-btn-wrapper position-relative overflow-hidden d-flex justify-center" elevation="10">
-            <v-avatar size="100" class="mt-2">
-              <v-img :src="getInitialsAvatarUrl(selectedTraining?.name!)" alt="Avatar" />
-            </v-avatar>
-          </div>
-          <p class="text-12 textSecondary text-center mt-5">
-            {{ selectedTrainer?.name }}
-          </p>
+            <v-col cols="12" sm="6" class="justify-center d-flex align-self-stretch">
+              <v-card height="100%" class="cursor-pointer pa-4 hover:shadow-xl d-flex flex-column justify-space-between"
+                variant="outlined">
+                <h5 class="text-h5 text-center pb-2">Entrenamiento:</h5>
+                <div class="upload-btn-wrapper position-relative overflow-hidden d-flex justify-center" elevation="10">
+                  <v-avatar size="100" class="mt-2">
+                    <v-img :src="getInitialsAvatarUrl(selectedTraining?.name!)" alt="Avatar" />
+                  </v-avatar>
+                </div>
+                <p class="text-12 textSecondary text-center mt-5">
+                  {{ selectedTraining?.name }} - {{ selectedTraining?.courseLevel }}
+                </p>
+              </v-card>
             </v-col>
-
           </v-row>
-        </v-card>
         <v-list-item-title class="font-weight-bold">Participantes:</v-list-item-title>
         <v-list>
           <v-list-item v-for="participant in selectedParticipants" :key="participant.id">
