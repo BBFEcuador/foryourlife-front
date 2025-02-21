@@ -8,8 +8,9 @@ import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutation
 import useTrainer from '@/composables/admin/trainer/useTrainers';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import type { Participant } from '@/models/Participants';
-import type { TeamWriteModel, Training } from '@/models/Team';
+import type { TeamWriteModel } from '@/models/Team';
 import type { Trainers } from '@/models/Trainers';
+import type { Training } from '@/models/Training';
 import { getDicebearAvatarUrl, getInitialsAvatarUrl } from '@/service/getAvatar';
 import { ref, watch } from 'vue';
 import { TeapotIcon } from 'vue-tabler-icons';

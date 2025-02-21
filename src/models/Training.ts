@@ -1,13 +1,13 @@
 import type { Campus } from './Campus';
 
-export interface Training {
+export interface TrainingData {
   id: string;
   number: number;
   name: string;
   startDate: string;
   endDate: string;
   courseLevel: string;
-  nextLevel: Training;
+  nextLevel: TrainingData;
   campus: Campus;
   state: boolean;
 }

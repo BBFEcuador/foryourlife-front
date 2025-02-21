@@ -1,6 +1,6 @@
 import type { Campus } from './Campus';
 import type { Participant } from './Participants';
-import type { Trainers } from './Trainers';
+
 
 export interface TeamWriteModel {
   id: string;
@@ -11,14 +11,3 @@ export interface TeamWriteModel {
   users: Participant[];
 }
 
-export interface Training {
-  id: string;
-  number: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  courseLevel: string;
-  nextLevel: string;
-  campus: Campus;
-  state: boolean;
-}

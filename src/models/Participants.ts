@@ -1,3 +1,6 @@
+import type { Trainers } from "./Trainers";
+import type { TrainingData } from "./Training";
+
 export interface Participant {
   id: string;
   email: string;
@@ -9,6 +12,10 @@ export interface Participant {
   profile: Profile;
   invitationToken: string;
   roleId: string;
+  lingerer: boolean;
+  contacts: any[];
+  modules: Modules;
+  team: Team;
 }
 
 export interface ParticipantLevel {
@@ -27,4 +34,21 @@ export interface Profile {
   dni: string;
   city: string;
   birthday: string;
+}
+
+export interface Modules {
+  id: string
+  hasFocus: boolean
+  hasYour: boolean
+  hasLife: boolean
+}
+
+export interface Team {
+  id: string
+  name: string
+  photo: string
+  trainingNumber: number
+  masterLife: any
+  trainer: Trainers
+  training: TrainingData
 }

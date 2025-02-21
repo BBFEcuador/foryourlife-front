@@ -6,13 +6,13 @@ import { ref, watch } from "vue";
 const participant = ref<Participant>({} as Participant);
 
 const fetchParticipant = async (id: string): Promise<Participant> => {
-    const { data } = await api.get(`/usesrs/` + id);
+    const { data } = await api.get(`/users/` + id);
     return data;
 }
 
 const useParticipant = (id: string) => {
     const { data, isError, isFetching } = useQuery({ 
-        queryKey: ['participant', id],
+        queryKey: ['participant', id], 
         queryFn: () => fetchParticipant(id)
     });
     watch(data, () => {
