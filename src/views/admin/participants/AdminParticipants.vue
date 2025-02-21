@@ -9,6 +9,7 @@ import ParticipantFilters from './ParticipantFilters.vue';
 import type { Criteria, Filter } from '@/models/Criteria';
 import useInvitation from '@/composables/invitation/useInvitation';
 import { userStore } from '@/stores/useStore';
+import { router } from '@/router';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
@@ -94,6 +95,10 @@ const handleGenerateInvitation = async () => {
     }
   );
 };
+
+const editParticipant = (item: string) => {
+  router.push({ name: 'participants-admin-edit', params: { id: item } });
+};
 </script>
 <template>
   <BaseBreadcrumb :title="'Participantes'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
@@ -156,6 +161,11 @@ const handleGenerateInvitation = async () => {
           <v-card-text>
             <VDataTable :items="participants" :loading="isParticipantsLoading || criteriaMutations.isPending.value"
               :headers="headers">
+              <template v-slot:item.actions="{ item }">
+                <VBtn icon color="primary" @click="editParticipant(item.id)">
+                  <Icon icon="akar-icons:edit" />
+                </VBtn>
+                </template>
             </VDataTable>
           </v-card-text>
         </v-card>

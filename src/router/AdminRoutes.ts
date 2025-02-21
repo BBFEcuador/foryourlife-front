@@ -77,6 +77,11 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/participants/AdminParticipants.vue')
       },
       {
+        name: 'participants-admin-edit',
+        path: 'participants/edit/:id',
+        component: () => import('@/views/admin/participants/EditParticipants.vue')
+      },
+      {
         name: 'calendar-admin',
         path: 'calendar',
         component: () => import('@/views/admin/calendar/Calendar.vue')
