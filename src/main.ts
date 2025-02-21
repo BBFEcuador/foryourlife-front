@@ -5,6 +5,7 @@ import { router } from './router';
 import vuetify from './plugins/vuetify';
 import pluginPiniaPersist from 'pinia-plugin-persistedstate';
 import '@/scss/style.scss';
+import '@/scss/tailwind.css';
 import { PerfectScrollbarPlugin } from 'vue3-perfect-scrollbar';
 import VueApexCharts from 'vue3-apexcharts';
 import VueTablerIcons from 'vue-tabler-icons';

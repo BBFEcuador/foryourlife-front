@@ -6,7 +6,7 @@ import { ref, watch } from "vue";
 const participant = ref<Participant>({} as Participant);
 
 const fetchParticipant = async (id: string): Promise<Participant> => {
-    const { data } = await api.get(`/users/` + id);
+    const { data } = await api.get(`/usesrs/` + id);
     return data;
 }
 
