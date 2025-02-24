@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import IntroCard from '@/components/participants/IntroCard.vue';
+import ModuleUpdate from '@/components/participants/ModuleUpdate.vue';
 import ParticipantBanner from '@/components/participants/ParticipantBanner.vue';
 import ParticipantUpdate from '@/components/participants/ParticipantUpdate.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import useParticipant from '@/composables/admin/participants/useParticipant';
-import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -14,7 +14,7 @@ const breadcrumbs = ref([
     {
         title: 'Entrenamiento',
         disabled: false,
-        href: '#'
+        href: '/admin'
     }
 ]);
 const { isParticipantError, isParticipantLoading, participant } = useParticipant(route.params.id.toString());
@@ -31,15 +31,12 @@ const { isParticipantError, isParticipantLoading, participant } = useParticipant
         <v-col cols="12" v-else>
             <ParticipantBanner :participant class="mb-2"/>
             <v-row>
-                <VCol cols="12" md="4" sm="6" class="tw:flex tw:flex-col tw:items-center">
+                <VCol cols="12" md="3" sm="6" class="tw:flex tw:flex-col tw:items-center">
                     <IntroCard :participant/>           
                 </VCol>
-                <VCol cols="12" md="8" sm="6">
+                <VCol cols="12" md="9" sm="6" class="tw:grid tw:grid-cols-1 tw:md:grid-cols-2 tw:gap-4">
                     <ParticipantUpdate :participant/>
-                    <!-- <VTextField v-model="participant.email" label="Correo electrónico" type="email" required /> -->
-                </VCol>
-                <VCol cols="12">
-                    <VBtn type="submit" color="primary">Actualizar</VBtn>
+                    <ModuleUpdate :participant/>
                 </VCol>
             </v-row>
         </v-col>

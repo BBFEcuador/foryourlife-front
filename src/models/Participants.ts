@@ -18,6 +18,24 @@ export interface Participant {
   team: Team;
 }
 
+export interface ParticipantUpdate {
+  id: string;
+  email: string;
+  token: string;
+  password: string;
+  name: string;
+  phone: string;
+  profile: Profile;
+  invitationToken: string;
+  roleId: string;
+  lingerer: boolean;
+}
+
+export interface ParticipantLevelUpdate {
+  id: string;
+  modules: Modules;
+}
+
 export interface ParticipantLevel {
   id: string;
   roleName: string;
@@ -50,5 +68,11 @@ export interface Team {
   trainingNumber: number
   masterLife: any
   trainer: Trainers
-  training: TrainingData
+  training: TrainingData,
+  trainingData?: {
+    endDate: string;
+    name: string;
+    curseLevel: string;
+    startDate: string;
+  };
 }

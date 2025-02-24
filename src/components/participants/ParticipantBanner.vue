@@ -48,11 +48,7 @@ const props = defineProps<props>();
                         <span class="textSecondary font-weight-regular">Estudiante</span>
                     </div>
                 </v-col>
-                <v-col cols="12" lg="4" class="d-flex align-center justify-center justify-lg-end order-sm-third">
-                    <div class="d-flex align-center justify-space-between px-10 py-1 gap-3">
-                        <v-btn variant="flat" color="primary">Actualizar</v-btn>
-                    </div>
-                </v-col>
+                
             </v-row>
         </div>
     </v-card>
