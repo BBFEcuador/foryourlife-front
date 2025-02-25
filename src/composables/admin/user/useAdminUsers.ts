@@ -15,7 +15,7 @@ const useAdminUsers = () => {
 
   watch(data, () => {
     if (data.value) {
-      users.value = data.value;
+      users.value = JSON.parse(JSON.stringify(data.value));
     }
   });
   return {

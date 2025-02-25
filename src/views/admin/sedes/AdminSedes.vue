@@ -21,12 +21,8 @@ const headers = [
   { title: 'Ciudad', value: 'city' },
   { title: 'Dirección', value: 'address' },
   { title: 'Teléfono', value: 'phone' },
-  { title: 'Acciones', value: 'actions' }
 ];
 
-const editCampus = () => {};
-
-const deleteCampus = () => {};
 </script>
 <template>
   <BaseBreadcrumb :title="'Sedes'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
@@ -49,16 +45,6 @@ const deleteCampus = () => {};
               </VTextField>
               <v-spacer></v-spacer>
             </v-toolbar>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <div class="d-flex ga-2">
-              <v-btn icon color="primary" @click="editCampus()">
-                <Icon icon="mdi-edit" height="18" />
-              </v-btn>
-              <v-btn small color="error" @click="deleteCampus()" icon>
-                <Icon icon="mdi-delete" height="18" />
-              </v-btn>
-            </div>
           </template>
           <template v-slot:no-data>
             <tr>

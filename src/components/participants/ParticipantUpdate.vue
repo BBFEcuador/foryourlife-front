@@ -5,6 +5,8 @@ import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
 import { toast } from 'vue3-toastify';
 import InputSection from '../forms/InputSection.vue';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import { showErrorToast } from '@/service/sweetAlert';
 
 const props = defineProps<props>();
 const emits = defineEmits(['onSubmit']);
@@ -16,26 +18,21 @@ const { updateParticipantMutation } = useParticipantMutations();
 
 const onSubmitParticipant = () => {
     let participantUpdate = { ...props.participant }
-    delete participantUpdate['modules'];
-    delete participantUpdate['participantLevel'];
-    delete participantUpdate['contacts'];
-    delete participantUpdate['team'];
     updateParticipantMutation.mutate(participantUpdate);
 }
 
 watch(updateParticipantMutation.isError, () => {
     if (updateParticipantMutation.isError.value) {
-        let errorMessage = 'Error en el servidor';
-        let error = updateParticipantMutation.error.value as AxiosError<{
-            message: string;
-        }>;
-        if (error.response?.data?.message) {
-            errorMessage = JSON.stringify(error.response?.data?.message);
-        }
-        toast.error(errorMessage, {
+        const error = updateParticipantMutation.error.value as AxiosError<ErrorApiResponse>;
+        showErrorToast(error)
+    }
+})
+
+watch(updateParticipantMutation.isSuccess, () => {
+    if (updateParticipantMutation.isSuccess.value) {
+        toast.success("Actualizado", {
             autoClose: 3000,
             closeButton: true
-
         })
     }
 })
@@ -51,14 +48,17 @@ watch(updateParticipantMutation.isError, () => {
             <v-text-field v-model="props.participant.phone" label="Teléfono" variant="outlined" />
             <v-text-field v-model="props.participant.profile.address" label="Dirección" variant="outlined" />
             <v-text-field v-model="props.participant.profile.occupation" label="Ocupación" variant="outlined" />
-            <v-text-field label="Género" variant="outlined"
-                :value="props.participant.profile.gender === 'M' ? 'Masculino' : 'Femenino'" />
+            <v-select :items="[
+                { label: 'Mujer', value: 'M' },
+                { label: 'Hombre', value: 'H' }
+            ]" item-title="label" item-value="value" label="Género" variant="outlined"
+                v-model="props.participant.profile.gender" />
             <v-text-field v-model="props.participant.profile.civilStatus" label="Estado Civil" variant="outlined" />
             <v-text-field v-model="props.participant.profile.city" label="Ciudad" variant="outlined" />
             <v-text-field v-model="props.participant.profile.dni" label="Cédula" variant="outlined" />
             <v-text-field v-model="props.participant.profile.birthday" label="Fecha de Nacimiento" variant="outlined" />
             <v-spacer />
-            <v-btn color="primary" @click="onSubmitParticipant">Actualizar</v-btn>
+            <v-btn color="primary" @click="onSubmitParticipant" :loading="updateParticipantMutation.isPending.value">Actualizar</v-btn>
         </v-card-item>
     </v-card>
 </template>

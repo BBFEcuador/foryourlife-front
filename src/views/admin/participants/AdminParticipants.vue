@@ -26,30 +26,6 @@ const headers = [
   { title: 'Acciones', value: 'actions', width: 50 }
 ];
 
-const participantsTest = [
-  {
-    name: 'Nombre1',
-    email: 'correo1',
-    phone: 'telefono1',
-    participantLevel: { courseLevel: 'nivel1' },
-    profile: { dni: 'documento1' }
-  },
-  {
-    name: 'Nombre2',
-    email: 'correo2',
-    phone: 'telefono2',
-    participantLevel: { courseLevel: 'nivel2' },
-    profile: { dni: 'documento2' }
-  },
-  {
-    name: 'Nombre3',
-    email: 'correo3',
-    phone: 'telefono3',
-    participantLevel: { courseLevel: 'nivel3' },
-    profile: { dni: 'documento3' }
-  }
-];
-
 const breadcrumbs = ref([
   {
     title: 'Entrenamiento',

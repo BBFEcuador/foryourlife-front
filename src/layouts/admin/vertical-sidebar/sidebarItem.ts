@@ -58,11 +58,6 @@ const sidebarItem: menu[] = [
     ]
   },
   {
-    title: 'Calendario',
-    icon: 'material-symbols:calendar-month-rounded',
-    to: 'calendar-admin'
-  },
-  {
     title: 'Generales',
     icon: 'material-symbols:settings',
     children: [

@@ -13,7 +13,7 @@ import { Icon } from '@iconify/vue';
 
 const { deleteEventMutation, updateEventMutation } = useCalendarMutations();
 
-const { calendar, isFetching, isError } = useCalendar();
+const { data, isFetching, isError } = useCalendar();
 
 const updateModalShow = ref(false);
 const viewModalShow = ref(false);
@@ -56,7 +56,7 @@ const calendarOptions = {
   locale: LocaleEs,
   editable: true,
   selectable: true,
-  events: calendar.value as EventInput[],
+  events: data.value as EventInput[],
   eventClick: handleEventClick,
   select: handleDateSelect,
 };

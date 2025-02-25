@@ -5,8 +5,14 @@ export interface Admin {
   name: string;
   email: string;
   password: string;
+  active: boolean;
   role: Role;
   campus: Campus[];
+}
+
+export interface UserActive {
+  id: string;
+  isActive: boolean;
 }
 
 export interface Role {

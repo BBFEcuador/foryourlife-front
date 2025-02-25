@@ -11,9 +11,11 @@ import { v4 as uuidv4 } from 'uuid';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { showErrorToast } from '@/service/sweetAlert';
+import Swal from 'sweetalert2';
+import { toast } from 'vue3-toastify';
 
 const { isError, isFetching, trainers } = useTrainer();
-const { saveTrainerMutations } = useTrainerMutations();
+const { saveTrainerMutations, disableTrainerMutation } = useTrainerMutations();
 const breadcrumbs = ref([
   {
     title: 'Entrenamiento',
@@ -59,6 +61,51 @@ const onTrainerSelected = (item: Trainers) => {
   trainer.value = { ...item };
   showForm.value = true;
 };
+
+const onToggleUserStatus = (user: Trainers) => {
+  const isCurrentlyActive = user.active;
+  const action = isCurrentlyActive ? "desactivar" : "activar";
+  const confirmText = isCurrentlyActive ? "Desactivar" : "Activar";
+  const confirmColor = isCurrentlyActive ? "#d33" : "#3085d6";
+
+  Swal.fire({
+    title: `¿Estás seguro de ${action} este Entrenador?`,
+    text: `Estás a punto de ${action} el Entrenador ${user.name}. ¿Deseas continuar?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: confirmColor,
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: confirmText,
+    cancelButtonText: "Cancelar",
+  }).then((params) => {
+    if (params.isConfirmed) {
+      disableTrainerMutation.mutate({
+        id: user.id,
+        isActive: !isCurrentlyActive,
+      });
+    }
+  });
+};
+
+watch(disableTrainerMutation.isSuccess, () => {
+  if (disableTrainerMutation.isSuccess.value) {
+    trainers.value.find(x => x.id == disableTrainerMutation.variables.value?.id)!.active = disableTrainerMutation.variables.value!.isActive!
+    toast.success("Acción Exitosa", {
+      autoClose: 3000,
+      closeButton: true
+    })
+  }
+}
+)
+
+watch(disableTrainerMutation.isError, () => {
+  if (disableTrainerMutation.isError.value) {
+    const error = disableTrainerMutation.error.value as AxiosError<ErrorApiResponse>
+    showErrorToast(error)
+  }
+}
+)
+
 </script>
 <template>
   <BaseBreadcrumb :title="'Entrenadores'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
@@ -84,9 +131,18 @@ const onTrainerSelected = (item: Trainers) => {
             </v-toolbar>
           </template>
           <template #item.actions="{ item }">
-            <VBtn icon variant="tonal" color="success" @click="onTrainerSelected(item)">
-              <Icon icon="tabler:pencil-check" />
-            </VBtn>
+            <div class="d-flex ga-2">
+
+              <VBtn icon variant="tonal" color="success" @click="onTrainerSelected(item)">
+                <Icon icon="tabler:pencil-check" />
+              </VBtn>
+              <v-btn small :color="item.active ? 'error' : 'success'" icon size="small"
+              @click="onToggleUserStatus(item)">
+              <Icon :icon="item.active
+                  ? 'mdi-power'
+                  : 'mdi-power-off'" height="18" />
+              </v-btn>
+            </div>
           </template>
         </v-data-table>
       </UiParentCard>

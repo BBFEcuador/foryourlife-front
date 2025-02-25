@@ -13,18 +13,6 @@ function allowedDates(val: unknown) {
     return parseInt(adapter.toISO(val).split('-')[2], 10) % 2 === 0
 }
 
-// Components
-
-// 👉 Store
-
-// 👉 Event
-
-
-
-// 👉 useCalendar
-
-// SECTION Sidebar
-// 👉 Check all
 
 const breadcrumbs = ref([
     {
@@ -41,7 +29,7 @@ const breadcrumbs = ref([
 
         <v-col cols="12">
             <UiParentCard>
-                <FullCalender />
+                <FullCalender :program="programs" />
             </UiParentCard>
         </v-col>
     </v-row>
