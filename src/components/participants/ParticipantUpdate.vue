@@ -40,10 +40,6 @@ watch(updateParticipantMutation.isError, () => {
     }
 })
 
-
-
-const properties = ref(['FOCUS', 'YOUR', 'LIFE']);
-
 </script>
 
 <template>

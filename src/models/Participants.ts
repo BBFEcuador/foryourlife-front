@@ -15,7 +15,7 @@ export interface Participant {
   lingerer: boolean;
   contacts: any[];
   modules: Modules;
-  team: Team;
+  team?: Team;
 }
 
 export interface ParticipantUpdate {

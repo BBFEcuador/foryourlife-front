@@ -26,7 +26,7 @@ const props = defineProps<props>();
                         <v-row class="justify-center">
                             <v-col cols="6" class="d-flex flex-column align-center">
                                 <Icon icon="fluent:people-team-16-filled" height="20"></Icon>
-                                <h4 class="text-h4">{{ participant.team.name }}</h4>
+                                <h4 class="text-h4">{{ participant?.team?.name ?? 'N/A' }}</h4>
                                 <h6 class="text-h6 font-weight-regular">Equipo</h6>
                             </v-col>
                             <v-col cols="6" class="d-flex flex-column align-center">
