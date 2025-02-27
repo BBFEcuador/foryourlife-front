@@ -35,6 +35,7 @@
     "apexcharts": "4.3.0",
     "axios": "^1.7.9",
     "lodash": "4.17.21",
+    "moment": "^2.30.1",
     "pinia": "2.3.0",
     "pinia-plugin-persistedstate": "^4.2.0",
     "resolve-url-loader": "^5.0.0",

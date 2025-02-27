@@ -15,35 +15,18 @@ const addEvent = async (event: Calendar) => {
   }
 };
 
-const updateEvent = async (event: Calendar) => {
-  try {
-    const response = await api.put(`/events/${event.id}`, event);
-    const index = events.value.findIndex((e) => e.id === event.id);
-    if (index !== -1) {
-      events.value[index] = response.data;
-    }
-  } catch (error) {
-    console.error('Error updating event:', error);
-  }
+const updateEvent = async (event: { id: string; startDate: string }) => {
+  const {data} = await api.put(`/admin/training/date`, event);
+  return data
 };
 
-const deleteEvent = async (eventId: string) => {
-  try {
-    await api.delete(`/events/${eventId}`);
-    events.value = events.value.filter((e) => e.id !== eventId);
-  } catch (error) {
-    console.error('Error deleting event:', error);
-  }
-};
 
 const useCalendarMutations = () => {
-    const addEventMutation = useMutation({mutationFn: addEvent})
-    const updateEventMutation = useMutation({mutationFn: updateEvent })
-    const deleteEventMutation = useMutation({mutationFn: deleteEvent})
-    return {
-        addEventMutation,
-        updateEventMutation,
-        deleteEventMutation
-    };
+  const addEventMutation = useMutation({ mutationFn: addEvent });
+  const updateEventMutation = useMutation({ mutationFn: updateEvent });
+  return {
+    addEventMutation,
+    updateEventMutation,
+  };
 };
 export default useCalendarMutations;

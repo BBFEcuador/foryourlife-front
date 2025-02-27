@@ -84,7 +84,7 @@ const AdminRoutes: RouteRecordRaw[] = [
       {
         name: 'calendar-admin',
         path: 'calendar',
-        component: () => import('@/views/admin/calendar/Calendar.vue')
+        component: () => import('@/views/admin/programs/AdminPrograms.vue')
       }
     ]
   }
