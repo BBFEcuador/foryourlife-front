@@ -40,7 +40,7 @@ const onFilerClear = () => {
   <v-list v-model:opened="open" class="custome-filter" v-auto-animate>
     <v-list-group value="Tipo">
       <template v-slot:activator="{ props }">
-        <v-list-item v-bind="props" title="Tipo" class="px-0" :ripple="false"></v-list-item>
+        <v-list-item v-bind="props" title="Tipo" class="px-5" :ripple="false"></v-list-item>
       </template>
       <v-list-item :title="'Focus'" v-model="userTipe">
         <template v-slot:prepend="{ isSelected }">
@@ -67,7 +67,7 @@ const onFilerClear = () => {
     <VDivider />
     <v-list-group value="City">
       <template v-slot:activator="{ props }">
-        <v-list-item v-bind="props" title="Sede" class="px-0" :ripple="false"></v-list-item>
+        <v-list-item v-bind="props" title="Sede" class="px-5" :ripple="false"></v-list-item>
       </template>
       <v-list-item :title="'Quito'">
         <template v-slot:prepend="{ isSelected }">
