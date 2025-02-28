@@ -31,10 +31,10 @@ const onFilterClear = () => {
 };
 const headers = ref([
   { title: 'Nombre', value: 'name', class: 'my-header-style' },
-  { title: 'Correo', value: 'email' },
-  { title: 'Telefono', value: 'phone' },
-  { title: 'Nivel', value: 'participantLevel.courseLevel' },
-  { title: 'Acciones', value: 'actions', width: 50 }
+  { title: 'Entrenador', value: 'trainer.name' },
+  { title: 'Correo', value: 'trainer.email' },
+  { title: 'Inicio de Clase', value: 'trainingData.startDate' },
+  { title: 'Fin de Clase', value: 'trainingData.endDate' },
 ]);
 
 const refreshTeams = () => {

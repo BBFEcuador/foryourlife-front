@@ -6,7 +6,6 @@ export interface TeamWriteModel {
   name: string;
   photo: string;
   training: string;
-
   trainer: string;
   users: Participant[];
 }

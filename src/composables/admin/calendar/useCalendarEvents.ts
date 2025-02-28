@@ -6,27 +6,22 @@ import { useMutation } from '@tanstack/vue-query';
 
 const events = ref<Calendar[]>([]);
 
-const addEvent = async (event: Calendar) => {
-  try {
-    const response = await api.post('/events', event);
-    events.value.push(response.data);
-  } catch (error) {
-    console.error('Error adding event:', error);
-  }
+const addEvent = async (event: { startDate: string; numberOfFocus: number; campusId: string }) => {
+  const data = await api.post('/admin/training/generate', event);
+  return data;
 };
 
 const updateEvent = async (event: { id: string; startDate: string }) => {
-  const {data} = await api.put(`/admin/training/date`, event);
-  return data
+  const { data } = await api.put(`/admin/training/date`, event);
+  return data;
 };
-
 
 const useCalendarMutations = () => {
   const addEventMutation = useMutation({ mutationFn: addEvent });
   const updateEventMutation = useMutation({ mutationFn: updateEvent });
   return {
     addEventMutation,
-    updateEventMutation,
+    updateEventMutation
   };
 };
 export default useCalendarMutations;

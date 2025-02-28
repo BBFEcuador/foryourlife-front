@@ -3,6 +3,7 @@ import ParticipantsSelect from '@/components/participants/ParticipantsSelect.vue
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import TrainerCarousel from '@/components/trainers/TrainerCarousel.vue';
 import TrainingCarousel from '@/components/trainings/TrainingCarousel.vue';
+import TrainingList from '@/components/trainings/TrainingList.vue';
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import useTrainer from '@/composables/admin/trainer/useTrainers';
@@ -10,10 +11,10 @@ import useTrainings from '@/composables/admin/training/useTrainings';
 import type { Participant } from '@/models/Participants';
 import type { TeamWriteModel } from '@/models/Team';
 import type { Trainers } from '@/models/Trainers';
-import type { Training } from '@/models/Training';
+import type { TrainingData } from '@/models/Training';
 import { getDicebearAvatarUrl, getInitialsAvatarUrl } from '@/service/getAvatar';
+import moment from 'moment';
 import { ref, watch } from 'vue';
-import { TeapotIcon } from 'vue-tabler-icons';
 
 const breadcrumbs = ref([
   {
@@ -35,7 +36,7 @@ const team = ref({
 const showForm2 = ref(false);
 
 const selectedTrainer = ref<Trainers>();
-const selectedTraining = ref<Training>();
+const selectedTraining = ref<TrainingData | null>(null);
 const selectedParticipants = ref<Participant[]>([]);
 const showResume = ref(false);
 
@@ -43,10 +44,6 @@ const openResumeDialog = () => {
   showResume.value = true;
 };
 const currentStep = ref(1);
-const resetWizard = () => {
-  currentStep.value = 1;
-  team.value.name = "";
-};
 
 watch(() => team.value.name, () => {
   if (team.value.name) {
@@ -55,6 +52,12 @@ watch(() => team.value.name, () => {
 }, { immediate: true });
 
 const onSaveTeam = () => {
+  team.value.trainer = selectedTrainer.value!.id
+  team.value.training = selectedTraining.value!.id
+  team.value.users = JSON.parse(JSON.stringify(selectedParticipants.value))
+  team.value.users.map(x =>{
+    x.profile.birthday = moment(x.profile.birthday).format("YYYY-MM-DD")
+  })
   saveTeamMutations.mutate(team.value);
 };
 
@@ -62,8 +65,9 @@ const onTrainerSelected = (trainer: Trainers) => {
   selectedTrainer.value = trainer;
 }
 
-const onTrainingSelected = (training: Training) => {
-  selectedTraining.value = training;
+
+const onTrainingSelected = (item: TrainingData[]) => {
+  selectedTraining.value = item[0]
 }
 
 </script>
@@ -81,10 +85,6 @@ const onTrainingSelected = (training: Training) => {
       </v-label>
       <v-text-field type="text" variant="outlined" hide-details v-model="team.name"></v-text-field>
       <p class="textSecondary text-12 mt-1">¿Cómo lo vas a nombrar?.</p>
-
-      <!-- <v-btn class="mt-4" color="primary" @click="showForm2 = true; currentStep = 1;">
-        Siguiente
-      </v-btn> -->
     </v-card-text>
   </v-card>
 
@@ -108,7 +108,7 @@ const onTrainingSelected = (training: Training) => {
                 Selecciona el entrenador de tu preferencia.
               </p>
               <v-divider></v-divider>
-              <TrainerCarousel :trainers="trainers" @trainer-selected="onTrainerSelected" />
+              <TrainerCarousel :loading="isFetching" :trainers="trainers" @trainer-selected="onTrainerSelected" />
             </v-card-text>
           </v-card>
           <v-stepper-actions @click:next="currentStep = 2" :color="'primary'" :next-text="'Siguiente'">
@@ -122,11 +122,12 @@ const onTrainingSelected = (training: Training) => {
         <v-stepper-window-item :value="2">
           <v-card class="mb-4" elevation="0">
             <v-card-text>
-              <h5 class="text-h5 pb-2">Entrenamiento</h5>
+              <h4 class="text-h4 pb-2">Entrenamiento</h4>
               <v-divider></v-divider>
-              <p class="mt-4">Configura el entrenamiento para tu equipo.</p>
+              <p class="mt-4">Selecciona el entrenamiento para tu equipo.</p>
               <v-divider />
-              <TrainingCarousel :trainings="trainings" @training-selected="onTrainingSelected" />
+              <TrainingList :trainings="trainings" @send-training="onTrainingSelected" />
+              {{ selectedTraining }}
             </v-card-text>
           </v-card>
           <v-stepper-actions :next-text="'Siguiente'" :prev-text="'Atrás'" @click:next="currentStep = 3"
@@ -139,8 +140,9 @@ const onTrainingSelected = (training: Training) => {
             <v-card-text>
               <h5 class="text-h5 pb-2">Participantes</h5>
               <v-divider></v-divider>
-              <ParticipantsSelect :participants="participants" />
-              <p class="mt-4">¡Proceso completado!</p>
+              <ParticipantsSelect :participants="participants"
+                @send-participants="(params) => { selectedParticipants = params }" />
+              {{ selectedParticipants }}
             </v-card-text>
           </v-card>
           <v-stepper-actions @click:prev="currentStep = 2" :prev-text="'Atrás'">
@@ -153,47 +155,49 @@ const onTrainingSelected = (training: Training) => {
     </v-stepper>
   </v-fade-transition>
 
-  <v-dialog v-model="showResume" max-width="600px">
+  <v-dialog v-model="showResume" persistent max-width="600px">
     <v-card class="d-flex gap-4">
       <h4 class="text-h4 bg-primary text-center py-4">Resumen del Equipo</h4>
       <v-card-text>
         <h5 class="text-h5">Nombre del Equipo: <strong>{{ team.name }}</strong></h5>
-          <v-row>
-            <v-col cols="12" sm="6" class="justify-center d-flex align-self-stretch">
-              <v-card height="100%" class="cursor-pointer pa-4 hover:shadow-xl d-flex flex-column justify-space-between"
-                variant="outlined">
-                <h5 class=" text-h5 text-center pb-2">Entrenador:</h5>
-                <div class="upload-btn-wrapper position-relative overflow-hidden d-flex justify-center" elevation="10">
-                  <v-avatar size="100" class="mt-2">
-                    <v-img :src="getDicebearAvatarUrl(selectedTrainer?.name!)" alt="Avatar" />
-                  </v-avatar>
-                </div>
-                <p class="text-12 textSecondary text-center mt-5">
-                  {{ selectedTrainer?.name }}
-                </p>
-              </v-card>
-            </v-col>
-            <v-col cols="12" sm="6" class="justify-center d-flex align-self-stretch">
-              <v-card height="100%" class="cursor-pointer pa-4 hover:shadow-xl d-flex flex-column justify-space-between"
-                variant="outlined">
-                <h5 class="text-h5 text-center pb-2">Entrenamiento:</h5>
-                <div class="upload-btn-wrapper position-relative overflow-hidden d-flex justify-center" elevation="10">
-                  <v-avatar size="100" class="mt-2">
-                    <v-img :src="getInitialsAvatarUrl(selectedTraining?.name!)" alt="Avatar" />
-                  </v-avatar>
-                </div>
-                <p class="text-12 textSecondary text-center mt-5">
-                  {{ selectedTraining?.name }} - {{ selectedTraining?.courseLevel }}
-                </p>
-              </v-card>
-            </v-col>
-          </v-row>
+        <v-row>
+          <v-col cols="12" sm="6" class="justify-center d-flex align-self-stretch">
+            <v-card height="100%" class="cursor-pointer pa-4 hover:shadow-xl d-flex flex-column justify-space-between"
+              variant="outlined">
+              <h5 class=" text-h5 text-center pb-2">Entrenador:</h5>
+              <div class="upload-btn-wrapper position-relative overflow-hidden d-flex justify-center" elevation="10">
+                <v-avatar size="100" class="mt-2">
+                  <v-img :src="getDicebearAvatarUrl(selectedTrainer?.name!)" alt="Avatar" />
+                </v-avatar>
+              </div>
+              <p class="text-12 textSecondary text-center mt-5">
+                {{ selectedTrainer?.name }}
+              </p>
+            </v-card>
+          </v-col>
+          <v-col cols="12" sm="6" class="justify-center d-flex align-self-stretch">
+            <v-card height="100%" class="cursor-pointer pa-4 hover:shadow-xl d-flex flex-column justify-space-between"
+              variant="outlined">
+              <h5 class="text-h5 text-center pb-2">Entrenamiento:</h5>
+              <div class="upload-btn-wrapper position-relative overflow-hidden d-flex justify-center" elevation="10">
+                <v-avatar size="100" class="mt-2">
+                  <v-img :src="getInitialsAvatarUrl(selectedTraining?.name!)" alt="Avatar" />
+                </v-avatar>
+              </div>
+              <p class="text-12 textSecondary text-center mt-5">
+                {{ selectedTraining?.name }} - {{ selectedTraining?.courseLevel }}
+              </p>
+            </v-card>
+          </v-col>
+        </v-row>
         <v-list-item-title class="font-weight-bold">Participantes:</v-list-item-title>
-        <v-list>
-          <v-list-item v-for="participant in selectedParticipants" :key="participant.id">
-            <v-list-item-title>{{ participant.name }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
+        <v-virtual-scroll :items="selectedParticipants" item-height="3">
+          <template v-slot:default="{ item }">
+            <v-list-item>
+              <v-list-item-title>{{ item.name }}</v-list-item-title>
+            </v-list-item>
+          </template>
+        </v-virtual-scroll>
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions class="pa-4">

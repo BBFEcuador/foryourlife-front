@@ -23,7 +23,7 @@ const calendar = ref<Calendar[]>([
 ]);
 
 const fetchCalendar = async (): Promise<Calendar[]> =>{
-  const{data} = await api.get('/admin/training');
+  const{data} = await api.get('/admin/training/calendar-event');
   return data;
 } 
 

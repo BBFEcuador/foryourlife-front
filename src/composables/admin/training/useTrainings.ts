@@ -1,11 +1,11 @@
 import { api } from '@/api/axios';
-import type { Training } from '@/models/Team';
+import type { TrainingData } from '@/models/Training';
 import { useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 
-const trainings = ref<Training[]>([]);
+const trainings = ref<TrainingData[]>([]);
 
-const fetchTraining = async (): Promise<Training[]> => {
+const fetchTraining = async (): Promise<TrainingData[]> => {
   const { data } = await api.get('/admin/training');
   return data;
 };

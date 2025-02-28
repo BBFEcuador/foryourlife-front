@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Training } from '@/models/Team';
+import type { TrainingData } from '@/models/Training';
 import { getInitialsAvatarUrl } from '@/service/getAvatar';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref, watch } from 'vue';
@@ -7,7 +7,7 @@ import { Carousel, Slide, Navigation } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
 
 interface Props {
-  trainings: Training[];
+  trainings: TrainingData[];
 }
 
 const props = defineProps<Props>();
@@ -15,7 +15,7 @@ const props = defineProps<Props>();
 
 const currentSlide = ref(0);
 
-const slideShow = ref<{ image: string; id: number; name: string, training: Training }[]>([]);
+const slideShow = ref<{ image: string; id: number; name: string, training: TrainingData }[]>([]);
 
 watch(() => props.trainings, (newTrainings) => {
   if (newTrainings && newTrainings.length) {
@@ -28,7 +28,7 @@ watch(() => props.trainings, (newTrainings) => {
   }
 }, { immediate: true });
 
-const slideTo = (val: number, training: Training) => {
+const slideTo = (val: number, training: TrainingData) => {
   currentSlide.value = val;
   emits('training-selected', training);
 };

@@ -11,7 +11,7 @@ const useAdminTeamMutations = () => {
   const saveTeamMutations = useMutation({ mutationFn: saveTeam });
 
   return {
-    saveTeamMutations
+      saveTeamMutations
   };
 };
 
