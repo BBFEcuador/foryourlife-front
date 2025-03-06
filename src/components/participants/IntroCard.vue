@@ -30,23 +30,23 @@ const props = defineProps<props>();
             </div>
             <div class="d-flex tw:gap-3 mb-5">
                 <Icon icon="material-symbols:alternate-email" height="21" />
-                <span class="text-h6">{{ participant.team?.trainer.email }}</span>
+                <span class="text-h6">{{ participant.team?.trainer.email ? participant.team.trainer.email : 'No pertenece a ningún equipo'  }}</span>
             </div>
             <div class="d-flex tw:gap-3 mb-5">
                 <Icon icon="material-symbols:call-outline" height="21" />
-                <span class="text-h6">{{ participant.team?.trainer.phone }}</span>
+                <span class="text-h6">{{ participant.team?.trainer.phone ? participant.team.trainer.phone : 'No pertenece a ningún equipo'  }}</span>
             </div>
             <div class="d-flex tw:gap-3 mb-5">
                 <Icon icon="ri:graduation-cap-fill" height="21" />
-                <span class="text-h6">{{ participant.team?.trainingData?.name }}</span>
+                <span class="text-h6">{{ participant.team?.trainingData?.name ? participant.team.trainingData.name : 'No pertenece a ningún equipo'  }}</span>
             </div>
             <div class="d-flex tw:gap-3 mb-5">
                 <Icon icon="carbon:skill-level" height="21" />
-                <span class="text-h6">{{ participant.team?.trainingData?.curseLevel }}</span>
+                <span class="text-h6">{{ participant.team?.trainingData?.curseLevel ? participant.team.trainingData.curseLevel : 'No pertenece a ningún equipo'  }}</span>
             </div>
             <div class="d-flex tw:gap-3 mb-5">
                 <Icon icon="streamline:startup-solid" height="21" />
-                <span class="text-h6">{{ participant.team?.trainingData?.startDate }}</span>
+                <span class="text-h6">{{ participant.team?.trainingData?.startDate ? participant.team?.trainingData.startDate : 'No pertenece a ningún equipo'  }}</span>
             </div>
         </v-card-item>
     </v-card>
