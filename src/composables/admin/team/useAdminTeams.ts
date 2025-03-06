@@ -1,16 +1,17 @@
 import { api } from '@/api/axios';
 import type { Criteria } from '@/models/Criteria';
+import type { Team } from '@/models/Participants';
 import type { TeamWriteModel } from '@/models/Team';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 
-const teams = ref<TeamWriteModel[]>([]);
-const fetchTeams = async (): Promise<any> => {
+const teams = ref<Team[]>([]);
+const fetchTeams = async (): Promise<Team[]> => {
   const { data } = await api.get('/teams');
   return data;
 };
 
-const fetchMatch = async (criteria: Criteria): Promise<TeamWriteModel[]> => {
+const fetchMatch = async (criteria: Criteria): Promise<Team[]> => {
   const { data } = await api.post('/users/match', criteria);
   return data;
 };

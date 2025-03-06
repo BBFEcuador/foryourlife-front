@@ -14,8 +14,7 @@ interface props {
     account: Admin;
 }
 interface changePasswordRequest {
-    oldPassord: string;
-    newPassword: string;
+    password: string;
     confirmPassword: string;
 }
 const props = defineProps<props>();
@@ -23,10 +22,9 @@ const props = defineProps<props>();
 const { updateAccountPasswordMutation } = useAccountUserMutation();
 
 const request = ref<changePasswordRequest>({} as changePasswordRequest);
-const computedConfirmPassword = computed(() => request.value.newPassword);
+const computedConfirmPassword = computed(() => request.value.password);
 const rules = {
-    oldPassord: { required },
-    newPassword: { required },
+    password: { required },
     confirmPassword: {
         required,
         sameAs: sameAs(computedConfirmPassword)
@@ -38,9 +36,8 @@ const onPasswordUpdateSubmit = () => {
     validator.value.$validate();
     if (!validator.value.$error) {
         updateAccountPasswordMutation.mutate({
-            newPassword: request.value.newPassword,
-            oldPassword: request.value.oldPassord,
-            userId: props.account.id
+            password: request.value.password,
+            id: props.account.id
         });
     }
 };
@@ -62,28 +59,24 @@ watch(updateAccountPasswordMutation.isSuccess, () => {
 
 <template>
     <form action="" @submit.prevent="onPasswordUpdateSubmit">
-        <v-card class="pb-5 tw-mt-3 tw-text-center tw-overflow-hidden" rounded="lg" flat>
-            <v-card-title class="tw-mb-3 tw-w-full bg-primary"> Actualizar contraseña </v-card-title>
-            <VCardText>
-                <VRow>
-                    <VCol cols="12">
-                        <VTextField class="tw-mt-4" label="Contraseña Actual" v-model="request.oldPassord"
-                            :error-messages="validator.oldPassord.$errors.map((x) => x.$message.toString())" />
-                    </VCol>
-                    <VCol cols="12" md="6">
-                        <VTextField label="Nueva Contraseña" v-model="request.newPassword"
-                            :error-messages="validator.newPassword.$errors.map((x) => x.$message.toString())" />
-                    </VCol>
-                    <VCol cols="12" md="6">
-                        <VTextField label="Confirma la Contraseña" v-model="request.confirmPassword"
-                            :error-messages="validator.confirmPassword.$errors.map((x) => x.$message.toString())" />
-                    </VCol>
-                    <VCol cols="12">
-                        <VBtn color="primary" type="submit" :loading="updateAccountPasswordMutation.isPending.value">
-                            Actualizar contraseña</VBtn>
-                    </VCol>
-                </VRow>
-            </VCardText>
+        <v-card class="tw:mt-3 tw:p-5 tw:rounded-lg tw:overflow-hidden" flat>
+            <v-card-title class="tw:rounded-t-lg tw:w-full text-center bg-primary tw:text-white tw:py-3">
+                Actualizar contraseña
+            </v-card-title>
+            <v-card-item class="tw:flex tw:flex-col tw:gap-4">
+                <div class="tw:grid tw:grid-cols-1 tw:lg:grid-cols-2 tw:gap-4">
+                    <p class="tw:font-semibold tw:mb-1">Nueva Contraseña</p>
+                    <VTextField class="tw:w-full" v-model="request.password"
+                        :error-messages="validator.password.$errors.map((x) => x.$message.toString())" />
+                        <p class="tw:font-semibold tw:mb-1">Confirma la Contraseña</p>
+                        <VTextField class="tw:w-full" v-model="request.confirmPassword"
+                        :error-messages="validator.confirmPassword.$errors.map((x) => x.$message.toString())" />
+                </div>
+                <VBtn color="primary" type="submit" :loading="updateAccountPasswordMutation.isPending.value"
+                    class="tw:w-full tw:mt-3">
+                    Actualizar
+                </VBtn>
+            </v-card-item>
         </v-card>
     </form>
 </template>

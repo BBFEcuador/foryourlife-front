@@ -22,6 +22,7 @@ const headers = [
   { title: 'Correo', value: 'email' },
   { title: 'Telefono', value: 'phone' },
   { title: 'Nivel actual', value: 'participantLevel.courseLevel' },
+  { title: 'Sede', value: 'sede'},
   { title: 'Documento', value: 'profile.dni' },
   { title: 'Acciones', value: 'actions', width: 50 }
 ];
@@ -98,8 +99,8 @@ const editParticipant = (item: string) => {
               </VTextField>
               <VSpacer />
 
-              <VBtn icon color="secondary" variant="text" @click="handleGenerateInvitation">
-                <Icon icon="weui:add-friends-filled" height="20" />
+              <VBtn color="primary" @click="handleGenerateInvitation">
+                <Icon icon="weui:add-friends-filled" class="mr-2" height="20" /> Invitar Participante
               </VBtn>
               <v-dialog v-model="showInvitation" class="mx-auto" width="500">
                 <v-card>

@@ -9,7 +9,7 @@ const idlAccount = ref<Admin>({} as Admin);
 
 const fetchAccount = async (): Promise<Admin> => {
   const store = userStore();
-  const { data } = await api.get(`/admin/account/show/${store.user.id}`);
+  const { data } = await api.get(`/admin/${store.user.id}`);
   return data;
 };
 

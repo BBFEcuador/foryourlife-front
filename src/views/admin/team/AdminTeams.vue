@@ -7,6 +7,7 @@ import type { Criteria, Filter } from '@/models/Criteria';
 import TeamFilters from './TeamFilters.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { router } from '@/router';
+import type { Participant } from '@/models/Participants';
 
 const { data, isError, isLoading, criteriaMutations, refetchTeams } = useAdminTeams();
 
@@ -30,11 +31,12 @@ const onFilterClear = () => {
   criteriaMutations.mutate({ filters: [] as Filter[], limit: 0, offset: 0 });
 };
 const headers = ref([
-  { title: 'Nombre', value: 'name', class: 'my-header-style' },
-  { title: 'Entrenador', value: 'trainer.name' },
-  { title: 'Correo', value: 'trainer.email' },
-  { title: 'Inicio de Clase', value: 'trainingData.startDate' },
-  { title: 'Fin de Clase', value: 'trainingData.endDate' },
+  { title: 'Nombre', value: 'name', class: 'my-header-style', sortable: true },
+  { title: 'Entrenador', value: 'trainer.name', sortable: true },
+  { title: 'Correo', value: 'trainer.email', sortable: true },
+  { title: 'Inicio de Clase', value: 'trainingData.startDate', sortable: true },
+  { title: 'Fin de Clase', value: 'trainingData.endDate', sortable: true },
+  { title: 'Quitar participantes', value: 'actions' }
 ]);
 
 const refreshTeams = () => {
@@ -45,19 +47,23 @@ const addTeam = () => {
   router.push({ name: 'teams-admin-add' });
 };
 
+const removeParticipantSelected = (item: string) => {
+  router.push({ name: 'teams-admin-update', params: {id: item}})
+};
+
 </script>
 
 <template>
   <BaseBreadcrumb :title="'Equipos'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
   <VRow v-auto-animate>
-    <VCol cols="0" lg="3" v-if="lgAndUp && !showFilters">
+    <VCol cols="0" lg="2" v-if="lgAndUp && !showFilters">
       <UiParentCard title="Filtros">
         <PerfectScrollbar class="max-h d-flex flex-column ga-3">
           <TeamFilters @update-filters="onFilterSubmit" @clear-filters="onFilterClear" />
         </PerfectScrollbar>
       </UiParentCard>
     </VCol>
-    <VCol cols="12" :lg="showFilters ? 12 : 9">
+    <VCol cols="12" :lg="showFilters ? 12 : 10">
       <div class="d-flex flex-column ga-4">
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
@@ -86,19 +92,24 @@ const addTeam = () => {
                 <p>Filtros</p>
               </VBtn>
               <VBtn color="secondary" variant="text" @click="addTeam">
-                  <Icon icon="weui:add-friends-filled" height="20" class="mr-2" />Nuevo Equipo
+                <Icon icon="weui:add-friends-filled" height="20" class="mr-2" />Nuevo Equipo
               </VBtn>
             </div>
           </v-card-text>
         </v-card>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <VDataTable :items="data" :headers="headers">
+            <VDataTable :items="data" :headers="headers" :loading="isLoading">
+              <template #item.actions="{ item }">
+                <VBtn icon color="error" small @click="removeParticipantSelected(item.id)">
+                  <Icon icon="material-symbols:group-remove-outline" />
+                </VBtn>
+              </template>
             </VDataTable>
           </v-card-text>
         </v-card>
       </div>
-    </VCol>  
+    </VCol>
   </VRow>
 </template>
 

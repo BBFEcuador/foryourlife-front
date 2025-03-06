@@ -20,8 +20,6 @@ watch(userTipe, () => {
         logicalOperator: 'OR'
       });
     });
-  } else {
-    criteria.value.filters = criteria.value.filters.filter((x) => x.column != 'courseLevel');
   }
 });
 
@@ -93,9 +91,8 @@ const onFilerClear = () => {
     </v-list-group>
     <VDivider />
     <VBtn color="error" block variant="flat" rounded="xl" class="mt-4" @click="onFiltersEmit">Filtrar</VBtn>
-    <VBtn color="error" block variant="tonal" rounded="xl" class="mt-4" @click="onFilerClear" v-if="criteria.filters.length > 0"
-      >Limpiar</VBtn
-    >
+    <VBtn color="error" block variant="tonal" rounded="xl" class="mt-4" @click="onFilerClear"
+      v-if="criteria.filters.length > 0">Limpiar</VBtn>
   </v-list>
 </template>
 

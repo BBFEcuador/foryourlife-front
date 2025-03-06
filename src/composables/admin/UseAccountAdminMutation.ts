@@ -11,11 +11,10 @@ const updateUserAccount = async (user: Admin): Promise<any> => {
 };
 
 const updateAccountPassword = async (req: {
-  oldPassword: string;
-  newPassword: string;
-  userId: string;
+  password: string;
+  id: string;
 }): Promise<any> => {
-  const { data } = await api.put("/account/update-password", req);
+  const { data } = await api.put("/admin/pass", req);
   return data;
 };
 const passwordReset = async (req: { email: string }): Promise<any> => {

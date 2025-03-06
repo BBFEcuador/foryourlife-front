@@ -92,7 +92,7 @@ const onFilerClear = () => {
       </v-list-item>
     </v-list-group>
     <VDivider />
-    <VBtn color="error" block variant="flat" rounded="xl" class="mt-4" @click="onFiltersEmit">Filtrar</VBtn>
+    <VBtn color="error" block variant="flat" rounded="xl" class="mt-4 tw:px-6" @click="onFiltersEmit">Filtrar</VBtn>
     <VBtn color="error" block variant="tonal" rounded="xl" class="mt-4" @click="onFilerClear" v-if="criteria.filters.length > 0"
       >Limpiar</VBtn
     >

@@ -8,11 +8,15 @@ import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import useTrainer from '@/composables/admin/trainer/useTrainers';
 import useTrainings from '@/composables/admin/training/useTrainings';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { Participant } from '@/models/Participants';
 import type { TeamWriteModel } from '@/models/Team';
 import type { Trainers } from '@/models/Trainers';
 import type { TrainingData } from '@/models/Training';
+import { router } from '@/router';
 import { getDicebearAvatarUrl, getInitialsAvatarUrl } from '@/service/getAvatar';
+import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
+import type { AxiosError } from 'axios';
 import moment from 'moment';
 import { ref, watch } from 'vue';
 
@@ -70,6 +74,21 @@ const onTrainingSelected = (item: TrainingData[]) => {
   selectedTraining.value = item[0]
 }
 
+watch(saveTeamMutations.isSuccess, () => {
+  if (saveTeamMutations.isSuccess.value) {
+    showSuccessToast('Equipo Agregado correctamente');
+    showResume.value = false;
+    router.push({ name: 'teams-admin' })
+  }
+}) 
+
+watch(saveTeamMutations.isError, () =>{
+  if(saveTeamMutations.isError.value){
+    let error = saveTeamMutations.error.value as AxiosError<ErrorApiResponse>
+    showErrorToast(error);
+  }
+})
+
 </script>
 <template>
   <BaseBreadcrumb :title="'Equipo'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
@@ -84,7 +103,7 @@ const onTrainingSelected = (item: TrainingData[]) => {
         Nombre <span class="text-error ms-1">*</span>
       </v-label>
       <v-text-field type="text" variant="outlined" hide-details v-model="team.name"></v-text-field>
-      <p class="textSecondary text-12 mt-1">¿Cómo lo vas a nombrar?.</p>
+      <p class="textSecondary text-12 mt-1">¿Cómo lo vas a nombrar?</p>
     </v-card-text>
   </v-card>
 

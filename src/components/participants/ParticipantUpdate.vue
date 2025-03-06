@@ -2,11 +2,12 @@
 import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import type { Participant, ParticipantUpdate } from '@/models/Participants';
 import type { AxiosError } from 'axios';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { toast } from 'vue3-toastify';
 import InputSection from '../forms/InputSection.vue';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { showErrorToast } from '@/service/sweetAlert';
+import { VDateInput } from "vuetify/labs/VDateInput";
 
 const props = defineProps<props>();
 const emits = defineEmits(['onSubmit']);
@@ -37,6 +38,10 @@ watch(updateParticipantMutation.isSuccess, () => {
     }
 })
 
+const formattedBirthday = computed({
+  get: () => props.participant.profile.birthday?.split('T')[0] || '',
+  set: (value) => props.participant.profile.birthday = value,
+});
 </script>
 
 <template>
@@ -56,9 +61,11 @@ watch(updateParticipantMutation.isSuccess, () => {
             <v-text-field v-model="props.participant.profile.civilStatus" label="Estado Civil" variant="outlined" />
             <v-text-field v-model="props.participant.profile.city" label="Ciudad" variant="outlined" />
             <v-text-field v-model="props.participant.profile.dni" label="Cédula" variant="outlined" />
-            <v-text-field v-model="props.participant.profile.birthday" label="Fecha de Nacimiento" variant="outlined" />
-            <v-spacer />
-            <v-btn color="primary" @click="onSubmitParticipant" :loading="updateParticipantMutation.isPending.value">Actualizar</v-btn>
+            <!-- <VDateInput placeholder="" v-model="props.participant.profile.birthday" label="Fecha de nacimiento" variant="outlined"></VDateInput> -->
+            <v-text-field type="date" v-model="formattedBirthday" label="Fecha de nacimiento"
+                variant="outlined"></v-text-field> <v-spacer />
+            <v-btn color="primary" @click="onSubmitParticipant"
+                :loading="updateParticipantMutation.isPending.value">Actualizar</v-btn>
         </v-card-item>
     </v-card>
 </template>
