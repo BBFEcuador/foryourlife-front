@@ -14,7 +14,7 @@ const props = defineProps<props>();
             <h4 class="text-h4">Información del entrenamiento</h4>
             <p class="my-5 text-subtitle-1 lh-md textSecondary">
                 Actualmente pertenece al nivel <strong>{{ participant.participantLevel.courseLevel }}</strong> y
-                al equipo <strong>{{ participant.team?.name }}</strong>
+                al equipo <strong>{{ participant.team?.name ?  participant.team?.name : 'N/A' }}</strong>
             </p>
             <div class="d-flex tw:gap-3 mb-5">
                 <Icon icon="mdi:alert-circle-outline" height="21" />
