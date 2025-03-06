@@ -12,7 +12,7 @@ const fetchTeams = async (): Promise<Team[]> => {
 };
 
 const fetchMatch = async (criteria: Criteria): Promise<Team[]> => {
-  const { data } = await api.post('/users/match', criteria);
+  const { data } = await api.post('/teams/match', criteria);
   return data;
 };
 const useAdminTeams = () => {
@@ -30,6 +30,7 @@ const useAdminTeams = () => {
     }
   });
   return {
+    teamsData: teams,
     data,
     isLoading: isFetching,
     isError,

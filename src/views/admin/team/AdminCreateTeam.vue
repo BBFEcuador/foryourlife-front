@@ -144,7 +144,6 @@ watch(saveTeamMutations.isError, () =>{
               <p class="mt-4">Selecciona el entrenamiento para tu equipo.</p>
               <v-divider />
               <TrainingList :trainings="trainings" @send-training="onTrainingSelected" />
-              {{ selectedTraining }}
             </v-card-text>
           </v-card>
           <v-stepper-actions :next-text="'Siguiente'" :prev-text="'Atrás'" @click:next="currentStep = 3"
@@ -158,7 +157,6 @@ watch(saveTeamMutations.isError, () =>{
               <v-divider></v-divider>
               <ParticipantsSelect :participants="participants"
                 @send-participants="(params) => { selectedParticipants = params }" />
-              {{ selectedParticipants }}
             </v-card-text>
           </v-card>
           <v-stepper-actions @click:prev="currentStep = 2" :prev-text="'Atrás'">

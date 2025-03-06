@@ -8,21 +8,30 @@ const open = ref(['Tipo', 'City']);
 
 const criteria = ref<Criteria>({ filters: [] as Filter[], limit: 0, offset: 0 });
 const userTipe = ref([]);
+const city = ref([]);
 watch(userTipe, () => {
-  if (userTipe.value.length > 0) {
-    criteria.value.filters = criteria.value.filters.filter((x) => x.column != 'courseLevel');
-    userTipe.value.map((x) => {
-      criteria.value.filters.push({
-        column: 'roleName',
-        joinTable: 'participantLevel',
-        operation: 'JOIN',
-        value: `ROLE_${x}`,
-        logicalOperator: 'OR'
-      });
+  criteria.value.filters = criteria.value.filters.filter((x) => x.column != 'roleName');
+  userTipe.value.map((x) => {
+    criteria.value.filters.push({
+      column: 'courseLevel',
+      joinTable: 'training',
+      operation: 'JOIN',
+      value: `${x}`,
+      logicalOperator: 'OR'
     });
-  } else {
-    criteria.value.filters = criteria.value.filters.filter((x) => x.column != 'courseLevel');
-  }
+  });
+});
+watch(city, () => {
+  criteria.value.filters = criteria.value.filters.filter((x) => x.column != 'city');
+  city.value.map((x) => {
+    criteria.value.filters.push({
+      column: 'city',
+      joinTable: 'training.campus',
+      operation: 'JOIN',
+      value: x,
+      logicalOperator: 'OR'
+    });
+  });
 });
 
 const onFiltersEmit = () => {
@@ -32,6 +41,7 @@ const onFiltersEmit = () => {
 const onFilerClear = () => {
   emits('clear-filters');
   userTipe.value = [];
+  city.value = [];
   criteria.value.filters = [];
 };
 </script>
@@ -69,24 +79,24 @@ const onFilerClear = () => {
       <template v-slot:activator="{ props }">
         <v-list-item v-bind="props" title="Sede" class="px-5" :ripple="false"></v-list-item>
       </template>
-      <v-list-item :title="'Quito'">
+      <v-list-item :title="'Quito'" v-model="city">
         <template v-slot:prepend="{ isSelected }">
           <v-list-item-action start>
-            <v-checkbox-btn :model-value="isSelected"></v-checkbox-btn>
+            <v-checkbox-btn  value="Quito" v-model="city"></v-checkbox-btn>
           </v-list-item-action>
         </template>
       </v-list-item>
-      <v-list-item :title="'Cuenca'">
+      <v-list-item :title="'Cuenca'" v-model="city">
         <template v-slot:prepend="{ isSelected }">
-          <v-list-item-action start>
-            <v-checkbox-btn :model-value="isSelected"></v-checkbox-btn>
+          <v-list-item-action start v-model="city">
+            <v-checkbox-btn value="Cuenca" v-model="city" ></v-checkbox-btn>
           </v-list-item-action>
         </template>
       </v-list-item>
-      <v-list-item :title="'Bogota'">
+      <v-list-item :title="'Bogota'" v-model="city">
         <template v-slot:prepend="{ isSelected }">
           <v-list-item-action start>
-            <v-checkbox-btn :model-value="isSelected"></v-checkbox-btn>
+            <v-checkbox-btn value="Bogota" v-model="city"></v-checkbox-btn>
           </v-list-item-action>
         </template>
       </v-list-item>
