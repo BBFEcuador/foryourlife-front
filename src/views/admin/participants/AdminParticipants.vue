@@ -82,7 +82,7 @@ const editParticipant = (item: string) => {
   <VRow v-auto-animate>
     <VCol cols="0" lg="3" v-if="lgAndUp && !showFilters">
       <UiParentCard title="Filtros">
-        <PerfectScrollbar class="max-h d-flex flex-column ga-3">
+        <PerfectScrollbar class="tw:max-h-[700px] d-flex flex-column ga-3">
           <ParticipantFilters @update-filters="onFilterSubmit" @clear-filters="onFilterClear" />
         </PerfectScrollbar>
       </UiParentCard>

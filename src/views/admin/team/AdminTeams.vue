@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import useAdminTeams from '@/composables/admin/team/useAdminTeams';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import type { Criteria, Filter } from '@/models/Criteria';
 import TeamFilters from './TeamFilters.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { router } from '@/router';
 import type { Participant } from '@/models/Participants';
+import UiParentCard from '@/components/shared/UiParentCard.vue';
 
-const { data, isError, isLoading, criteriaMutations, refetchTeams } = useAdminTeams();
+const { data, isError, isLoading, criteriaMutations, refetchTeams,teamsData } = useAdminTeams();
+const search = ref()
 
 const breadcrumbs = ref([
   {
@@ -51,19 +53,25 @@ const removeParticipantSelected = (item: string) => {
   router.push({ name: 'teams-admin-update', params: {id: item}})
 };
 
+watch(criteriaMutations.isError,() => {
+  if (criteriaMutations.isError.value) {
+    
+  }
+})
+
 </script>
 
 <template>
   <BaseBreadcrumb :title="'Equipos'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
   <VRow v-auto-animate>
-    <VCol cols="0" lg="2" v-if="lgAndUp && !showFilters">
+    <VCol cols="0" lg="3" v-if="lgAndUp && !showFilters">
       <UiParentCard title="Filtros">
-        <PerfectScrollbar class="max-h d-flex flex-column ga-3">
+        <PerfectScrollbar class="tw:max-h-[700px] d-flex flex-column ga-3">
           <TeamFilters @update-filters="onFilterSubmit" @clear-filters="onFilterClear" />
         </PerfectScrollbar>
       </UiParentCard>
     </VCol>
-    <VCol cols="12" :lg="showFilters ? 12 : 10">
+    <VCol cols="12" :lg="showFilters ? 12 : 9">
       <div class="d-flex flex-column ga-4">
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
@@ -73,7 +81,7 @@ const removeParticipantSelected = (item: string) => {
                   <Icon icon="material-symbols:refresh" height="25" />
                 </template>
               </VBtn>
-              <VTextField placeholder="buscar" hide-details>
+              <VTextField placeholder="buscar" hide-details v-model="search">
                 <template #prepend-inner>
                   <Icon icon="material-symbols:search" />
                 </template>
@@ -99,7 +107,7 @@ const removeParticipantSelected = (item: string) => {
         </v-card>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <VDataTable :items="data" :headers="headers" :loading="isLoading">
+            <VDataTable :items="teamsData" :headers="headers" :loading="isLoading" :search="search">
               <template #item.actions="{ item }">
                 <VBtn icon color="error" small @click="removeParticipantSelected(item.id)">
                   <Icon icon="material-symbols:group-remove-outline" />
