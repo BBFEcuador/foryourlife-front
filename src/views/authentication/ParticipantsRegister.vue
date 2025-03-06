@@ -110,9 +110,15 @@ const showPassword = ref(false)
                           </VTextField>
                         </InputSection>
                       </UiParentCard>
+                      <UiParentCard title="Información Crítica">
+                        <v-checkbox label="¿Tienes algún antecedente personal de enfermedades psiquiátricas o estás bajo tratamiento actualmente?"></v-checkbox>
+                        <v-checkbox label="¿Tienes algún antecedente médico del cuál debamos tener conocimiento?"></v-checkbox>
+                        <v-checkbox label="¿Tomas algún medicamento que altere tu conducta habitual?:
+"></v-checkbox>
+                      </UiParentCard>
                     </VCol>
                     <VCol cols="12" md="6">
-                      <UiParentCard title="Info perfil">
+                      <UiParentCard title="Información personal">
                         <InputSection label="¿Cuándo cumples años?">
                           <VTextField placeholder="Fecha" type="date" v-model="participant.profile.birthday"
                             :error-messages="validator.profile.birthday.$errors.map((x) => x.$message.toString())">
