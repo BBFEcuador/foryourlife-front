@@ -31,10 +31,10 @@ const { isParticipantError, isParticipantLoading, participant } = useParticipant
         <v-col cols="12" v-else>
             <ParticipantBanner :participant class="mb-2"/>
             <v-row>
-                <VCol cols="12" md="3" sm="6" class="tw:flex tw:flex-col tw:items-center">
+                <VCol cols="12" md="3" sm="12" class="tw:flex tw:flex-col tw:items-center">
                     <IntroCard :participant/>           
                 </VCol>
-                <VCol cols="12" md="9" sm="6" class="tw:grid tw:grid-cols-1 tw:md:grid-cols-2 tw:gap-4">
+                <VCol cols="12" md="9" sm="12" class="tw:grid tw:grid-cols-1 tw:md:grid-cols-2 tw:gap-4">
                     <ParticipantUpdate :participant/>
                     <ModuleUpdate :participant/>
                 </VCol>

@@ -118,13 +118,12 @@ watch(saveTeamMutations.isError, () =>{
       </v-stepper-header>
 
       <v-stepper-window>
-        <!-- Step 1: Select trainer -->
         <v-stepper-window-item :value="1" :transition="'slide-x-reverse'">
           <v-card class="mb-4" elevation="0">
             <v-card-text v-model="team.name">
-              <h5 class="text-h5 pb-2">Entrenador: {{ team.name }}</h5>
+              <h4 class="text-h4 pb-2">Equipo: {{ team.name }}</h4>
               <p class="textSecondary text-12 mt-1">
-                Selecciona el entrenador de tu preferencia.
+                Selecciona el entrenador.
               </p>
               <v-divider></v-divider>
               <TrainerCarousel :loading="isFetching" :trainers="trainers" @trainer-selected="onTrainerSelected" />
@@ -137,7 +136,6 @@ watch(saveTeamMutations.isError, () =>{
           </v-stepper-actions>
         </v-stepper-window-item>
 
-        <!-- Step 2: Training -->
         <v-stepper-window-item :value="2">
           <v-card class="mb-4" elevation="0">
             <v-card-text>
@@ -152,7 +150,6 @@ watch(saveTeamMutations.isError, () =>{
             @click:prev="currentStep = 1" color="primary"></v-stepper-actions>
         </v-stepper-window-item>
 
-        <!-- Paso 3: Participantes -->
         <v-stepper-window-item :value="3">
           <v-card class="mb-4" elevation="0">
             <v-card-text>
