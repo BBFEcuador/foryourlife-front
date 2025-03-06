@@ -81,6 +81,7 @@ const showPassword = ref(false)
                   <div class="tw:grid tw:place-content-center">
                     <Logo class="mb-5 tw:w-64" />
                   </div>
+                  <h3 class="text-h3 text-center pb-3" >Bienvenido! A continuación ingresa los siguientes datos para acceder a tu programa. 🚀  </h3>
                   <VRow>
                     <VCol cols="12" md="6">
                       <UiParentCard title="Información Básica">
