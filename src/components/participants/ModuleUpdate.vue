@@ -59,7 +59,7 @@ watch(setCourseLevelMutation.isSuccess, () => {
 
 <template>
     <div>
-        <v-card class="mt-3 tw-p-5" elevation="0">
+        <v-card class="tw:p-5" elevation="0">
             <v-card-item>
                 <h4 class="text-h4 mb-2 font-weight-bold ">Cursos que posee</h4>
                 <v-alert color="warning" variant="tonal" class="mb-4">
@@ -71,8 +71,8 @@ watch(setCourseLevelMutation.isSuccess, () => {
                     </div>
                 </v-alert>
                 <v-card-text>
-                    <div class="mt-3 tw-flex tw-justify-center tw-items-center tw-gap-1">
-                        <v-label class="font-weight-medium tw-text-lg">Curso FOCUS</v-label>
+                    <div class="mt-3 tw:flex tw:justify-center tw:items-center tw:gap-1">
+                        <v-label class="font-weight-medium tw:text-lg">Curso FOCUS</v-label>
                     </div>
                     <div class="justify-center d-flex align-center">
                         <v-label class="mr-3">NO</v-label>
@@ -86,8 +86,8 @@ watch(setCourseLevelMutation.isSuccess, () => {
 
                     <v-divider class="my-4"></v-divider>
 
-                    <div class="mt-3 tw-flex tw-justify-center tw-items-center tw-gap-1">
-                        <v-label class="font-weight-medium tw-text-lg">Curso YOUR</v-label>
+                    <div class="mt-3 tw:flex tw:justify-center tw:items-center tw:gap-1">
+                        <v-label class="font-weight-medium tw:text-lg">Curso YOUR</v-label>
                     </div>
                     <div class="justify-center d-flex align-center">
                         <v-label class="mr-3">NO</v-label>
@@ -101,8 +101,8 @@ watch(setCourseLevelMutation.isSuccess, () => {
 
                     <v-divider class="my-4"></v-divider>
 
-                    <div class="mt-3 tw-flex tw-justify-center tw-items-center tw-gap-1">
-                        <v-label class="font-weight-medium tw-text-lg">Curso LIFE</v-label>
+                    <div class="mt-3 tw:flex tw:justify-center tw:items-center tw:gap-1">
+                        <v-label class="font-weight-medium tw:text-lg">Curso LIFE</v-label>
                     </div>
                     <div class="justify-center d-flex align-center">
                         <v-label class="mr-3">NO</v-label>
