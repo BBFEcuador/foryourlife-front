@@ -30,7 +30,7 @@ const breadcrumbs = ref([
 
 const { saveTeamMutations } = useAdminTeamMutations();
 const { isError, isFetching, trainers } = useTrainer();
-const { criteriaMutations, isParticipantsError, isParticipantsLoading, participants, refetchParticipants } = useParticipants();
+const { participants } = useParticipants();
 const { isTrainingError, isTrainingsLoading, trainings } = useTrainings();
 
 const team = ref({
