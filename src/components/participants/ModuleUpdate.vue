@@ -35,15 +35,29 @@ const checkFocus = (type: 'hasFocus' | 'hasYour' | 'hasLife', value: boolean) =>
                         hasLife: type === 'hasLife' ? value : props.participant.modules.hasLife
                     }
                 });
+            } else {
+                switch (type) {
+                    case 'hasFocus':
+                        props.participant.modules.hasFocus = false
+                        break;
+                    case 'hasYour':
+                        props.participant.modules.hasYour = false
+                        break;
+                    case 'hasLife':
+                        props.participant.modules.hasLife = false
+                        break;
+                    default:
+                        break;
+                }
             }
         });
     }
 };
 
-watch(setCourseLevelMutation.isError, ()=>{
+watch(setCourseLevelMutation.isError, () => {
     if (setCourseLevelMutation.isError.value) {
         props.participant.modules.hasFocus = false,
-        props.participant.modules.hasFocus = false
+            props.participant.modules.hasFocus = false
         props.participant.modules.hasFocus = false
     }
 })
@@ -76,8 +90,8 @@ watch(setCourseLevelMutation.isSuccess, () => {
                     </div>
                     <div class="justify-center d-flex align-center">
                         <v-label class="mr-3">NO</v-label>
-                        <v-switch v-model="participant.modules.hasFocus" color="primary"
-                            :disabled="participant.modules.hasFocus === true" hide-details
+                        <v-switch v-model="participant.modules.hasFocus" base-color="primary"
+                            :disabled="participant.modules.hasFocus" hide-details
                             @update:modelValue="(value: boolean | null) => checkFocus('hasFocus', value ?? false)"
                             :false-value="false" :true-value="true">
                         </v-switch>

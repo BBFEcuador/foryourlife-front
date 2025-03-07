@@ -81,6 +81,7 @@ const showPassword = ref(false)
                   <div class="tw:grid tw:place-content-center">
                     <Logo class="mb-5 tw:w-64" />
                   </div>
+                  <h3 class="text-h3 text-center pb-3" >Bienvenido! A continuación ingresa los siguientes datos para acceder a tu programa. 🚀  </h3>
                   <VRow>
                     <VCol cols="12" md="6">
                       <UiParentCard title="Información Básica">
@@ -109,9 +110,15 @@ const showPassword = ref(false)
                           </VTextField>
                         </InputSection>
                       </UiParentCard>
+                      <UiParentCard title="Información Crítica">
+                        <v-checkbox label="¿Tienes algún antecedente personal de enfermedades psiquiátricas o estás bajo tratamiento actualmente?"></v-checkbox>
+                        <v-checkbox label="¿Tienes algún antecedente médico del cuál debamos tener conocimiento?"></v-checkbox>
+                        <v-checkbox label="¿Tomas algún medicamento que altere tu conducta habitual?:
+"></v-checkbox>
+                      </UiParentCard>
                     </VCol>
                     <VCol cols="12" md="6">
-                      <UiParentCard title="Info perfil">
+                      <UiParentCard title="Información personal">
                         <InputSection label="¿Cuándo cumples años?">
                           <VTextField placeholder="Fecha" type="date" v-model="participant.profile.birthday"
                             :error-messages="validator.profile.birthday.$errors.map((x) => x.$message.toString())">
