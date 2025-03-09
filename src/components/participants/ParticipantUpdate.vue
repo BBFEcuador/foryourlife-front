@@ -54,8 +54,8 @@ const formattedBirthday = computed({
             <v-text-field v-model="props.participant.profile.address" label="Dirección" variant="outlined" />
             <v-text-field v-model="props.participant.profile.occupation" label="Ocupación" variant="outlined" />
             <v-select :items="[
-                { label: 'Mujer', value: 'M' },
-                { label: 'Hombre', value: 'H' }
+                { label: 'Femenino', value: 'M' },
+                { label: 'Masculino', value: 'H' }
             ]" item-title="label" item-value="value" label="Género" variant="outlined"
                 v-model="props.participant.profile.gender" />
             <v-text-field v-model="props.participant.profile.civilStatus" label="Estado Civil" variant="outlined" />

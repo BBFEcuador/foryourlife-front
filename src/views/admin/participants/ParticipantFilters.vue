@@ -9,18 +9,16 @@ const open = ref(['Tipo', 'City']);
 const criteria = ref<Criteria>({ filters: [] as Filter[], limit: 0, offset: 0 });
 const userTipe = ref([]);
 watch(userTipe, () => {
-  if (userTipe.value.length > 0) {
-    criteria.value.filters = criteria.value.filters.filter((x) => x.column != 'courseLevel');
-    userTipe.value.map((x) => {
-      criteria.value.filters.push({
-        column: 'roleName',
-        joinTable: 'participantLevel',
-        operation: 'JOIN',
-        value: `ROLE_${x}`,
-        logicalOperator: 'OR'
-      });
+  criteria.value.filters = criteria.value.filters.filter((x) => x.column != 'roleName');
+  userTipe.value.map((x) => {
+    criteria.value.filters.push({
+      column: 'roleName',
+      joinTable: 'participantLevel',
+      operation: 'JOIN',
+      value: `ROLE_${x}`,
+      logicalOperator: 'OR'
     });
-  }
+  });
 });
 
 const onFiltersEmit = () => {
