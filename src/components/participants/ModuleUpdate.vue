@@ -105,7 +105,7 @@ watch(setCourseLevelMutation.isSuccess, () => {
                     </div>
                     <div class="justify-center d-flex align-center">
                         <v-label class="mr-3">NO</v-label>
-                        <v-switch v-model="participant.modules.hasYour" color="primary"
+                        <v-switch v-model="participant.modules.hasYour" base-color="primary"
                             :disabled="participant.modules.hasYour === true" hide-details
                             @update:modelValue="(value: boolean | null) => checkFocus('hasYour', value ?? false)"
                             :false-value="false" :true-value="true">
@@ -120,7 +120,7 @@ watch(setCourseLevelMutation.isSuccess, () => {
                     </div>
                     <div class="justify-center d-flex align-center">
                         <v-label class="mr-3">NO</v-label>
-                        <v-switch v-model="participant.modules.hasLife" color="primary"
+                        <v-switch v-model="participant.modules.hasLife" base-color="primary"
                             :disabled="participant.modules.hasLife === true" hide-details
                             @update:modelValue="(value: boolean | null) => checkFocus('hasLife', value ?? false)"
                             :false-value="false" :true-value="true">
