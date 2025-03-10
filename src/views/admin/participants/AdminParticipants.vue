@@ -22,7 +22,6 @@ const headers = [
   { title: 'Correo', value: 'email' },
   { title: 'Telefono', value: 'phone' },
   { title: 'Nivel actual', value: 'participantLevel.courseLevel' },
-  { title: 'Sede', value: 'sede'},
   { title: 'Documento', value: 'profile.dni' },
   { title: 'Acciones', value: 'actions', width: 50 }
 ];
