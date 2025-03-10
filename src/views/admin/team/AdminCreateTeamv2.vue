@@ -24,6 +24,8 @@ import LevelsGrid from '@/components/shared/LevelsGrid.vue';
 import img1 from '@/assets/images/blog/blog-img1.jpg';
 import img2 from '@/assets/images/blog/blog-img2.jpg';
 import img3 from '@/assets/images/blog/blog-img3.jpg';
+import useTrainingsByLvl from '@/composables/admin/training/useTrainingsByLvl';
+import useTrainerMutations from '@/composables/admin/trainer/useTrainerMutations';
 
 const breadcrumbs = ref([
   {
@@ -34,9 +36,10 @@ const breadcrumbs = ref([
 ]);
 
 const { saveTeamMutations } = useAdminTeamMutations();
-const { isError, isFetching, trainers } = useTrainer();
-const { criteriaMutations, isParticipantsError, isParticipantsLoading, participants, refetchParticipants } = useParticipants();
-const { isTrainingError, isTrainingsLoading, trainings } = useTrainings();
+const { isTrainingsError,isTrainingsLoading,lvl,trainings } = useTrainingsByLvl()
+const { availableTrainerMutation } = useTrainerMutations()
+
+const trainers = ref<Trainers[]>([])
 
 const team = ref({
   users: [] as Participant[],
@@ -77,6 +80,29 @@ const selectedTraining = ref<TrainingData | null>(null);
 const onTrainingSelected = (item: TrainingData[]) => {
   selectedTraining.value = item[0]
 }
+const onTrainingSelectedNext = () => {
+  if(selectedTraining.value){
+    availableTrainerMutation.mutate({
+      endDate:selectedTraining.value.endDate,
+      startDate:selectedTraining.value.startDate
+    })
+  }
+}
+
+watch(availableTrainerMutation.isSuccess,() => {
+  if (availableTrainerMutation.isSuccess.value) {
+    const response = availableTrainerMutation.data.value
+    if (response) {
+      trainers.value = response
+    }
+  }
+  window.value = '3'
+})
+
+const onTrainingBack = () => {
+  window.value = '1'
+  selectedTraining.value = null
+}
 
 const onTrainerSelected = (trainer: Trainers) => {
   selectedTrainer.value = trainer;
@@ -84,22 +110,15 @@ const onTrainerSelected = (trainer: Trainers) => {
 
 
 const onlevelSelected = (level: string) => {
-  console.log("Nivel seleccionado:", level);
+  lvl.value = level
   window.value = "2";
 };
 
-const goNext = () => {
-  window.value = String(Number(window.value) + 1);
-};
-
-const goBack = () => {
-  window.value = String(Number(window.value) - 1);
-};
 const window = ref("1")
 </script>
 <template>
   <BaseBreadcrumb :title="'Equipo'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
-  <VWindow show-arrows v-model="window">
+  <VWindow  v-model="window">
     <VWindowItem value="1">
       <v-card elevation="0">
         <v-card-text>
@@ -121,6 +140,7 @@ const window = ref("1")
         </v-card-text>
       </v-card>
     </VWindowItem>
+
     <VWindowItem value="2">
       <v-card elevation="0">
         <v-card-text>
@@ -130,8 +150,8 @@ const window = ref("1")
           <TrainingList :trainings="trainings" @send-training="onTrainingSelected" />
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="goBack">Atrás</v-btn>
-          <v-btn color="primary" @click="goNext">Siguiente</v-btn>
+          <v-btn @click="onTrainingBack" :loading="availableTrainerMutation.isPending.value">Atrás</v-btn>
+          <v-btn color="primary" @click="onTrainingSelectedNext" :disabled="selectedTraining == null" :loading="availableTrainerMutation.isPending.value">Siguiente</v-btn>
         </v-card-actions>
       </v-card>
     </VWindowItem>
@@ -143,15 +163,11 @@ const window = ref("1")
           <h4 class="text-h4 pb-2">Entrenador</h4>
           <v-divider></v-divider>
           <p class="mt-4">Selecciona el entrenador conforme a lo seleccionado.</p>
-          <div class="upload-btn-wrapper position-relative overflow-hidden d-flex justify-center" elevation="10">
-            <v-avatar size="100" class="mt-2">
-              <v-img :src="getDicebearAvatarUrl(selectedTrainer?.name!)" alt="Avatar" />
-            </v-avatar>
-          </div>
+          <TrainerCarousel :trainers="trainers"/>
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="goBack">Atrás</v-btn>
-          <v-btn color="primary" @click="goNext">Siguiente</v-btn>
+          <v-btn @click="window = '2'">Atrás</v-btn>
+          <v-btn color="primary">Siguiente</v-btn>
         </v-card-actions>
       </v-card>
     </VWindowItem>
@@ -162,11 +178,11 @@ const window = ref("1")
         <v-card-text>
           <h4 class="text-h4 pb-2">Participantes</h4>
           <v-divider></v-divider>
-          <ParticipantsSelect :participants="participants" />
+          <ParticipantsSelect :participants="[]" />
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="goBack">Atrás</v-btn>
-          <v-btn color="primary" @click="goNext">Siguiente</v-btn>
+          <v-btn >Atrás</v-btn>
+          <v-btn color="primary">Siguiente</v-btn>
         </v-card-actions>
       </v-card>
     </VWindowItem>
@@ -181,7 +197,7 @@ const window = ref("1")
           <p>Entrenamiento seleccionado: {{ selectedTraining?.name }}</p>
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="goBack">Atrás</v-btn>
+          <v-btn >Atrás</v-btn>
           <v-btn color="success">Finalizar</v-btn>
         </v-card-actions>
       </v-card>

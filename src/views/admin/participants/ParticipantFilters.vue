@@ -14,7 +14,7 @@ watch(userTipe, () => {
     criteria.value.filters.push({
       column: 'roleName',
       joinTable: 'participantLevel',
-      operation: 'JOIN',
+      operation: 'EQUAL',
       value: `ROLE_${x}`,
       logicalOperator: 'OR'
     });

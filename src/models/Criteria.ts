@@ -7,7 +7,7 @@ export interface Criteria {
 export interface Filter {
   column: string;
   value: string;
-  joinTable: string;
-  operation: 'EQUAL' | 'LIKE' | 'IN' | 'GREATER_THAN' | 'LESS_THAN' | 'BETWEEN' | 'JOIN';
+  joinTable?: string;
+  operation: 'EQUAL' | 'LIKE' | 'IN' | 'GREATER_THAN' | 'LESS_THAN' | 'BETWEEN' | 'JOIN' | 'IS_NULL' | 'IS_NOT' | 'IS_EMPTY';
   logicalOperator: 'AND' | 'OR';
 }

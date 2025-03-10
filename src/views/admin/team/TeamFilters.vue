@@ -15,7 +15,7 @@ watch(userTipe, () => {
     criteria.value.filters.push({
       column: 'courseLevel',
       joinTable: 'training',
-      operation: 'JOIN',
+      operation: 'EQUAL',
       value: `${x}`,
       logicalOperator: 'OR'
     });
@@ -27,7 +27,7 @@ watch(city, () => {
     criteria.value.filters.push({
       column: 'city',
       joinTable: 'training.campus',
-      operation: 'JOIN',
+      operation: 'EQUAL',
       value: x,
       logicalOperator: 'OR'
     });
