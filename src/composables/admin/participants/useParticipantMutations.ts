@@ -11,12 +11,20 @@ const setFocus = async (participants: Partial<ParticipantLevelUpdate>): Promise<
   const { data } = await api.put(`/client-module/update`, { ...participants.modules, userId: participants });
   return data;
 };
+
+const getByLvl = async (lvl: string): Promise<Participant[]> => {
+  const { data } = await api.post(`/users/participants-available/${lvl}`);
+  return data;
+};
+
 const useParticipantMutations = () => {
   const updateParticipantMutation = useMutation({ mutationFn: updateParticipant });
   const setCourseLevelMutation = useMutation({ mutationFn: setFocus });
+  const getByLvlMutation = useMutation({ mutationFn: getByLvl });
   return {
     updateParticipantMutation,
-    setCourseLevelMutation
+    setCourseLevelMutation,
+    getByLvlMutation
   };
 };
 

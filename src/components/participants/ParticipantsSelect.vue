@@ -6,6 +6,7 @@ import { ref, watch } from 'vue';
 
 interface Props {
     participants: Participant[];
+    team:TeamWriteModel
 }
 
 const props = defineProps<Props>();
@@ -20,25 +21,8 @@ const headers = ref([
 
 const emit = defineEmits(['send-participants']);
 const searchQuery3 = ref('');
-const team = ref<TeamWriteModel>({
-    users: [] as Participant[]
-} as TeamWriteModel);
 
-const handleCheckboxChange = (value: boolean, item: Participant) => {
-    if (value) {
-        team.value.users.push(item);
-    } else {
-        team.value.users = team.value.users.filter(participant => participant.id !== item.id);
-    }
-};
 
-watch(
-    () => team.value.users,
-    (newSelectedParticipants) => {
-        emit('send-participants', newSelectedParticipants);
-    },
-    { deep: true }
-);
 </script>
 <template>
     <v-text-field v-model="searchQuery3" label="Buscar por Nombre" outlined dense clearable>

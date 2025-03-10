@@ -7,6 +7,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import LevelsGrid from '@/components/shared/LevelsGrid.vue';
 import TrainerCarousel from '@/components/trainers/TrainerCarousel.vue';
 import TrainingList from '@/components/trainings/TrainingList.vue';
+import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import useTrainerMutations from '@/composables/admin/trainer/useTrainerMutations';
 import useTrainingsByLvl from '@/composables/admin/training/useTrainingsByLvl';
@@ -32,11 +33,14 @@ const breadcrumbs = ref([
 const { saveTeamMutations } = useAdminTeamMutations();
 const { isTrainingsError, isTrainingsLoading, lvl, trainings } = useTrainingsByLvl()
 const { availableTrainerMutation } = useTrainerMutations()
+const { getByLvlMutation } = useParticipantMutations()
+
 const lasStep = ref(7)
 const staffStepNumber = ref(6)
 const visStepNumber = ref(5)
 const masterLifeStepNumber = ref(5)
 const trainers = ref<Trainers[]>([])
+const participant = ref<Participant[]>([])
 
 const team = ref({
   users: [] as Participant[],
@@ -134,8 +138,24 @@ const onlevelSelected = (level: string) => {
 };
 
 const window = ref("1")
+const onTrainerNext = () => {
+  getByLvlMutation.mutate(lvl.value)
+  step.value++
+}
 
 
+watch(getByLvlMutation.isError,() => {
+  
+})
+
+watch(getByLvlMutation.isSuccess,() => {
+  if (getByLvlMutation.isSuccess.value) {
+    const response = getByLvlMutation.data.value
+    if (response) {
+      participant.value = response
+    }
+  }
+})
 
 const step = ref(1)
 const onClickFinish = () => {
@@ -198,7 +218,7 @@ const onClickFinish = () => {
       </v-card>
 
       <v-btn variant="plain" @click="step--">Atrás</v-btn>
-      <v-btn color="primary" @click="step++">Siguiente</v-btn>
+      <v-btn color="primary" @click="onTrainerNext">Siguiente</v-btn>
     </VStepperVerticalItem>
 
     <VStepperVerticalItem hide-actions :complete="step > 4" subtitle="Paso 4" title="Selecciona los participantes"
@@ -207,12 +227,12 @@ const onClickFinish = () => {
         <v-card-text>
           <h4 class="text-h4 pb-2">Participantes</h4>
           <v-divider></v-divider>
-          <ParticipantsSelect :participants="team.users" />
+          <ParticipantsSelect :participants="participant" :team="team"/>
         </v-card-text>
       </v-card>
 
       <v-btn variant="plain" @click="step--">Atrás</v-btn>
-      <v-btn color="primary" @click="step++">Siguiente</v-btn>
+      <v-btn color="primary" @click="step++" :disabled="team.users.length <= 0">Siguiente</v-btn>
     </VStepperVerticalItem>
 
     <VStepperVerticalItem hide-actions :complete="step > visStepNumber" :subtitle="`Paso ${visStepNumber}`"
