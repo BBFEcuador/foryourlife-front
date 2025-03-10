@@ -1,31 +1,25 @@
 <script setup lang="ts">
+import img1 from '@/assets/images/blog/blog-img1.jpg';
+import img2 from '@/assets/images/blog/blog-img2.jpg';
+import img3 from '@/assets/images/blog/blog-img3.jpg';
 import ParticipantsSelect from '@/components/participants/ParticipantsSelect.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
+import LevelsGrid from '@/components/shared/LevelsGrid.vue';
 import TrainerCarousel from '@/components/trainers/TrainerCarousel.vue';
-import TrainingCarousel from '@/components/trainings/TrainingCarousel.vue';
 import TrainingList from '@/components/trainings/TrainingList.vue';
-import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
-import useTrainer from '@/composables/admin/trainer/useTrainers';
-import useTrainings from '@/composables/admin/training/useTrainings';
+import useTrainerMutations from '@/composables/admin/trainer/useTrainerMutations';
+import useTrainingsByLvl from '@/composables/admin/training/useTrainingsByLvl';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { Participant } from '@/models/Participants';
 import type { TeamWriteModel } from '@/models/Team';
 import type { Trainers } from '@/models/Trainers';
 import type { TrainingData } from '@/models/Training';
 import { router } from '@/router';
-import { getDicebearAvatarUrl, getInitialsAvatarUrl } from '@/service/getAvatar';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import type { AxiosError } from 'axios';
-import moment from 'moment';
 import { ref, watch } from 'vue';
-import { Icon } from '@iconify/vue/dist/iconify.js';
-import LevelsGrid from '@/components/shared/LevelsGrid.vue';
-import img1 from '@/assets/images/blog/blog-img1.jpg';
-import img2 from '@/assets/images/blog/blog-img2.jpg';
-import img3 from '@/assets/images/blog/blog-img3.jpg';
-import useTrainingsByLvl from '@/composables/admin/training/useTrainingsByLvl';
-import useTrainerMutations from '@/composables/admin/trainer/useTrainerMutations';
+import { VStepperVertical, VStepperVerticalItem } from 'vuetify/labs/VStepperVertical';
 
 const breadcrumbs = ref([
   {
@@ -36,9 +30,12 @@ const breadcrumbs = ref([
 ]);
 
 const { saveTeamMutations } = useAdminTeamMutations();
-const { isTrainingsError,isTrainingsLoading,lvl,trainings } = useTrainingsByLvl()
+const { isTrainingsError, isTrainingsLoading, lvl, trainings } = useTrainingsByLvl()
 const { availableTrainerMutation } = useTrainerMutations()
-
+const lasStep = ref(7)
+const staffStepNumber = ref(6)
+const visStepNumber = ref(5)
+const masterLifeStepNumber = ref(5)
 const trainers = ref<Trainers[]>([])
 
 const team = ref({
@@ -81,24 +78,22 @@ const onTrainingSelected = (item: TrainingData[]) => {
   selectedTraining.value = item[0]
 }
 const onTrainingSelectedNext = () => {
-  if(selectedTraining.value){
+  if (selectedTraining.value) {
     availableTrainerMutation.mutate({
-      endDate:selectedTraining.value.endDate,
-      startDate:selectedTraining.value.startDate
+      endDate: selectedTraining.value.endDate,
+      startDate: selectedTraining.value.startDate
     })
   }
 }
-
-watch(availableTrainerMutation.isSuccess,() => {
+watch(availableTrainerMutation.isSuccess, () => {
   if (availableTrainerMutation.isSuccess.value) {
     const response = availableTrainerMutation.data.value
     if (response) {
       trainers.value = response
+      step.value++
     }
   }
-  window.value = '3'
 })
-
 const onTrainingBack = () => {
   window.value = '1'
   selectedTraining.value = null
@@ -111,19 +106,52 @@ const onTrainerSelected = (trainer: Trainers) => {
 
 const onlevelSelected = (level: string) => {
   lvl.value = level
-  window.value = "2";
+  switch (level) {
+    case 'FOCUS':
+      lasStep.value = 7
+      staffStepNumber.value = 6
+      visStepNumber.value = 5
+      masterLifeStepNumber.value = 5
+      break;
+
+    case 'YOUR':
+      lasStep.value = 6
+      staffStepNumber.value = 5
+      visStepNumber.value = 5
+      masterLifeStepNumber.value = 5
+      break;
+    case 'LIFE':
+      lasStep.value = 6
+      staffStepNumber.value = 5
+      visStepNumber.value = 5
+      masterLifeStepNumber.value = 5
+      break;
+
+    default:
+      break;
+  }
+  step.value++
 };
 
 const window = ref("1")
+
+
+
+const step = ref(1)
+const onClickFinish = () => {
+  alert('Equipo creado con éxito')
+}
 </script>
 <template>
   <BaseBreadcrumb :title="'Equipo'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
-  <VWindow  v-model="window">
-    <VWindowItem value="1">
+
+  <VStepperVertical v-model="step">
+    <VStepperVerticalItem hide-actions :complete="step > 1" subtitle="Paso 1" title="Selecciona el tipo de equipo"
+      :value="1">
       <v-card elevation="0">
         <v-card-text>
           <v-card-item class="text-center text-h3 font-weight-medium mb-2">
-            ¿Qué Equipo vas a crear? ✨
+            ¿Qué equipo vas a crear? ✨
           </v-card-item>
           <v-divider></v-divider>
           <v-row>
@@ -134,14 +162,16 @@ const window = ref("1")
               <LevelsGrid @level-selected="onlevelSelected" :image="img2" description="Normal" title="Your" />
             </v-col>
             <v-col cols="12" md="4">
-              <LevelsGrid @level-selected="onlevelSelected" :image="img3" description="Buenazo" title="Life" />
+              <LevelsGrid @level-selected="onlevelSelected" :image="img3" description="Avanzado" title="Life" />
             </v-col>
           </v-row>
         </v-card-text>
       </v-card>
-    </VWindowItem>
 
-    <VWindowItem value="2">
+    </VStepperVerticalItem>
+
+    <VStepperVerticalItem hide-actions :complete="step > 2" subtitle="Paso 2" title="Selecciona el entrenamiento"
+      :value="2">
       <v-card elevation="0">
         <v-card-text>
           <h4 class="text-h4 pb-2">Entrenamiento</h4>
@@ -149,46 +179,79 @@ const window = ref("1")
           <p class="mt-4">Selecciona el entrenamiento para tu equipo.</p>
           <TrainingList :trainings="trainings" @send-training="onTrainingSelected" />
         </v-card-text>
-        <v-card-actions>
-          <v-btn @click="onTrainingBack" :loading="availableTrainerMutation.isPending.value">Atrás</v-btn>
-          <v-btn color="primary" @click="onTrainingSelectedNext" :disabled="selectedTraining == null" :loading="availableTrainerMutation.isPending.value">Siguiente</v-btn>
-        </v-card-actions>
       </v-card>
-    </VWindowItem>
+      <v-btn color="secondary" @click="step--">Atrás</v-btn>
+      <v-btn color="primary" @click="onTrainingSelectedNext" :disabled="selectedTraining == null">
+        Siguiente
+      </v-btn>
+    </VStepperVerticalItem>
 
-    <!-- PASO 3 -->
-    <VWindowItem value="3">
+    <VStepperVerticalItem hide-actions :complete="step > 3" subtitle="Paso 3" title="Selecciona el entrenador"
+      :value="3">
       <v-card elevation="0">
         <v-card-text>
           <h4 class="text-h4 pb-2">Entrenador</h4>
           <v-divider></v-divider>
           <p class="mt-4">Selecciona el entrenador conforme a lo seleccionado.</p>
-          <TrainerCarousel :trainers="trainers"/>
+          <TrainerCarousel :trainers="trainers" />
         </v-card-text>
-        <v-card-actions>
-          <v-btn @click="window = '2'">Atrás</v-btn>
-          <v-btn color="primary">Siguiente</v-btn>
-        </v-card-actions>
       </v-card>
-    </VWindowItem>
 
-    <!-- PASO 4 -->
-    <VWindowItem value="4">
+      <v-btn variant="plain" @click="step--">Atrás</v-btn>
+      <v-btn color="primary" @click="step++">Siguiente</v-btn>
+    </VStepperVerticalItem>
+
+    <VStepperVerticalItem hide-actions :complete="step > 4" subtitle="Paso 4" title="Selecciona los participantes"
+      :value="4">
       <v-card elevation="0">
         <v-card-text>
           <h4 class="text-h4 pb-2">Participantes</h4>
           <v-divider></v-divider>
-          <ParticipantsSelect :participants="[]" />
+          <ParticipantsSelect :participants="team.users" />
         </v-card-text>
-        <v-card-actions>
-          <v-btn >Atrás</v-btn>
-          <v-btn color="primary">Siguiente</v-btn>
-        </v-card-actions>
       </v-card>
-    </VWindowItem>
 
-    <!-- PASO 5 -->
-    <VWindowItem value="5">
+      <v-btn variant="plain" @click="step--">Atrás</v-btn>
+      <v-btn color="primary" @click="step++">Siguiente</v-btn>
+    </VStepperVerticalItem>
+
+    <VStepperVerticalItem hide-actions :complete="step > visStepNumber" :subtitle="`Paso ${visStepNumber}`"
+      title="Selecciona los Visio" :value="visStepNumber" v-if="lvl == 'FOCUS'">
+      <v-card elevation="0">
+        <v-card-text>
+          <h4 class="text-h4 pb-2">Vis</h4>
+        </v-card-text>
+      </v-card>
+
+      <v-btn variant="plain" @click="step--">Atrás</v-btn>
+      <v-btn color="primary" @click="step++">Siguiente</v-btn>
+    </VStepperVerticalItem>
+
+    <VStepperVerticalItem hide-actions :complete="step > staffStepNumber" :subtitle="`Paso ${staffStepNumber}`"
+      title="Selecciona los Staff" :value="staffStepNumber" v-if="lvl == 'FOCUS' || lvl == 'YOUR'">
+      <v-card elevation="0">
+        <v-card-text>
+          <h4 class="text-h4 pb-2">Staff</h4>
+        </v-card-text>
+      </v-card>
+
+      <v-btn variant="plain" @click="step--">Atrás</v-btn>
+      <v-btn color="primary" @click="step++">Siguiente</v-btn>
+    </VStepperVerticalItem>
+
+    <VStepperVerticalItem hide-actions :complete="step > masterLifeStepNumber" :subtitle="`Paso ${masterLifeStepNumber}`"
+      title="Selecciona los masterlife" :value="masterLifeStepNumber" v-if="lvl == 'LIFE'">
+      <v-card elevation="0">
+        <v-card-text>
+          <h4 class="text-h4 pb-2">Master</h4>
+        </v-card-text>
+      </v-card>
+
+      <v-btn variant="plain" @click="step--">Atrás</v-btn>
+      <v-btn color="primary" @click="step++">Siguiente</v-btn>
+    </VStepperVerticalItem>
+
+    <VStepperVerticalItem hide-actions :subtitle="`Paso ${lasStep}`" title="Confirmación" :value="lasStep">
       <v-card elevation="0">
         <v-card-text>
           <h4 class="text-h4 pb-2">Confirmación</h4>
@@ -196,13 +259,12 @@ const window = ref("1")
           <p class="mt-4">Revisa y confirma los datos antes de finalizar.</p>
           <p>Entrenamiento seleccionado: {{ selectedTraining?.name }}</p>
         </v-card-text>
-        <v-card-actions>
-          <v-btn >Atrás</v-btn>
-          <v-btn color="success">Finalizar</v-btn>
-        </v-card-actions>
       </v-card>
-    </VWindowItem>
-  </VWindow>
+
+      <v-btn variant="plain" @click="step--">Atrás</v-btn>
+      <v-btn color="success" @click="onClickFinish">Finalizar</v-btn>
+    </VStepperVerticalItem>
+  </VStepperVertical>
 </template>
 
 

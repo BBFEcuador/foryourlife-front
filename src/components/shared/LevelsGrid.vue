@@ -10,7 +10,7 @@ const props = defineProps<{
 const emit = defineEmits(['level-selected']);
 
 const onLevelSelected = (params: string) => {
-    emit('level-selected', params);
+    emit('level-selected', params.toUpperCase());
 };
 </script>
 
