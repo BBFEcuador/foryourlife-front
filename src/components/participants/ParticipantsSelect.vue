@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Participant } from '@/models/Participants';
 import type { TeamWriteModel } from '@/models/Team';
+import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref, watch } from 'vue';
 
 

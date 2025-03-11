@@ -8,4 +8,6 @@ export interface TeamWriteModel {
   training: string;
   trainer: string;
   users: Participant[];
+  staffIds: string[];
+  visionaryIds: string[];
 }

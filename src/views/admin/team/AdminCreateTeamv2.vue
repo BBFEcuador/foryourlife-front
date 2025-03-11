@@ -4,9 +4,11 @@ import img2 from '@/assets/images/blog/blog-img2.jpg';
 import img3 from '@/assets/images/blog/blog-img3.jpg';
 import ParticipantsSelect from '@/components/participants/ParticipantsSelect.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
+import ConfirmationStep from '@/components/shared/ConfirmationStep.vue';
 import LevelsGrid from '@/components/shared/LevelsGrid.vue';
 import TrainerCarousel from '@/components/trainers/TrainerCarousel.vue';
 import TrainingList from '@/components/trainings/TrainingList.vue';
+import StafList from '@/components/staff/stafList.vue';
 import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import useStaffMutations from '@/composables/admin/staff/useStaffMutations';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
@@ -18,12 +20,14 @@ import type { StaffWriteModel } from '@/models/Staff';
 import type { TeamWriteModel } from '@/models/Team';
 import type { Trainers } from '@/models/Trainers';
 import type { TrainingData } from '@/models/Training';
+import type { Visionary } from '@/models/Visionary';
 import { router } from '@/router';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
 import { VStepperVertical, VStepperVerticalItem } from 'vuetify/labs/VStepperVertical';
+import VisionaryList from '@/components/visionaries/VisionaryList.vue';
 
 const breadcrumbs = ref([
   {
@@ -54,8 +58,17 @@ const team = ref({
 
 const showForm2 = ref(false);
 
+const selectedStaffs = ref<StaffWriteModel[]>([])
 
+const onStaffSelected = (staffs: StaffWriteModel[]) => {
+  selectedStaffs.value = staffs;
+}
 
+const selectedVisionaries = ref<Visionary[]>([])
+
+const onVisionarySelected = (visionaries: Visionary[]) => {
+  selectedVisionaries.value = visionaries;
+}
 
 watch(() => team.value.name, () => {
   if (team.value.name) {
@@ -161,11 +174,11 @@ const onTrainerNext = () => {
 }
 
 
-watch(getByLvlMutation.isError,() => {
-  
+watch(getByLvlMutation.isError, () => {
+
 })
 
-watch(getByLvlMutation.isSuccess,() => {
+watch(getByLvlMutation.isSuccess, () => {
   if (getByLvlMutation.isSuccess.value) {
     const response = getByLvlMutation.data.value
     if (response) {
@@ -175,12 +188,17 @@ watch(getByLvlMutation.isSuccess,() => {
 })
 
 const step = ref(1)
+
 const onClickFinish = () => {
+  if (!selectedTraining.value?.id && !selectedTrainer.value?.id) return;
+  
   saveTeamMutations.mutate({
     ...team.value,
     training: selectedTraining.value?.id ?? '',
-    trainer: selectedTrainer.value?.id ?? ''
-  })
+    trainer: selectedTrainer.value?.id ?? '',
+    staffIds: selectedStaffs.value.map(staff => staff.user.id),
+    visionaryIds: selectedVisionaries.value.map(visionary => visionary.user.id)
+  });
 }
 </script>
 
@@ -188,24 +206,26 @@ const onClickFinish = () => {
   <BaseBreadcrumb :title="'Equipo'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
 
   <v-container class="pa-4">
-    <v-card class="mb-4" variant="outlined">
+    <v-card class="mb-4" elevation="1">
       <v-card-item>
         <v-card-title class="d-flex align-center">
           <Icon icon="mdi-account-group" size="32" class="mr-2" color="primary" />
           Crear Nuevo Equipo
         </v-card-title>
-        <v-card-subtitle>
-          Sigue los pasos para configurar tu equipo
-        </v-card-subtitle>
+        <v-card-subtitle class="mt-2">Ingresa el nombre del equipo para comenzar</v-card-subtitle>
+        <v-card-text>
+          <v-text-field v-model="team.name" label="Nombre del equipo" placeholder="Ingresa el nombre del equipo"
+            hide-details="auto" variant="outlined" density="comfortable" class="mt-2"></v-text-field>
+        </v-card-text>
       </v-card-item>
     </v-card>
 
-    <VStepperVertical v-model="step" class="elevation-1">
+    <VStepperVertical v-model="step" elevation="1">
       <VStepperVerticalItem hide-actions :complete="step > 1" subtitle="Paso 1" title="Selecciona el tipo de equipo"
         :value="1">
         <v-card variant="flat" class="pa-4">
           <p class="text-center text-h4 font-weight-medium mb-6">
-            ¿Qué equipo vas a crear? 
+            ¿Qué equipo vas a crear?
           </p>
           <v-row>
             <v-col cols="12" md="4">
@@ -250,12 +270,13 @@ const onClickFinish = () => {
 
           <v-card-actions class="mt-6">
             <v-btn variant="outlined" @click="step--">
-              <Icon icon="mdi-arrow-left"/>
-              Atrás</v-btn>
+              <Icon icon="mdi-arrow-left" />
+              Atrás
+            </v-btn>
             <v-spacer></v-spacer>
             <v-btn color="primary" @click="onTrainingSelectedNext"
               :disabled="selectedTraining == null || isTrainingsLoading">
-              <Icon icon="mdi-arrow-right"/>
+              <Icon icon="mdi-arrow-right" />
               Siguiente
             </v-btn>
           </v-card-actions>
@@ -281,12 +302,13 @@ const onClickFinish = () => {
 
           <v-card-actions class="mt-6">
             <v-btn variant="outlined" @click="step--">
-              <Icon icon="mdi-arrow-left"/>
-              Atrás</v-btn>
+              <Icon icon="mdi-arrow-left" />
+              Atrás
+            </v-btn>
             <v-spacer></v-spacer>
             <v-btn color="primary" @click="onTrainerNext"
               :disabled="!selectedTrainer || availableTrainerMutation.isPending.value">
-              <Icon icon="mdi-arrow-right"/>
+              <Icon icon="mdi-arrow-right" />
               Siguiente
             </v-btn>
           </v-card-actions>
@@ -302,7 +324,8 @@ const onClickFinish = () => {
           </div>
           <v-divider class="mb-4"></v-divider>
 
-          <v-progress-circular v-if="getByLvlMutation.isPending.value" indeterminate color="primary"></v-progress-circular>
+          <v-progress-circular v-if="getByLvlMutation.isPending.value" indeterminate
+            color="primary"></v-progress-circular>
           <v-alert v-else-if="getByLvlMutation.isError.value" type="error" class="mb-4">
             Error al cargar los participantes
           </v-alert>
@@ -310,63 +333,83 @@ const onClickFinish = () => {
 
           <v-card-actions class="mt-6">
             <v-btn variant="outlined" @click="step--">
-              <Icon icon="mdi-arrow-left"/>
-              Atrás</v-btn>
+              <Icon icon="mdi-arrow-left" />
+              Atrás
+            </v-btn>
             <v-spacer></v-spacer>
             <v-btn color="primary" @click="step++"
               :disabled="team.users.length <= 0 || getByLvlMutation.isPending.value">
-              <Icon icon="mdi-arrow-right"/>
+              <Icon icon="mdi-arrow-right" />
               Siguiente
             </v-btn>
           </v-card-actions>
         </v-card>
       </VStepperVerticalItem>
 
-      <VStepperVerticalItem v-if="lvl == 'FOCUS'" hide-actions :complete="step > visStepNumber"
-        :subtitle="`Paso ${visStepNumber}`" title="Selecciona los Visio" :value="visStepNumber">
+      <VStepperVerticalItem v-if="lvl === 'FOCUS'" hide-actions :complete="step > visStepNumber"
+        :subtitle="`Paso ${visStepNumber}`" title="Selecciona los Visionarios" :value="visStepNumber">
         <v-card variant="flat" class="pa-4">
           <div class="d-flex align-center mb-4">
             <Icon icon="mdi-eye" size="28" class="mr-2" color="primary" />
-            <h4 class="text-h4">Visionario</h4>
+            <h4 class="text-h4">Visionarios</h4>
           </div>
           <v-divider class="mb-4"></v-divider>
-
+          <div v-if="selectedVisionaries.length > 0" class="mb-4">
+            <div class="text-subtitle-1 mb-2">Visionarios Seleccionados:</div>
+            <v-chip-group>
+              <v-chip v-for="visionary in selectedVisionaries" :key="visionary.user.id" color="deep-purple" variant="outlined"
+                class="mr-2">
+                {{ visionary.user.name }}
+              </v-chip>
+            </v-chip-group>
+          </div>
+          <VisionaryList @select-visionaries="onVisionarySelected" />
           <v-card-actions class="mt-6">
             <v-btn variant="outlined" @click="step--">
-              <Icon icon="mdi-arrow-left"/>
-              Atrás</v-btn>
+              <Icon icon="mdi-arrow-left" />
+              Atrás
+            </v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="step++">
-              <Icon icon="mdi-arrow-right"/>
+            <v-btn color="primary" @click="step++" :disabled="selectedVisionaries.length === 0">
+              <Icon icon="mdi-arrow-right" />
               Siguiente
             </v-btn>
           </v-card-actions>
         </v-card>
       </VStepperVerticalItem>
 
-      <VStepperVerticalItem v-if="lvl == 'FOCUS' || lvl == 'YOUR'" hide-actions :complete="step > staffStepNumber"
-        :subtitle="`Paso ${staffStepNumber}`" title="Selecciona los Staff" :value="staffStepNumber">
+      <VStepperVerticalItem v-if="lvl === 'FOCUS' || lvl === 'YOUR'" hide-actions :complete="step > staffStepNumber"
+        :subtitle="`Paso ${staffStepNumber}`" title="Selecciona el Staff" :value="staffStepNumber">
         <v-card variant="flat" class="pa-4">
           <div class="d-flex align-center mb-4">
-            <Icon icon="mdi-account-tie-voice" size="28" class="mr-2" color="primary" />
-            <h4 class="text-h4">Staff</h4>
+            <Icon icon="mdi-account-tie" size="28" class="mr-2" color="primary" />
+            <h4 class="text-h4">Selecciona el Staff</h4>
           </div>
-          <v-divider class="mb-4"></v-divider>
-          {{ staffs }}
+          <div v-if="selectedStaffs.length > 0" class="mb-4">
+            <div class="text-subtitle-1 mb-2">Staff Seleccionado:</div>
+            <v-chip-group>
+              <v-chip v-for="staff in selectedStaffs" :key="staff.user.id" color="primary" variant="outlined"
+                class="mr-2">
+                {{ staff.user?.name }}
+              </v-chip>
+            </v-chip-group>
+          </div>
+          <StafList @select-staff="onStaffSelected" />
           <v-card-actions class="mt-6">
             <v-btn variant="outlined" @click="step--">
-              <Icon icon="mdi-arrow-left"/>
-              Atrás</v-btn>
+              <Icon icon="mdi-arrow-left" />
+              Atrás
+            </v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="step++">
-              <Icon icon="mdi-arrow-right"/>
+            <v-btn color="primary" @click="step++" :disabled="selectedStaffs.length === 0">
+              <Icon icon="mdi-arrow-right" />
               Siguiente
             </v-btn>
           </v-card-actions>
         </v-card>
       </VStepperVerticalItem>
 
-      <VStepperVerticalItem v-if="lvl == 'LIFE'" hide-actions :complete="step > masterLifeStepNumber"
+      <VStepperVerticalItem v-if="lvl === 'LIFE'" hide-actions :complete="step > masterLifeStepNumber"
         :subtitle="`Paso ${masterLifeStepNumber}`" title="Selecciona los masterlife" :value="masterLifeStepNumber">
         <v-card variant="flat" class="pa-4">
           <div class="d-flex align-center mb-4">
@@ -376,9 +419,13 @@ const onClickFinish = () => {
           <v-divider class="mb-4"></v-divider>
 
           <v-card-actions class="mt-6">
-            <v-btn variant="outlined" prepend-icon="mdi-arrow-left" @click="step--">Atrás</v-btn>
+            <v-btn variant="outlined" @click="step--">
+              <Icon icon="mdi-arrow-left" />
+              Atrás
+            </v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="primary" append-icon="mdi-arrow-right" @click="step++">
+            <v-btn color="primary" @click="step++">
+              <Icon icon="mdi-arrow-right" />
               Siguiente
             </v-btn>
           </v-card-actions>
@@ -386,113 +433,19 @@ const onClickFinish = () => {
       </VStepperVerticalItem>
 
       <VStepperVerticalItem hide-actions :subtitle="`Paso ${lasStep}`" title="Confirmación" :value="lasStep">
-        <v-card variant="flat" class="pa-4">
-          <div class="d-flex align-center mb-4">
-            <Icon icon="mdi-check-circle" size="28" class="mr-2" color="success" />
-            <h4 class="text-h4">Confirmación</h4>
-          </div>
-          <v-divider class="mb-4"></v-divider>
-
-          <v-container class="px-0">
-            <v-row>
-              <v-col cols="12" sm="6">
-                <v-card variant="outlined" class="mb-4">
-                  <v-card-item>
-                    <template v-slot:prepend>
-                      <Icon icon="mdi-dumbbell" color="primary" size="24"/>
-                    </template>
-                    <v-card-title>Entrenamiento</v-card-title>
-                    <v-card-subtitle class="mt-1">
-                      <div class="d-flex align-center">
-                        <span class="text-primary font-weight-medium">{{ selectedTraining?.name }}</span>
-                      </div>
-                      <div class="mt-2 text-caption">
-                        <Icon icon="mdi-calendar" class="mr-1" size="16"/>
-                        {{ selectedTraining?.startDate }} - {{ selectedTraining?.endDate }}
-                      </div>
-                    </v-card-subtitle>
-                  </v-card-item>
-                </v-card>
-              </v-col>
-
-              <v-col cols="12" sm="6">
-                <v-card variant="outlined" class="mb-4">
-                  <v-card-item>
-                    <template v-slot:prepend>
-                      <Icon icon="mdi-account-tie" color="primary" size="24"/>
-                    </template>
-                    <v-card-title>Entrenador</v-card-title>
-                    <v-card-subtitle class="mt-1">
-                      <div class="d-flex align-center">
-                        <span class="text-primary font-weight-medium">{{ selectedTrainer?.name }}</span>
-                      </div>
-                      <div class="mt-2 text-caption d-flex align-center">
-                        <Icon icon="mdi-email" class="mr-1" size="16"/>
-                        {{ selectedTrainer?.email }}
-                      </div>
-                    </v-card-subtitle>
-                  </v-card-item>
-                </v-card>
-              </v-col>
-
-              <v-col cols="12" sm="6">
-                <v-card variant="outlined" class="mb-4">
-                  <v-card-item>
-                    <template v-slot:prepend>
-                      <Icon icon="mdi-account-group" color="primary" size="24"/>
-                    </template>
-                    <v-card-title>Participantes</v-card-title>
-                    <v-card-subtitle class="mt-1">
-                      <div class="d-flex align-center">
-                        <span class="text-primary font-weight-medium">{{ team.users.length }} participantes</span>
-                      </div>
-                      <div class="mt-2 text-caption">
-                        <Icon icon="mdi-information" class="mr-1" size="16"/>
-                        Seleccionados para el equipo
-                      </div>
-                    </v-card-subtitle>
-                  </v-card-item>
-                </v-card>
-              </v-col>
-
-              <v-col cols="12" sm="6">
-                <v-card variant="outlined" class="mb-4">
-                  <v-card-item>
-                    <template v-slot:prepend>
-                      <Icon icon="mdi-flag" color="primary" size="24"/>
-                    </template>
-                    <v-card-title>Nivel</v-card-title>
-                    <v-card-subtitle class="mt-1">
-                      <div class="d-flex align-center">
-                        <span class="text-primary font-weight-medium">{{ lvl }}</span>
-                      </div>
-                      <div class="mt-2 text-caption">
-                        <Icon icon="mdi-star" class="mr-1" size="16"/>
-                        Nivel del equipo
-                      </div>
-                    </v-card-subtitle>
-                  </v-card-item>
-                </v-card>
-              </v-col>
-            </v-row>
-
-            <v-card-actions class="mt-4">
-              <v-btn variant="outlined" @click="step--">
-                <Icon icon="mdi-arrow-left" class="mr-2"/>
-                Atrás
-              </v-btn>
-              <v-spacer></v-spacer>
-              <v-btn 
-                color="success" 
-                :loading="saveTeamMutations.isPending.value"
-                :disabled="saveTeamMutations.isPending.value"
-                @click="onClickFinish">
-                <Icon icon="mdi-check" class="mr-2"/>
-                Confirmar Equipo
-              </v-btn>
-            </v-card-actions>
-          </v-container>
-        </v-card>
+        <ConfirmationStep 
+          :team-name="team.name"
+          :level="selectedTraining?.courseLevel ?? ''"
+          :selected-training="selectedTraining"
+          :selected-trainer="selectedTrainer"
+          :selected-staffs="selectedStaffs"
+          :selected-visionaries="selectedVisionaries"
+          :participants="team.users"
+          :loading="saveTeamMutations.isPending.value"
+          :disabled="!team.name || !selectedTraining || !selectedTrainer || team.users.length === 0"
+          @back="step--"
+          @finish="onClickFinish"
+        />
       </VStepperVerticalItem>
     </VStepperVertical>
   </v-container>
@@ -502,6 +455,29 @@ const onClickFinish = () => {
 .v-stepper {
   border: 1px solid rgb(var(--v-theme-outlineBorder));
   border-radius: 8px;
+}
+
+.timeline-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgb(var(--v-theme-primary));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(var(--v-theme-primary), 0.2);
+}
+
+:deep(.v-timeline-item__body) {
+  margin-bottom: 24px;
+}
+
+:deep(.v-timeline-divider__dot) {
+  background: transparent !important;
+  box-shadow: none;
 }
 
 .transition-swing {
