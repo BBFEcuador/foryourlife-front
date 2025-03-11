@@ -1,24 +1,16 @@
 <script setup lang="ts">
-import useVisionaries from '@/composables/admin/visionaries/useVisionaries';
+import useVisionarymutations from '@/composables/admin/visionaries/useVisionarymutations';
+import type { TeamWriteModel } from '@/models/Team';
 import type { Visionary } from '@/models/Visionary';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
-const { visionariesData, isVisionariesError, isVisionariesloading, refetchVisionaries } = useVisionaries();
-
-const emit = defineEmits(['select-visionaries']);
-
-const selectedVisionaries = ref<Visionary[]>([]);
-
-const onSelectionUpdate = (items: Visionary[]) => {
-    selectedVisionaries.value = items;
-    emit('select-visionaries', items);
-};
-
-watch(selectedVisionaries, (newVal) => {
-    emit('select-visionaries', newVal);
-}, { deep: true });
-
+interface props{
+    team:TeamWriteModel
+    visionaries:Visionary[],
+    isVisionariesloading:boolean
+}
+const porps = defineProps<props>()
 const search = ref('');
 
 const headers = [
@@ -30,7 +22,7 @@ const headers = [
 </script>
 
 <template>
-    <v-data-table v-model="selectedVisionaries" :headers="headers" :items="visionariesData" :search="search"
+    <v-data-table v-model="team.visionaries" :headers="headers" :items="visionaries" :search="search"
         :loading="isVisionariesloading" show-select return-object class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat class="bg-surface">
@@ -41,10 +33,10 @@ const headers = [
                     </template>
                 </v-text-field>
                 <v-spacer></v-spacer>
-                <v-btn v-if="selectedVisionaries.length" color="error" variant="tonal" size="small"
-                    @click="selectedVisionaries = []">
+                <v-btn v-if="team.visionaries.length" color="error" variant="tonal" size="small"
+                    @click="team.visionaries = []">
                     <Icon icon="mdi-close" class="mr-1" />
-                    Limpiar Selección ({{ selectedVisionaries.length }})
+                    Limpiar Selección ({{ team.visionaries.length }})
                 </v-btn>
             </v-toolbar>
         </template>
@@ -61,14 +53,14 @@ const headers = [
             </v-chip>
         </template>
     </v-data-table>
-    <div v-if="isVisionariesError" class="error-state text-center pa-8">
+    <!-- <div v-if="isVisionariesError" class="error-state text-center pa-8">
         <Icon icon="mdi-alert-circle" color="error" size="48" />
         <div class="text-h6 mt-2">Error al cargar los visionarios</div>
         <v-btn color="primary" class="mt-4" @click="refetchVisionaries">
             <Icon icon="mdi-refresh" class="mr-2" />
             Reintentar
         </v-btn>
-    </div>
+    </div> -->
 </template>
 
 <style scoped>

@@ -4,35 +4,27 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { VDataTable } from 'vuetify/components';
 import { ref, watch } from 'vue';
 import type { StaffWriteModel } from '@/models/Staff';
+import type { TeamWriteModel } from '@/models/Team';
 
-const { isStaffError, isStaffloading, staffData } = useStaffs()
-
-const emit = defineEmits(['select-staff'])
-
-const selectedStaff = ref<StaffWriteModel[]>([])
-
-const onSelectionUpdate = (items: StaffWriteModel[]) => {
-    selectedStaff.value = items
-    emit('select-staff', items)
+interface props{
+    team:TeamWriteModel
+    staff:StaffWriteModel[],
+    isVisionariesloading:boolean
 }
-
-watch(selectedStaff, (newVal) => {
-    emit('select-staff', newVal)
-}, { deep: true })
-
-const search = ref('')
+const porps = defineProps<props>()
+const search = ref('');
 
 const headers = [
     { title: 'Nombre', value: 'user.name', sortable: true },
     { title: 'E-mail', value: 'user.email', sortable: true },
-    { title: 'Rol', value: 'rol', sortable: true },
+    { title: 'Rol', value: 'role', sortable: true },
     { title: 'Estado', value: 'active', sortable: true }
-] as const
+] as const;
 </script>
 
 <template>
-    <v-data-table v-model="selectedStaff" :headers="headers" :items="staffData" :search="search"
-        :loading="isStaffloading" show-select return-object class="elevation-1">
+    <v-data-table v-model="team.staffs" :headers="headers" :items="staff" :search="search"
+        :loading="isVisionariesloading" show-select return-object class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat class="bg-surface">
                 <v-text-field v-model="search" hide-details placeholder="Buscar Staff" class="custom-card px-4"
@@ -43,10 +35,10 @@ const headers = [
                     <template #counter="slotProps"></template>
                 </v-text-field>
                 <v-spacer></v-spacer>
-                <v-btn v-if="selectedStaff.length" color="error" variant="tonal" size="small"
-                    @click="selectedStaff = []">
+                <v-btn v-if="team.staffs.length" color="error" variant="tonal" size="small"
+                    @click="team.staffs = []">
                     <Icon icon="mdi-close" class="mr-1" />
-                    Limpiar Selección ({{ selectedStaff.length }})
+                    Limpiar Selección ({{ team.staffs.length }})
                 </v-btn>
             </v-toolbar>
         </template>
@@ -63,10 +55,10 @@ const headers = [
             </v-chip>
         </template>
     </v-data-table>
-    <div v-if="isStaffError" class="error-state text-center pa-8">
+    <!-- <div v-if="isStaffError" class="error-state text-center pa-8">
         <Icon icon="mdi-alert-circle" color="error" size="48" />
         <div class="text-h6 mt-2">Error al cargar el personal</div>
-    </div>
+    </div> -->
 </template>
 
 <style lang="scss" scoped></style>

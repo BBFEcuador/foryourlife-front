@@ -1,23 +1,13 @@
 <script setup lang="ts">
+import type { Team } from '@/models/Participants';
+import type { TeamWriteModel } from '@/models/Team';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed, ref } from 'vue';
-import type { StaffWriteModel } from '@/models/Staff';
-import type { Participant } from '@/models/Participants';
-import type { Trainers } from '@/models/Trainers';
-import type { TrainingData } from '@/models/Training';
-import type { Visionary } from '@/models/Visionary';
 
 const tab = ref('participants');
 
 const props = defineProps<{
-  teamName: string;
-  level: string;
-  selectedTraining: TrainingData | null;
-  selectedTrainer: Trainers | undefined;
-  selectedStaffs: StaffWriteModel[];
-  selectedVisionaries: Visionary[];
-  participants: Participant[];
-  loading?: boolean;
+  team: TeamWriteModel;
   disabled?: boolean;
 }>();
 
@@ -32,7 +22,7 @@ const onFinish = () => {
 };
 
 const levelColor = computed(() => {
-  switch (props.level) {
+  switch (props.team.lvl) {
     case 'FOCUS':
       return 'deep-purple';
     case 'YOUR':
@@ -45,8 +35,7 @@ const levelColor = computed(() => {
 });
 
 const totalMembers = computed(() => {
-  return props.participants.length + 
-    (props.level === 'FOCUS' ? props.selectedStaffs.length + props.selectedVisionaries.length : 0);
+  return props.team.users.length + (props.team.lvl === 'FOCUS' ? props.team.staffs.length + props.team.visionaries.length : 0);
 });
 </script>
 
@@ -67,10 +56,10 @@ const totalMembers = computed(() => {
             <v-card-item>
               <v-card-title class="d-flex text-center mb-2">
                 <Icon icon="mdi:shield-account-outline" :color="levelColor" height="32" class="mr-2" />
-                {{ teamName ? teamName : 'Ingresa un nombre' }}
+                {{ team.name ? team.name : 'Ingresa un nombre' }}
               </v-card-title>
               <v-card-subtitle>
-                <v-chip :color="levelColor" size="small" class="mr-2">{{ level }}</v-chip>
+                <v-chip :color="levelColor" size="small" class="mr-2">{{ team.lvl }}</v-chip>
                 <v-chip size="small" variant="outlined">{{ totalMembers }} miembros</v-chip>
               </v-card-subtitle>
             </v-card-item>
@@ -81,18 +70,16 @@ const totalMembers = computed(() => {
               <div class="d-flex align-center mb-4">
                 <Icon icon="mdi-calendar" class="mr-2" color="primary" />
                 <div>
-                  <div class="font-weight-medium">{{ selectedTraining?.name }}</div>
-                  <div class="text-caption text-medium-emphasis">
-                    {{ selectedTraining?.startDate }} - {{ selectedTraining?.endDate }}
-                  </div>
+                  <div class="font-weight-medium">{{ team.trainingObj?.name }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ team.trainingObj?.startDate }} - {{ team.trainingObj?.endDate }}</div>
                 </div>
               </div>
 
               <div class="d-flex align-center">
                 <Icon icon="mdi-account-tie" class="mr-2" color="primary" />
                 <div>
-                  <div class="font-weight-medium">{{ selectedTrainer?.name }}</div>
-                  <div class="text-caption text-medium-emphasis">{{ selectedTrainer?.email }}</div>
+                  <div class="font-weight-medium">{{ team.trainerObj?.name }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ team.trainerObj?.email }}</div>
                 </div>
               </div>
             </v-card-text>
@@ -103,15 +90,15 @@ const totalMembers = computed(() => {
             <v-tabs v-model="tab" color="primary" align-tabs="center">
               <v-tab value="participants" class="text-none">
                 <Icon icon="mdi-account-group" class="mr-2" />
-                Participantes ({{ participants.length }})
+                Participantes ({{ team.users.length }})
               </v-tab>
-              <v-tab v-if="level === 'FOCUS'" value="staff" class="text-none">
+              <v-tab v-if="team.lvl === 'FOCUS'" value="staff" class="text-none">
                 <Icon icon="mdi-account-tie-voice" class="mr-2" />
-                Staff ({{ selectedStaffs.length }})
+                Staff ({{ team.staffs.length }})
               </v-tab>
-              <v-tab v-if="level === 'FOCUS'" value="visionaries" class="text-none">
+              <v-tab v-if="team.lvl === 'FOCUS'" value="visionaries" class="text-none">
                 <Icon icon="mdi-eye" class="mr-2" />
-                Visionarios ({{ selectedVisionaries.length }})
+                Visionarios ({{ team.visionaries.length }})
               </v-tab>
             </v-tabs>
 
@@ -119,7 +106,7 @@ const totalMembers = computed(() => {
               <v-window v-model="tab">
                 <v-window-item value="participants">
                   <v-list lines="two">
-                    <v-list-item v-for="user in participants" :key="user.id" :subtitle="user.participantLevel?.courseLevel">
+                    <v-list-item v-for="user in team.users" :key="user.id" :subtitle="user.participantLevel?.courseLevel">
                       <template v-slot:prepend>
                         <v-avatar color="info" variant="tonal">
                           <span class="text-h6">{{ user.name.charAt(0) }}</span>
@@ -132,7 +119,7 @@ const totalMembers = computed(() => {
 
                 <v-window-item value="staff">
                   <v-list lines="two">
-                    <v-list-item v-for="staff in selectedStaffs" :key="staff.user.id" :subtitle="staff.rol">
+                    <v-list-item v-for="staff in team.staffs" :key="staff.user.id" :subtitle="staff.rol">
                       <template v-slot:prepend>
                         <v-avatar :color="levelColor" variant="tonal">
                           <span class="text-h6">{{ staff.user.name.charAt(0) }}</span>
@@ -145,7 +132,7 @@ const totalMembers = computed(() => {
 
                 <v-window-item value="visionaries">
                   <v-list lines="two">
-                    <v-list-item v-for="visionary in selectedVisionaries" :key="visionary.user.id" :subtitle="visionary.role">
+                    <v-list-item v-for="visionary in team.visionaries" :key="visionary.user.id" :subtitle="visionary.role">
                       <template v-slot:prepend>
                         <v-avatar color="deep-purple" variant="tonal">
                           <span class="text-h6">{{ visionary.user.name.charAt(0) }}</span>
@@ -165,13 +152,7 @@ const totalMembers = computed(() => {
               Atrás
             </v-btn>
             <v-spacer></v-spacer>
-            <v-btn 
-              color="success" 
-              :loading="loading" 
-              :disabled="disabled"
-              size="large"
-              @click="onFinish"
-            >
+            <v-btn color="success" :loading="false" :disabled="disabled" size="large" @click="onFinish">
               <Icon icon="mdi-check" class="mr-2" />
               Confirmar Equipo
             </v-btn>
@@ -202,7 +183,6 @@ const totalMembers = computed(() => {
   border-radius: 8px;
   margin-bottom: 8px;
 }
-
 
 :deep(.v-tab) {
   text-transform: none !important;

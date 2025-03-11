@@ -1,13 +1,20 @@
-import type { Campus } from './Campus';
 import type { Participant } from './Participants';
+import type { StaffWriteModel } from './Staff';
+import type { Trainers } from './Trainers';
+import type { TrainingData } from './Training';
+import type { Visionary } from './Visionary';
 
 export interface TeamWriteModel {
   id: string;
   name: string;
   photo: string;
   training: string;
+  trainingObj: TrainingData;
   trainer: string;
+  lvl: string;
+  trainerObj: Trainers;
   users: Participant[];
-  staffIds: string[];
-  visionaryIds: string[];
+  masterLife: Participant[];
+  staffs: StaffWriteModel[];
+  visionaries: Visionary[];
 }
