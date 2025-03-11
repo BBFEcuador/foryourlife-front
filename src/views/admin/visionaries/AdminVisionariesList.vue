@@ -2,10 +2,10 @@
 import InputSection from '@/components/forms/InputSection.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
-import useStaffMutations from '@/composables/admin/staff/useStaffMutations';
-import useStaffs from '@/composables/admin/staff/useStaffs';
+import useVisionaries from '@/composables/admin/visionaries/useVisionaries';
+import useVisionarymutations from '@/composables/admin/visionaries/useVisionarymutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
-import type { StaffWriteModel } from '@/models/Staff';
+import type { Visionary } from '@/models/Visionary';
 import { showErrorToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue';
 import useVuelidate from '@vuelidate/core';
@@ -13,8 +13,8 @@ import { email, numeric, required } from '@vuelidate/validators';
 import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
 
-const { isStaffError, isStaffloading, staffData, refetchStaff } = useStaffs();
-const { saveStaffMutations } = useStaffMutations();
+const { isVisionariesError,isVisionariesloading,refetchVisionaries,visionariesData} = useVisionaries();
+const { saveVisionaryMutations } = useVisionarymutations();
 const showForm = ref(false);
 const breadcrumbs = ref([
   {
@@ -26,7 +26,7 @@ const breadcrumbs = ref([
 
 const search = ref();
 const staffRules = {
-  rol: { required },
+  role: { required },
   user: {
     name: { required },
     phone: { required, numeric },
@@ -41,32 +41,32 @@ const headers = [
   { title: 'Acciones', value: 'actions', sortable: false, width: 50 }
 ];
 
-const staff = ref<StaffWriteModel>({
+const staff = ref<Visionary>({
   user: {}
-} as StaffWriteModel);
+} as Visionary);
 const validator = useVuelidate(staffRules, staff);
 
 const onSave = () => {
   validator.value.$validate();
   if (!validator.value.$error) {
-    saveStaffMutations.mutate(staff.value);
+    saveVisionaryMutations.mutate(staff.value);
   }
 };
 
-watch(saveStaffMutations.isError, () => {
-  if (saveStaffMutations.isError.value) {
-    const error = saveStaffMutations.error.value as AxiosError<ErrorApiResponse>;
+watch(saveVisionaryMutations.isError, () => {
+  if (saveVisionaryMutations.isError.value) {
+    const error = saveVisionaryMutations.error.value as AxiosError<ErrorApiResponse>;
     showErrorToast(error);
   }
 });
 
-watch(saveStaffMutations.isSuccess, () => {
-  if (saveStaffMutations.isSuccess.value) {
+watch(saveVisionaryMutations.isSuccess, () => {
+  if (saveVisionaryMutations.isSuccess.value) {
     showForm.value = false;
     staff.value = {
       user: {}
-    } as StaffWriteModel;
-    refetchStaff();
+    } as Visionary;
+    refetchVisionaries();
   }
 });
 </script>
@@ -76,7 +76,7 @@ watch(saveStaffMutations.isSuccess, () => {
   <v-row>
     <v-col cols="12">
       <UiParentCard title="Lista de Staff">
-        <v-data-table :headers="headers" :search="search" :items="staffData" :loading="isStaffloading">
+        <v-data-table :headers="headers" :search="search" :items="visionariesData" :loading="isVisionariesloading">
           <template v-slot:top>
             <v-toolbar
               class="bg-surface tw-px-3"
@@ -141,8 +141,8 @@ watch(saveStaffMutations.isSuccess, () => {
           <VSelect
             placeholder="Rol del staff"
             :items="['CAPITAN', 'STAFF']"
-            v-model="staff.rol"
-            :error-messages="validator.rol.$errors.map((x) => x.$message.toString())"
+            v-model="staff.role"
+            :error-messages="validator.role.$errors.map((x) => x.$message.toString())"
           />
         </InputSection>
         <div class="tw:w-full tw:flex tw:justify-end">

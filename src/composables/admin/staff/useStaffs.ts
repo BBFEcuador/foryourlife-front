@@ -7,12 +7,13 @@ const fetchStaffs = async (): Promise<any[]> => {
 };
 
 const useStaffs = () => {
-  const { data, isError, isFetching } = useQuery({ queryKey: ['admin-staffs'], queryFn: fetchStaffs });
+  const { data, isError, isFetching, refetch } = useQuery({ queryKey: ['admin-staffs'], queryFn: fetchStaffs });
 
   return {
     staffData: data,
     isStaffError: isError,
-    isStaffloading: isFetching
+    isStaffloading: isFetching,
+    refetchStaff: refetch
   };
 };
 

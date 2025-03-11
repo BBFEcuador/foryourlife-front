@@ -123,7 +123,7 @@ const handleContact = (type: 'email' | 'phone', contact: string) => {
       </v-card>
     </v-col>
     <v-col cols="12" md="3">
-      <v-expand-transition>
+      <v-expand-transition >
         <v-card v-if="selectedTrainer" elevation="3" variant="outlined" class="pa-3 rounded-xl text-center">
           <v-toolbar-title class="text-h6 font-weight-semibold mb-3">
             Seleccionado:

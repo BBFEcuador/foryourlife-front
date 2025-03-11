@@ -58,6 +58,10 @@ const sidebarItem: menu[] = [
       {
         title: 'Staff',
         to: 'staff-admin'
+      },
+      {
+        title: 'Visionarios',
+        to: 'visionary-admin'
       }
     ]
   },

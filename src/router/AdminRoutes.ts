@@ -94,6 +94,11 @@ const AdminRoutes: RouteRecordRaw[] = [
         name: 'staff-admin',
         path: 'staff',
         component: () => import('@/views/admin/staff/AdminStaffList.vue')
+      },
+      {
+        name: 'visionary-admin',
+        path: 'visionarios',
+        component: () => import('@/views/admin/visionaries/AdminVisionariesList.vue')
       }
     ]
   }
