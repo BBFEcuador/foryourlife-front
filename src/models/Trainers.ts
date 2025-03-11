@@ -1,6 +1,3 @@
-import type { BlobOptions } from "buffer";
-import type { BlockLike } from "typescript";
-
 export interface Trainers{
     id: string;
     name: string;
