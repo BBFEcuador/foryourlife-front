@@ -8,7 +8,7 @@ const saveVisionary = async (item: Visionary): Promise<any> => {
 };
 
 const availableVisionary = async (trainer: { startDate: string; endDate: string }): Promise<Visionary[]> => {
-  const { data } = await api.post('/staff/staff-available', trainer);
+  const { data } = await api.post('/visionary/visionaries-available', trainer);
   return data;
 };
 
