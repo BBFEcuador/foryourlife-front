@@ -8,11 +8,13 @@ import LevelsGrid from '@/components/shared/LevelsGrid.vue';
 import TrainerCarousel from '@/components/trainers/TrainerCarousel.vue';
 import TrainingList from '@/components/trainings/TrainingList.vue';
 import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
+import useStaffMutations from '@/composables/admin/staff/useStaffMutations';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import useTrainerMutations from '@/composables/admin/trainer/useTrainerMutations';
 import useTrainingsByLvl from '@/composables/admin/training/useTrainingsByLvl';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { Participant } from '@/models/Participants';
+import type { StaffWriteModel } from '@/models/Staff';
 import type { TeamWriteModel } from '@/models/Team';
 import type { Trainers } from '@/models/Trainers';
 import type { TrainingData } from '@/models/Training';
@@ -34,13 +36,16 @@ const { saveTeamMutations } = useAdminTeamMutations();
 const { isTrainingsError, isTrainingsLoading, lvl, trainings } = useTrainingsByLvl()
 const { availableTrainerMutation } = useTrainerMutations()
 const { getByLvlMutation } = useParticipantMutations()
+const { availableStaffMutations } = useStaffMutations()
 
 const lasStep = ref(7)
 const staffStepNumber = ref(6)
 const visStepNumber = ref(5)
 const masterLifeStepNumber = ref(5)
+
 const trainers = ref<Trainers[]>([])
 const participant = ref<Participant[]>([])
+const staffs = ref<StaffWriteModel[]>([])
 
 const team = ref({
   users: [] as Participant[],
@@ -48,11 +53,8 @@ const team = ref({
 
 const showForm2 = ref(false);
 
-const showResume = ref(false);
 
-const openResumeDialog = () => {
-  showResume.value = true;
-};
+
 
 watch(() => team.value.name, () => {
   if (team.value.name) {
@@ -65,7 +67,6 @@ const selectedTrainer = ref<Trainers>();
 watch(saveTeamMutations.isSuccess, () => {
   if (saveTeamMutations.isSuccess.value) {
     showSuccessToast('Equipo Agregado correctamente');
-    showResume.value = false;
     router.push({ name: 'teams-admin' })
   }
 })
@@ -87,8 +88,13 @@ const onTrainingSelectedNext = () => {
       endDate: selectedTraining.value.endDate,
       startDate: selectedTraining.value.startDate
     })
+    availableStaffMutations.mutate({
+      endDate: selectedTraining.value.endDate,
+      startDate: selectedTraining.value.startDate
+    })
   }
 }
+
 watch(availableTrainerMutation.isSuccess, () => {
   if (availableTrainerMutation.isSuccess.value) {
     const response = availableTrainerMutation.data.value
@@ -98,6 +104,16 @@ watch(availableTrainerMutation.isSuccess, () => {
     }
   }
 })
+
+watch(availableStaffMutations.isSuccess, () => {
+  if (availableStaffMutations.isSuccess.value) {
+    const response = availableStaffMutations.data.value
+    if (response) {
+      staffs.value = response
+    }
+  }
+})
+
 const onTrainingBack = () => {
   window.value = '1'
   selectedTraining.value = null
@@ -224,7 +240,8 @@ const onClickFinish = () => {
 
     <VStepperVerticalItem hide-actions :complete="step > staffStepNumber" :subtitle="`Paso ${staffStepNumber}`"
       title="Selecciona los Staff" :value="staffStepNumber" v-if="lvl == 'FOCUS' || lvl == 'YOUR'">
-          <h4 class="text-h4 pb-2">Staff</h4>       
+          <h4 class="text-h4 pb-2">Staff</h4>
+          {{ staffs }}       
       <v-btn variant="plain" @click="step--">Atrás</v-btn>
       <v-btn color="primary" @click="step++">Siguiente</v-btn>
     </VStepperVerticalItem>
