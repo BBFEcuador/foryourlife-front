@@ -1,5 +1,5 @@
 import { api } from '@/api/axios';
-import type { Visionary } from '@/models/Visionary';
+import type { Visionary, VisionaryActive } from '@/models/Visionary';
 import { useMutation } from '@tanstack/vue-query';
 
 const saveVisionary = async (item: Visionary): Promise<any> => {
@@ -12,12 +12,21 @@ const availableVisionary = async (trainer: { startDate: string; endDate: string 
   return data;
 };
 
+const disableAdmin = async (user: Partial<VisionaryActive>): Promise<any> => {
+  const { data } = await api.put('/visionary/disabled', user);
+  return data;
+}
+
 const useVisionarymutations = () => {
   const saveVisionaryMutations = useMutation({ mutationFn: saveVisionary });
   const availableVisionaryMutations = useMutation({ mutationFn: availableVisionary });
+  const disableVisionaryMutations = useMutation({ mutationFn: disableAdmin });
+
   return {
     saveVisionaryMutations,
-    availableVisionaryMutations
+    availableVisionaryMutations,
+    disableVisionaryMutations
   };
 };
+
 export default useVisionarymutations;
