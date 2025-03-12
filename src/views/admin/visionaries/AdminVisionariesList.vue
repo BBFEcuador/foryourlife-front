@@ -35,12 +35,12 @@ const staffRules = {
   }
 };
 const headers = [
-  { title: 'Nombre', value: 'user.name', sortable: true },
-  { title: 'E-mail', value: 'user.email', sortable: true },
-  { title: 'Teléfono', value: 'user.phone', sortable: true },
-  { title: 'Rol', value: 'role', sortable: true },
-  { title: 'Activo', value: 'active', sortable: true },
-  { title: 'Acciones', value: 'actions', sortable: false, width: 50 }
+  { title: 'Nombre', value: 'user.name', width: '25%', sortable: true },
+  { title: 'E-mail', value: 'user.email', width: '25%', sortable: true },
+  { title: 'Teléfono', value: 'user.phone', width: '15%', sortable: true },
+  { title: 'Rol', value: 'role', width: '20%', sortable: true },
+  { title: 'Activo', value: 'active', width: '10%', sortable: true },
+  { title: 'Acciones', value: 'actions', width: '10%', sortable: false}
 ];
 
 const staff = ref<Visionary>({
@@ -114,9 +114,6 @@ watch(saveVisionaryMutations.isSuccess, () => {
       <Icon icon="mdi:account-group-outline"/>
     </template>
   </BaseBreadcrumb>
-
-  <v-row>
-    <v-col cols="12">
       <UiParentCard 
         title="Lista de Visionarios" 
         class="!tw:shadow-lg !tw:rounded-xl !tw:border !tw:border-gray-100"
@@ -178,7 +175,7 @@ watch(saveVisionaryMutations.isSuccess, () => {
           </template>
 
           <template #item.user.name="{ item }">
-            <div class="tw:flex tw:items-center tw:gap-3">
+            <div class="tw:flex tw:items-center tw:gap-3 tw:flex-nowrap">
               <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
                 <Icon icon="mdi:account" class="tw:text-gray-600" />
               </div>
@@ -188,14 +185,14 @@ watch(saveVisionaryMutations.isSuccess, () => {
 
           <template #item.user.email="{ item }">
             <div class="tw:flex tw:items-center tw:gap-2">
-              <Icon icon="mdi:email" class="tw:text-gray-400" />
+              <Icon icon="mdi:email"  />
               <span>{{ item.user.email }}</span>
             </div>
           </template>
 
           <template #item.user.phone="{ item }">
             <div class="tw:flex tw:items-center tw:gap-2">
-              <Icon icon="mdi:phone" class="tw:text-gray-400" />
+              <Icon icon="mdi:phone"  />
               <span>{{ item.user.phone }}</span>
             </div>
           </template>
@@ -276,7 +273,6 @@ watch(saveVisionaryMutations.isSuccess, () => {
           </template>
         </v-data-table>
       </UiParentCard>
-    </v-col>
 
     <VDialog 
       max-width="500" 
@@ -309,7 +305,7 @@ watch(saveVisionaryMutations.isSuccess, () => {
                 bg-color="white"
               >
                 <template v-slot:prepend>
-                  <Icon icon="mdi:account" class="tw:text-gray-400" />
+                  <Icon icon="mdi:account"  />
                 </template>
               </VTextField>
             </InputSection>
@@ -326,7 +322,7 @@ watch(saveVisionaryMutations.isSuccess, () => {
                 bg-color="white"
               >
                 <template v-slot:prepend>
-                  <Icon icon="mdi:email" class="tw:text-gray-400" />
+                  <Icon icon="mdi:email"  />
                 </template>
               </VTextField>
             </InputSection>
@@ -343,7 +339,7 @@ watch(saveVisionaryMutations.isSuccess, () => {
                 bg-color="white"
               >
                 <template v-slot:prepend>
-                  <Icon icon="mdi:phone" class="tw:text-gray-400" />
+                  <Icon icon="mdi:phone"  />
                 </template>
               </VTextField>
             </InputSection>
@@ -360,23 +356,21 @@ watch(saveVisionaryMutations.isSuccess, () => {
                 v-model="staff.role"
                 :error-messages="validator.role.$errors.map((x) => x.$message.toString())"
                 variant="outlined"
-                density="comfortable"
                 hide-details="auto"
                 class="tw:rounded-lg !tw:shadow-sm"
                 bg-color="white"
               >
                 <template v-slot:prepend>
-                  <Icon icon="mdi:shield-account" class="tw:text-gray-400" />
+                  <Icon icon="mdi:shield-account"  />
                 </template>
                 <template v-slot:item="{ item, props }">
                   <v-list-item v-bind="props">
                     <template v-slot:prepend>
-                      <Icon 
+                      <Icon class="mr-2"
                         :icon="item.raw.icon"
                         :class="item.raw.value === 'CAPITAN' ? 'tw:text-amber-500' : 'tw:text-blue-500'"
                       />
                     </template>
-                    <v-list-item-title>{{ item.raw.title }}</v-list-item-title>
                   </v-list-item>
                 </template>
               </VSelect>
@@ -410,7 +404,6 @@ watch(saveVisionaryMutations.isSuccess, () => {
         </v-form>
       </UiParentCard>
     </VDialog>
-  </v-row>
 </template>
 
 <style scoped>

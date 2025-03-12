@@ -135,8 +135,8 @@ const search = ref();
       </div>
     </VNavigationDrawer>
     <VCol :cols="showFilters && lgAndUp ? 9 : 12" class="d-flex justify-end tw:h-min">
-      <VCard variant="flat" class="tw:rounded-xl tw:bg-white tw:shadow-sm">
-        <div class="tw:p-6 ">
+      <VCard variant="flat" class="tw:rounded-xl">
+        <div class="tw:p-6">
           <VDataTable :items="participants" :headers="headers" :search="search" :loading="isParticipantsLoading"
             :loading-text="'Cargando participantes...'" :no-data-text="'No se encontraron participantes'" hover
             class="tw:rounded-xl elevation-0" v-motion :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0 }"
