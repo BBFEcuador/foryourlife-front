@@ -3,7 +3,7 @@ import type { TrainingData } from '@/models/Training';
 import { useMutation } from '@tanstack/vue-query';
 
 const fetchByLvl = async (lvl: string): Promise<TrainingData[]> => {
-  const { data } = await api.get('/admin/training/filter/' + lvl);
+  const { data } = await api.post('/admin/training/filter/' + lvl);
   return data;
 };
 

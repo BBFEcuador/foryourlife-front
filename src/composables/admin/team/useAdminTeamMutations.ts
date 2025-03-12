@@ -3,7 +3,19 @@ import type { TeamWriteModel } from '@/models/Team';
 import { useMutation } from '@tanstack/vue-query';
 
 const saveTeam = async (team: TeamWriteModel): Promise<any> => {
-  const { data } = await api.post('/teams/save', team);
+  let url = '/teams/save/focus';
+  switch (team.lvl) {
+    case 'LIFE':
+      url = '/teams/save/life';
+      break;
+    case 'YOUR':
+      url = '/teams/save/focus';
+      break;
+    default:
+      url = '/teams/save/focus';
+      break;
+  }
+  const { data } = await api.post('/teams/save/focus', team);
   return data;
 };
 
@@ -11,7 +23,7 @@ const useAdminTeamMutations = () => {
   const saveTeamMutations = useMutation({ mutationFn: saveTeam });
 
   return {
-      saveTeamMutations
+    saveTeamMutations
   };
 };
 

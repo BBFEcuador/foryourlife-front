@@ -137,7 +137,11 @@ const step = ref(1)
 
       <VStepperVerticalItem v-if="team.lvl === 'FOCUS' || team.lvl === 'YOUR'" hide-actions :complete="step > staffStepNumber"
         :subtitle="`Paso ${staffStepNumber}`" title="Selecciona el Staff" :value="staffStepNumber">
-        <StaffSelector :team="team"/> 
+        <StaffSelector :team="team" @back="() => {
+          step--
+        }" @next="() => {
+          step++
+        }"/> 
       </VStepperVerticalItem>
 
       <VStepperVerticalItem v-if="team.lvl === 'LIFE'" hide-actions :complete="step > masterLifeStepNumber"

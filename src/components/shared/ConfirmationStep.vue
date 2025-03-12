@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import type { Team } from '@/models/Participants';
+import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { TeamWriteModel } from '@/models/Team';
+import { showErrorToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { computed, ref } from 'vue';
+import type { AxiosError } from 'axios';
+import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 const tab = ref('participants');
-
+const router = useRouter();
+const { saveTeamMutations } = useAdminTeamMutations();
 const props = defineProps<{
   team: TeamWriteModel;
   disabled?: boolean;
@@ -17,8 +22,8 @@ const onBack = () => {
   emit('back');
 };
 
-const onFinish = () => {
-  emit('finish');
+const onSubmit = () => {
+  saveTeamMutations.mutate(props.team);
 };
 
 const levelColor = computed(() => {
@@ -36,6 +41,19 @@ const levelColor = computed(() => {
 
 const totalMembers = computed(() => {
   return props.team.users.length + (props.team.lvl === 'FOCUS' ? props.team.staffs.length + props.team.visionaries.length : 0);
+});
+
+watch(saveTeamMutations.isError, () => {
+  if (saveTeamMutations.isError.value) {
+    const error = saveTeamMutations.error.value as AxiosError<ErrorApiResponse>;
+    showErrorToast(error);
+  }
+});
+
+watch(saveTeamMutations.isSuccess, () => {
+  if (saveTeamMutations.isSuccess.value) {
+    router.push({ name: 'teams-admin' });
+  }
 });
 </script>
 
@@ -152,7 +170,7 @@ const totalMembers = computed(() => {
               Atrás
             </v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="success" :loading="false" :disabled="disabled" size="large" @click="onFinish">
+            <v-btn color="success" :loading="false" :disabled="disabled" size="large" @click="onSubmit">
               <Icon icon="mdi-check" class="mr-2" />
               Confirmar Equipo
             </v-btn>
