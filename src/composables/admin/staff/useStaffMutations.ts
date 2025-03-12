@@ -12,12 +12,19 @@ const availableStaff = async (trainer: { startDate: string; endDate: string }): 
   return data;
 };
 
+const changeStatus = async (item: StaffWriteModel): Promise<any> => {
+  const { data } = await api.put('/staff/change-status/' + item.id, item);
+  return data;
+};
+
 const useStaffMutations = () => {
   const saveStaffMutations = useMutation({ mutationFn: saveStaff });
   const availableStaffMutations = useMutation({ mutationFn: availableStaff });
+  const changeStatusMutations = useMutation({ mutationFn: changeStatus });
   return {
     saveStaffMutations,
-    availableStaffMutations
+    availableStaffMutations,
+    changeStatusMutations
   };
 };
 
