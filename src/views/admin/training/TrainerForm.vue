@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import InputSection from '@/components/forms/InputSection.vue';
 import type { Trainers } from '@/models/Trainers';
+import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { email, required, numeric } from '@vuelidate/validators';
 
@@ -10,7 +11,7 @@ interface props {
 }
 
 const props = defineProps<props>();
-const emits = defineEmits(['onsubmit']);
+const emits = defineEmits(['onsubmit', 'cancel']);
 
 const rules = {
   name: {
@@ -80,8 +81,13 @@ const onTrainerSubmit = () => {
       </InputSection>
     </VCol>
     <VCol cols="12">
-      <div class="w-full justify-end">
-        <VBtn color="primary" variant="elevated" @click="onTrainerSubmit" :loading="isLoading"> Guardar </VBtn>
+      <div class="w-full justify-end tw:flex tw:gap-2">
+        <VBtn color="error" variant="elevated" @click="emits('cancel')"> 
+          <Icon icon="mdi:close" class="mr-1" />
+          Cancelar </VBtn>
+        <VBtn color="primary" variant="elevated" @click="onTrainerSubmit" :loading="isLoading"> 
+          <Icon icon="material-symbols:save" class="mr-1" />
+          Guardar </VBtn>
       </div>
     </VCol>
   </VRow>
