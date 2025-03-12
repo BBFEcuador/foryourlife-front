@@ -15,7 +15,7 @@ import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 
 const { isVisionariesError,isVisionariesloading,refetchVisionaries,visionariesData} = useVisionaries();
-const { saveVisionaryMutations, disableVisionaryMutations } = useVisionarymutations();
+const { saveVisionaryMutations, changeStatusMutations } = useVisionarymutations();
 const showForm = ref(false);
 const breadcrumbs = ref([
   {
@@ -70,23 +70,20 @@ const handleDisableVisionary = async (visionary: Visionary) => {
   });
 
   if (result.isConfirmed) {
-    disableVisionaryMutations.mutate({
-      id: visionary.user.id,
-      isActive: !visionary.active
-    });
+    changeStatusMutations.mutate(visionary);
   }
 };
 
-watch(disableVisionaryMutations.isSuccess,() => {
-  if (disableVisionaryMutations.isSuccess.value) {
+watch(changeStatusMutations.isSuccess,() => {
+  if (changeStatusMutations.isSuccess.value) {
     refetchVisionaries();
     showSuccessToast('Visionario desactivado correctamente');
   }
 })
 
-watch(disableVisionaryMutations.isError, () => {
-  if (disableVisionaryMutations.isError.value) {
-    const error = disableVisionaryMutations.error.value as AxiosError<ErrorApiResponse>;
+watch(changeStatusMutations.isError, () => {
+  if (changeStatusMutations.isError.value) {
+    const error = changeStatusMutations.error.value as AxiosError<ErrorApiResponse>;
     showErrorToast(error);
   }
 })
@@ -248,7 +245,7 @@ watch(saveVisionaryMutations.isSuccess, () => {
                 icon
                 variant="text"
                 size="32"
-                :loading="disableVisionaryMutations.isPending.value"
+                :loading="changeStatusMutations.isPending.value"
                 @click="handleDisableVisionary(item)"
                 :class="item.active ? 'tw:bg-red-50 hover:!tw:bg-red-100' : 'tw:bg-green-50 hover:!tw:bg-green-100'"
                 class="tw:rounded-lg !tw:shadow-sm"
