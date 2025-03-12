@@ -6,15 +6,16 @@ import useStaffMutations from '@/composables/admin/staff/useStaffMutations';
 import useStaffs from '@/composables/admin/staff/useStaffs';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { StaffWriteModel } from '@/models/Staff';
-import { showErrorToast } from '@/service/sweetAlert';
+import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue';
 import useVuelidate from '@vuelidate/core';
 import { email, numeric, required } from '@vuelidate/validators';
 import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
+import Swal from 'sweetalert2';
 
 const { isStaffError, isStaffloading, staffData, refetchStaff } = useStaffs();
-const { saveStaffMutations } = useStaffMutations();
+const { saveStaffMutations ,changeStatusMutations} = useStaffMutations();
 const showForm = ref(false);
 const breadcrumbs = ref([
   {
@@ -46,6 +47,30 @@ const staff = ref<StaffWriteModel>({
 } as StaffWriteModel);
 const validator = useVuelidate(staffRules, staff);
 
+const onChangeStatus = async (item:StaffWriteModel) => {
+  const result = await Swal.fire({
+    title: item.active ? '¿Desactivar Visionario?' : '¿Activar Visionario?',
+    text: item.active 
+      ? `¿Está seguro que desea desactivar a ${item.user.name}?`
+      : `¿Está seguro que desea activar a ${item.user.name}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, confirmar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (result.isConfirmed) {
+    changeStatusMutations.mutate(item);
+  }
+}
+
+const onVisionaryEdit = async (item: StaffWriteModel) => {
+  staff.value = JSON.parse(JSON.stringify(item))
+  showForm.value = true
+};
+
 const onSave = () => {
   validator.value.$validate();
   if (!validator.value.$error) {
@@ -59,6 +84,20 @@ watch(saveStaffMutations.isError, () => {
     showErrorToast(error);
   }
 });
+
+watch(changeStatusMutations.isSuccess,() => {
+  if (changeStatusMutations.isSuccess.value) {
+    refetchStaff();
+    showSuccessToast('Visionario desactivado correctamente');
+  }
+})
+
+watch(changeStatusMutations.isError, () => {
+  if (changeStatusMutations.isError.value) {
+    const error = changeStatusMutations.error.value as AxiosError<ErrorApiResponse>;
+    showErrorToast(error);
+  }
+})
 
 watch(saveStaffMutations.isSuccess, () => {
   if (saveStaffMutations.isSuccess.value) {
@@ -103,10 +142,10 @@ watch(saveStaffMutations.isSuccess, () => {
           </template>
           <template #item.actions="{ item }">
             <div class="d-flex ga-2">
-              <VBtn icon color="secondary" >
+              <VBtn icon color="secondary" @click="onVisionaryEdit(item)">
                 <Icon icon="tabler:pencil-check" />
               </VBtn>
-              <v-btn flat :color="item.active ? 'error' : 'success'" icon>
+              <v-btn flat :color="item.active ? 'error' : 'success'" icon @click="onChangeStatus(item)">
                 <Icon :icon="item.active ? 'mdi-power' : 'mdi-power-off'" />
               </v-btn>
             </div>
