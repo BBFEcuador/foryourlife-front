@@ -73,6 +73,10 @@ const handleDisableVisionary = async (visionary: Visionary) => {
     changeStatusMutations.mutate(visionary);
   }
 };
+const onVisionaryEdit = async (item: Visionary) => {
+  staff.value = JSON.parse(JSON.stringify(item))
+  showForm.value = true
+};
 
 watch(changeStatusMutations.isSuccess,() => {
   if (changeStatusMutations.isSuccess.value) {
@@ -234,6 +238,7 @@ watch(saveVisionaryMutations.isSuccess, () => {
                 size="32"
                 class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
                 v-tooltip="'Editar visionario'"
+                @click="onVisionaryEdit(item)"
               >
                 <Icon icon="tabler:pencil" class="tw:text-blue-600" />
               </VBtn>
