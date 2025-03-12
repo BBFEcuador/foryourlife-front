@@ -1,5 +1,5 @@
 import { api } from '@/api/axios';
-import type { Visionary } from '@/models/Visionary';
+import type { Visionary, VisionaryActive } from '@/models/Visionary';
 import { useMutation } from '@tanstack/vue-query';
 
 const saveVisionary = async (item: Visionary): Promise<any> => {
@@ -27,4 +27,5 @@ const useVisionarymutations = () => {
     changeStatusMutations
   };
 };
+
 export default useVisionarymutations;

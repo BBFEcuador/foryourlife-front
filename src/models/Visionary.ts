@@ -8,3 +8,8 @@ export interface Visionary {
   active: boolean;
   teams: Team[];
 }
+
+export interface VisionaryActive {
+  id: string;
+  isActive: boolean;
+}
