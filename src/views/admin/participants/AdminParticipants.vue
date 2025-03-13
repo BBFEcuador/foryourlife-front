@@ -21,34 +21,34 @@ const headers = [
   { 
     title: 'Nombre',
     value: 'name',
-    class: 'my-header-style',
-    width: '25%',
+    width: '200',
+    class: 'tw:text-nowrap',
   },
   { 
     title: 'Correo',
     value: 'email',
-    width: '25%',
+    width: '200',
   },
   { 
-    title: 'Telefono',
+    title: 'Teléfono',
     value: 'phone',
-    width: '15%',
+    width: '150',
   },
   { 
-    title: 'Nivel actual',
+    title: 'Nivel',
     value: 'participantLevel.courseLevel',
-    width: '20%',
+    width: '150',
   },
   { 
     title: 'Documento',
     value: 'profile.dni',
-    width: '10%',
+    width: '100',
   },
   { 
     title: 'Acciones',
     value: 'actions',
     align: 'center' as const,
-    width: '15%',
+    width: '100',
     sortable: false,
   }
 ];
@@ -174,7 +174,7 @@ const search = ref();
               </v-toolbar>
             </template>
             <template #item.name="{ item }">
-              <div class="tw:flex tw:items-center tw:gap-3">
+              <div class="tw:flex tw:items-center tw:gap-3 tw:text-nowrap">
                 <div
                   class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
                   <Icon icon="mdi:account" class="tw:text-gray-600" />
@@ -184,29 +184,34 @@ const search = ref();
             </template>
 
             <template #item.email="{ item }">
-              <div class="tw:flex tw:items-center tw:gap-2">
+              <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
                 <Icon icon="mdi:email" />
                 <span>{{ item.email }}</span>
               </div>
             </template>
 
             <template #item.phone="{ item }">
-              <div class="tw:flex tw:items-center tw:gap-2">
+              <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
                 <Icon icon="mdi:phone" />
                 <span>{{ item.phone }}</span>
               </div>
             </template>
 
             <template #item.participantLevel.courseLevel="{ item }">
-              <VChip
-                :color="item.participantLevel.courseLevel === 'FOCUS' ? 'primary' : item.participantLevel.courseLevel === 'YOUR' ? 'secondary' : 'success'"
-                variant="flat" class="!tw:font-normal" size="small">
-                {{ item.participantLevel.courseLevel }}
-              </VChip>
+              <div class="tw:text-nowrap">
+                <VChip
+                  :color="item.participantLevel.courseLevel === 'FOCUS' ? 'primary' : item.participantLevel.courseLevel === 'YOUR' ? 'secondary' : 'success'"
+                  variant="flat" 
+                  class="!tw:font-normal" 
+                  size="small"
+                >
+                  {{ item.participantLevel.courseLevel }}
+                </VChip>
+              </div>
             </template>
 
             <template #item.actions="{ item }">
-              <div class="tw:flex tw:items-center tw:justify-center tw:gap-2">
+              <div class="tw:flex tw:items-center tw:justify-center tw:gap-2 tw:text-nowrap">
                 <VBtn icon variant="text" color="primary" height="32"
                   class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
                   v-tooltip="'Editar participante'" @click="editParticipant(item.id)">
