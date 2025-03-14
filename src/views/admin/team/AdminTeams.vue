@@ -94,7 +94,6 @@ const getLevelColor = (level: string) => {
     'FOCUS': 'success',
     'YOUR': 'warning',
     'LIFE': 'error',
-    'MASTERLIFE': 'purple'
   };
   return colors[level] || 'gray';
 };
@@ -104,7 +103,6 @@ const getLevelIcon = (level: string) => {
     'FOCUS': 'mdi:signal-cellular-1',
     'YOUR': 'mdi:signal-cellular-2',
     'LIFE': 'mdi:signal-cellular-3',
-    'MASTERLIFE': 'mdi:crown'
   };
   return icons[level] || 'mdi:help-circle';
 };
@@ -255,7 +253,6 @@ watch(criteriaMutations.isError, () => {
                           'tw:bg-green-500': item.training.courseLevel === 'FOCUS',
                           'tw:bg-amber-500': item.training.courseLevel === 'YOUR',
                           'tw:bg-red-500': item.training.courseLevel === 'LIFE',
-                          'tw:bg-purple-500': item.training.courseLevel === 'MASTERLIFE',
                         }"></div>
                     </div>
                     {{ item.training.courseLevel }}
