@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/vue-query';
 
 const events = ref<Calendar[]>([]);
 
-const addEvent = async (event: { startDate: string; numberOfFocus: number; campusId: string }) => {
+const addEvent = async (event: { startDate: string; numberOfFocus: number; campusId: string; firstFocus: number | null }) => {
   const data = await api.post('/admin/training/generate', { ...event });
   return data;
 };

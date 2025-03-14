@@ -11,7 +11,6 @@ import ParticipantFilters from '../participants/ParticipantFilters.vue';
 
 const { data, isError, isLoading, criteriaMutations, refetchTeams, teamsData } = useAdminTeams();
 const search = ref()
-
 const breadcrumbs = ref([
   {
     title: 'Equipos',

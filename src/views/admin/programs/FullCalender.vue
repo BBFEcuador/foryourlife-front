@@ -32,7 +32,8 @@ const currentEvent = ref<Calendar>({} as Calendar);
 const updatedDate = ref({
   startDate: new Date(),
   numberOfFocus: 1,
-  campusId: null
+  campusId: null,
+  firstFocus:null
 })
 
 const handleDateSelect = (selectInfo: any) => {
@@ -199,6 +200,10 @@ const onAddCourses = async () => {
         <InputSection label="Sede">
           <VSelect placeholder="Seleccione las sedes del usuario" :items="campus" item-title="city" item-value="id"
             clearable v-model="updatedDate.campusId" />
+        </InputSection>
+        <InputSection label="Primer focus">
+          <VNumberInput  variant="outlined" placeholder="Seleccione las sedes del usuario" :items="campus" item-title="city" item-value="id" :min="1"
+            clearable v-model="updatedDate.firstFocus" />
         </InputSection>
       </v-card-text>
 
