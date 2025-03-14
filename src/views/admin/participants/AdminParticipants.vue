@@ -10,46 +10,51 @@ import type { Criteria, Filter } from '@/models/Criteria';
 import useInvitation from '@/composables/invitation/useInvitation';
 import { userStore } from '@/stores/useStore';
 import { router } from '@/router';
+import type { AxiosError } from 'axios';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import { showErrorToast } from '@/service/sweetAlert';
+import InputSection from '@/components/forms/InputSection.vue';
+import { VNumberInput } from 'vuetify/labs/VNumberInput';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
 const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, refetchParticipants, data } = useParticipants();
-const { generateInvitationMutation } = useInvitation();
+const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitation();
 const adminStore = userStore();
 const headers = [
-  { 
+  {
     title: 'Nombre',
     value: 'name',
     class: 'my-header-style',
-    width: '25%',
+    width: '25%'
   },
-  { 
+  {
     title: 'Correo',
     value: 'email',
-    width: '25%',
+    width: '25%'
   },
-  { 
+  {
     title: 'Telefono',
     value: 'phone',
-    width: '15%',
+    width: '15%'
   },
-  { 
+  {
     title: 'Nivel actual',
     value: 'participantLevel.courseLevel',
-    width: '20%',
+    width: '20%'
   },
-  { 
+  {
     title: 'Documento',
     value: 'profile.dni',
-    width: '10%',
+    width: '10%'
   },
-  { 
+  {
     title: 'Acciones',
     value: 'actions',
     align: 'center' as const,
     width: '15%',
-    sortable: false,
+    sortable: false
   }
 ];
 
@@ -70,6 +75,8 @@ const onFilterClear = () => {
 };
 
 const showInvitation = ref(false);
+const showInvitationLot = ref(false);
+const quantity = ref(1);
 const invitationLink = ref('');
 const copied = ref(false);
 
@@ -83,7 +90,7 @@ const copyLink = async () => {
   }
 };
 
-const handleGenerateInvitation = async () => {
+const handleGenerateInvitation = () => {
   const userId = adminStore.user.id;
   generateInvitationMutation.mutate(
     { userId },
@@ -93,7 +100,26 @@ const handleGenerateInvitation = async () => {
         showInvitation.value = true;
       },
       onError: (error) => {
-        console.error('Error al generar la invitación:', error);
+        const er = error as AxiosError<ErrorApiResponse>;
+        showErrorToast(er);
+      }
+    }
+  );
+};
+
+const handleGenerateInvitationLot = () => {
+  const userId = adminStore.user.id;
+  generateInvitationWithQuantityMutation.mutate(
+    { id: userId, quantity: quantity.value.toString() },
+    {
+      onSuccess: (data) => {
+        invitationLink.value = `${window.location.origin}/register/${data}`;
+        showInvitationLot.value = false;
+        showInvitation.value = true;
+      },
+      onError: (error) => {
+        const er = error as AxiosError<ErrorApiResponse>;
+        showErrorToast(er);
       }
     }
   );
@@ -104,7 +130,6 @@ const editParticipant = (item: string) => {
 };
 
 const search = ref();
-
 </script>
 
 <template>
@@ -117,9 +142,16 @@ const search = ref();
     </template>
   </BaseBreadcrumb>
 
-  <VRow >
-    <VCol v-if="showFilters && lgAndUp" cols="0" lg="3" v-motion :initial="{ opacity: 0, x: 20 }" :enter="{ opacity: 1, x: 0 }"
-      :delay="100">
+  <VRow>
+    <VCol
+      v-if="showFilters && lgAndUp"
+      cols="0"
+      lg="3"
+      v-motion
+      :initial="{ opacity: 0, x: 20 }"
+      :enter="{ opacity: 1, x: 0 }"
+      :delay="100"
+    >
       <VCard variant="flat" class="tw:rounded-xl tw:bg-white tw:shadow-sm">
         <UiParentCard title="Filtros">
           <PerfectScrollbar class="tw:max-h-[700px] d-flex flex-column ga-3">
@@ -137,16 +169,40 @@ const search = ref();
     <VCol :cols="showFilters && lgAndUp ? 9 : 12" class="d-flex justify-end tw:h-min">
       <VCard variant="flat" class="tw:rounded-xl">
         <div class="tw:p-6">
-          <VDataTable :items="participants" :headers="headers" :search="search" :loading="isParticipantsLoading"
-            :loading-text="'Cargando participantes...'" :no-data-text="'No se encontraron participantes'" hover
-            class="tw:rounded-xl elevation-0" v-motion :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0 }"
-            :delay="200">
+          <VDataTable
+            :items="participants"
+            :headers="headers"
+            :search="search"
+            :loading="isParticipantsLoading"
+            :loading-text="'Cargando participantes...'"
+            :no-data-text="'No se encontraron participantes'"
+            hover
+            class="tw:rounded-xl elevation-0"
+            v-motion
+            :initial="{ opacity: 0, y: 20 }"
+            :enter="{ opacity: 1, y: 0 }"
+            :delay="200"
+          >
             <template #top>
-              <v-toolbar class="px-6 bg-surface" flat v-motion :initial="{ opacity: 0, y: -10 }"
-                :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+              <v-toolbar
+                class="px-6 bg-surface"
+                flat
+                v-motion
+                :initial="{ opacity: 0, y: -10 }"
+                :enter="{ opacity: 1, y: 0 }"
+                :delay="200"
+                :duration="250"
+              >
                 <div class="tw:flex-1 tw:max-w-md tw:relative">
-                  <VTextField v-model="search" placeholder="Buscar por nombre, email o teléfono..." variant="outlined"
-                    density="comfortable" hide-details class="tw:rounded-lg" bg-color="white">
+                  <VTextField
+                    v-model="search"
+                    placeholder="Buscar por nombre, email o teléfono..."
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details
+                    class="tw:rounded-lg"
+                    bg-color="white"
+                  >
                     <template #prepend-inner>
                       <Icon icon="mdi:magnify" height="18" />
                     </template>
@@ -158,25 +214,42 @@ const search = ref();
                   </VTextField>
                 </div>
                 <v-spacer></v-spacer>
-                <VBtn variant="elevated" color="secondary" @click="showFilters = !showFilters" v-if="lgAndUp"
-                  class="!tw:font-normal mr-2">
+                <VBtn variant="elevated" color="secondary" @click="showFilters = !showFilters" v-if="lgAndUp" class="!tw:font-normal mr-2">
                   <Icon icon="mdi:filter" class="mr-2" />
                   Filtros
                 </VBtn>
-                <VBtn variant="elevated" color="secondary" @click="showFiltersDrawer = !showFiltersDrawer" v-else
-                  class="!tw:font-normal mr-2" >
+                <VBtn
+                  variant="elevated"
+                  color="secondary"
+                  @click="showFiltersDrawer = !showFiltersDrawer"
+                  v-else
+                  class="!tw:font-normal mr-2"
+                >
                   <Icon icon="mdi:filter" class="mr-2" />
                   Filtros
                 </VBtn>
-                <VBtn variant="elevated" color="primary" @click="handleGenerateInvitation">
+                <VBtn
+                  variant="elevated"
+                  color="primary"
+                  class="mr-2"
+                  @click="handleGenerateInvitation"
+                  :loading="generateInvitationMutation.isPending.value"
+                >
                   <Icon icon="weui:add-friends-filled" class="mr-2" height="20" /> Invitar Participante
+                </VBtn>
+                <VBtn
+                  variant="elevated"
+                  color="primary"
+                  @click="showInvitationLot = true"
+                  :loading="generateInvitationMutation.isPending.value"
+                >
+                  <Icon icon="weui:add-friends-filled" class="mr-2" height="20" /> Invitar lote
                 </VBtn>
               </v-toolbar>
             </template>
             <template #item.name="{ item }">
               <div class="tw:flex tw:items-center tw:gap-3">
-                <div
-                  class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
+                <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
                   <Icon icon="mdi:account" class="tw:text-gray-600" />
                 </div>
                 <span class="tw:font-medium">{{ item.name }}</span>
@@ -199,17 +272,32 @@ const search = ref();
 
             <template #item.participantLevel.courseLevel="{ item }">
               <VChip
-                :color="item.participantLevel.courseLevel === 'FOCUS' ? 'primary' : item.participantLevel.courseLevel === 'YOUR' ? 'secondary' : 'success'"
-                variant="flat" class="!tw:font-normal" size="small">
+                :color="
+                  item.participantLevel.courseLevel === 'FOCUS'
+                    ? 'primary'
+                    : item.participantLevel.courseLevel === 'YOUR'
+                      ? 'secondary'
+                      : 'success'
+                "
+                variant="flat"
+                class="!tw:font-normal"
+                size="small"
+              >
                 {{ item.participantLevel.courseLevel }}
               </VChip>
             </template>
 
             <template #item.actions="{ item }">
               <div class="tw:flex tw:items-center tw:justify-center tw:gap-2">
-                <VBtn icon variant="text" color="primary" height="32"
+                <VBtn
+                  icon
+                  variant="text"
+                  color="primary"
+                  height="32"
                   class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                  v-tooltip="'Editar participante'" @click="editParticipant(item.id)">
+                  v-tooltip="'Editar participante'"
+                  @click="editParticipant(item.id)"
+                >
                   <Icon icon="mdi:pencil" />
                 </VBtn>
               </div>
@@ -230,8 +318,6 @@ const search = ref();
         </div>
       </VCard>
     </VCol>
-
-
   </VRow>
 
   <VDialog v-model="showInvitation" width="500">
@@ -240,8 +326,7 @@ const search = ref();
         <h3 class="tw:text-xl tw:font-medium">Invitar Participante</h3>
       </VCardTitle>
       <VCardText class="tw:p-6">
-        <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details
-          class="tw:mb-2">
+        <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details class="tw:mb-2">
           <template #append>
             <VBtn color="primary" variant="elevated" @click="copyLink" class="!tw:font-normal">
               {{ copied ? 'Copiado!' : 'Copiar enlace' }}
@@ -250,5 +335,18 @@ const search = ref();
         </VTextField>
       </VCardText>
     </VCard>
+  </VDialog>
+
+  <VDialog v-model="showInvitationLot" width="500">
+    <UiParentCard title="Generar invitaciones">
+      <InputSection label="Usos">
+        <VNumberInput variant="outlined" placeholder="cantidad de usos para este token" v-model="quantity" :min="1" />
+      </InputSection>
+      <div class="tw:flex tw:justify-end">
+        <VBtn color="primary" @click="handleGenerateInvitationLot" :loading="generateInvitationWithQuantityMutation.isPending.value"
+          >Generar</VBtn
+        >
+      </div>
+    </UiParentCard>
   </VDialog>
 </template>

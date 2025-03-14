@@ -7,12 +7,10 @@ import type { Criteria, Filter } from '@/models/Criteria';
 import TeamFilters from './TeamFilters.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { router } from '@/router';
-import type { Participant } from '@/models/Participants';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 
 const { data, isError, isLoading, criteriaMutations, refetchTeams,teamsData } = useAdminTeams();
 const search = ref()
-
 const breadcrumbs = ref([
   {
     title: 'Equipos',
