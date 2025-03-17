@@ -64,7 +64,7 @@ const refreshParticipantsTeams = async () => {
 
 const onRemoveParticipant = async (id: string) => {
     const result = await Swal.fire({
-        title: '¿Quitar participante?',
+        title: '¿Quitar master life?',
         text: `¿Está seguro que desea quitar a ${props.team.users.find(user => user.id === id)?.name}?`,
         icon: 'warning',
         showCancelButton: true,
@@ -75,14 +75,14 @@ const onRemoveParticipant = async (id: string) => {
     });
 
     if (result.isConfirmed) {
-        removeParticipantsMutations.mutate({ url: "removeParticipants", teamId: props.team.id, users: [{ id }] }, {
+        removeParticipantsMutations.mutate({ url: "removeMasterlife", teamId: props.team.id, users: [{ id }] }, {
             onError(e) {
                 const error = e as AxiosError<ErrorApiResponse>
                 showErrorToast(error)
             },
             onSuccess(_,v,__) {
-                props.team.users = props.team.users.filter(x => x.id != v.users[0].id) 
-                showSuccessToast('Participante quitado correctamente')
+                props.team.users = props.team.masterLife.filter(x => x.id != v.users[0].id) 
+                showSuccessToast('Master life quitado correctamente')
             }
         });
     }
@@ -90,7 +90,7 @@ const onRemoveParticipant = async (id: string) => {
 
 </script>
 <template>
-    <v-data-table :headers="headers" show-select :search="search" :items="team.users" :loading="isTeamLoading">
+    <v-data-table :headers="headers" show-select :search="search" :items="team.masterLife" :loading="isTeamLoading">
         <template #top>
             <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
                 :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">

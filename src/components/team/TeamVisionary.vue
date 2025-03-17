@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import useAdminTeam from '@/composables/admin/team/useAdminTeam';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { Team } from '@/models/Participants';
+import { router } from '@/router';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 interface Props {
     team: Team;
@@ -18,7 +21,7 @@ const { removeParticipantsMutations } = useAdminTeamMutations();
 
 const headers = ref([
     {
-        title: 'Participante',
+        title: 'Visionario',
         value: 'name',
         width: '200',
         class: 'tw:text-nowrap',
@@ -64,8 +67,8 @@ const refreshParticipantsTeams = async () => {
 
 const onRemoveParticipant = async (id: string) => {
     const result = await Swal.fire({
-        title: '¿Quitar participante?',
-        text: `¿Está seguro que desea quitar a ${props.team.users.find(user => user.id === id)?.name}?`,
+        title: '¿Quitar Visionario?',
+        text: `¿Está seguro que desea quitar a ${props.team.visionaries.find(user => user.id === id)?.user.name}?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -75,14 +78,14 @@ const onRemoveParticipant = async (id: string) => {
     });
 
     if (result.isConfirmed) {
-        removeParticipantsMutations.mutate({ url: "removeParticipants", teamId: props.team.id, users: [{ id }] }, {
+        removeParticipantsMutations.mutate({ url: "removeVisionaries", teamId: props.team.id, users: [{ id }] }, {
             onError(e) {
                 const error = e as AxiosError<ErrorApiResponse>
                 showErrorToast(error)
             },
             onSuccess(_,v,__) {
                 props.team.users = props.team.users.filter(x => x.id != v.users[0].id) 
-                showSuccessToast('Participante quitado correctamente')
+                showSuccessToast('Visionario quitado correctamente')
             }
         });
     }
@@ -90,7 +93,7 @@ const onRemoveParticipant = async (id: string) => {
 
 </script>
 <template>
-    <v-data-table :headers="headers" show-select :search="search" :items="team.users" :loading="isTeamLoading">
+    <v-data-table :headers="headers" show-select :search="search" :items="team.visionaries" :loading="isTeamLoading">
         <template #top>
             <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
                 :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
@@ -118,20 +121,20 @@ const onRemoveParticipant = async (id: string) => {
             </v-toolbar>
         </template>
         <template #item.name="{ item }">
-            <span class="tw:text-nowrap">{{ item.name }}</span>
+            <span class="tw:text-nowrap">{{ item.user.name }}</span>
         </template>
         <template #item.phone="{ item }">
             <v-btn variant="tonal" color="primary" rounded="xl" size="small" v-tooltip="'Llamar'"
-                @click="handleContact('phone', item.phone)">
+                @click="handleContact('phone', item.user.phone)">
                 <Icon icon="mdi-phone" />
-                <span class="tw:text-nowrap ml-2">{{ item.phone }}</span>
+                <span class="tw:text-nowrap ml-2">{{ item.user.phone }}</span>
             </v-btn>
         </template>
         <template #item.email="{ item }">
             <v-btn variant="tonal" color="secondary" rounded="xl" size="small"
-                @click="handleContact('email', item.email)">
+                @click="handleContact('email', item.user.email)">
                 <Icon icon="mdi-email" />
-                <span class="tw:text-nowrap ml-2">{{ item.email }}</span>
+                <span class="tw:text-nowrap ml-2">{{ item.user.email }}</span>
             </v-btn>
         </template>
         <template #item.actions="{ item }">
@@ -191,14 +194,6 @@ const onRemoveParticipant = async (id: string) => {
                 </VBtn>
             </div>
         </template>
-        <!-- <template #bottom>
-            <div class="tw:p-4 tw:bg-gray-50">
-                <v-btn color="primary" variant="flat" size="large"
-                    class="tw:w-full tw:py-3 tw:text-lg tw:rounded-xl tw:shadow-md" @click="onPromoteTeam">
-                    🚀 Promover Equipo
-                </v-btn>
-            </div>
-        </template> -->
     </v-data-table>
 </template>
 <style scoped></style>
