@@ -1,7 +1,7 @@
-import type { StaffWriteModel } from "./Staff";
-import type { Trainers } from "./Trainers";
-import type { TrainingData } from "./Training";
-import type { Visionary } from "./Visionary";
+import type { StaffWriteModel } from './Staff';
+import type { Trainers } from './Trainers';
+import type { TrainingData } from './Training';
+import type { Visionary } from './Visionary';
 
 export interface Participant {
   id: string;
@@ -57,23 +57,23 @@ export interface Profile {
 }
 
 export interface Modules {
-  id: string
-  hasFocus: boolean
-  hasYour: boolean
-  hasLife: boolean
+  id: string;
+  hasFocus: boolean;
+  hasYour: boolean;
+  hasLife: boolean;
 }
 
 export interface Team {
-  id: string
-  name: string
-  photo: string
-  trainingNumber: number
-  masterLife: Participant[]
-  users: Participant[]
-  staff: StaffWriteModel[]
-  visionaries: Visionary[]
-  trainer: Trainers
-  training: TrainingData,
+  id: string;
+  name: string;
+  photo: string;
+  trainingNumber: number;
+  masterLife: Participant[];
+  users: Participant[];
+  staffs: StaffWriteModel[];
+  visionaries: Visionary[];
+  trainer: Trainers;
+  training: TrainingData;
   trainingData?: {
     endDate: string;
     name: string;
