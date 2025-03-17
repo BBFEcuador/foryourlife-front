@@ -1,5 +1,7 @@
+import type { StaffWriteModel } from "./Staff";
 import type { Trainers } from "./Trainers";
 import type { TrainingData } from "./Training";
+import type { Visionary } from "./Visionary";
 
 export interface Participant {
   id: string;
@@ -66,7 +68,10 @@ export interface Team {
   name: string
   photo: string
   trainingNumber: number
-  masterLife: any
+  masterLife: Participant[]
+  users: Participant[]
+  staff: StaffWriteModel[]
+  visionaries: Visionary[]
   trainer: Trainers
   training: TrainingData,
   trainingData?: {

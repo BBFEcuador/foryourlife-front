@@ -23,7 +23,9 @@ const { isParticipantError, isParticipantLoading, participant } = useParticipant
     <BaseBreadcrumb :title="'Editar participante'" :breadcrumbs="breadcrumbs" />
     <VRow>
         <v-col class="tw:grid tw:place-content-center tw:h-96" cols="12" v-if="isParticipantLoading">
-            <v-progress-circular indeterminate color="primary" size="80" width="8" />
+            <v-progress-circular indeterminate color="primary" size="80" width="8" >
+              <template #default="slotProps"></template>
+            </v-progress-circular>
         </v-col>
         <v-col cols="12" v-else-if="isParticipantError">
             <v-alert type="error">Error al cargar el participante</v-alert>

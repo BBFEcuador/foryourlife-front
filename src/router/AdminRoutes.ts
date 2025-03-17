@@ -91,7 +91,7 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/programs/AdminPrograms.vue')
       },
       {
-        name: 'staff-admin',
+        name: 'staff-admin',  
         path: 'staff',
         component: () => import('@/views/admin/staff/AdminStaffList.vue')
       },
@@ -99,6 +99,21 @@ const AdminRoutes: RouteRecordRaw[] = [
         name: 'visionary-admin',
         path: 'visionarios',
         component: () => import('@/views/admin/visionaries/AdminVisionariesList.vue')
+      },
+      {
+        name: 'promote-focus',
+        path: 'focusToYour/:id',
+        component: () => import('@/views/admin/team/PromoteFocus.vue')
+      },
+      {
+        name: 'promote-your',
+        path: 'yourToLife',
+        component: () => import('@/views/admin/team/PromoteYour.vue')
+      },
+      {
+        name: 'promote-life',
+        path: 'lifeToMasterlife',
+        component: () => import('@/views/admin/team/PromoteLife.vue')
       }
     ]
   }

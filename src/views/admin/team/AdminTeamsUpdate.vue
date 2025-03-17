@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import TeamBanner from '@/components/team/TeamBanner.vue';
+import TeamDetails from '@/components/team/TeamDetails.vue';
+import TeamParticipantsList from '@/components/team/TeamParticipantsList.vue';
 import useAdminTeam from '@/composables/admin/team/useAdminTeam';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
-const { isTeamError, isTeamLoading, team } = useAdminTeam(route.params.id.toString());
+const { isTeamError, isTeamLoading, team, refetchTeam } = useAdminTeam(route.params.id.toString());
 
 const breadcrumbs = ref([
     {
@@ -16,6 +18,10 @@ const breadcrumbs = ref([
         href: '/admin'
     }
 ]);
+
+const fetchTeamData = async () => {
+    await refetchTeam();
+};
 </script>
 <template>
     <BaseBreadcrumb :title="'Editar equipo'" :breadcrumbs="breadcrumbs" class="tw:mb-6">
@@ -32,7 +38,15 @@ const breadcrumbs = ref([
             </div>
         </v-col>
         <v-col cols="12" v-else>
-            <TeamBanner :team="team" class="mb-2"/>
+            <TeamBanner :team class="mb-2"/>
+            <v-row>
+                <VCol cols="12" md="3" sm="12" class="tw:flex tw:flex-col tw:items-center">
+                    <TeamDetails :team/>
+                </VCol>
+                <VCol cols="12" md="9" sm="12" class="tw:grid tw:gap-4">
+                    <TeamParticipantsList :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError" @refetchTeam="fetchTeamData"/>
+                </VCol>
+            </v-row>
         </v-col>    
     </vRow>
 </template>

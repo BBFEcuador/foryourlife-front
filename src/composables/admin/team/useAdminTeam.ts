@@ -1,17 +1,17 @@
 import { api } from "@/api/axios";
-import type { TeamWriteModel } from "@/models/Team";
+import type { Team } from "@/models/Participants";
 import { useQuery } from "@tanstack/vue-query";
 import { ref, watch } from "vue";
 
-const team = ref<TeamWriteModel>({} as TeamWriteModel);
+const team = ref<Team>({} as Team);
 
-const fetchTeam = async (id: string): Promise<TeamWriteModel> => {
+const fetchTeam = async (id: string): Promise<Team> => {
     const { data } = await api.get(`/teams/` + id);
     return data;
 }
 
 const useAdminTeam = (id: string) => {
-    const { data, isError, isFetching } = useQuery({ 
+    const { data, isError, isFetching, refetch } = useQuery({ 
         queryKey: ['team', id], 
         queryFn: () => fetchTeam(id)
     });
@@ -25,6 +25,7 @@ const useAdminTeam = (id: string) => {
         team,
         isTeamError: isError,
         isTeamLoading: isFetching,
+        refetchTeam: refetch
      };
 }
 

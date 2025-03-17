@@ -115,14 +115,6 @@ const formatDate = (dateString: string) => {
   }).format(date);
 };
 
-const formatTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('es-ES', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  }).format(date);
-};
 
 watch(criteriaMutations.isError, () => {
   if (criteriaMutations.isError.value) {

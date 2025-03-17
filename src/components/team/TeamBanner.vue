@@ -4,9 +4,11 @@ import type { Team } from '@/models/Participants';
 import { getInitialsAvatarUrl } from '@/service/getAvatar';
 
 
-const props = defineProps<{
+interface props {
     team: Team;
-}>();
+};
+
+const props = defineProps<props>();
 </script>
 
 <template>
@@ -37,8 +39,7 @@ const props = defineProps<{
                                 <v-img :src="getInitialsAvatarUrl(team?.name!)" alt="Avatar" />
                             </v-avatar>
                         </div>
-                        <h5 class="text-h5 mt-3">{{ team.name }}</h5>
-                        <span class="textSecondary font-weight-regular">
+                        <span class="textSecondary text-h4">
                             {{ team.training.courseLevel }}
                         </span>
                     </div>
@@ -48,8 +49,8 @@ const props = defineProps<{
                         <v-row class="justify-center">
                             <v-col cols="6" class="d-flex flex-column align-center">
                                 <Icon icon="fluent:people-team-16-filled" height="20"></Icon>
-                                <!-- <h4 class="text-h4">{{ team?.name ?? 'N/A' }}</h4> -->
-                                <h6 class="text-h6 font-weight-regular">Participantes</h6>
+                                <h4 class="text-h4">{{ team?.users.length ?? 'N/A' }}</h4>
+                                <h6 class="text-h6 font-weight-regular">Participante(s)</h6>
                             </v-col>
                             <v-col cols="6" class="d-flex flex-column align-center">
                                 <Icon icon="token:lvl" height="20"></Icon>

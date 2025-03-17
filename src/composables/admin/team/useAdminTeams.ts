@@ -1,7 +1,6 @@
 import { api } from '@/api/axios';
 import type { Criteria } from '@/models/Criteria';
 import type { Team } from '@/models/Participants';
-import type { TeamWriteModel } from '@/models/Team';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 
