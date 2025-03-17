@@ -13,7 +13,6 @@ const emits = defineEmits(['trainer-selected'])
 
 const model = ref<number | null>(null)
 const searchQuery = ref('')
-const showDetailModal = ref(false)
 
 const selectedTrainer = ref<{
   image: string
@@ -60,11 +59,6 @@ const toggleTrainer = (index: number, trainer: Trainers) => {
   emits('trainer-selected', trainer)
 }
 
-const openDetailModal = () => {
-  if (selectedTrainer.value) {
-    showDetailModal.value = true
-  }
-}
 
 const handleContact = (type: 'email' | 'phone', contact: string) => {
   if (type === 'email') {
@@ -139,25 +133,22 @@ const handleContact = (type: 'email' | 'phone', contact: string) => {
             {{ selectedTrainer.name }}
           </p>
           <div class="d-flex justify-center gap-2 mb-3">
-            <v-btn color="primary" variant="tonal" size="small" density="compact"
+            <v-btn color="primary" variant="tonal" size="small" density="comfortable"
               @click="handleContact('email', selectedTrainer.traner.email)">
               <Icon icon="mdi-email" class="mr-1" height="16"></Icon>
               Correo
             </v-btn>
-            <v-btn color="primary" variant="tonal" size="small" density="compact"
+            <v-btn color="primary" variant="tonal" size="small" density="comfortable"
               @click="handleContact('phone', selectedTrainer.traner.phone)">
               <Icon icon="mdi-phone" class="mr-1" height="16"></Icon>
               Llamar
             </v-btn>
           </div>
-          <v-btn block color="primary" variant="outlined" @click="openDetailModal">
-            Más detalles
-          </v-btn>
         </v-card>
       </v-expand-transition>
     </v-col>
   </v-row>
-  <v-dialog v-model="showDetailModal" max-width="600px">
+  <!-- <v-dialog v-model="showDetailModal" max-width="600px">
     <v-card v-if="selectedTrainer">
       <v-card-item class="pa-4">
         <v-card-title class="text-h6 mb-3">
@@ -194,7 +185,7 @@ const handleContact = (type: 'email' | 'phone', contact: string) => {
         </v-btn>
       </v-card-actions>
     </v-card>
-  </v-dialog>
+  </v-dialog> -->
 </template>
 
 <style scoped>

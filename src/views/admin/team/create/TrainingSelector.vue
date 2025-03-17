@@ -1,4 +1,4 @@
-<script setup lang="ts">
+  <script setup lang="ts">
 import TrainingList from '@/components/trainings/TrainingList.vue';
 import useTrainingsMutation from '@/composables/admin/training/useTrainingsMutation';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
@@ -20,7 +20,6 @@ const { availableTrainingMutations } = useTrainingsMutation();
 const trainings = ref<TrainingData[]>([]);
 
 const onTrainingSelected = (item: TrainingData[]) => {
-  console.log(item[0]);
     if (item[0]) {
         props.team.trainingObj = item[0];
         props.team.training = item[0].id;
