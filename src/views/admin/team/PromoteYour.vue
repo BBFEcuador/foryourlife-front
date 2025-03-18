@@ -15,6 +15,7 @@ import NewParticipantsSelect from '@/components/team/NewParticipantsSelect.vue';
 import NewStaffSelect from '@/components/team/NewStaffSelect.vue';
 import MasterlifeSelect from '@/components/team/MasterlifeSelect.vue';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
+import NewMasterlifeSelect from '@/components/team/NewMasterlifeSelect.vue';
 
 
 const breadcrumbs = ref([
@@ -27,7 +28,7 @@ const breadcrumbs = ref([
 
 const route = useRoute();
 const router = useRouter();
-const { isTeamError, isTeamLoading, team, refetchTeam } = useAdminTeam(route.params.id.toString())
+const { isTeamError, isTeamLoading, team, refetchTeam,promotionLifeRequest } = useAdminTeam(route.params.id.toString())
 
 const trainers = ref<Trainers[]>([]);
 const { availableTrainerMutation } = useTrainerMutations();
@@ -82,12 +83,7 @@ const setActiveTab = (index: number) => {
 const showConfirmDialog = ref(false);
 
 const onPromoteTeam = () => {
-    promoteToLifeMutation.mutate({
-        id: team.value.id,
-        users: team.value.users,
-        masterLife: team.value.masterLife,
-        trainer: team.value.trainer.id
-    });
+    promoteToLifeMutation.mutate(promotionLifeRequest.value);
 }
 
 watch(promoteToLifeMutation.isError, () => {
@@ -224,11 +220,11 @@ const isPromoting = ref(false);
                         </v-tabs>
                         <v-card-text class="tw:p-0">
                             <v-window v-model="tab" class="tw:mt-4">
-                                <v-window-item value="actualParticipants">
-                                    <ParticipantsSelect :team="team" />
-                                </v-window-item>
                                 <v-window-item value="newParticipants">
-                                    <NewParticipantsSelect :team="team" />
+                                    <ParticipantsSelect :team="team" v-model="promotionLifeRequest.users"/>
+                                </v-window-item>
+                                <v-window-item value="actualParticipants">
+                                    <NewParticipantsSelect :team="team" v-model="promotionLifeRequest.users"/>
                                 </v-window-item>
                             </v-window>
                         </v-card-text>
@@ -250,11 +246,7 @@ const isPromoting = ref(false);
                         </v-card-title>
                         <v-tabs v-model="tab2" color="primary" align-tabs="center" class="tw:border-b"
                             slider-color="primary">
-                            <v-tab value="actualMasterlife" class="text-none tw:py-4">
-                                <Icon icon="ic:twotone-support-agent" class="mr-2" />
-                                Masterlife
-                            </v-tab>
-                            <v-tab value="newStaff" class="text-none">
+                            <v-tab value="actualMasterlife" class="text-none">
                                 <Icon icon="ic:twotone-support-agent" class="mr-2" />
                                 Nuevos Masterlife
                             </v-tab>
@@ -262,10 +254,7 @@ const isPromoting = ref(false);
                         <v-card-text>
                             <v-window v-model="tab2">
                                 <v-window-item value="actualMasterlife">
-                                    <MasterlifeSelect :team="team" />
-                                </v-window-item>
-                                <v-window-item value="newStaff">
-                                    <NewStaffSelect :team="team" />
+                                    <NewMasterlifeSelect :team="team" v-model="promotionLifeRequest.masterLife"/>
                                 </v-window-item>
                             </v-window>
                         </v-card-text>

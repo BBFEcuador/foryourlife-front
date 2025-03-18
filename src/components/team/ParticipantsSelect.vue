@@ -13,6 +13,9 @@ interface props {
 }
 
 const props = defineProps<props>();
+const sp = defineModel({
+  default: [] as Participant[]
+});
 
 const { getByLvlMutation } = useParticipantMutations();
 const participants = ref<Participant[]>([]);
@@ -37,10 +40,10 @@ watch(getByLvlMutation.isSuccess, () => {
 });
 
 const headers = ref([
-    { title: 'Nombre', value: 'name', class: 'my-header-style' },
-    { title: 'Cédula', value: 'profile.dni', class: 'my-header-style' },
-    { title: 'Telefono', value: 'phone' },
-    { title: 'Nivel', value: 'participantLevel.courseLevel' },
+  { title: 'Nombre', value: 'name', class: 'my-header-style' },
+  { title: 'Cédula', value: 'profile.dni', class: 'my-header-style' },
+  { title: 'Telefono', value: 'phone' },
+  { title: 'Nivel', value: 'participantLevel.courseLevel' }
 ]);
 
 const searchQuery = ref('');
@@ -51,14 +54,13 @@ const searchQuery = ref('');
     <v-progress-circular v-if="getByLvlMutation.isPending.value" indeterminate color="primary"></v-progress-circular>
     <v-alert v-else-if="getByLvlMutation.isError.value" type="error" class="mb-4"> Error al cargar los participantes </v-alert>
     <div v-else>
-        <v-text-field v-model="searchQuery" label="Buscar por Nombre" outlined dense clearable>
+      <v-text-field v-model="searchQuery" label="Buscar por Nombre" outlined dense clearable>
         <template #prepend-inner>
-            <Icon icon="mdi-magnify" />
+          <Icon icon="mdi-magnify" />
         </template>
-    </v-text-field>
-    <VDataTable :items="participants" hide-default-footer :headers="headers" show-select v-model="props.team.users" return-object
-        :search="searchQuery">
-    </VDataTable>
+      </v-text-field>
+      <VDataTable :items="participants" hide-default-footer :headers="headers" show-select v-model="sp" return-object :search="searchQuery">
+      </VDataTable>
     </div>
   </v-card>
 </template>

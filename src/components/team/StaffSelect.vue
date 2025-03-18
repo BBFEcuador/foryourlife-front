@@ -15,6 +15,10 @@ interface props {
 
 const props = defineProps<props>();
 
+const vmodel = defineModel({
+  default:[] as StaffWriteModel[],
+})
+
 const { availableStaffMutations } = useStaffMutations();
 const staff = ref<StaffWriteModel[]>([]);
 
@@ -62,7 +66,7 @@ const searchQuery = ref('');
                     <Icon icon="mdi-magnify" />
                 </template>
             </v-text-field>
-            <VDataTable :items="staff" hide-default-footer :headers="headers" show-select v-model="props.team.staff" return-object
+            <VDataTable :items="staff" hide-default-footer :headers="headers" show-select v-model="vmodel" return-object
                 :search="searchQuery">
             </VDataTable>
         </div>

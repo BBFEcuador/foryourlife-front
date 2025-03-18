@@ -20,17 +20,16 @@ export interface TeamWriteModel {
   visionaries: Visionary[];
 }
 
-
 export interface TeamYourPromotionRequest {
   id: string;
-  users: MinimalEntity[];
-  staffs: MinimalEntity[];
+  users: Participant[];
+  staffs: StaffWriteModel[];
   trainer: string;
 }
 
 export interface TeamLifePromotionRequest {
   id: string;
-  users: MinimalEntity[];
-  masterLife: MinimalEntity[];
+  users: Participant[];
+  masterLife: Participant[];
   trainer: string;
 }
