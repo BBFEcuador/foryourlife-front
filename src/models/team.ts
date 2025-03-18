@@ -1,4 +1,5 @@
 import type { Participant } from './Participants';
+import type { MinimalEntity } from './Shared';
 import type { StaffWriteModel } from './Staff';
 import type { Trainers } from './Trainers';
 import type { TrainingData } from './Training';
@@ -17,4 +18,19 @@ export interface TeamWriteModel {
   masterLife: Participant[];
   staffs: StaffWriteModel[];
   visionaries: Visionary[];
+}
+
+
+export interface TeamYourPromotionRequest {
+  id: string;
+  users: MinimalEntity[];
+  staffs: MinimalEntity[];
+  trainer: string;
+}
+
+export interface TeamLifePromotionRequest {
+  id: string;
+  users: MinimalEntity[];
+  masterLife: MinimalEntity[];
+  trainer: string;
 }

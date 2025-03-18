@@ -107,12 +107,12 @@ const AdminRoutes: RouteRecordRaw[] = [
       },
       {
         name: 'promote-your',
-        path: 'yourToLife',
+        path: 'yourToLife/:id',
         component: () => import('@/views/admin/team/PromoteYour.vue')
       },
       {
         name: 'promote-life',
-        path: 'lifeToMasterlife',
+        path: 'lifeToMasterlife/:id',
         component: () => import('@/views/admin/team/PromoteLife.vue')
       }
     ]
