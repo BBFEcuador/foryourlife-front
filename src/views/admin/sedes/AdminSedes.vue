@@ -28,31 +28,47 @@ const headers = [
   <BaseBreadcrumb :title="'Sedes'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
   <v-row>
     <v-col cols="12">
-      <UiParentCard title="Lista de sedes">
-        <v-data-table :headers="headers" :search="search" :items="campus" :loading="isFetching">
-          <template v-slot:top>
-            <v-toolbar
-              class="bg-surface tw-px-3"
-              flat
-              v-motion
-              :initial="{ opacity: 0, x: -10 }"
-              :enter="{ opacity: 1, x: 0 }"
-              :delay="200"
-              :duration="250"
-            >
-              <VTextField hide-details placeholder="Buscar Sede" v-model="search" class="custom-card">
-                <Icon icon="mdi-magnify" height="18"></Icon>
-              </VTextField>
-              <v-spacer></v-spacer>
-            </v-toolbar>
-          </template>
-          <template v-slot:no-data>
-            <tr>
-              <td colspan="3">Sin datos</td>
-            </tr>
-          </template>
-        </v-data-table>
-      </UiParentCard>
+
+      <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg" hover>
+        <v-card-text>
+          <v-data-table :headers="headers" :search="search" :items="campus" :loading="isFetching" hover
+            class="tw:rounded-xl elevation-0 !tw:border-gray-100">
+            <template v-slot:top>
+              <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
+                :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+                <VTextField v-model="search" placeholder="Buscar Usuarios..." variant="outlined" density="comfortable"
+                  hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm" bg-color="white">
+                  <template #prepend-inner>
+                    <div class="tw:relative">
+                      <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                      <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full">
+                      </div>
+                    </div>
+                  </template>
+                  <template #append v-if="search">
+                    <VBtn icon variant="text" size="small" @click="search = ''"
+                      class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+                      <Icon icon="mdi:close" height="18" />
+                    </VBtn>
+                  </template>
+                </VTextField>
+                <v-spacer></v-spacer>
+              </v-toolbar>
+            </template>
+            <template #loading>
+              <v-progress-linear color="primary" indeterminate class="tw:rounded-t-xl"></v-progress-linear>
+            </template>
+
+            <template #no-data>
+              <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
+                <Icon icon="mdi:map-marker" height="48" class="tw:mb-4" />
+                <p class="tw:text-lg">No se encontraron sedes</p>
+                <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
+              </div>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
     </v-col>
   </v-row>
 </template>

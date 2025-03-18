@@ -17,7 +17,7 @@ import { VBtn } from 'vuetify/components';
 
 const { isError, isFetching, users } = useAdminUsers();
 const { disableAdminMutation, changeRoleMutation } = useAdminUserMutations();
-const { isRolesLoading,isRolesError,roles} = useAdminRoles();
+const { isRolesLoading, isRolesError, roles } = useAdminRoles();
 const search = ref();
 const showForm = ref(false);
 const headers = [
@@ -107,53 +107,119 @@ watch(changeRoleMutation.isSuccess, () => {
   }
 })
 
-watch(changeRoleMutation.isError, () =>{
+watch(changeRoleMutation.isError, () => {
   if (changeRoleMutation.isError.value) {
     let error = changeRoleMutation.error.value as AxiosError<ErrorApiResponse>
     showErrorToast(error)
   }
 })
+
 </script>
 <template>
   <BaseBreadcrumb :title="'Usuarios'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
   <v-row>
     <v-col cols="12" md="12">
-      <UiParentCard title="Lista de sedes">
-        <v-data-table :headers="headers" :search="search" :items="users" :loading="isFetching">
-          <template v-slot:top>
-            <v-toolbar class="bg-surface tw-px-3" flat v-motion :initial="{ opacity: 0, x: -10 }"
-              :enter="{ opacity: 1, x: 0 }" :delay="200" :duration="250">
-              <VTextField hide-details placeholder="Buscar Sede" v-model="search" class="custom-card"
-                :variant="'outlined'" />
-              <v-spacer></v-spacer>
-              <VBtn :to="{ name: 'users-admin-add' }" color="primary" variant="elevated"> Crear </VBtn>
-            </v-toolbar>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <div class="d-flex ga-2">
+      <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
+        <v-card-text>
+          <v-data-table :headers="headers" :search="search" :items="users" :loading="isFetching" hover
+            class="tw:rounded-xl elevation-0 !tw:border-gray-100">
+            <template v-slot:top>
+              <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
+                :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+                <VTextField v-model="search" placeholder="Buscar Usuarios..." variant="outlined" density="comfortable"
+                  hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm" bg-color="white">
+                  <template #prepend-inner>
+                    <div class="tw:relative">
+                      <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                      <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full">
+                      </div>
+                    </div>
+                  </template>
+                  <template #append v-if="search">
+                    <VBtn icon variant="text" size="small" @click="search = ''"
+                      class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+                      <Icon icon="mdi:close" height="18" />
+                    </VBtn>
+                  </template>
+                </VTextField>
+                <v-spacer></v-spacer>
+                <VBtn :to="{ name: 'users-admin-add' }" color="primary" variant="elevated">
+                  <Icon icon="mdi:plus" height="18" class="mr-2" />
+                  Crear Usuario
+                </VBtn>
+              </v-toolbar>
+            </template>
+            <template v-slot:item.name="{ item }">
+              <div class="tw:flex tw:items-center tw:gap-3 tw:text-nowrap group">
+                <Icon icon="mdi:account" class="tw:text-primary tw:transition-transform group-hover:tw:scale-110" />
+                <div
+                  class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity">
+                </div>
+                <div>
+                  <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{
+                    item.name }}</span>
+                </div>
+              </div>
+            </template>
+            <template v-slot:item.email="{ item }">
+              <div class="tw:flex tw:items-center tw:gap-3 tw:text-nowrap group">
+                <div
+                  class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity">
+                </div>
+                <div>
+                  <v-chip>
+                    <Icon icon="mdi:email"
+                      class="mr-2 tw:text-primary tw:transition-transform group-hover:tw:scale-110" />
+                    <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">
+                      {{ item.email }}
+                    </span>
+                  </v-chip>
+                </div>
+              </div>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <div class="d-flex ga-2">
 
-              <v-btn icon color="primary" size="small" @click="openEditDialog(item)">
-                <Icon icon="mdi-pencil" height="18" />
-              </v-btn>
+                <v-btn icon color="info" variant="text" size="32"
+                  class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100" v-tooltip="'Editar usuario'"
+                  @click="openEditDialog(item)">
+                  <Icon icon="tabler:pencil" height="18" />
+                </v-btn>
 
-              <v-btn small :color="item.active ? 'error' : 'success'" icon size="small"
-                @click="onToggleUserStatus(item)">
-                <Icon :icon="item.active
-                  ? 'mdi-power'
-                  : 'mdi-power-off'" height="18" />
-              </v-btn>
-            </div>
-          </template>
-          <template v-slot:item.active="{ item }">
-            <p>{{ item.active ? 'Activado' : 'Desactivado' }}</p>
-          </template>
-          <template v-slot:no-data>
-            <tr>
-              <td colspan="3">Sin datos</td>
-            </tr>
-          </template>
-        </v-data-table>
-      </UiParentCard>
+                <v-btn :color="item.active ? 'error' : 'success'" icon variant="text" size="32"
+                  v-tooltip="item.active ? 'Desactivar' : 'Activar'"
+                  :class="item.active ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
+                  @click="onToggleUserStatus(item)">
+                  <Icon :icon="item.active
+                    ? 'mdi-power'
+                    : 'mdi-power-off'" height="18" />
+                </v-btn>
+              </div>
+            </template>
+            <template #item.active="{ item }">
+              <VChip :color="item.active ? 'success' : 'error'" size="small" variant="flat"
+                class="!tw:font-normal tw:text-xs !tw:min-w-[80px]"
+                :class="item.active ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'">
+                <template #prepend>
+                  <Icon :icon="item.active ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-2" />
+                </template>
+                {{ item.active ? 'Activo' : 'Inactivo' }}
+              </VChip>
+            </template>
+            <template #loading>
+              <v-progress-linear color="primary" indeterminate class="tw:rounded-t-xl"></v-progress-linear>
+            </template>
+
+            <template #no-data>
+              <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
+                <Icon icon="mdi:account" height="48" class="tw:mb-4" />
+                <p class="tw:text-lg">No se encontraron usuarios</p>
+                <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
+              </div>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
     </v-col>
   </v-row>
   <VDialog v-model="showForm" max-width="500" v-if="selectedUser">
@@ -161,20 +227,13 @@ watch(changeRoleMutation.isError, () =>{
       <VCardTitle>
         <h3>Modificar Administrador: {{ selectedUser.name }}</h3>
       </VCardTitle>
-      
+
       <VCardText>
 
-        <VSelect 
-          v-model="selectedUser.role.id" 
-          label="Rol"
-          :items="roles"
-          :loading="isRolesLoading"
-          item-title="name"
-          item-value="id"
-          variant="outlined"
-        />
+        <VSelect v-model="selectedUser.role.id" label="Rol" :items="roles" :loading="isRolesLoading" item-title="name"
+          item-value="id" variant="outlined" />
         <div class="tw:flex tw:gap-3">
-          <VSpacer/>
+          <VSpacer />
           <VBtn color="secondary" @click="showForm = false">Cancelar</VBtn>
           <VBtn color="primary" @click="updateUser" :loading="changeRoleMutation.isPending.value">Guardar</VBtn>
         </div>

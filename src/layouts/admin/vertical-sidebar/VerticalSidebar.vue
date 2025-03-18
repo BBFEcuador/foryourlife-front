@@ -6,8 +6,6 @@ import sidebarItems from './sidebarItem';
 import NavGroup from './NavGroup/NavGroup.vue';
 import NavItem from './NavItem/NavItem.vue';
 import NavCollapse from './NavCollapse/NavCollapse.vue';
-import ExtraBox from './extrabox/ExtraBox.vue';
-import LogoIcon from '../logo/LogoIcon.vue';
 import Logo from '../logo/Logo.vue';
 
 const customizer = useCustomizerStore();

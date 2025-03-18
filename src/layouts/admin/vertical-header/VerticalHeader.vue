@@ -42,7 +42,7 @@ watch(priority, (newPriority) => {
     </v-btn>
 
     <!-- search mobile -->
-    <v-menu :close-on-content-click="false" class="hidden-lg-and-up" offset="10, 0">
+    <!-- <v-menu :close-on-content-click="false" class="hidden-lg-and-up" offset="10, 0">
       <template v-slot:activator="{ props }">
         <v-btn class="hidden-lg-and-up ml-1" color="secondary" icon rounded="sm" variant="text" size="small" v-bind="props">
           <div class="text-lightText d-flex align-center">
@@ -59,13 +59,13 @@ watch(priority, (newPriority) => {
           </template>
         </v-text-field>
       </v-sheet>
-    </v-menu>
+    </v-menu> -->
 
     <!-- ---------------------------------------------- -->
     <!-- Search part -->
     <!-- ---------------------------------------------- -->
     <v-sheet color="transparent" class="d-none d-lg-block" width="224">
-      <Searchbar />
+      <!-- <Searchbar /> -->
     </v-sheet>
 
     <!---/Search part -->
@@ -78,7 +78,7 @@ watch(priority, (newPriority) => {
     <!-- ---------------------------------------------- -->
     <!-- Notification -->
     <!-- ---------------------------------------------- -->
-    <NotificationDD />
+    <!-- <NotificationDD /> -->
 
     <!-- ---------------------------------------------- -->
     <!-- User Profile -->
