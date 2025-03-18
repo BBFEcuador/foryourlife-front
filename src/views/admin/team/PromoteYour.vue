@@ -3,7 +3,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import useAdminTeam from '@/composables/admin/team/useAdminTeam';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import TrainerSelect from './TrainerSelect.vue';
 import useTrainerMutations from '@/composables/admin/trainer/useTrainerMutations';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
@@ -15,7 +15,6 @@ import NewParticipantsSelect from '@/components/team/NewParticipantsSelect.vue';
 import NewStaffSelect from '@/components/team/NewStaffSelect.vue';
 import MasterlifeSelect from '@/components/team/MasterlifeSelect.vue';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
-import { router } from '@/router';
 
 
 const breadcrumbs = ref([
@@ -27,6 +26,7 @@ const breadcrumbs = ref([
 ]);
 
 const route = useRoute();
+const router = useRouter();
 const { isTeamError, isTeamLoading, team, refetchTeam } = useAdminTeam(route.params.id.toString())
 
 const trainers = ref<Trainers[]>([]);
@@ -99,9 +99,7 @@ watch(promoteToLifeMutation.isError, () => {
 
 watch(promoteToLifeMutation.isSuccess, () => {
     if (promoteToLifeMutation.isSuccess.value) {
-        showSuccessToast('Equipo promovido 👌');
-        showConfirmDialog.value = false;
-        refetchTeam();
+        router.push({name:'teams-admin'})
     }
 });
 const isPromoting = ref(false);

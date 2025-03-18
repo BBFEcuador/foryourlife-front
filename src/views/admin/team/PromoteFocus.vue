@@ -3,7 +3,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import useAdminTeam from '@/composables/admin/team/useAdminTeam';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import TrainerSelect from './TrainerSelect.vue';
 import useTrainerMutations from '@/composables/admin/trainer/useTrainerMutations';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
@@ -27,6 +27,7 @@ const breadcrumbs = ref([
 
 
 const route = useRoute();
+const router = useRouter();
 const { isTeamError, isTeamLoading, team, refetchTeam } = useAdminTeam(route.params.id.toString())
 
 const trainers = ref<Trainers[]>([]);
@@ -98,10 +99,7 @@ watch(promoteToYourMutation.isError, () => {
 
 watch(promoteToYourMutation.isSuccess, () => {
     if (promoteToYourMutation.isSuccess.value) {
-        showSuccessToast('Equipo promovido 👌');
-        showConfirmDialog.value = false;
-        refetchTeam();
-        showConfirmDialog.value = false;
+        router.push({name:'teams-admin'})
     }
 });
 </script>
