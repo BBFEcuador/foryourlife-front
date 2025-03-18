@@ -141,18 +141,6 @@ watch(promoteToYourMutation.isSuccess, () => {
                                 Promover
                             </v-btn>
                         </v-card-title>
-                        <v-card-subtitle class="tw:mt-4">
-                            <div class="tw:flex tw:items-center tw:gap-2">
-                                <Icon icon="mdi:pencil" class="text-gray-500" />
-                                Actualizar nombre del equipo
-                            </div>
-                        </v-card-subtitle>
-                        <v-card-text>
-                            <v-text-field v-model="team.name" label="Nombre del equipo"
-                                placeholder="Ingresa el nombre del equipo" hide-details="auto" variant="outlined"
-                                density="comfortable" class="tw:mt-2"
-                                prepend-inner-icon="mdi:account-group"></v-text-field>
-                        </v-card-text>
                     </v-card-item>
                 </v-card>
             </v-col>
