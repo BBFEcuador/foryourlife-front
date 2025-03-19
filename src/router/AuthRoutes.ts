@@ -15,11 +15,6 @@ const PublicRoutes = {
       path: '/register/:token',
       component: () => import('@/views/authentication/ParticipantsRegister.vue')
     },
-    {
-      name: 'Invitation',
-      path: '/invite',
-      component: () => import('@/views/invitation/invitationForm.vue')
-    }
   ]
 };
 
