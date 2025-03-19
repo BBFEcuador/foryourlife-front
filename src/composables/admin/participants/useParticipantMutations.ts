@@ -17,14 +17,21 @@ const getByLvl = async (lvl: string): Promise<Participant[]> => {
   return data;
 };
 
+const promotionMasterLife = async (id: string): Promise<Participant[]> => {
+  const { data } = await api.post(`/users/promotion-master/${id}`);
+  return data;
+};
+
 const useParticipantMutations = () => {
   const updateParticipantMutation = useMutation({ mutationFn: updateParticipant });
   const setCourseLevelMutation = useMutation({ mutationFn: setFocus });
   const getByLvlMutation = useMutation({ mutationFn: getByLvl });
+  const promotionMasterLifeMutation = useMutation({ mutationFn: promotionMasterLife });
   return {
     updateParticipantMutation,
     setCourseLevelMutation,
-    getByLvlMutation
+    getByLvlMutation,
+    promotionMasterLifeMutation
   };
 };
 
