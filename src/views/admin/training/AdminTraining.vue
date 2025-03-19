@@ -167,7 +167,7 @@ watch(saveTrainerMutations.isSuccess, () => {
         >
           <template v-slot:top>
             <v-toolbar
-              class="px-6 py-5 bg-containerBg"
+              class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
               flat
               v-motion
               :initial="{ opacity: 0, y: -10 }"

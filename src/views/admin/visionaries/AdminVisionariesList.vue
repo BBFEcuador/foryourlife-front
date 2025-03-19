@@ -127,7 +127,7 @@ watch(saveVisionaryMutations.isSuccess, () => {
       class="tw:rounded-xl elevation-0" :loading-text="'Cargando visionarios...'"
       :no-data-text="'No se encontraron visionarios'" hover>
       <template v-slot:top>
-        <v-toolbar class="px-6 bg-containerBg" flat v-motion :initial="{ opacity: 0, y: -10 }"
+        <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion :initial="{ opacity: 0, y: -10 }"
           :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
           <div class="tw:flex-1 tw:max-w-md tw:relative">
             <VTextField v-model="search" placeholder="Buscar por nombre, email o teléfono..." variant="outlined"
