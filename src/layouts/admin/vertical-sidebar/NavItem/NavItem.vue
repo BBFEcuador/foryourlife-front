@@ -18,7 +18,7 @@ import { Icon } from '@iconify/vue';
   >
     <!---If icon-->
     <template v-slot:prepend>
-      <Icon :icon="props.item.icon || ''" :level="props.level" />
+      <Icon :icon="props.item.icon || ''" :level="props.level" height="24"/>
     </template>
     <v-list-item-title>{{ item.title }}</v-list-item-title>
     <!---If Caption-->
@@ -43,7 +43,7 @@ import { Icon } from '@iconify/vue';
   >
     <!---If icon-->
     <template v-slot:prepend>
-      <Icon :icon="props.item.icon || ''" :level="props.level" />
+      <Icon :icon="props.item.icon || ''" :level="props.level" height="24"/>
     </template>
     <v-list-item-title>{{ item.title }}</v-list-item-title>
     <!---If Caption-->

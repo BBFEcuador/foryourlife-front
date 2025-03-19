@@ -17,6 +17,7 @@ export interface Participant {
   lingerer: boolean;
   contacts: any[];
   modules: Modules;
+  medicalRecord: MedicalRecord;
   team?: Team;
 }
 
@@ -61,6 +62,13 @@ export interface Modules {
   hasFocus: boolean;
   hasYour: boolean;
   hasLife: boolean;
+}
+
+export interface MedicalRecord {
+  id: string;
+  psychiatric_history_detail: string;
+  medical_history_detail: string;
+  medication_history_detail: string;
 }
 
 export interface Team {
