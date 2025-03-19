@@ -40,18 +40,38 @@ const promoteToLife = async (req: TeamLifePromotionRequest): Promise<any> => {
   return data;
 };
 
+const promoteToLife2 = async (req: TeamLifePromotionRequest): Promise<any> => {
+  const { data } = await api.put(`/teams/promotion/life2`, req);
+  return data;
+};
+
+const promoteToLife3 = async (req: TeamLifePromotionRequest): Promise<any> => {
+  const { data } = await api.put(`/teams/promotion/life3`, req);
+  return data;
+};
+
+const promoteToLifeGraduate = async (req: TeamLifePromotionRequest): Promise<any> => {
+  const { data } = await api.put(`/teams/promotion/lifegraduate`, req);
+  return data;
+};
 const useAdminTeamMutations = () => {
   const saveTeamMutations = useMutation({ mutationFn: saveTeam });
   const removeParticipantsMutations = useMutation({ mutationFn: removeParticipants });
   const promoteParticipantsMutation = useMutation({ mutationFn: promoteParticipant });
   const promoteToYourMutation = useMutation({ mutationFn: promoteToYour });
   const promoteToLifeMutation = useMutation({ mutationFn: promoteToLife });
+  const promoteToLife2Mutation = useMutation({ mutationFn: promoteToLife2 });
+  const promoteToLife3Mutation = useMutation({ mutationFn: promoteToLife3 });
+  const promoteToLifeGraduateMutation = useMutation({ mutationFn: promoteToLifeGraduate });
   return {
     saveTeamMutations,
     removeParticipantsMutations,
     promoteParticipantsMutation,
     promoteToYourMutation,
-    promoteToLifeMutation
+    promoteToLifeMutation,
+    promoteToLife2Mutation,
+    promoteToLife3Mutation,
+    promoteToLifeGraduateMutation
   };
 };
 

@@ -93,15 +93,23 @@ const getLevelColor = (level: string) => {
     'FOCUS': 'success',
     'YOUR': 'warning',
     'LIFE': 'error',
+    'LIFE_1': 'facebook',
+    'LIFE_2': 'twitter',
+    'LIFE_3': 'linkedin',
+    'LIFE_GRADUATE': 'darkinfo',
   };
   return colors[level] || 'gray';
 };
 
 const getLevelIcon = (level: string) => {
   const icons = {
-    'FOCUS': 'mdi:signal-cellular-1',
-    'YOUR': 'mdi:signal-cellular-2',
-    'LIFE': 'mdi:signal-cellular-3',
+    'FOCUS': 'tabler:circle-number-1',
+    'YOUR': 'tabler:circle-number-2',
+    'LIFE': 'tabler:circle-number-3',
+    'LIFE_1': 'tabler:circle-number-4',
+    'LIFE_2': 'tabler:circle-number-5',
+    'LIFE_3': 'tabler:circle-number-6',
+    'LIFE_GRADUATE': 'fluent:hat-graduation-sparkle-16-regular',
   };
   return icons[level] || 'mdi:help-circle';
 };
@@ -237,16 +245,10 @@ watch(criteriaMutations.isError, () => {
                     class="!tw:font-medium tw:min-w-[120px] !tw:justify-center tw:transition-all group-hover:tw:shadow-md group-hover:tw:scale-105"
                     size="small">
                     <div class="tw:relative">
-                      <Icon :icon="getLevelIcon(item.training.courseLevel)"
+                      <Icon :icon="getLevelIcon(item.training.courseLevel)" height="20"
                         class="mr-2 tw:transition-transform group-hover:tw:scale-110" />
-                      <div class="tw:absolute tw:inset-0 tw:opacity-25 tw:blur-sm tw:rounded-full tw:animate-pulse"
-                        :class="{
-                          'tw:bg-green-500': item.training.courseLevel === 'FOCUS',
-                          'tw:bg-amber-500': item.training.courseLevel === 'YOUR',
-                          'tw:bg-red-500': item.training.courseLevel === 'LIFE',
-                        }"></div>
                     </div>
-                    {{ item.training.courseLevel }}
+                    <div v-if="item.training.courseLevel === 'LIFE_GRADUATE'">GRADUADO</div>
                   </VChip>
                 </div>
               </template>

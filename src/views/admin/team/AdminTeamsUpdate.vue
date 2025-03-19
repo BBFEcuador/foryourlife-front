@@ -40,6 +40,15 @@ const onPromoteTeam = () => {
     case 'LIFE':
       router.push({ name: 'promote-life', params: { id: teamId } });
       break;
+    case 'LIFE_2':
+      router.push({ name: 'promote-life', params: { id: teamId } });
+      break;
+    case 'LIFE_3':
+      router.push({ name: 'promote-life', params: { id: teamId } });
+      break;
+    case 'GRADUATE':
+      router.push({ name: 'promote-life', params: { id: teamId } });
+      break;
     default:
       console.error(`Nivel desconocido: ${courseLevel}`);
   }
@@ -68,56 +77,41 @@ const tab = ref('1');
         </VCol>
         <VCol cols="12" md="9" sm="12" class="tw:grid tw:gap-4">
           <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
-            <v-tabs v-model="tab" >
+            <v-tabs v-model="tab">
               <v-tab value="1">Participantes</v-tab>
               <v-tab value="2" v-if="team.training.courseLevel == 'FOCUS'">Visionarios</v-tab>
-              <v-tab value="3" v-if="team.training.courseLevel == 'YOUR' || team.training.courseLevel == 'FOCUS'">Staff</v-tab>
+              <v-tab value="3"
+                v-if="team.training.courseLevel == 'YOUR' || team.training.courseLevel == 'FOCUS'">Staff</v-tab>
               <v-tab value="4" v-if="team.training.courseLevel == 'LIFE'">Master life</v-tab>
             </v-tabs>
             <v-card-text>
               <v-tabs-window v-model="tab">
                 <v-tabs-window-item value="1">
-                  <TeamParticipantsList
-                    :team="team"
-                    :isTeamLoading="isTeamLoading"
-                    :isTeamError="isTeamError"
-                    @refetchTeam="fetchTeamData"
-                  />
+                  <TeamParticipantsList :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
+                    @refetchTeam="fetchTeamData" />
                 </v-tabs-window-item>
                 <v-tabs-window-item value="2" v-if="team.training.courseLevel == 'FOCUS'">
-                  <TeamVisionary
-                    :team="team"
-                    :isTeamLoading="isTeamLoading"
-                    :isTeamError="isTeamError"
-                    @refetchTeam="fetchTeamData"
-                  />
+                  <TeamVisionary :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
+                    @refetchTeam="fetchTeamData" />
                 </v-tabs-window-item>
-                <v-tabs-window-item value="3" v-if="team.training.courseLevel == 'YOUR' || team.training.courseLevel == 'FOCUS'">
-                  <TeamStaff
-                    :team="team"
-                    :isTeamLoading="isTeamLoading"
-                    :isTeamError="isTeamError"
-                    @refetchTeam="fetchTeamData"
-                  />
+                <v-tabs-window-item value="3"
+                  v-if="team.training.courseLevel == 'YOUR' || team.training.courseLevel == 'FOCUS'">
+                  <TeamStaff :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
+                    @refetchTeam="fetchTeamData" />
                 </v-tabs-window-item>
                 <v-tabs-window-item value="4" v-if="team.training.courseLevel == 'LIFE'">
-                  <TeamMasterLife
-                    :team="team"
-                    :isTeamLoading="isTeamLoading"
-                    :isTeamError="isTeamError"
-                    @refetchTeam="fetchTeamData"
-                  />
+                  <TeamMasterLife :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
+                    @refetchTeam="fetchTeamData" />
                 </v-tabs-window-item>
               </v-tabs-window>
               <div class="tw:p-4 tw:bg-gray-50">
-                <v-btn
-                  color="primary"
-                  variant="flat"
-                  size="large"
-                  class="tw:w-full tw:py-3 tw:text-lg tw:rounded-xl tw:shadow-md"
-                  @click="onPromoteTeam"
-                >
+                <v-btn v-if="team.training.courseLevel !== 'LIFE_GRADUATE'" color="primary" variant="flat" size="large"
+                  class="tw:w-full tw:py-3 tw:text-lg tw:rounded-xl tw:shadow-md" @click="onPromoteTeam">
                   🚀 Promover Equipo
+                </v-btn>
+                <v-btn v-else disabled color="secondary" variant="flat" size="large"
+                  class="tw:w-full tw:py-3 tw:text-lg tw:rounded-xl tw:shadow-md">
+                  El equipo ya se encuentra graduado.
                 </v-btn>
               </div>
             </v-card-text>

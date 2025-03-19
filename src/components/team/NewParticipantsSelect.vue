@@ -18,27 +18,6 @@ const sp = defineModel({
   default:[] as Participant[],
 })
 
-const { getByLvlMutation } = useParticipantMutations();
-const participants = ref<Participant[]>([]);
-
-onBeforeMount(() => {
-  getByLvlMutation.mutate(props.team.training.courseLevel);
-});
-watch(getByLvlMutation.isError, () => {
-  if (getByLvlMutation.isError.value) {
-    const error = getByLvlMutation.error.value as AxiosError<ErrorApiResponse>;
-    showErrorToast(error);
-  }
-});
-
-watch(getByLvlMutation.isSuccess, () => {
-  if (getByLvlMutation.isSuccess.value) {
-    const response = getByLvlMutation.data.value;
-    if (response) {
-      participants.value = response;
-    }
-  }
-});
 
 const headers = ref([
   { title: 'Nombre', value: 'name', class: 'my-header-style' },
@@ -52,9 +31,7 @@ const searchQuery = ref('');
 
 <template>
   <v-card variant="flat">
-    <v-progress-circular v-if="getByLvlMutation.isPending.value" indeterminate color="primary"></v-progress-circular>
-    <v-alert v-else-if="getByLvlMutation.isError.value" type="error" class="mb-4"> Error al cargar los participantes </v-alert>
-    <div v-else>
+    <div>
       <v-text-field v-model="searchQuery" label="Buscar por Nombre" outlined dense clearable>
         <template #prepend-inner>
           <Icon icon="mdi-magnify" />

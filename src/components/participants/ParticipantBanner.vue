@@ -21,7 +21,7 @@ const { promotionMasterLifeMutation } = useParticipantMutations();
 
 const name = () => {
   Swal.fire({
-    text: `Recuerda que una vez que no podrá desactivarse`,
+    text: `Recuerda que desea promover a Masterlife`,
     title: '¿Está seguro?',
     icon: 'warning',
     showCancelButton: true,
