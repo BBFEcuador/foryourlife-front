@@ -75,10 +75,10 @@ watch(postLoginMutation.isSuccess, () => {
         </template>
       </v-text-field>
     </div>
-    <div class="ml-sm-auto">
+    <!-- <div class="ml-sm-auto">
             <RouterLink to="/admin/auth/reset-password" class="text-primary text-decoration-none font-weight-medium">
                 ¿Perdiste la contraseña?</RouterLink>
-        </div>
+        </div> -->
     <v-btn color="darkprimary" block class="mt-5" variant="flat" size="large" rounded="md" type="submit"
       :loading="postLoginMutation.isPending.value">
       Login

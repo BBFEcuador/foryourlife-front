@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Logo from '@/layouts/dashboard/logo/LogoMain.vue';
+import Logo from '@/layouts/dashboard/logo/Logo.vue';
 import AuthAdminLogin from './AuthAdminLogin.vue';
 
 
@@ -18,7 +18,7 @@ import AuthAdminLogin from './AuthAdminLogin.vue';
             <v-col cols="12" md="12">
               <v-card elevation="0" variant="outlined" rounded="lg" class="loginBox bg-surface">
                 <v-card-text class="pa-sm-10 pa-6">
-                  <div class="text-center">
+                  <div class="tw:grid tw:place-content-center">
                     <Logo class="mb-5" />
                   </div>
                   <AuthAdminLogin />
