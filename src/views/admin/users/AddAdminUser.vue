@@ -28,6 +28,7 @@ const breadcrumbs = ref([
 
 const rules = {
   name: { required },
+  phone: { required },
   email: { required, email },
   campus: { required },
   role: { required }
@@ -78,6 +79,16 @@ watch(saveAdminMutation.isSuccess, () => {
               placeholder="E-mail"
               v-model="admin.email"
               :error-messages="validator.email.$errors.map((x) => x.$message.toString())"
+              variant="outlined"
+              bg-color="surface"
+              class="rounded-lg"
+            />
+          </InputSection>
+          <InputSection label="Telf" class="mb-4">
+            <VTextField
+              placeholder="Telefono"
+              v-model="admin.phone"
+              :error-messages="validator.phone.$errors.map((x) => x.$message.toString())"
               variant="outlined"
               bg-color="surface"
               class="rounded-lg"

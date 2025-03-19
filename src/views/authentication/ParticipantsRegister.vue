@@ -15,7 +15,11 @@ import Logo from '@/layouts/admin/logo/Logo.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { toast } from 'vue3-toastify';
 
-const participant = ref<Participant>({ profile: {} } as Participant);
+const participant = ref<Participant>({ profile: {},medicalRecord:{
+  medical_history_detail:"N/A",
+  medication_history_detail:"N/A",
+  psychiatric_history_detail:"N/A",
+} } as Participant);
 const { saveParticipantsMutation } = useParticipantsMutations();
 const route = useRoute();
 
@@ -311,18 +315,27 @@ watch(saveParticipantsMutation.isSuccess, () => {
                                 label="¿Tienes algún antecedente personal de enfermedades psiquiátricas o estás bajo tratamiento actualmente?"
                                 color="primary"
                                 hide-details
+                                true-value="si"
+                                false-value="N/A"
+                                v-model="participant.medicalRecord.psychiatric_history_detail"
                                 class="mb-4"
                               />
                               <v-checkbox 
                                 label="¿Tienes algún antecedente médico del cuál debamos tener conocimiento?"
                                 color="primary"
                                 hide-details
+                                true-value="si"
+                                false-value="N/A"
+                                v-model="participant.medicalRecord.medical_history_detail"
                                 class="mb-4"
                               />
                               <v-checkbox 
                                 label="¿Tomas algún medicamento que altere tu conducta habitual?"
                                 color="primary"
                                 hide-details
+                                true-value="si"
+                                false-value="N/A"
+                                v-model="participant.medicalRecord.medication_history_detail"
                                 class="mb-4"
                               />
                             </v-col>
