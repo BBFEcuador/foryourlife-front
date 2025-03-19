@@ -185,31 +185,31 @@ watch(saveStaffMutations.isSuccess, () => {
       </UiParentCard>
     </v-col>
     <VDialog max-width="500" v-model="showForm">
-      <UiParentCard title="Guardar staff">
+      <UiParentCard title="Guardar Staff">
         <InputSection label="Nombre">
           <VTextField
-            placeholder="Nombre del staff"
+            placeholder="Nombre del Staff"
             v-model="staff.user.name"
             :error-messages="validator.user.name.$errors.map((x) => x.$message.toString())"
           />
         </InputSection>
         <InputSection label="Correo">
           <VTextField
-            placeholder="Correo del staff"
+            placeholder="Correo del Staff"
             v-model="staff.user.email"
             :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
           />
         </InputSection>
         <InputSection label="Teléfono">
           <VTextField
-            placeholder="Teléfono del staff"
+            placeholder="Teléfono del Staff"
             v-model="staff.user.phone"
             :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
           />
         </InputSection>
         <InputSection label="Rol">
           <VSelect
-            placeholder="Rol del staff"
+            placeholder="Rol del Staff"
             :items="['CAPITAN', 'STAFF']"
             v-model="staff.rol"
             :error-messages="validator.rol.$errors.map((x) => x.$message.toString())"
@@ -223,4 +223,48 @@ watch(saveStaffMutations.isSuccess, () => {
   </v-row>
 </template>
 
-<style scoped></style>
+<style scoped>
+.v-data-table :deep(th) {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(td) {
+  color: #334155 !important;
+  font-size: 0.875rem !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(.v-data-table-footer) {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper) {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+}
+
+.v-data-table :deep(.v-data-table-header__wrapper) {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper table) {
+  border-spacing: 0 0.25rem !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr:hover) {
+  background-color: #f8fafc !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr) {
+  transition: all 0.2s ease-in-out !important;
+}
+</style>

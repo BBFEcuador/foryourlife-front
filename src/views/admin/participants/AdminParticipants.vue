@@ -142,16 +142,9 @@ const search = ref();
     </template>
   </BaseBreadcrumb>
 
-  <VRow>
-    <VCol
-      v-if="showFilters && lgAndUp"
-      cols="0"
-      lg="3"
-      v-motion
-      :initial="{ opacity: 0, x: 20 }"
-      :enter="{ opacity: 1, x: 0 }"
-      :delay="100"
-    >
+  <VRow v-auto-animate>
+    <VCol cols="0" lg="3" v-if="lgAndUp && !showFilters" v-motion :initial="{ opacity: 0, x: 20 }"
+      :enter="{ opacity: 1, x: 0 }" :delay="100">
       <VCard variant="flat" class="tw:rounded-xl tw:bg-white tw:shadow-sm">
         <UiParentCard title="Filtros">
           <PerfectScrollbar class="tw:max-h-[700px] d-flex flex-column ga-3">
@@ -160,15 +153,9 @@ const search = ref();
         </UiParentCard>
       </VCard>
     </VCol>
-
-    <VNavigationDrawer v-model="showFiltersDrawer" location="left" temporary>
-      <div class="tw:p-6">
-        <ParticipantFilters @update-filters="onFilterSubmit" @clear-filters="onFilterClear" />
-      </div>
-    </VNavigationDrawer>
-    <VCol :cols="showFilters && lgAndUp ? 9 : 12" class="d-flex justify-end tw:h-min">
-      <VCard variant="flat" class="tw:rounded-xl">
-        <div class="tw:p-6">
+    <VCol cols="12" :lg="showFilters ? 12 : 9">
+      <VCard variant="outlined" elevation="0" class="bg-surface" rounded="lg">
+        <v-card-text>
           <VDataTable
             :items="participants"
             :headers="headers"
@@ -184,50 +171,48 @@ const search = ref();
             :delay="200"
           >
             <template #top>
-              <v-toolbar
-                class="px-6 bg-surface"
-                flat
-                v-motion
-                :initial="{ opacity: 0, y: -10 }"
-                :enter="{ opacity: 1, y: 0 }"
-                :delay="200"
-                :duration="250"
-              >
-                <div class="tw:flex-1 tw:max-w-md tw:relative">
-                  <VTextField
-                    v-model="search"
-                    placeholder="Buscar por nombre, email o teléfono..."
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details
-                    class="tw:rounded-lg"
-                    bg-color="white"
-                  >
-                    <template #prepend-inner>
-                      <Icon icon="mdi:magnify" height="18" />
-                    </template>
-                    <template #append v-if="search">
-                      <VBtn icon variant="text" size="small" @click="search = ''">
-                        <Icon icon="mdi:close" height="18" />
-                      </VBtn>
-                    </template>
-                  </VTextField>
-                </div>
-                <v-spacer></v-spacer>
-                <VBtn variant="elevated" color="secondary" @click="showFilters = !showFilters" v-if="lgAndUp" class="!tw:font-normal mr-2">
-                  <Icon icon="mdi:filter" class="mr-2" />
-                  Filtros
-                </VBtn>
-                <VBtn
-                  variant="elevated"
-                  color="secondary"
-                  @click="showFiltersDrawer = !showFiltersDrawer"
-                  v-else
-                  class="!tw:font-normal mr-2"
-                >
-                  <Icon icon="mdi:filter" class="mr-2" />
-                  Filtros
-                </VBtn>
+              <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
+                  :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+                  <div class="tw:flex-1 tw:max-w-md tw:relative">
+                    <VTextField v-model="search" placeholder="Buscar equipos..." variant="outlined"
+                      density="comfortable" hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+                      bg-color="white">
+                      <template #prepend-inner>
+                        <div class="tw:relative">
+                          <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full">
+                          </div>
+                        </div>
+                      </template>
+                      <template #append v-if="search">
+                        <VBtn icon variant="text" size="small" @click="search = ''"
+                          class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+                          <Icon icon="mdi:close" height="18" />
+                        </VBtn>
+                      </template>
+                    </VTextField>
+                  </div>
+                  <VSpacer />
+                  <VBtn variant="tonal" class="mr-2 tw:bg-secondary/5 hover:tw:bg-secondary/10 tw:transition-all"
+                    color="secondary" @click="showFilters = !showFilters" v-if="lgAndUp">
+                    <div class="tw:relative">
+                      <Icon icon="mdi:filter-variant" class="mr-2" />
+                      <div
+                        class="tw:absolute tw:-right-1 tw:-top-1 tw:w-2 tw:h-2 tw:bg-secondary tw:rounded-full tw:animate-pulse">
+                      </div>
+                    </div>
+                    Filtros
+                  </VBtn>
+                  <VBtn variant="tonal" class="mr-2 tw:bg-secondary/5 hover:tw:bg-secondary/10 tw:transition-all"
+                    color="secondary" @click="showFiltersDrawer = !showFiltersDrawer" v-else>
+                    <div class="tw:relative">
+                      <Icon icon="mdi:filter-variant" class="mr-2" />
+                      <div
+                        class="tw:absolute tw:-right-1 tw:-top-1 tw:w-2 tw:h-2 tw:bg-secondary tw:rounded-full tw:animate-pulse">
+                      </div>
+                    </div>
+                    Filtros
+                  </VBtn>
                 <VBtn
                   variant="elevated"
                   color="primary"
@@ -308,7 +293,7 @@ const search = ref();
               </div>
             </template>
           </VDataTable>
-        </div>
+        </v-card-text>
       </VCard>
     </VCol>
   </VRow>
@@ -343,3 +328,49 @@ const search = ref();
     </UiParentCard>
   </VDialog>
 </template>
+
+<style scoped>
+.v-data-table :deep(th) {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(td) {
+  color: #334155 !important;
+  font-size: 0.875rem !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(.v-data-table-footer) {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper) {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+}
+
+.v-data-table :deep(.v-data-table-header__wrapper) {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper table) {
+  border-spacing: 0 0.25rem !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr:hover) {
+  background-color: #f8fafc !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr) {
+  transition: all 0.2s ease-in-out !important;
+}
+</style>
