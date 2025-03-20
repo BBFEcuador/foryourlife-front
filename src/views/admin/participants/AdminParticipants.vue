@@ -146,12 +146,13 @@ const getLevelColor = (level: string) => {
 
 const getLevelIcon = (level: string) => {
   const icons = {
-    'FOCUS': 'tabler:circle-number-1',
-    'YOUR': 'tabler:circle-number-2',
-    'LIFE': 'tabler:circle-number-3',
-    'LIFE_1': 'tabler:circle-number-4',
-    'LIFE_2': 'tabler:circle-number-5',
-    'LIFE_3': 'tabler:circle-number-6',
+    'INIT': 'tabler:circle-number-1',
+    'FOCUS': 'tabler:circle-number-2',
+    'YOUR': 'tabler:circle-number-3',
+    'LIFE': 'tabler:circle-number-4',
+    'LIFE_1': 'tabler:circle-number-5',
+    'LIFE_2': 'tabler:circle-number-6',
+    'LIFE_3': 'tabler:circle-number-7',
     'MASTER_LIFE': 'eos-icons:master-outlined',
     'LIFE_GRADUATE': 'fluent:hat-graduation-sparkle-16-regular',
   };
