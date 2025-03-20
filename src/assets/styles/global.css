@@ -1,0 +1,8 @@
+/* Global styles */
+html, body {
+  font-family: 'Raleway', sans-serif !important;
+}
+
+* {
+  font-family: inherit;
+}

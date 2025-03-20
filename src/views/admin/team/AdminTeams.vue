@@ -90,13 +90,13 @@ const removeParticipantSelected = (item: string) => {
 
 const getLevelColor = (level: string) => {
   const colors = {
-    'FOCUS': 'success',
-    'YOUR': 'warning',
-    'LIFE': 'error',
-    'LIFE_1': 'facebook',
-    'LIFE_2': 'twitter',
-    'LIFE_3': 'linkedin',
-    'LIFE_GRADUATE': 'darkinfo',
+    'FOCUS': 'primary',
+    'YOUR': 'secondary',
+    'LIFE': 'info',
+    'LIFE_1': 'success',
+    'LIFE_2': 'warning',
+    'LIFE_3': 'error',
+    'LIFE_GRADUATE': 'background',
   };
   return colors[level] || 'gray';
 };
@@ -250,6 +250,7 @@ watch(criteriaMutations.isError, () => {
                         class="mr-2 tw:transition-transform group-hover:tw:scale-110" />
                     </div>
                     <div v-if="item.training.courseLevel === 'LIFE_GRADUATE'">GRADUADO</div>
+                    <div v-else>{{ item.training.courseLevel }}</div>
                   </VChip>
                 </div>
               </template>

@@ -3,34 +3,37 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import '@mdi/font/css/materialdesignicons.css';
+import 'vuetify/styles';
 
 const light: ThemeDefinition = {
   dark: false,
   colors: {
-    primary: '#4680FF',
-    secondary: '#5B6B79',
+    primary: '#663c84',
+    secondary: '#23234b',
     info: '#3ec9d6',
     success: '#2ca87f',
-    warning: '#e58a00',
+    warning: '#e88d1d',
     error: '#dc2626',
+    background: '#e1ddcf',
+    surface: '#ffffff',
+    darkbg: '#0e1925',
     lightprimary: '#E9F0FF',
     lightsecondary: '#F8F9FA',
     lightsuccess: '#c0e5d9',
     lightinfo: '#c5eff3',
     lighterror: '#f5bebe',
     lightwarning: '#f7dcb3',
-    darkText: '#1D2630',
+    darkText: '#0e1925',
     lightText: '#5B6B79',
-    darkprimary: '#3F78FF',
-    darksecondary: '#3E4853',
+    darkprimary: '#663c84',
+    darksecondary: '#23234b',
     darkinfo: '#30bccc',
     darksuccess: '#21976c',
-    darkwarning: '#de7700',
+    darkwarning: '#e88d1d',
     darkerror: '#d31c1c',
-    borderLight: '#e8ebee',
+    borderLight: '#e1ddcf',
     inputBorder: '#BEC8D0',
     containerBg: '#F8F9FA',
-    surface: '#fff',
     'on-surface-variant': '#fff',
     facebook: '#4267b2',
     twitter: '#1da1f2',
@@ -41,7 +44,7 @@ const light: ThemeDefinition = {
     warning200: '#faaf00'
   },
   variables: {
-    'border-color': '#e8ebee',
+    'border-color': '#e1ddcf',
     'carousel-control-size': 10,
     gradient: 'linear-gradient(to right, rgb(var(--v-theme-darkprimary)), rgb(var(--v-theme-primary)))',
     'card-shadow': '0 8px 24px rgba(var(--v-shadow-key-umbra-color),var(--v-shadow-opacity)),0 0 transparent,0 0 transparent',
@@ -73,6 +76,15 @@ export default createVuetify({
     }
   },
   defaults: {
+    VApp: {
+      style: [{ fontFamily: 'Raleway, sans-serif !important' }]
+    },
+    VSheet: {
+      style: [{ fontFamily: 'Raleway, sans-serif !important' }]
+    },
+    global: {
+      style: [{ fontFamily: 'Raleway, sans-serif !important' }]
+    },
     VBtn: {},
     VCard: {
       rounded: 'md'
