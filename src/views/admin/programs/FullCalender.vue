@@ -148,15 +148,7 @@ const onAddCourses = async () => {
 </script>
 
 <template>
-  <div class="demo-app">
-    <div class="demo-app-main">
-      <FullCalendar class="demo-app-calendar rounded-md" :options="calendarOption">
-        <template v-slot:eventContent="arg">
-          <div class="text-subtitle-1 pa-1 text-truncate">{{ arg.event.title }}</div>
-        </template>
-      </FullCalendar>
-    </div>
-  </div>
+  <FullCalendar :options="calendarOption" />
   <v-dialog v-model="viewModalShow" max-width="600px">
     <v-card>
       <v-card-title class="d-flex align-center">
