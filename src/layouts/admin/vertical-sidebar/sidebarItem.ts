@@ -56,12 +56,16 @@ const sidebarItem: menu[] = [
         to: 'participants-admin'
       },
       {
-        title: 'Staff',
-        to: 'staff-admin'
+        title: 'Master life',
+        to: 'master-life-admin'
       },
       {
         title: 'Visionarios',
         to: 'visionary-admin'
+      },
+      {
+        title: 'Staff',
+        to: 'staff-admin'
       }
     ]
   },

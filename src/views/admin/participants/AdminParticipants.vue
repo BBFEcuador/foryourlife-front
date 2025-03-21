@@ -9,18 +9,20 @@ import ParticipantFilters from './ParticipantFilters.vue';
 import type { Criteria, Filter } from '@/models/Criteria';
 import useInvitation from '@/composables/invitation/useInvitation';
 import { userStore } from '@/stores/useStore';
-import { router } from '@/router';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { showErrorToast } from '@/service/sweetAlert';
 import InputSection from '@/components/forms/InputSection.vue';
 import { VNumberInput } from 'vuetify/labs/VNumberInput';
+import { useRouter } from 'vue-router';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
 const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, refetchParticipants, data } = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitation();
+const router = useRouter()
+
 const adminStore = userStore();
 const headers = [
   {
