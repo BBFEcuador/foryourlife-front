@@ -13,7 +13,7 @@ const changeStatus = async (item: Team): Promise<any> => {
 };
 
 const availableMasterlife = async (masterLife: { startDate: string; endDate: string }): Promise<Team[]> => {
-  const { data } = await api.post('/users/master-life-available', masterLife);
+  const { data } = await api.post('/master-life/available', masterLife);
   return data;
 };
 
