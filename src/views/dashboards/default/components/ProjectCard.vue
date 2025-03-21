@@ -24,10 +24,10 @@ const projectitems = shallowRef([
 ]);
 </script>
 <template>
-  <CardHeader title="Project - Able Pro" class="overflow-hidden">
+  <CardHeader title="Meta de Referidos" class="overflow-hidden">
     <div class="pa-6">
       <div class="d-flex justify-space-between mb-2">
-        <p class="text-body-1 mb-0">Release v1.2.0</p>
+        <p class="text-body-1 mb-0">Conteo 1..2..3</p>
         <p class="text-body-1 mb-0">72%</p>
       </div>
       <v-progress-linear aria-label="progressbar" rounded color="primary" model-value="72" height="6"></v-progress-linear>

@@ -1,22 +1,62 @@
 <script setup lang="ts">
 // assets
 import Banner from '@/assets/images/analytics/welcome-banner.png';
+import { userStore } from '@/stores/useStore';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import { ref } from 'vue';
+
+const stores = userStore();
+const showReferralCard = ref(false);
+
+const invitationLink = ref('');
+const copied = ref(false);
+
+const toggleReferralCard = () => {
+  showReferralCard.value = !showReferralCard.value;
+};
+const copyLink = async () => {
+  try {
+    await navigator.clipboard.writeText(invitationLink.value);
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 2000);
+  } catch (err) {
+    console.error('Error al copiar el enlace:', err);
+  }
+};
+
 </script>
 
 <template>
   <v-card class="welcomeBanner text-surface overflow-hidden" elevation="0" rounded="lg">
     <v-card-text class="py-5 px-md-12 px-6">
       <v-row>
-        <v-col cols="12" xl="6" md="7" sm="10">
+        <v-col cols="12" xl="6" md="8" sm="10">
           <div class="pb-md-8 pt-md-7 pt-5 pb-6">
-            <h2 class="text-sm-h2 text-h3">Hola </h2>
+            <h2 class="text-sm-h2 text-h3">Hola {{ stores.user.name }} </h2>
             <p class="text-h6 mb-7">
-              The Brand new User Interface with power of Material-UI Components. Explore the Endless possibilities with Able Pro.
+              Empieza o continua tus entrenamientos, ¡mucho ánimo!
             </p>
-            <v-btn color="white" variant="outlined" rounded="md">Exclusive on Themeforest</v-btn>
+            <div class="d-flex align-center">
+              <v-btn color="info" size="x-large" rounded="md" class="tw:z-50" @click="toggleReferralCard">
+                Referir
+                <Icon icon="mdi-arrow-right"></Icon>
+              </v-btn>
+              <v-slide-x-transition>
+                <v-card v-if="showReferralCard" class="ml-4 pa-1 tw:z-50" elevation="4" rounded="lg">
+                  <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details
+                    class="tw:mb-2">
+                    <template #append>
+                      <VBtn color="primary" variant="elevated" @click="copyLink" class="!tw:font-normal">
+                        {{ copied ? 'Copiado!' : 'Copiar enlace' }}
+                      </VBtn>
+                    </template>
+                  </VTextField>
+                </v-card>
+              </v-slide-x-transition>
+            </div>
           </div>
         </v-col>
-        <v-col cols="12" xl="6" md="5" class="d-md-block d-none">
+        <v-col cols="12" xl="6" md="4" class="d-md-block d-none">
           <div class="text-right pr-8">
             <v-img :src="Banner" cover class="ml-auto" width="200" alt="welcome banner" />
           </div>
@@ -29,19 +69,19 @@ import Banner from '@/assets/images/analytics/welcome-banner.png';
 .welcomeBanner {
   background: rgb(var(--v-theme-darkprimary));
   position: relative;
+
   &::after {
     content: '';
-    background-image: url(@/assets/images/analytics/img-dropbox-bg.svg);
     position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url('@/assets/images/backgrounds/welcome-bg.png');
+    background-position: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: -1;
-    opacity: 0.5;
-    background-position: bottom right;
-    background-size: 100%;
-    background-repeat: no-repeat;
+    opacity: 0.1;
   }
 }
 </style>

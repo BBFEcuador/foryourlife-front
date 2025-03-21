@@ -4,7 +4,6 @@ import PublicRoutes from './AuthRoutes';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
 import AdminRoutes from './AdminRoutes';
-
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -14,7 +13,7 @@ export const router = createRouter({
     },
     MainRoutes,
     PublicRoutes,
-    ...AdminRoutes
+    ...AdminRoutes,
   ]
 });
 

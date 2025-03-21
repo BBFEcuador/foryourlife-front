@@ -1,99 +1,85 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import SvgSprite from '@/components/shared/SvgSprite.vue';
-import { useAuthStore } from '@/stores/auth';
-import { Form } from 'vee-validate';
+import type { LoginRequest } from '@/models/Login';
+import { userStore } from '@/stores/useStore';
+import useVuelidate from '@vuelidate/core';
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { required, email } from '@vuelidate/validators';
+import useLogin from '@/composables/admin/user/useLogin';
+import type { AxiosError } from 'axios';
+import { toast } from 'vue3-toastify';
+import { Icon } from '@iconify/vue/dist/iconify.js';
 
-const valid = ref(false);
-const show1 = ref(false);
-const password = ref('admin123');
-const username = ref('info@phoenixcoded.co');
-// Password validation rules
-const passwordRules = ref([
-  (v: string) => !!v || 'Password is required',
-  (v: string) => v === v.trim() || 'Password cannot start or end with spaces',
-  (v: string) => v.length <= 10 || 'Password must be less than 10 characters'
-]);
-// Email validation rules
-const emailRules = ref([
-  (v: string) => !!v.trim() || 'E-mail is required',
-  (v: string) => {
-    const trimmedEmail = v.trim();
-    return !/\s/.test(trimmedEmail) || 'E-mail must not contain spaces';
-  },
-  (v: string) => /.+@.+\..+/.test(v.trim()) || 'E-mail must be valid'
-]);
+const loginRequest = ref<LoginRequest>({} as LoginRequest);
+const { postLoginMutation } = useLogin();
+const router = useRouter();
+const store = userStore();
+const rules = {
+  username: { required },
+  password: { required }
+};
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function validate(values: any, { setErrors }: any) {
-  // Trim the username before validation
-  const trimmedUsername = username.value.trim();
+const validator = useVuelidate(rules, loginRequest);
+const showPassword = ref(false);
 
-  // Update the username with trimmed value
-  username.value = trimmedUsername;
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
 
-  const authStore = useAuthStore();
-  return authStore.login(trimmedUsername, password.value).catch((error) => setErrors({ apiError: error }));
-}
+
+const onLoginSubmit = () => {
+  validator.value.$validate();
+  if (!validator.value.$error) {
+    postLoginMutation.mutate(loginRequest.value);
+  }
+};
+
+watch(postLoginMutation.isError, () => {
+  if (postLoginMutation.isError.value) {
+    let message = 'Ha ocurrido un error';
+    let error = postLoginMutation.error.value as AxiosError<{
+      message: string;
+    }>;
+    if (error.response?.data?.message) {
+      message = error.response?.data?.message;
+    }
+    toast.error(message, {
+      autoClose: 3000,
+      closeButton: true
+    });
+  }
+});
+
+watch(postLoginMutation.isSuccess, () => {
+  if (postLoginMutation.isSuccess.value) {
+    let response = postLoginMutation.data.value;
+    if (response) {
+      store.setToken(response.token);
+      store.setUser(response.user);
+      router.push({ name: 'home' });
+    }
+  }
+});
 </script>
-
 <template>
-  <div class="d-flex justify-space-between align-center mt-4">
-    <h3 class="text-h3 text-center mb-0">Iniciar Sesión</h3>
-    <router-link to="/register1" class="text-primary text-decoration-none">No tienes una cuenta?</router-link>
-  </div>
-  <Form @submit="validate" class="mt-7 loginForm" v-slot="{ errors, isSubmitting }">
+  <form @submit.prevent="onLoginSubmit" class="mt-7 loginForm">
     <div class="mb-6">
       <v-label>Correo electrónico</v-label>
-      <v-text-field
-        aria-label="email address"
-        v-model="username"
-        :rules="emailRules"
-        class="mt-2"
-        density="comfortable"
-        required
-        hide-details="auto"
-        variant="outlined"
-        color="primary"
-      ></v-text-field>
+      <VTextField v-model="loginRequest.username" class="mb-8" required type="email" hide-details="auto"
+        :error-messages="validator.username.$errors.map((x) => x.$message.toString())"></VTextField>
     </div>
     <div>
       <v-label>Contraseña</v-label>
-      <v-text-field
-        aria-label="password"
-        v-model="password"
-        :rules="passwordRules"
-        required
-        variant="outlined"
-        density="comfortable"
-        color="primary"
-        hide-details="auto"
-        :type="show1 ? 'text' : 'password'"
-        class="pwdInput mt-2"
-      >
-        <template v-slot:append-inner>
-          <v-btn color="secondary" aria-label="icon" icon rounded variant="text">
-            <SvgSprite name="custom-eye-invisible" style="width: 20px; height: 20px" v-if="show1 == false" @click="show1 = !show1" />
-            <SvgSprite name="custom-eye" style="width: 20px; height: 20px" v-if="show1 == true" @click="show1 = !show1" />
-          </v-btn>
+      <VTextField v-model="loginRequest.password" required hide-details="auto"
+        :type="showPassword ? 'text' : 'password'"
+        :error-messages="validator.password.$errors.map((x) => x.$message.toString())">
+        <template #append-inner>
+          <Icon icon="mdi:eye" class="cursor-pointer" @click="togglePasswordVisibility" />
         </template>
-      </v-text-field>
+      </VTextField>
     </div>
-    <v-btn
-      color="darkprimary"
-      :loading="isSubmitting"
-      block
-      class="mt-5"
-      variant="flat"
-      size="large"
-      rounded="md"
-      :disabled="valid"
-      type="submit"
-    >
-      Login</v-btn
-    >
-    <div v-if="errors.apiError" class="mt-2">
-      <v-alert color="error">{{ errors.apiError }}</v-alert>
-    </div>
-  </Form>
+    <v-btn color="darkprimary" :loading="postLoginMutation.isPending.value" block class="mt-5" variant="flat" size="large"
+      rounded="md" type="submit">
+      Iniciar Sesión</v-btn>
+  </form>
 </template>

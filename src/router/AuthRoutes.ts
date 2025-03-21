@@ -1,12 +1,12 @@
 const PublicRoutes = {
   path: '/',
-  component: () => import('@/layouts/blank/BlankLayout.vue'),
+  component: () => import('@/layouts/auth/AuthLayout.vue'),
   meta: {
     requiresAuth: false
   },
   children: [
     {
-      name: 'Authentication',
+      name: 'login-user',
       path: '/login',
       component: () => import('@/views/authentication/LoginPage.vue')
     },
