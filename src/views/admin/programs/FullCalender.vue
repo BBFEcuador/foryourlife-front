@@ -29,7 +29,7 @@ const viewModalShow = ref(false);
 const addModalShow = ref(false);
 const currentEvent = ref<Calendar>({} as Calendar);
 
-const updatedDate = ref({
+const  updatedDate = ref({
   startDate: new Date(),
   numberOfFocus: 1,
   campusId: null,
