@@ -13,7 +13,7 @@ const menulist = ref(['Today', 'Weekly', 'Monthly']);
               <SvgSprite name="custom-user-fill" style="width: 20px; height: 20px" />
             </v-avatar>
           </template>
-          <h6 class="text-subtitle-1 mb-0">Able pro</h6>
+          <h6 class="text-subtitle-1 mb-0">Titulo</h6>
           <span class="text-caption">@ableprodevelop</span>
           <template v-slot:append>
             <v-menu width="150">
