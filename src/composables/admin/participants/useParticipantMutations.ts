@@ -18,16 +18,16 @@ const getByLvl = async (lvl: string): Promise<Participant[]> => {
 };
 
 const promotionMasterLife = async (id: string): Promise<Participant[]> => {
-  const { data } = await api.post(`/users/promotion-master/${id}`);
+  const { data } = await api.post(`/master-life/masterlife-participant/${id}`);
   return data;
 };
 
-const promotionVisionary = async (req: { userId: string; role: string; }): Promise<Participant> => {
+const promotionVisionary = async (req: { userId: string; role: string }): Promise<Participant> => {
   const { data } = await api.post(`/visionary/visionary-participant`, req);
   return data;
 };
 
-const promotionStaff = async (req: { userId: string; role: string; }): Promise<Participant> => {
+const promotionStaff = async (req: { userId: string; role: string }): Promise<Participant> => {
   const { data } = await api.post(`/staff/staff-participant`, req);
   return data;
 };
