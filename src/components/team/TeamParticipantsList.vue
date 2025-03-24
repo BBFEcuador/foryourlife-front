@@ -38,6 +38,34 @@ const headers = ref([
         class: 'tw:text-nowrap',
         sortable: true
     },
+    // {
+    //     title: 'Asistencia',
+    //     value: 'attendance',
+    //     align: 'center' as const,
+    //     children: [
+    //         {
+    //             title: 'Viernes',
+    //             value: 'friday',
+    //             align: 'center' as const,
+    //             width: '100',
+    //             sortable: false
+    //         },
+    //         {
+    //             title: 'Sábado',
+    //             value: 'saturday',
+    //             align: 'center' as const,
+    //             width: '100',
+    //             sortable: false
+    //         },
+    //         {
+    //             title: 'Domingo',
+    //             value: 'sunday',
+    //             align: 'center' as const,
+    //             width: '100',
+    //             sortable: false
+    //         }
+    //     ]
+    // },
     {
         title: 'Ajustes',
         value: 'actions',
@@ -46,6 +74,77 @@ const headers = ref([
         sortable: false
     }
 ]);
+
+// const AttendanceStatus = {
+//     PRESENT: 'present',
+//     ABSENT: 'absent',
+//     DESERTED: 'deserted'
+// } as const;
+
+// type AttendanceType = typeof AttendanceStatus[keyof typeof AttendanceStatus];
+
+// const mockAttendance = ref(new Map(props.team.users.map(user => [
+//     user.id,
+//     {
+//         friday: Math.random() > 0.7 ? AttendanceStatus.ABSENT : 
+//                Math.random() > 0.9 ? AttendanceStatus.DESERTED : AttendanceStatus.PRESENT,
+//         saturday: Math.random() > 0.7 ? AttendanceStatus.ABSENT : 
+//                  Math.random() > 0.9 ? AttendanceStatus.DESERTED : AttendanceStatus.PRESENT,
+//         sunday: Math.random() > 0.7 ? AttendanceStatus.ABSENT : 
+//                Math.random() > 0.9 ? AttendanceStatus.DESERTED : AttendanceStatus.PRESENT
+//     }
+// ])));
+
+// const getAttendanceColor = (status: AttendanceType): string => {
+//     switch (status) {
+//         case AttendanceStatus.PRESENT:
+//             return 'success';
+//         case AttendanceStatus.ABSENT:
+//             return 'error';
+//         case AttendanceStatus.DESERTED:
+//             return 'warning';
+//         default:
+//             return 'error';
+//     }
+// };
+
+// const getAttendanceIcon = (status: AttendanceType): string => {
+//     switch (status) {
+//         case AttendanceStatus.PRESENT:
+//             return 'mdi:check';
+//         case AttendanceStatus.ABSENT:
+//             return 'mdi:close';
+//         case AttendanceStatus.DESERTED:
+//             return 'mdi:run-fast';
+//         default:
+//             return 'mdi:close';
+//     }
+// };
+
+// const toggleAttendance = (userId: string, day: 'friday' | 'saturday' | 'sunday') => {
+//     const userAttendance = mockAttendance.value.get(userId);
+//     if (userAttendance) {
+//         const currentStatus = userAttendance[day];
+//         let newStatus: AttendanceType;
+        
+//         switch (currentStatus) {
+//             case AttendanceStatus.PRESENT:
+//                 newStatus = AttendanceStatus.ABSENT;
+//                 break;
+//             case AttendanceStatus.ABSENT:
+//                 newStatus = AttendanceStatus.DESERTED;
+//                 break;
+//             case AttendanceStatus.DESERTED:
+//                 newStatus = AttendanceStatus.PRESENT;
+//                 break;
+//             default:
+//                 newStatus = AttendanceStatus.PRESENT;
+//         }
+        
+//         userAttendance[day] = newStatus;
+//         mockAttendance.value.set(userId, { ...userAttendance });
+//     }
+// };
 
 const handleContact = (type: 'email' | 'phone', contact: string) => {
     if (type === 'email') {
@@ -82,7 +181,7 @@ const onRemoveParticipant = async (id: string) => {
             },
             onSuccess(_,v,__) {
                 props.team.users = props.team.users.filter(x => x.id != v.users[0].id) 
-                showSuccessToast('Participante quitado correctamente')
+                showSuccessToast('Participante Removido Correctamente')
             }
         });
     }
@@ -126,14 +225,46 @@ const onRemoveParticipant = async (id: string) => {
                 <Icon icon="mdi-phone" />
                 <span class="tw:text-nowrap ml-2">{{ item.phone }}</span>
             </v-btn>
-        </template>
+        </template>     
         <template #item.email="{ item }">
-            <v-btn variant="tonal" color="secondary" rounded="xl" size="small"
+            <v-btn variant="tonal" color="secondary" rounded="xl" size="small" v-tooltip="'Enviar correo'"
                 @click="handleContact('email', item.email)">
                 <Icon icon="mdi-email" />
                 <span class="tw:text-nowrap ml-2">{{ item.email }}</span>
             </v-btn>
         </template>
+        <!-- <template #item.friday="{ item }">
+            <v-btn :color="getAttendanceColor(mockAttendance.get(item.id)?.friday)" 
+                variant="tonal" 
+                size="small" 
+                icon
+                @click="toggleAttendance(item.id, 'friday')"
+                :title="mockAttendance.get(item.id)?.friday">
+                <Icon :icon="getAttendanceIcon(mockAttendance.get(item.id)?.friday)" />
+            </v-btn>
+        </template>
+
+        <template #item.saturday="{ item }">
+            <v-btn :color="getAttendanceColor(mockAttendance.get(item.id)?.saturday)" 
+                variant="tonal" 
+                size="small" 
+                icon
+                @click="toggleAttendance(item.id, 'saturday')"
+                :title="mockAttendance.get(item.id)?.saturday">
+                <Icon :icon="getAttendanceIcon(mockAttendance.get(item.id)?.saturday)" />
+            </v-btn>
+        </template>
+
+        <template #item.sunday="{ item }">
+            <v-btn :color="getAttendanceColor(mockAttendance.get(item.id)?.sunday)" 
+                variant="tonal" 
+                size="small" 
+                icon
+                @click="toggleAttendance(item.id, 'sunday')"
+                :title="mockAttendance.get(item.id)?.sunday">
+                <Icon :icon="getAttendanceIcon(mockAttendance.get(item.id)?.sunday)" />
+            </v-btn>
+        </template> -->
         <template #item.actions="{ item }">
             <VBtn icon variant="text" :loading="removeParticipantsMutations.isPending.value" color="error" @click="onRemoveParticipant(item.id)"
                 class="!tw:bg-red-50 tw:rounded-xl !tw:shadow-sm hover:!tw:bg-red-100 tw:transition-all group"
@@ -142,7 +273,7 @@ const onRemoveParticipant = async (id: string) => {
                     <Icon icon="ant-design:user-delete-outlined" height="22"
                         class="tw:transition-transform group-hover:tw:scale-110" />
                     <div
-                        class="tw:absolute tw:inset-0 bg-error tw:blur-lg tw:rounded-full group-hover:tw:opacity-20 tw:transition-opacity">
+                        class="tw:absolute tw:inset-0 bg-error tw:blur-lg tw:rounded-full group-hover:tw:opacity-20">
                     </div>
                 </div>
             </VBtn>
@@ -195,7 +326,7 @@ const onRemoveParticipant = async (id: string) => {
             <div class="tw:p-4 tw:bg-gray-50">
                 <v-btn color="primary" variant="flat" size="large"
                     class="tw:w-full tw:py-3 tw:text-lg tw:rounded-xl tw:shadow-md" @click="onPromoteTeam">
-                    🚀 Promover Equipo
+                    Promover Equipo
                 </v-btn>
             </div>
         </template> -->
