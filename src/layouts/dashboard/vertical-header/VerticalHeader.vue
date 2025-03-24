@@ -87,7 +87,7 @@ watch(priority, (newPriority) => {
       <template v-slot:activator="{ props }">
         <v-btn class="profileBtn mr-0" aria-label="profile" variant="text" rounded="circle" icon v-bind="props">
           <v-avatar class="py-2" size="40" rounded="circle">
-            <img src="@/assets/images/users/avatar-6.png" class="rounded-circle" alt="profile" />
+            <img src="@/assets/images/users/avatar-1.png" class="rounded-circle" alt="profile" />
           </v-avatar>
         </v-btn>
       </template>

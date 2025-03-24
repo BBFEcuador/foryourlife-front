@@ -4,6 +4,7 @@ const PublicRoutes = {
   meta: {
     requiresAuth: false
   },
+  redirect: { name: "login-user" },
   children: [
     {
       name: 'login-user',

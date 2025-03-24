@@ -10,11 +10,12 @@ import { showErrorToast } from '@/service/sweetAlert';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { userStore } from '@/stores/useStore';
+import { adminStore } from '@/stores/adminStore';
 
 const AdminLoginRequest = ref<LoginAdminRequest>({} as LoginAdminRequest);
 
 const router = useRouter();
-const store = userStore();
+const store = adminStore();
 const rules = {
   username: { required, email },
   password: { required }
@@ -43,7 +44,7 @@ watch(postLoginMutation.isSuccess, () => {
     let response = postLoginMutation.data.value;
     if (response) {
       store.setToken(response.token);
-      store.setUser(response.admin);
+      store.setAdmin(response.admin);
       router.push({ name: 'home-admin' });
     }
   }

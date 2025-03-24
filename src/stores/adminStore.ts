@@ -18,6 +18,7 @@ export const adminStore = defineStore(
     };
     return {
       token,
+      user,
       logout,
       setToken,
       setAdmin,

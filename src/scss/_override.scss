@@ -115,3 +115,6 @@ header {
 .v-expansion-panel--disabled .v-expansion-panel-title {
   color: rgba(var(--v-theme-on-surface), 0.15);
 }
+.v-icon__svg{
+  fill: rgb(var(--v-theme-primary));
+}

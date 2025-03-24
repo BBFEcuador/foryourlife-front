@@ -2,12 +2,11 @@
 import { ref } from 'vue';
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 
-import { Icon, iconExists } from '@iconify/vue';
-import { userStore } from '@/stores/useStore';
+import { Icon } from '@iconify/vue';
 import { useRouter } from 'vue-router';
+import { adminStore } from '@/stores/adminStore';
 
-const tab = ref(null);
-const store = userStore();
+const store = adminStore();
 const router = useRouter();
 const onLogout = () => {
     store.logout();
@@ -27,7 +26,7 @@ const onLogout = () => {
         <img src="@/assets/images/users/avatar-6.png" width="40" alt="profile" />
       </v-avatar>
       <div>
-        <h6 class="text-subtitle-1 mb-0">{{ store.user.name }}</h6>
+        <h6 class="text-subtitle-1 mb-0">{{ store.user.user.name }}</h6>
         <p class="text-caption text-lightText mb-0">{{ store.user.email }}</p>
       </div>
       <div class="ml-auto">
