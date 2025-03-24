@@ -2,7 +2,7 @@
 import useAdminTeam from '@/composables/admin/team/useAdminTeam';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
-import type { Team } from '@/models/Participants';
+import type { Participant, Team } from '@/models/Participants';
 import { router } from '@/router';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
@@ -78,13 +78,13 @@ const onRemoveParticipant = async (id: string) => {
     });
 
     if (result.isConfirmed) {
-        removeParticipantsMutations.mutate({ url: "removeStaffs", teamId: props.team.id, users: [{ id }] }, {
+        removeParticipantsMutations.mutate({ url: "removeStaffs", teamId: props.team.id, users: [{ id } as Participant] }, {
             onError(e) {
                 const error = e as AxiosError<ErrorApiResponse>
                 showErrorToast(error)
             },
             onSuccess(_,v,__) {
-                props.team.users = props.team.users.filter(x => x.id != v.users[0].id) 
+                props.team.staffs = props.team.staffs.filter(x => x.id != v.users[0].id) 
                 showSuccessToast('Staff quitado correctamente')
             }
         });

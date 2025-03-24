@@ -16,7 +16,8 @@ export interface Participant {
   user:User
   invitationToken: string;
   roleId: string;
-  lingerer: boolean;
+  isLingerer: boolean;
+  isDesertor: boolean;
   contacts: any[];
   modules: Modules;
   medicalRecord: MedicalRecord;

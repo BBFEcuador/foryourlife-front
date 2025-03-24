@@ -18,7 +18,7 @@ const props = defineProps<props>();
             </p>
             <div class="d-flex tw:gap-3 mb-5">
                 <Icon icon="mdi:alert-circle-outline" height="21" />
-                <span class="text-h6" v-if="participant.lingerer === true">REZAGADO</span>
+                <span class="text-h6" v-if="participant.isLingerer === true">REZAGADO</span>
                 <span class="text-h6" v-else>NO REZAGADO</span>
             </div>
             <div class="d-flex tw:gap-3 mb-5">

@@ -1,4 +1,5 @@
 import { api } from '@/api/axios';
+import type { Participant } from '@/models/Participants';
 import type { MinimalEntity } from '@/models/Shared';
 import type { TeamLifePromotionRequest, TeamWriteModel, TeamYourPromotionRequest } from '@/models/Team';
 import { useMutation } from '@tanstack/vue-query';
@@ -20,12 +21,12 @@ const saveTeam = async (team: TeamWriteModel): Promise<any> => {
   return data;
 };
 
-const removeParticipants = async (req: { teamId: string, users: MinimalEntity[], url: string }): Promise<any> => {
+const removeParticipants = async (req: { teamId: string; users: Participant[]; url: string }): Promise<any> => {
   const { data } = await api.put(`/teams/${req.url}`, req);
   return data;
 };
 
-const promoteParticipant = async (req: { teamId: string, users: MinimalEntity[], url: string }): Promise<any> => {
+const promoteParticipant = async (req: { teamId: string; users: MinimalEntity[]; url: string }): Promise<any> => {
   const { data } = await api.put(`/teams/promote/${req.url}`, req);
   return data;
 };

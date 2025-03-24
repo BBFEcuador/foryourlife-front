@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
-import type { Team } from '@/models/Participants';
+import type { Participant, Team } from '@/models/Participants';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
@@ -75,13 +75,13 @@ const onRemoveParticipant = async (id: string) => {
     });
 
     if (result.isConfirmed) {
-        removeParticipantsMutations.mutate({ url: "removeMasterlife", teamId: props.team.id, users: [{ id }] }, {
+        removeParticipantsMutations.mutate({ url: "removeMasterlife", teamId: props.team.id, users: [{ id } as Participant] }, {
             onError(e) {
                 const error = e as AxiosError<ErrorApiResponse>
                 showErrorToast(error)
             },
             onSuccess(_,v,__) {
-                props.team.users = props.team.masterLife.filter(x => x.id != v.users[0].id) 
+                props.team.masterLife = props.team.masterLife.filter(x => x.id != v.users[0].id) 
                 showSuccessToast('Master life quitado correctamente')
             }
         });
