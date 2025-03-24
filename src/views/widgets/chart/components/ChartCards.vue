@@ -22,22 +22,22 @@ const stats = ref({
   participants: {
     total: 0,
     growth: 0,
-    history: [] as number[]
+    history: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   },
   courses: {
     total: 0,
     growth: 0,
-    history: [] as number[]
+    history: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   },
   teams: {
     total: 0,
     growth: 0,
-    history: [] as number[]
+    history: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   },
   trainers: {
     total: 0,
     growth: 0,
-    history: [] as number[]
+    history: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   }
 });
 
@@ -46,214 +46,156 @@ vueWatchEffect(() => {
     const participantsCount = participants.value.length;
     stats.value.participants.total = participantsCount;
     
+    // Calculate growth
     const previousCount = stats.value.participants.history[0] || 0;
     if (previousCount > 0) {
       stats.value.participants.growth = ((participantsCount - previousCount) / previousCount) * 100;
     }
     
+    // Update history
     stats.value.participants.history = [
-      participantsCount,
-      ...stats.value.participants.history.slice(0, 11)
-    ].slice(0, 12);
+      ...stats.value.participants.history.slice(1),
+      participantsCount
+    ];
   }
 
   if (calendar.value) {
     const coursesCount = calendar.value.length;
     stats.value.courses.total = coursesCount;
     
+    // Calculate growth
     const previousCount = stats.value.courses.history[0] || 0;
     if (previousCount > 0) {
       stats.value.courses.growth = ((coursesCount - previousCount) / previousCount) * 100;
     }
     
+    // Update history
     stats.value.courses.history = [
-      coursesCount,
-      ...stats.value.courses.history.slice(0, 11)
-    ].slice(0, 12);
-    stats.value.courses.history = [
-      coursesCount,
-      ...stats.value.courses.history.slice(0, 11)
-    ].slice(0, 12);
+      ...stats.value.courses.history.slice(1),
+      coursesCount
+    ];
   }
 
   if (teams.value) {
     const teamsCount = teams.value.length;
     stats.value.teams.total = teamsCount;
     
+    // Calculate growth
     const previousCount = stats.value.teams.history[0] || 0;
     if (previousCount > 0) {
       stats.value.teams.growth = ((teamsCount - previousCount) / previousCount) * 100;
     }
     
+    // Update history
     stats.value.teams.history = [
-      teamsCount,
-      ...stats.value.teams.history.slice(0, 11)
-    ].slice(0, 12);
+      ...stats.value.teams.history.slice(1),
+      teamsCount
+    ];
   }
 
   if (trainers.value) {
     const trainersCount = trainers.value.length;
     stats.value.trainers.total = trainersCount;
     
+    // Calculate growth
     const previousCount = stats.value.trainers.history[0] || 0;
     if (previousCount > 0) {
       stats.value.trainers.growth = ((trainersCount - previousCount) / previousCount) * 100;
     }
     
+    // Update history
     stats.value.trainers.history = [
-      trainersCount,
-      ...stats.value.trainers.history.slice(0, 11)
-    ].slice(0, 12);
+      ...stats.value.trainers.history.slice(1),
+      trainersCount
+    ];
   }
 });
 
-const chartOptions1 = computed(() => {
-  return {
-    chart: {
-      type: 'bar',
-      height: 50,
-      fontFamily: `inherit`,
-      sparkline: {
-        enabled: true
+const chartOptions1 = computed(() => ({
+  chart: {
+    type: 'bar',
+    height: 50,
+    fontFamily: 'inherit',
+    sparkline: {
+      enabled: true
+    },
+    animations: {
+      enabled: true
+    }
+  },
+  plotOptions: {
+    bar: {
+      columnWidth: '60%'
+    }
+  },
+  states: {
+    normal: {
+      filter: {
+        type: 'none'
       }
     },
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 2,
-        columnWidth: '80%'
+    hover: {
+      filter: {
+        type: 'none'
       }
     },
-    colors: ['rgba(var(--v-theme-primary), var(--v-medium-opacity))'],
-    stroke: {
-      curve: 'smooth',
-      width: 0
-    },
-    tooltip: {
-      fixed: {
-        enabled: false
-      },
-      x: {
-        show: false
+    active: {
+      allowMultipleDataPointsSelection: false,
+      filter: {
+        type: 'none'
       }
     }
-  };
-});
+  },
+  colors: ['#696cff'],
+  grid: {
+    show: false,
+    padding: {
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0
+    }
+  },
+  xaxis: {
+    type: 'numeric',
+    lines: {
+      show: false
+    },
+    axisBorder: {
+      show: false
+    },
+    labels: {
+      show: false
+    }
+  },
+  yaxis: {
+    show: false
+  },
+  tooltip: {
+    enabled: true
+  }
+}));
 
-const chartOptions2 = computed(() => {
-  return {
-    chart: {
-      type: 'bar',
-      height: 50,
-      fontFamily: `inherit`,
-      sparkline: {
-        enabled: true
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 2,
-        columnWidth: '80%'
-      }
-    },
-    colors: [warningColor],
-    stroke: {
-      curve: 'smooth',
-      width: 0
-    },
-    tooltip: {
-      fixed: {
-        enabled: false
-      },
-      x: {
-        show: false
-      }
-    }
-  };
-});
+const chartOptions2 = computed(() => ({
+  ...chartOptions1.value,
+  colors: [warningColor]
+}));
 
-const chartOptions3 = computed(() => {
-  return {
-    chart: {
-      type: 'bar',
-      height: 50,
-      fontFamily: `inherit`,
-      sparkline: {
-        enabled: true
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 2,
-        columnWidth: '80%'
-      }
-    },
-    colors: [successColor],
-    stroke: {
-      curve: 'smooth',
-      width: 0
-    },
-    tooltip: {
-      fixed: {
-        enabled: false
-      },
-      x: {
-        show: false
-      }
-    }
-  };
-});
+const chartOptions3 = computed(() => ({
+  ...chartOptions1.value,
+  colors: [successColor]
+}));
 
-const chartOptions4 = computed(() => {
-  return {
-    chart: {
-      type: 'bar',
-      height: 50,
-      fontFamily: `inherit`,
-      sparkline: {
-        enabled: true
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 2,
-        columnWidth: '80%'
-      }
-    },
-    colors: [errorColor],
-    stroke: {
-      curve: 'smooth',
-      width: 0
-    },
-    tooltip: {
-      fixed: {
-        enabled: false
-      },
-      x: {
-        show: false
-      }
-    }
-  };
-});
+const chartOptions4 = computed(() => ({
+  ...chartOptions1.value,
+  colors: [errorColor]
+}));
 
 const barChart1 = computed(() => ({
   series: [
     {
       name: 'Participantes',
-      data: stats.value.participants.history.length > 0 
-        ? stats.value.participants.history 
-        : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      data: stats.value.participants.history
     }
   ]
 }));
@@ -262,9 +204,7 @@ const barChart2 = computed(() => ({
   series: [
     {
       name: 'Programas',
-      data: stats.value.courses.history.length > 0 
-        ? stats.value.courses.history 
-        : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      data: stats.value.courses.history
     }
   ]
 }));
@@ -273,9 +213,7 @@ const barChart3 = computed(() => ({
   series: [
     {
       name: 'Equipos',
-      data: stats.value.teams.history.length > 0 
-        ? stats.value.teams.history 
-        : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      data: stats.value.teams.history
     }
   ]
 }));
@@ -284,9 +222,7 @@ const barChart4 = computed(() => ({
   series: [
     {
       name: 'Entrenadores',
-      data: stats.value.trainers.history.length > 0 
-        ? stats.value.trainers.history 
-        : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      data: stats.value.trainers.history
     }
   ]
 }));

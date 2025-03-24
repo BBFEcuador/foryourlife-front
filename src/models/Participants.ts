@@ -1,6 +1,7 @@
 import type { StaffWriteModel } from './Staff';
 import type { Trainers } from './Trainers';
 import type { TrainingData } from './Training';
+import type { User } from './User';
 import type { Visionary } from './Visionary';
 
 export interface Participant {
@@ -12,6 +13,7 @@ export interface Participant {
   phone: string;
   participantLevel: ParticipantLevel;
   profile: Profile;
+  user:User
   invitationToken: string;
   roleId: string;
   lingerer: boolean;

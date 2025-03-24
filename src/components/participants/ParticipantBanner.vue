@@ -17,7 +17,7 @@ interface props {
 }
 
 const props = defineProps<props>();
-const { promotionMasterLifeMutation } = useParticipantMutations();
+const { promotionMasterLifeMutation, promotionVisionaryMutation, promotionStaffMutation } = useParticipantMutations();
 
 const name = () => {
   Swal.fire({
@@ -32,6 +32,56 @@ const name = () => {
   }).then((result) => {
     if (result.isConfirmed) {
       promotionMasterLifeMutation.mutate(props.participant.id, {
+        onError(error) {
+          const e = error as AxiosError<ErrorApiResponse>;
+          showErrorToast(e);
+        },
+        onSuccess(){
+            window.location.reload()
+        }
+      });
+    }
+  });
+};
+
+const promotionVisionary = () => {
+  Swal.fire({
+    text: `Recuerda que desea promover a Visionario`,
+    title: '¿Está seguro?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, estoy seguro!',
+    cancelButtonText: '¡Lo pensaré!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      promotionVisionaryMutation.mutate({ userId: props.participant.user.id, role: 'VISIONARY' }, {
+        onError(error) {
+          const e = error as AxiosError<ErrorApiResponse>;
+          showErrorToast(e);
+        },
+        onSuccess(){
+            window.location.reload()
+        }
+      });
+    }
+  });
+};
+
+const promotionStaff = () => {
+  Swal.fire({
+    text: `Recuerda que desea promover a Staff`,
+    title: '¿Está seguro?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, estoy seguro!',
+    cancelButtonText: '¡Lo pensaré!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      promotionStaffMutation.mutate({ userId: props.participant.user.id, role: 'STAFF' }, {
         onError(error) {
           const e = error as AxiosError<ErrorApiResponse>;
           showErrorToast(e);
@@ -77,7 +127,78 @@ const name = () => {
           </div>
         </v-col>
         <v-col cols="12" lg="4" sm="12" class="d-flex justify-center order-sml-first">
-          <VBtn color="primary" @click="name" :loading="promotionMasterLifeMutation.isPending.value">Promover a master life</VBtn>
+          <v-menu location="bottom">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                color="primary"
+                v-bind="props"
+                class="px-4"
+              >
+                <Icon icon="mdi:account-convert" class="mr-2" />
+                Promover participante
+                <Icon icon="mdi:chevron-down" class="ml-2" />
+              </v-btn>
+            </template>
+
+            <v-list width="300" class="pa-2">
+              <v-list-item
+                @click="name"
+                :disabled="promotionMasterLifeMutation.isPending.value"
+                title="Master Life"
+                subtitle="Promover a Master Life"
+                class="mb-2 rounded-lg"
+              >
+              <template v-slot:append>
+                  <Icon icon="mdi:school" class="mr-2" />
+                  <v-progress-circular
+                    v-if="promotionMasterLifeMutation.isPending.value"
+                    indeterminate
+                    size="20"
+                    width="2"
+                    color="primary"
+                  />
+                </template>
+              </v-list-item>
+
+              <v-list-item
+                @click="promotionVisionary"
+                :disabled="promotionVisionaryMutation.isPending.value"
+                title="Visionario"
+                subtitle="Promover a Visionario"
+                class="mb-2 rounded-lg"
+              >
+              <template v-slot:append>
+                  <Icon icon="mdi:eye-outline" class="mr-2" />
+                  <v-progress-circular
+                    v-if="promotionVisionaryMutation.isPending.value"
+                    indeterminate
+                    size="20"
+                    width="2"
+                    color="primary"
+                  />
+                </template>
+              </v-list-item>
+
+              <v-list-item
+                @click="promotionStaff"
+                :disabled="promotionStaffMutation.isPending.value"
+                title="Staff"
+                subtitle="Promover a Staff"
+                class="rounded-lg"
+              >
+              <template v-slot:append>
+                  <Icon icon="mdi:account-tie" class="mr-2" />
+                  <v-progress-circular
+                    v-if="promotionStaffMutation.isPending.value"
+                    indeterminate
+                    size="20"
+                    width="2"
+                    color="primary"
+                  />
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </v-col>
       </v-row>
     </div>

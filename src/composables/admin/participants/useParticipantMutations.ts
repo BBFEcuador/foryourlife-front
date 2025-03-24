@@ -22,16 +22,30 @@ const promotionMasterLife = async (id: string): Promise<Participant[]> => {
   return data;
 };
 
+const promotionVisionary = async (req: { userId: string; role: string; }): Promise<Participant> => {
+  const { data } = await api.post(`/visionary/visionary-participant`, req);
+  return data;
+};
+
+const promotionStaff = async (req: { userId: string; role: string; }): Promise<Participant> => {
+  const { data } = await api.post(`/staff/staff-participant`, req);
+  return data;
+};
+
 const useParticipantMutations = () => {
   const updateParticipantMutation = useMutation({ mutationFn: updateParticipant });
   const setCourseLevelMutation = useMutation({ mutationFn: setFocus });
   const getByLvlMutation = useMutation({ mutationFn: getByLvl });
   const promotionMasterLifeMutation = useMutation({ mutationFn: promotionMasterLife });
+  const promotionVisionaryMutation = useMutation({ mutationFn: promotionVisionary });
+  const promotionStaffMutation = useMutation({ mutationFn: promotionStaff });
   return {
     updateParticipantMutation,
     setCourseLevelMutation,
     getByLvlMutation,
-    promotionMasterLifeMutation
+    promotionMasterLifeMutation,
+    promotionVisionaryMutation,
+    promotionStaffMutation
   };
 };
 
