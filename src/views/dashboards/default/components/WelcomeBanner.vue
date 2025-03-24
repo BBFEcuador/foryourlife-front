@@ -1,18 +1,36 @@
 <script setup lang="ts">
 // assets
 import Banner from '@/assets/images/analytics/welcome-banner.png';
+import useInvitation from '@/composables/invitation/useInvitation';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import { showErrorToast } from '@/service/sweetAlert';
 import { userStore } from '@/stores/useStore';
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import type { AxiosError } from 'axios';
 import { ref } from 'vue';
 
 const stores = userStore();
 const showReferralCard = ref(false);
-
+const { generateInvitationWithQuantityMutation } = useInvitation();
 const invitationLink = ref('');
 const copied = ref(false);
 
+const quantity = ref(1);
 const toggleReferralCard = () => {
   showReferralCard.value = !showReferralCard.value;
+  const userId = stores.user.id;
+  generateInvitationWithQuantityMutation.mutate(
+    { id: userId, quantity: quantity.value.toString() },
+    {
+      onSuccess: (data) => {
+        invitationLink.value = `${window.location.origin}/register/${data}`;
+      },
+      onError: (error) => {
+        const er = error as AxiosError<ErrorApiResponse>;
+        showErrorToast(er);
+      }
+    }
+  );
 };
 const copyLink = async () => {
   try {
@@ -22,6 +40,7 @@ const copyLink = async () => {
   } catch (err) {
     console.error('Error al copiar el enlace:', err);
   }
+  showReferralCard.value = false;
 };
 
 </script>
@@ -42,7 +61,29 @@ const copyLink = async () => {
                 <Icon icon="mdi-arrow-right"></Icon>
               </v-btn>
               <v-slide-x-transition>
-                <v-card v-if="showReferralCard" class="ml-4 pa-1 tw:z-50" elevation="4" rounded="lg">
+                <v-card v-if="showReferralCard" class="ml-4 pa-4 z-50" elevation="4" rounded="lg" style="z-index: 50 !important">
+                  <v-row align="center" no-gutters class="px-2">
+                    <v-col cols="auto" class="pr-4">
+                      <span class="text-h6">¿Cuántas personas vas a invitar?</span>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-model="quantity"
+                        type="number"
+                        label="Cantidad de invitados"
+                        variant="outlined"
+                        density="comfortable"
+                        min="1"
+                        hide-details="auto"
+                        @keypress="(e: KeyboardEvent) => e.key === '-' && e.preventDefault()"
+                      >
+                        <template #prepend>
+                          <v-icon color="primary">mdi-account-multiple</v-icon>
+                        </template>
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-divider class="my-1"></v-divider>
                   <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details
                     class="tw:mb-2">
                     <template #append>

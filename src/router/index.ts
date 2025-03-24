@@ -1,20 +1,24 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import MainRoutes from './MainRoutes';
-import PublicRoutes from './AuthRoutes';
+import { PublicRoutes, RegisterRoutes } from './AuthRoutes';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
 import AdminRoutes from './AdminRoutes';
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/:pathMatch(.*)*',
+    component: () => import('@/views/pages/maintenance/error/Error404Page.vue')
+  },
+  MainRoutes,
+  PublicRoutes,
+  RegisterRoutes,
+  ...AdminRoutes,
+];
+
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/:pathMatch(.*)*',
-      component: () => import('@/views/pages/maintenance/error/Error404Page.vue')
-    },
-    MainRoutes,
-    PublicRoutes,
-    ...AdminRoutes,
-  ]
+  routes
 });
 
 interface User {

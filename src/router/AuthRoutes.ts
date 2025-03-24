@@ -1,4 +1,6 @@
-const PublicRoutes = {
+import { createRouter, createWebHistory } from 'vue-router';
+
+export const PublicRoutes = {
   path: '/',
   component: () => import('@/layouts/auth/AuthLayout.vue'),
   meta: {
@@ -10,13 +12,30 @@ const PublicRoutes = {
       name: 'login-user',
       path: '/login',
       component: () => import('@/views/authentication/LoginPage.vue')
-    },
-    {
-      name: 'Authentication',
-      path: '/register/:token',
-      component: () => import('@/views/authentication/ParticipantsRegister.vue')
-    },
+    }
   ]
 };
 
-export default PublicRoutes;
+export const RegisterRoutes = {
+  path: '/register/:token',
+  component: () => import('@/layouts/blank/BlankLayout.vue'),
+  meta: {
+    requiresAuth: false
+  },
+  children: [
+    {
+      name: 'Authentication',
+      path: '',
+      component: () => import('@/views/authentication/ParticipantsRegister.vue')
+    }
+  ]
+};
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    PublicRoutes,
+    RegisterRoutes
+  ]
+});
+export default router;
