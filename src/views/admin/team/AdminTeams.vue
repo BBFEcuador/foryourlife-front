@@ -5,9 +5,11 @@ import { ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import type { Criteria, Filter } from '@/models/Criteria';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { router } from '@/router';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import ParticipantFilters from '../participants/ParticipantFilters.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const { data, isError, isLoading, criteriaMutations, refetchTeams, teamsData } = useAdminTeams();
 const search = ref()
