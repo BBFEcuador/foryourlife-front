@@ -87,6 +87,26 @@ const tab = ref('1');
             <v-card-text>
               <v-tabs-window v-model="tab">
                 <v-tabs-window-item value="1">
+                  <!-- <div class="tw:bg-gray-50 pa-4 tw:mb-4 tw:rounded-lg tw:flex tw:gap-4 tw:justify-center">
+                    <div class="tw:flex tw:items-center tw:gap-2">
+                      <v-btn color="success" variant="tonal" size="small" icon>
+                        <Icon icon="mdi:check" />
+                      </v-btn>
+                      <span class="tw:text-sm">Asistió</span>
+                    </div>
+                    <div class="tw:flex tw:items-center tw:gap-2">
+                      <v-btn color="error" variant="tonal" size="small" icon>
+                        <Icon icon="mdi:close" />
+                      </v-btn>
+                      <span class="tw:text-sm">No asistió</span>
+                    </div>
+                    <div class="tw:flex tw:items-center tw:gap-2">
+                      <v-btn color="warning" variant="tonal" size="small" icon>
+                        <Icon icon="mdi:run-fast" />
+                      </v-btn>
+                      <span class="tw:text-sm">Desertó</span>
+                    </div>
+                  </div> -->
                   <TeamParticipantsList :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
                     @refetchTeam="fetchTeamData" />
                 </v-tabs-window-item>

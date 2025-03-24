@@ -6,11 +6,10 @@ import ProjectOverview from '@/views/widgets/chart/components/ProjectOverview.vu
 import UserCard from '@/views/widgets/statistics/components/UserCard.vue';
 import TransactionCard from '@/views/widgets/data/components/TransactionCard.vue';
 import TotalIncome from '@/views/widgets/chart/components/TotalIncome.vue';
-import WelcomeBanner from '../dashboards/default/components/WelcomeBanner.vue';
 import ProjectCard from '../dashboards/default/components/ProjectCard.vue';
-import { userStore } from '@/stores/useStore';
+import { adminStore } from '@/stores/adminStore';
 
-const stores = userStore();
+const stores = adminStore();
 </script>
 
 <template>

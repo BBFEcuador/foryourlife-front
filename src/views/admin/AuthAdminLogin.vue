@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { userStore } from '@/stores/useStore';
 import useVuelidate from '@vuelidate/core';
 import { email, required } from '@vuelidate/validators';
 import { AxiosError } from 'axios';
@@ -10,11 +9,13 @@ import type { LoginAdminRequest } from '@/models/AdminRequest';
 import { showErrorToast } from '@/service/sweetAlert';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import { userStore } from '@/stores/useStore';
+import { adminStore } from '@/stores/adminStore';
 
 const AdminLoginRequest = ref<LoginAdminRequest>({} as LoginAdminRequest);
 
 const router = useRouter();
-const store = userStore();
+const store = adminStore();
 const rules = {
   username: { required, email },
   password: { required }
@@ -23,9 +24,6 @@ const rules = {
 const validator = useVuelidate(rules, AdminLoginRequest);
 const showPassword = ref(false);
 
-const togglePasswordVisibility = () => {
-  showPassword.value =!showPassword.value;
-}
 const { postLoginMutation } = useAdminLogin();
 const onLoginSubmit = () => {
   validator.value.$validate();
@@ -35,9 +33,9 @@ const onLoginSubmit = () => {
 };
 
 watch(postLoginMutation.isError, () => {
-  if (postLoginMutation.isError.value) {
-    const error = postLoginMutation.error.value as AxiosError<ErrorApiResponse>;
-    showErrorToast(error);
+  if (postLoginMutation.isError) {
+    let error = postLoginMutation.error.value as AxiosError<ErrorApiResponse>;
+    showErrorToast(error)
   }
 });
 
@@ -46,11 +44,15 @@ watch(postLoginMutation.isSuccess, () => {
     let response = postLoginMutation.data.value;
     if (response) {
       store.setToken(response.token);
-      store.setUser(response.admin);
+      store.setAdmin(response.admin);
       router.push({ name: 'home-admin' });
     }
   }
 });
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
 
 </script>
 
@@ -71,14 +73,11 @@ watch(postLoginMutation.isSuccess, () => {
         :error-messages="validator.password.$errors.map((x) => x.$message.toString())" color="primary"
         placeholder="Introduce tu contraseña" :type="showPassword ? 'text' : 'password'" class="pwdInput" outlined>
         <template #append-inner>
-          <Icon :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined' " @click="togglePasswordVisibility" height="18" class="cursor-pointer"/>
+          <Icon :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'"
+            @click="togglePasswordVisibility" height="18" class="cursor-pointer" />
         </template>
       </v-text-field>
     </div>
-    <!-- <div class="ml-sm-auto">
-            <RouterLink to="/admin/auth/reset-password" class="text-primary text-decoration-none font-weight-medium">
-                ¿Perdiste la contraseña?</RouterLink>
-        </div> -->
     <v-btn color="darkprimary" block class="mt-5" variant="flat" size="large" rounded="md" type="submit"
       :loading="postLoginMutation.isPending.value">
       Login

@@ -1,7 +1,7 @@
-import type { Admin } from './Admin';
+import type { User } from './User';
 
 export interface LoginApiResponse {
-  admin: Admin;
+  admin: User;
   token: string;
 }
 

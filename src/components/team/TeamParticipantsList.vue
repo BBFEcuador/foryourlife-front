@@ -21,35 +21,106 @@ const userToDelete = ref<Participant>({} as Participant);
 const showDeleteParticipant = ref(false);
 
 const headers = ref([
-  {
-    title: 'Participante',
-    value: 'name',
-    width: '200',
-    class: 'tw:text-nowrap',
-    sortable: true
-  },
-  {
-    title: 'Contacto',
-    value: 'phone',
-    width: '200',
-    class: 'tw:text-nowrap',
-    sortable: true
-  },
-  {
-    title: 'Correo',
-    value: 'email',
-    width: '200',
-    class: 'tw:text-nowrap',
-    sortable: true
-  },
-  {
-    title: 'Ajustes',
-    value: 'actions',
-    width: '110',
-    align: 'center' as const,
-    sortable: false
-  }
+    {
+        title: 'Participante',
+        value: 'name',
+        width: '200',
+        class: 'tw:text-nowrap',
+        sortable: true
+    },
+    {
+        title: 'Contacto',
+        value: 'phone',
+        width: '200',
+        class: 'tw:text-nowrap',
+        sortable: true
+    },
+    {
+        title: 'Correo',
+        value: 'email',
+        width: '200',
+        class: 'tw:text-nowrap',
+        sortable: true
+    },
+    {
+        title: 'Ajustes',
+        value: 'actions',
+        width: '110',
+        align: 'center' as const,
+        sortable: false
+    }
 ]);
+
+// const AttendanceStatus = {
+//     PRESENT: 'present',
+//     ABSENT: 'absent',
+//     DESERTED: 'deserted'
+// } as const;
+
+// type AttendanceType = typeof AttendanceStatus[keyof typeof AttendanceStatus];
+
+// const mockAttendance = ref(new Map(props.team.users.map(user => [
+//     user.id,
+//     {
+//         friday: Math.random() > 0.7 ? AttendanceStatus.ABSENT : 
+//                Math.random() > 0.9 ? AttendanceStatus.DESERTED : AttendanceStatus.PRESENT,
+//         saturday: Math.random() > 0.7 ? AttendanceStatus.ABSENT : 
+//                  Math.random() > 0.9 ? AttendanceStatus.DESERTED : AttendanceStatus.PRESENT,
+//         sunday: Math.random() > 0.7 ? AttendanceStatus.ABSENT : 
+//                Math.random() > 0.9 ? AttendanceStatus.DESERTED : AttendanceStatus.PRESENT
+//     }
+// ])));
+
+// const getAttendanceColor = (status: AttendanceType): string => {
+//     switch (status) {
+//         case AttendanceStatus.PRESENT:
+//             return 'success';
+//         case AttendanceStatus.ABSENT:
+//             return 'error';
+//         case AttendanceStatus.DESERTED:
+//             return 'warning';
+//         default:
+//             return 'error';
+//     }
+// };
+
+// const getAttendanceIcon = (status: AttendanceType): string => {
+//     switch (status) {
+//         case AttendanceStatus.PRESENT:
+//             return 'mdi:check';
+//         case AttendanceStatus.ABSENT:
+//             return 'mdi:close';
+//         case AttendanceStatus.DESERTED:
+//             return 'mdi:run-fast';
+//         default:
+//             return 'mdi:close';
+//     }
+// };
+
+// const toggleAttendance = (userId: string, day: 'friday' | 'saturday' | 'sunday') => {
+//     const userAttendance = mockAttendance.value.get(userId);
+//     if (userAttendance) {
+//         const currentStatus = userAttendance[day];
+//         let newStatus: AttendanceType;
+        
+//         switch (currentStatus) {
+//             case AttendanceStatus.PRESENT:
+//                 newStatus = AttendanceStatus.ABSENT;
+//                 break;
+//             case AttendanceStatus.ABSENT:
+//                 newStatus = AttendanceStatus.DESERTED;
+//                 break;
+//             case AttendanceStatus.DESERTED:
+//                 newStatus = AttendanceStatus.PRESENT;
+//                 break;
+//             default:
+//                 newStatus = AttendanceStatus.PRESENT;
+//         }
+        
+//         userAttendance[day] = newStatus;
+//         mockAttendance.value.set(userId, { ...userAttendance });
+//     }
+// };
 
 const handleContact = (type: 'email' | 'phone', contact: string) => {
   if (type === 'email') {

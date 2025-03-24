@@ -19,9 +19,10 @@ onMounted(async () => {
   <!---Single Item-->
   <v-list-item
     v-if="props.item.getURL === true"
-    :to="item.type === 'external' ? '' : item.to"
+    :to="item.type === 'external' ? '' : {name: item.to}"
     :href="`${relativeURL}${item.to}`"
     rounded
+    exact
     color="primary"
     :disabled="item.disabled"
     :target="item.type === 'external' ? '_blank' : ''"
@@ -44,9 +45,10 @@ onMounted(async () => {
   </v-list-item>
   <v-list-item
     v-else
-    :to="item.type === 'external' ? '' : item.to"
+    :to="item.type === 'external' ? '' : {name: item.to}"
     :href="item.type === 'external' ? item.to : ''"
     rounded
+    exact
     color="primary"
     :disabled="item.disabled"
     :target="item.type === 'external' ? '_blank' : ''"

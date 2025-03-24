@@ -2,16 +2,11 @@
 import { ref, watch } from 'vue';
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 import { useCustomizerStore } from '../../../stores/customizer';
-
-// dropdown imports
-import NotificationDD from './NotificationDD.vue';
 import ProfileDD from './ProfileDD.vue';
-import Searchbar from './SearchBarPanel.vue';
 
 const customizer = useCustomizerStore();
 const priority = ref(customizer.setHorizontalLayout ? 0 : 0);
 watch(priority, (newPriority) => {
-  // yes, console.log() is a side effect
   priority.value = newPriority;
 });
 </script>
@@ -64,9 +59,9 @@ watch(priority, (newPriority) => {
     <!-- ---------------------------------------------- -->
     <!-- Search part -->
     <!-- ---------------------------------------------- -->
-    <v-sheet color="transparent" class="d-none d-lg-block" width="224">
+    <!-- <v-sheet color="transparent" class="d-none d-lg-block" width="224">
       <Searchbar />
-    </v-sheet>
+    </v-sheet> -->
 
     <!---/Search part -->
 
@@ -78,7 +73,7 @@ watch(priority, (newPriority) => {
     <!-- ---------------------------------------------- -->
     <!-- Notification -->
     <!-- ---------------------------------------------- -->
-    <NotificationDD />
+    <!-- <NotificationDD /> -->
 
     <!-- ---------------------------------------------- -->
     <!-- User Profile -->
@@ -87,7 +82,7 @@ watch(priority, (newPriority) => {
       <template v-slot:activator="{ props }">
         <v-btn class="profileBtn mr-0" aria-label="profile" variant="text" rounded="circle" icon v-bind="props">
           <v-avatar class="py-2" size="40" rounded="circle">
-            <img src="@/assets/images/users/avatar-6.png" class="rounded-circle" alt="profile" />
+            <img src="@/assets/images/users/avatar-1.png" class="rounded-circle" alt="profile" />
           </v-avatar>
         </v-btn>
       </template>

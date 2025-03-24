@@ -14,6 +14,7 @@ import { VueQueryPlugin } from '@tanstack/vue-query';
 import { MotionPlugin } from '@vueuse/motion';
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 import 'vue3-toastify/dist/index.css';
+import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 

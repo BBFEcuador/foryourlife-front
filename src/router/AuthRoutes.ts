@@ -1,5 +1,23 @@
-const PublicRoutes = {
+import { createRouter, createWebHistory } from 'vue-router';
+
+export const PublicRoutes = {
   path: '/',
+  component: () => import('@/layouts/auth/AuthLayout.vue'),
+  meta: {
+    requiresAuth: false
+  },
+  redirect: { name: "login-user" },
+  children: [
+    {
+      name: 'login-user',
+      path: '/login',
+      component: () => import('@/views/authentication/LoginPage.vue')
+    }
+  ]
+};
+
+export const RegisterRoutes = {
+  path: '/register/:token',
   component: () => import('@/layouts/blank/BlankLayout.vue'),
   meta: {
     requiresAuth: false
@@ -7,15 +25,17 @@ const PublicRoutes = {
   children: [
     {
       name: 'Authentication',
-      path: '/login',
-      component: () => import('@/views/authentication/LoginPage.vue')
-    },
-    {
-      name: 'Authentication',
-      path: '/register/:token',
+      path: '',
       component: () => import('@/views/authentication/ParticipantsRegister.vue')
-    },
+    }
   ]
 };
 
-export default PublicRoutes;
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    PublicRoutes,
+    RegisterRoutes
+  ]
+});
+export default router;
