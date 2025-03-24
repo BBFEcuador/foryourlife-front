@@ -57,7 +57,7 @@ const profiledata2 = ref([
       </v-tab>
     </v-tabs>
     <v-divider></v-divider>
-    <perfect-scrollbar style="height: calc(100vh - 300px); max-height: 240px">
+    <perfect-scrollbar style="height: calc(100vh - 300px); max-height: 70px">
       <v-window v-model="tab">
         <v-window-item value="111">
           <v-list class="px-2" aria-label="profile list" aria-busy="true">
