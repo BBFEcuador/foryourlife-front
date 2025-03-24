@@ -8,7 +8,7 @@ import { useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
-import { showErrorToast } from '@/service/sweetAlert';
+import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 
 const route = useRoute();
 
@@ -31,13 +31,13 @@ const name = () => {
     cancelButtonText: '¡Lo pensaré!'
   }).then((result) => {
     if (result.isConfirmed) {
-      promotionMasterLifeMutation.mutate(props.participant.id, {
+      promotionMasterLifeMutation.mutate(props.participant.user.id, {
         onError(error) {
           const e = error as AxiosError<ErrorApiResponse>;
           showErrorToast(e);
         },
         onSuccess(){
-            window.location.reload()
+            showSuccessToast("Master life creado exitosamente")
         }
       });
     }
@@ -62,7 +62,7 @@ const promotionVisionary = () => {
           showErrorToast(e);
         },
         onSuccess(){
-            window.location.reload()
+          showSuccessToast("Visionario creado exitosamente")
         }
       });
     }
@@ -87,7 +87,7 @@ const promotionStaff = () => {
           showErrorToast(e);
         },
         onSuccess(){
-            window.location.reload()
+          showSuccessToast("Staff creado exitosamente")
         }
       });
     }
