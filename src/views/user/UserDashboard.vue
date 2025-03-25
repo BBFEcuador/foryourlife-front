@@ -24,12 +24,16 @@ const getErrorMessage = () => {
   </v-row>
   <v-row class="mb-0" v-if="isFetching">
     <v-col cols="12" >
-      <VProgressCircular/>
+      <div class="tw:w-full tw:h-96 tw:grid tw:place-content-center">
+        <VProgressCircular indeterminate/>
+      </div>
     </v-col>
   </v-row>
   <v-row class="mb-0" v-else-if="isError">
     <v-col cols="12" >
-      {{ getErrorMessage() }}
+      <div class="tw:w-full tw:h-96 tw:grid tw:place-content-center">
+        {{ getErrorMessage() }}
+      </div>
     </v-col>
   </v-row>
   <v-row class="mb-0" v-else>
