@@ -15,6 +15,7 @@ import { showErrorToast } from '@/service/sweetAlert';
 import InputSection from '@/components/forms/InputSection.vue';
 import { VNumberInput } from 'vuetify/labs/VNumberInput';
 import { useRouter } from 'vue-router';
+import { adminStore } from '@/stores/adminStore';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
@@ -23,7 +24,7 @@ const { isParticipantsError, isParticipantsLoading, participants, criteriaMutati
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitation();
 const router = useRouter()
 
-const adminStore = userStore();
+const adminS = adminStore();
 const headers = [
   {
     title: 'Nombre',
@@ -93,9 +94,12 @@ const copyLink = async () => {
 };
 
 const handleGenerateInvitation = () => {
-  const userId = adminStore.user.id;
+  const userId = adminS.user.id;
+  console.log(adminS.user);
+  console.log(userId);
+  
   generateInvitationMutation.mutate(
-    { userId },
+    userId ,
     {
       onSuccess: (data) => {
         invitationLink.value = `${window.location.origin}/register/${data}`;
@@ -110,7 +114,7 @@ const handleGenerateInvitation = () => {
 };
 
 const handleGenerateInvitationLot = () => {
-  const userId = adminStore.user.id;
+  const userId = adminS.user.id;
   generateInvitationWithQuantityMutation.mutate(
     { id: userId, quantity: quantity.value.toString() },
     {

@@ -1,27 +1,27 @@
-import { defineStore } from "pinia";
-import { ref } from "vue";
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 
 export const adminStore = defineStore(
-  "admin-store",
+  'admin-store',
   () => {
-    const token = ref("");
+    const token = ref('');
     const user = ref<any>({} as any);
     const logout = () => {
       user.value = {} as any;
-      token.value = "";
+      token.value = '';
     };
     const setToken = (newToken: string) => {
       token.value = newToken;
     };
     const setAdmin = (newUser: any) => {
-        user.value = newUser;
+      user.value = newUser;
     };
     return {
       token,
       user,
       logout,
       setToken,
-      setAdmin,
+      setAdmin
     };
   },
   { persist: true }
