@@ -4,24 +4,24 @@ import axios from 'axios';
 
 const baseURL = import.meta.env.VITE_API_URI;
 
-export const api = axios.create({
+export const userApi = axios.create({
   baseURL: baseURL
 });
 
-api.interceptors.request.use((req) => {
+userApi.interceptors.request.use((req) => {
   const { token } = userStore();
   req.headers.Authorization = `Bearer ${token}`;
   return req;
 });
 
-api.interceptors.response.use(
+userApi.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
     if (error.response.status === 401) {
       userStore().logout();
-      router.push({ name: 'Admin Login' });
+      router.push({ name: 'login-user' });
     }
     return Promise.reject(error);
   }

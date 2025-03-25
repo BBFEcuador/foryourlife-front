@@ -1,22 +1,22 @@
-import { api } from "@/api/axios";
-import type { Admin } from "@/models/Admin";
-import { userStore } from "@/stores/useStore";
-import { useQuery } from "@tanstack/vue-query";
-import { ref, watch } from "vue";
+import { api } from '@/api/axios';
+import type { Admin } from '@/models/Admin';
+import { adminStore } from '@/stores/adminStore';
+import { useQuery } from '@tanstack/vue-query';
+import { ref, watch } from 'vue';
 
 const account = ref<Admin>({} as Admin);
 const idlAccount = ref<Admin>({} as Admin);
 
 const fetchAccount = async (): Promise<Admin> => {
-  const store = userStore();
+  const store = adminStore();
   const { data } = await api.get(`/admin/${store.user.id}`);
   return data;
 };
 
 const useAccount = () => {
   const { data, isError, isFetching } = useQuery({
-    queryKey: ["account"],
-    queryFn: fetchAccount,
+    queryKey: ['account'],
+    queryFn: fetchAccount
   });
 
   watch(data, () => {
@@ -29,7 +29,7 @@ const useAccount = () => {
     account,
     idlAccount,
     isAccountLoading: isFetching,
-    accountHasError: isError,
+    accountHasError: isError
   };
 };
 

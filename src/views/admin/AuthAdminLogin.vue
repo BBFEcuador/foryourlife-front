@@ -9,7 +9,6 @@ import type { LoginAdminRequest } from '@/models/AdminRequest';
 import { showErrorToast } from '@/service/sweetAlert';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { userStore } from '@/stores/useStore';
 import { adminStore } from '@/stores/adminStore';
 
 const AdminLoginRequest = ref<LoginAdminRequest>({} as LoginAdminRequest);

@@ -5,7 +5,7 @@ import useVuelidate from '@vuelidate/core';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { required, email } from '@vuelidate/validators';
-import useLogin from '@/composables/admin/user/useLogin';
+import useLogin from '@/composables/participants/auth/useLogin';
 import type { AxiosError } from 'axios';
 import { toast } from 'vue3-toastify';
 import { Icon } from '@iconify/vue/dist/iconify.js';
@@ -56,7 +56,7 @@ watch(postLoginMutation.isSuccess, () => {
     if (response) {
       store.setToken(response.token);
       store.setUser(response.user);
-      router.push({ name: 'home' });
+      router.push({ name: 'UserDashboard' });
     }
   }
 });

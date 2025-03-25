@@ -4,10 +4,9 @@ import AuthLogin from './authForms/AuthLogin.vue';
 </script>
 
 <template>
-<div>
-        <h2 class="text-h2 text-center my-3 heading">Bienvenido</h2>
-        <AuthLogin />
-    </div>
+  <div>
+    <h2 class="text-h2 text-center my-3 heading">Bienvenido</h2>
+    <AuthLogin />
+  </div>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

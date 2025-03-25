@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // assets
 import Banner from '@/assets/images/analytics/welcome-banner.png';
-import useInvitation from '@/composables/invitation/useInvitation';
+import useUserInvitationMutations from '@/composables/participants/invitation/useUserInvitationMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { showErrorToast } from '@/service/sweetAlert';
 import { userStore } from '@/stores/useStore';
@@ -11,19 +11,18 @@ import { ref } from 'vue';
 
 const stores = userStore();
 const showReferralCard = ref(false);
-const { generateInvitationWithQuantityMutation } = useInvitation();
+const { generateInvitationWithQuantityUserMutation } = useUserInvitationMutations();
 const invitationLink = ref('');
 const copied = ref(false);
-
-const quantity = ref(1);
+const emit = defineEmits(['link-create'])
 const toggleReferralCard = () => {
-  showReferralCard.value = !showReferralCard.value;
+  // showReferralCard.value = !showReferralCard.value;
   const userId = stores.user.id;
-  generateInvitationWithQuantityMutation.mutate(
-    { id: userId, quantity: quantity.value.toString() },
+  generateInvitationWithQuantityUserMutation.mutate(
+    { id: userId, quantity: "100000" },
     {
       onSuccess: (data) => {
-        invitationLink.value = `${window.location.origin}/register/${data}`;
+        emit('link-create')
       },
       onError: (error) => {
         const er = error as AxiosError<ErrorApiResponse>;
@@ -56,34 +55,12 @@ const copyLink = async () => {
               Empieza o continua tus entrenamientos, ¡mucho ánimo!
             </p>
             <div class="d-flex align-center">
-              <v-btn color="info" size="x-large" rounded="md" class="tw:z-50" @click="toggleReferralCard">
+              <v-btn color="info" size="x-large" rounded="md" class="tw:z-50" @click="toggleReferralCard" :loading="generateInvitationWithQuantityUserMutation.isPending.value">
                 Referir
                 <Icon icon="mdi-arrow-right"></Icon>
               </v-btn>
               <v-slide-x-transition>
                 <v-card v-if="showReferralCard" class="ml-4 pa-4 z-50" elevation="4" rounded="lg" style="z-index: 50 !important">
-                  <v-row align="center" no-gutters class="px-2">
-                    <v-col cols="auto" class="pr-4">
-                      <span class="text-h6">¿Cuántas personas vas a invitar?</span>
-                    </v-col>
-                    <v-col>
-                      <v-text-field
-                        v-model="quantity"
-                        type="number"
-                        label="Cantidad de invitados"
-                        variant="outlined"
-                        density="comfortable"
-                        min="1"
-                        hide-details="auto"
-                        @keypress="(e: KeyboardEvent) => e.key === '-' && e.preventDefault()"
-                      >
-                        <template #prepend>
-                          <v-icon color="primary">mdi-account-multiple</v-icon>
-                        </template>
-                      </v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-divider class="my-1"></v-divider>
                   <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details
                     class="tw:mb-2">
                     <template #append>

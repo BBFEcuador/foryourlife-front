@@ -3,8 +3,15 @@ import { ref } from "vue";
 import QrcodeVue from "qrcode.vue";
 import { Icon } from '@iconify/vue';
 import { showSuccessToast } from '@/service/sweetAlert';
+import type { Invitation } from "@/models/Invitation";
 
-const link = ref("http://localhost:5173/register/57b78b93-e5a8-4390-ad7d-023e4d696eac");
+interface props{
+    invitations:Invitation
+}
+
+const props = defineProps<props>()
+
+const link = ref(`${window.location.origin}/register/${props.invitations.token}`);
 
 const copyToClipboard = async () => {
     try {

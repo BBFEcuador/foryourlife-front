@@ -1,24 +1,12 @@
-import { api } from "@/api/axios";
-import type { Admin } from "@/models/Admin";
-import { userStore } from "@/stores/useStore";
-import { useMutation } from "@tanstack/vue-query";
+import { api } from '@/api/axios';
+import { useMutation } from '@tanstack/vue-query';
 
-const store = userStore();
-
-const updateUserAccount = async (user: Admin): Promise<any> => {
-  const { data } = await api.put("/account/update", user);
-  return data;
-};
-
-const updateAccountPassword = async (req: {
-  password: string;
-  id: string;
-}): Promise<any> => {
-  const { data } = await api.put("/admin/pass", req);
+const updateAccountPassword = async (req: { password: string; id: string }): Promise<any> => {
+  const { data } = await api.put('/admin/pass', req);
   return data;
 };
 const passwordReset = async (req: { email: string }): Promise<any> => {
-  const { data } = await api.post("/auth/password-reset", req);
+  const { data } = await api.post('/auth/password-reset', req);
   return data;
 };
 
@@ -34,20 +22,19 @@ const companyUnsubscribe = async (id: number): Promise<any> => {
 const useAccountUserMutation = () => {
   const deleteAccountMutation = useMutation({ mutationFn: deleteAccount });
   const updateAccountPasswordMutation = useMutation({
-    mutationFn: updateAccountPassword,
+    mutationFn: updateAccountPassword
   });
   const companyUnsubscribeMutation = useMutation({
-    mutationFn: companyUnsubscribe,
+    mutationFn: companyUnsubscribe
   });
   const passwordResetMutation = useMutation({
-    mutationFn: passwordReset,
+    mutationFn: passwordReset
   });
   return {
-
     deleteAccountMutation,
     companyUnsubscribeMutation,
     updateAccountPasswordMutation,
-    passwordResetMutation,
+    passwordResetMutation
   };
 };
 
