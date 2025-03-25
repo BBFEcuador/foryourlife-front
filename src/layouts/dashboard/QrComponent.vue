@@ -73,7 +73,7 @@ const copyToClipboard = async () => {
     </v-card>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .qr-container {
     position: relative;
     display: inline-block;
@@ -82,7 +82,31 @@ const copyToClipboard = async () => {
 
 .qr-container:hover {
     transform: scale(1.02);
+
+    .qr-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 80px;
+        height: 80px;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+
+        img {
+            transition: all 0.2s ease;
+            width: 60px;
+            height: 60px;
+        }
+    }
 }
+
+
+
 
 .qr-logo {
     position: absolute;
@@ -96,13 +120,10 @@ const copyToClipboard = async () => {
     place-items: center;
     border-radius: 50%;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
 }
 
 .qr-logo img {
     transition: transform 0.2s ease;
-}
-
-.qr-logo:hover img {
-    transform: scale(1.1);
 }
 </style>

@@ -17,10 +17,10 @@ import QrComponent from '@/layouts/dashboard/QrComponent.vue';
     <v-col cols="12" md="6">
       <QrComponent />
     </v-col>
-    <v-col cols="12" md="6">
+    <!-- <v-col cols="12" md="6">
       <v-col cols="12">
         <ProjectCard />
       </v-col>
-    </v-col>
+    </v-col> -->
   </v-row>
 </template>
