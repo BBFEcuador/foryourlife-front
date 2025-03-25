@@ -1,31 +1,26 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect as vueWatchEffect } from 'vue';
-import { useTheme } from 'vuetify';
-import { adminStore } from '@/stores/adminStore';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import useParticipants from '@/composables/admin/participants/useParticipants';
-import useCalendar from '@/composables/admin/calendar/useCalendar';
-import useAdminTeams from '@/composables/admin/team/useAdminTeams';
-import useTrainer from '@/composables/admin/trainer/useTrainers';
+import { computed, ref } from 'vue';
+import { useTheme } from 'vuetify';
 
 const theme = useTheme();
 const warningColor = theme.current.value.colors.warning;
 const successColor = theme.current.value.colors.success;
 const errorColor = theme.current.value.colors.error;
 
-const { data: participants } = useParticipants();
-const { data: calendar } = useCalendar();
-const { data: teams } = useAdminTeams();
-const { trainers } = useTrainer();
+// const { data: participants } = useParticipants();
+// const { data: calendar } = useCalendar();
+// const { data: teams } = useAdminTeams();
+// const { trainers } = useTrainer();
 
 const stats = ref({
   participants: {
-    total: 0,
+    total: 300,
     growth: 0,
     history: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   },
   courses: {
-    total: 0,
+    total: 10,
     growth: 0,
     history: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   },
@@ -35,81 +30,12 @@ const stats = ref({
     history: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   },
   trainers: {
-    total: 0,
+    total: 100,
     growth: 0,
     history: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   }
 });
 
-vueWatchEffect(() => {
-  if (participants.value) {
-    const participantsCount = participants.value.length;
-    stats.value.participants.total = participantsCount;
-    
-    // Calculate growth
-    const previousCount = stats.value.participants.history[0] || 0;
-    if (previousCount > 0) {
-      stats.value.participants.growth = ((participantsCount - previousCount) / previousCount) * 100;
-    }
-    
-    // Update history
-    stats.value.participants.history = [
-      ...stats.value.participants.history.slice(1),
-      participantsCount
-    ];
-  }
-
-  if (calendar.value) {
-    const coursesCount = calendar.value.length;
-    stats.value.courses.total = coursesCount;
-    
-    // Calculate growth
-    const previousCount = stats.value.courses.history[0] || 0;
-    if (previousCount > 0) {
-      stats.value.courses.growth = ((coursesCount - previousCount) / previousCount) * 100;
-    }
-    
-    // Update history
-    stats.value.courses.history = [
-      ...stats.value.courses.history.slice(1),
-      coursesCount
-    ];
-  }
-
-  if (teams.value) {
-    const teamsCount = teams.value.length;
-    stats.value.teams.total = teamsCount;
-    
-    // Calculate growth
-    const previousCount = stats.value.teams.history[0] || 0;
-    if (previousCount > 0) {
-      stats.value.teams.growth = ((teamsCount - previousCount) / previousCount) * 100;
-    }
-    
-    // Update history
-    stats.value.teams.history = [
-      ...stats.value.teams.history.slice(1),
-      teamsCount
-    ];
-  }
-
-  if (trainers.value) {
-    const trainersCount = trainers.value.length;
-    stats.value.trainers.total = trainersCount;
-    
-    // Calculate growth
-    const previousCount = stats.value.trainers.history[0] || 0;
-    if (previousCount > 0) {
-      stats.value.trainers.growth = ((trainersCount - previousCount) / previousCount) * 100;
-    }
-    
-    // Update history
-    stats.value.trainers.history = [
-      ...stats.value.trainers.history.slice(1),
-      trainersCount
-    ];
-  }
-});
 
 const chartOptions1 = computed(() => ({
   chart: {

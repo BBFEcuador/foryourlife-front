@@ -8,7 +8,7 @@ import FullCalender from './FullCalender.vue';
 import CallendarSuply from './callendarSuply.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 
-const activeView = ref('calendar'); // 'calendar' or 'table'
+const activeView = ref('table'); // 'calendar' or 'table'
 const date = ref(new Date());
 const seldate = ref(new Date('2018-03-02'))
 const adapter = useDate()
@@ -49,10 +49,11 @@ const breadcrumbs = ref([
                             Tabla
                         </v-btn>
                     </v-btn-group>
-                </div>
-                
+                </div>      
                 <v-fade-transition>
-                    <FullCalender v-if="activeView === 'calendar'" />
+                    <p v-if="activeView === 'calendar'">
+                        Coming soon
+                    </p>
                     <CallendarSuply v-else />
                 </v-fade-transition>
             </UiParentCard>
