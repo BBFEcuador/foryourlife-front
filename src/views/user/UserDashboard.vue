@@ -34,7 +34,6 @@ const getErrorMessage = () => {
     <v-col cols="12" >
       <div class="tw:w-full tw:h-96 tw:grid tw:place-content-center">
         <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-16 tw:bg-gray-50/30">
-        <div class="tw:absolute tw:inset-0 tw:bg-gradient-to-br tw:from-gray-100 tw:to-transparent tw:opacity-50"></div>
         <div class="tw:relative tw:z-10">
           <Icon icon="fluent-color:warning-32" height="64" class="tw:text-gray-400 tw:mb-2" />
           <div class="tw:absolute tw:-top-1 tw:-right-1">
