@@ -1,4 +1,5 @@
 import { router } from '@/router';
+import { adminStore } from '@/stores/adminStore';
 import { userStore } from '@/stores/useStore';
 import axios from 'axios';
 
@@ -9,7 +10,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((req) => {
-  const { token } = userStore();
+  const { token } = adminStore();
   req.headers.Authorization = `Bearer ${token}`;
   return req;
 });
@@ -20,7 +21,7 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response.status === 401) {
-      userStore().logout();
+      adminStore().logout();
       router.push({ name: 'Admin Login' });
     }
     return Promise.reject(error);
