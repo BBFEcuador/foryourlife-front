@@ -1,22 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useDate } from 'vuetify'
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
-import useCalendar from '@/composables/admin/calendar/useCalendar';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import { ref } from 'vue';
+import { useDate } from 'vuetify';
 import FullCalender from './FullCalender.vue';
 import CallendarSuply from './callendarSuply.vue';
-import { Icon } from '@iconify/vue/dist/iconify.js';
 
-const activeView = ref('table'); // 'calendar' or 'table'
-const date = ref(new Date());
-const seldate = ref(new Date('2018-03-02'))
+const activeView = ref('calendar'); // 'calendar' or 'table'
 const adapter = useDate()
-
-function allowedDates(val: unknown) {
-    return parseInt(adapter.toISO(val).split('-')[2], 10) % 2 === 0
-}
-const {data} = useCalendar();
 
 const breadcrumbs = ref([
     {
@@ -51,9 +43,7 @@ const breadcrumbs = ref([
                     </v-btn-group>
                 </div>      
                 <v-fade-transition>
-                    <p v-if="activeView === 'calendar'">
-                        Coming soon
-                    </p>
+                    <FullCalender v-if="activeView === 'calendar'"/>
                     <CallendarSuply v-else />
                 </v-fade-transition>
             </UiParentCard>

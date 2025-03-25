@@ -34,10 +34,10 @@ const updatedDate = ref({
 
 // Table headers
 const headers = [
-  { title: 'Título', key: 'title', align: 'start', sortable: true },
-  { title: 'Fecha Inicio', key: 'start', align: 'start', sortable: true },
-  { title: 'Fecha Fin', key: 'end', align: 'start', sortable: true },
-  { title: 'Acciones', key: 'actions', align: 'center', sortable: false }
+  { title: 'Título', value: 'title'},
+  { title: 'Fecha Inicio', value: 'start'},
+  { title: 'Fecha Fin', value: 'end'},
+  { title: 'Acciones', value: 'actions' }
 ];
 
 // Format dates for table display
@@ -46,13 +46,7 @@ const formatDate = (date: string | Date) => {
   return moment(date).format('LL');
 };
 
-const tableItems = computed(() => {
-  return data.value?.map(event => ({
-    ...event,
-    formattedStart: formatDate(event.start),
-    formattedEnd: formatDate(event.end)
-  })) || [];
-});
+
 
 const handleViewEvent = (item: Calendar) => {
   currentEvent.value = item;
@@ -138,17 +132,17 @@ watch(addEventMutation.isError, () => {
 
         <v-data-table
           :headers="headers"
-          :items="tableItems"
+          :items="data"
           :search="search"
           :loading="isFetching"
           hover
         >
           <template v-slot:item.start="{ item }">
-            {{ item.formattedStart }}
+            {{  formatDate(item.start) }}
           </template>
           
           <template v-slot:item.end="{ item }">
-            {{ item.formattedEnd }}
+            {{ formatDate(item.end) }}
           </template>
 
           <template v-slot:item.actions="{ item }">
