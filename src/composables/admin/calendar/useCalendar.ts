@@ -9,7 +9,7 @@ const fetchCalendar = async (): Promise<Calendar[]> => {
 };
 
 const useCalendar = () => {
-  const { data, isFetching, isError, refetch } = useQuery({ queryFn: fetchCalendar, queryKey: ['trainings-calendar'] });
+  const { data, isFetching, isError, refetch } = useQuery({ queryFn: fetchCalendar, queryKey: ['trainings-calendar'], initialData: [] });
   return {
     data,
     refetch,

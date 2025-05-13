@@ -20,6 +20,9 @@ import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import useCampus from '@/composables/admin/useCampus';
 import InputSection from '@/components/forms/InputSection.vue';
+import type { TrainingData } from '@/models/Training';
+import type { Team } from '@/models/Participants';
+import ViewTeam from '../team/ViewTeam.vue';
 
 const { updateEventMutation, addEventMutation } = useCalendarMutations();
 
@@ -28,6 +31,8 @@ const { campus } = useCampus();
 const viewModalShow = ref(false);
 const addModalShow = ref(false);
 const currentEvent = ref<Calendar>({} as Calendar);
+const team = ref<Team>()
+const dialog = ref(false)
 
 const updatedDate = ref({
   startDate: new Date(),
@@ -43,7 +48,8 @@ const handleDateSelect = (selectInfo: any) => {
     title: 'Nuevo Evento',
     start: selectInfo.startStr,
     end: selectInfo.endStr,
-    allDay: selectInfo.allDay
+    allDay: selectInfo.allDay,
+    embedded:{} as TrainingData
   };
 };
 
@@ -54,10 +60,15 @@ const formatDate = (date: string | Date) => {
 };
 
 const handleEventClick = (clickInfo: any) => {
-  viewModalShow.value = true;
-  currentEvent.value = clickInfo.event;
-
-  selectedDate.value = new Date(clickInfo.event.start);
+  const isUpdateOrView = data.value.find(x => x.id == clickInfo.event.id)
+  if (isUpdateOrView?.embedded.originalTeam) {
+    team.value = isUpdateOrView.embedded.originalTeam
+    dialog.value = true
+  }else{
+    viewModalShow.value = true;
+    currentEvent.value = clickInfo.event;
+    selectedDate.value = new Date(clickInfo.event.start);
+  }
 };
 const isModalOpen = ref(false);
 
@@ -224,6 +235,25 @@ const onAddCourses = async () => {
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-dialog
+      v-model="dialog"
+      transition="dialog-bottom-transition"
+      fullscreen
+    >
+      <v-card color="containerBg">
+        <v-toolbar>
+          <v-btn
+            icon
+            @click="dialog = false"
+          >
+          <Icon icon="material-symbols-light:cancel-outline-rounded"/>
+        </v-btn>
+        </v-toolbar>
+        <div class="px-8">
+          <ViewTeam :team="team" :is-for-edit="false" :is-team-error="false" :is-team-loading="false" v-if="team"/>
+        </div>
+      </v-card>
+    </v-dialog>
     </div>
   </div>
 </template>

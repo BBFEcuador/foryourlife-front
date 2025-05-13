@@ -30,7 +30,7 @@ const getColor = (country: string) => {
 const selectedTraining = ref<TrainingData | null>(null);
 
 watch(selectedTraining,() => {
-    
+
     emit('send-training', selectedTraining.value);
 })
 

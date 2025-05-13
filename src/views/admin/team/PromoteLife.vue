@@ -283,10 +283,10 @@ const isPromoting = computed(() => {
                                 <Icon icon="ic:twotone-support-agent" class="mr-2" />
                                 Masterlife Actuales
                             </v-tab>
-                            <v-tab value="newMasterlife" class="text-none">
+                            <!-- <v-tab value="newMasterlife" class="text-none">
                                 <Icon icon="ic:twotone-support-agent" class="mr-2" />
                                 Nuevos Masterlife
-                            </v-tab>
+                            </v-tab> -->
                         </v-tabs>
                         <v-card-text>
                             <v-window v-model="tab2">

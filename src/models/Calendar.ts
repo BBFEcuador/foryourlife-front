@@ -1,3 +1,5 @@
+import type { TrainingData } from "./Training";
+
 export interface Calendar {
     id: string;
     title: string;
@@ -5,6 +7,7 @@ export interface Calendar {
     end: string | Date;
     allDay: boolean;
     color?: string;
+    embedded:TrainingData
     extendedProps?: {
         description?: string;
         location?: string;

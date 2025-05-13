@@ -1,4 +1,5 @@
 import type { Campus } from './Campus';
+import type { Team } from './Participants';
 
 export interface TrainingData {
   id: string;
@@ -10,4 +11,5 @@ export interface TrainingData {
   nextLevel: TrainingData;
   campus: Campus;
   state: boolean;
+  originalTeam?: Team;
 }

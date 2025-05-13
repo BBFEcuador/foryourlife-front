@@ -40,7 +40,7 @@ const props = defineProps<props>();
                             </v-avatar>
                         </div>
                         <span class="textSecondary text-h4">
-                            {{ team.training.courseLevel }}
+                            {{ team.trainingData?.curseLevel }}
                         </span>
                     </div>
                 </v-col>

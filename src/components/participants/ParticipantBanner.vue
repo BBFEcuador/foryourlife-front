@@ -127,7 +127,7 @@ const promotionStaff = () => {
           </div>
         </v-col>
         <v-col cols="12" lg="4" sm="12" class="d-flex justify-center order-sml-first">
-          <v-menu location="bottom">
+          <v-menu location="bottom" v-if="participant.team?.trainingData?.curseLevel=='LIFE_GRADUATE'">
             <template v-slot:activator="{ props }">
               <v-btn
                 color="primary"

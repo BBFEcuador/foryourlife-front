@@ -23,6 +23,7 @@ const onTrainingSelected = (item: TrainingData[]) => {
     if (item[0]) {
         props.team.trainingObj = item[0];
         props.team.training = item[0].id;
+        props.team.name = `${item[0].courseLevel}-${item[0].number}`
     }else{
         //@ts-ignore
         props.team.trainingObj = null;
@@ -65,10 +66,10 @@ watch(availableTrainingMutations.isSuccess, () => {
     <TrainingList :trainings="trainings" v-else @send-training="onTrainingSelected" />
 
     <v-card-actions class="mt-6">
-      <v-btn variant="outlined" @click="emit('back')">
+      <!-- <v-btn variant="outlined" @click="emit('back')">
         <Icon icon="mdi-arrow-left" />
         Atrás
-      </v-btn>
+      </v-btn> -->
       <v-spacer></v-spacer>
       <v-btn color="primary" @click="emit('next')" :disabled="team.trainingObj == null">
         <Icon icon="mdi-arrow-right" />

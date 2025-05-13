@@ -6,7 +6,7 @@ import type { StaffWriteModel } from '@/models/Staff';
 import type { TeamWriteModel } from '@/models/Team';
 import type { Visionary } from '@/models/Visionary';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { VStepperVertical, VStepperVerticalItem } from 'vuetify/labs/VStepperVertical';
 import ParticipantTeamSelector from './create/ParticipantTeamSelector.vue';
 import StaffSelector from './create/StaffSelector.vue';
@@ -24,10 +24,10 @@ const breadcrumbs = ref([
 ]);
 
 
-const lasStep = ref(7)
-const staffStepNumber = ref(6)
-const visStepNumber = ref(5)
-const masterLifeStepNumber = ref(5)
+const lasStep = ref(6)
+const staffStepNumber = ref(5)
+const visStepNumber = ref(4)
+const masterLifeStepNumber = ref(4)
 
 
 const team = ref({
@@ -35,9 +35,10 @@ const team = ref({
   visionaries:[] as Visionary[],
   masterLife:[] as Participant[],
   staffs:[] as StaffWriteModel[],
+  lvl:"FOCUS"
 } as TeamWriteModel);
 
-
+const nameFieldStatus = computed(() => team.value.lvl  != 'LIFE')
 
 
 watch(()=>team.value.lvl,() => {
@@ -76,8 +77,8 @@ const step = ref(1)
 <template>
   <BaseBreadcrumb :title="'Equipo'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
 
-  <v-container class="pa-4">
-    <v-card class="mb-4" elevation="1">
+  <v-container class="pa-4" v-auto-animate>
+    <v-card class="mb-4" elevation="1" v-if="!nameFieldStatus">
       <v-card-item>
         <v-card-title class="d-flex align-center">
           <Icon icon="mdi-account-group" size="32" class="mr-2" color="primary" />
@@ -86,21 +87,22 @@ const step = ref(1)
         <v-card-subtitle class="mt-2">Ingresa el nombre del equipo para comenzar</v-card-subtitle>
         <v-card-text>
           <v-text-field v-model="team.name" label="Nombre del equipo" placeholder="Ingresa el nombre del equipo"
-            hide-details="auto" variant="outlined" density="comfortable" class="mt-2"></v-text-field>
+            hide-details="auto" variant="outlined" density="comfortable" class="mt-2" :readonly="nameFieldStatus"></v-text-field>
         </v-card-text>
+        {{ nameFieldStatus }}
       </v-card-item>
     </v-card>
 
     <VStepperVertical v-model="step" elevation="1">
-      <VStepperVerticalItem hide-actions :complete="step > 1" subtitle="Paso 1" title="Selecciona el tipo de equipo"
+      <!-- <VStepperVerticalItem hide-actions :complete="step > 1" subtitle="Paso 1" title="Selecciona el tipo de equipo"
         :value="1">
         <TeamLevelSelector :team="team" @level-selected="() => {
           step++
         }"/>
-      </VStepperVerticalItem>
+      </VStepperVerticalItem> -->
 
-      <VStepperVerticalItem hide-actions :complete="step > 2" subtitle="Paso 2" title="Selecciona el entrenamiento"
-        :value="2">
+      <VStepperVerticalItem hide-actions :complete="step > 1" subtitle="Paso 1" title="Selecciona el entrenamiento"
+        :value="1">
         <TrainingSelector :team="team" @back="() => {
           step--
         }" @next="() => {
@@ -108,8 +110,8 @@ const step = ref(1)
         }"/>
       </VStepperVerticalItem>
 
-      <VStepperVerticalItem hide-actions :complete="step > 3" subtitle="Paso 3" title="Selecciona el entrenador"
-        :value="3">
+      <VStepperVerticalItem hide-actions :complete="step > 2" subtitle="Paso 2" title="Selecciona el entrenador"
+        :value="2">
        <TrainerSelector :team="team" @back="() => {
           step--
         }" @next="() => {
@@ -117,8 +119,8 @@ const step = ref(1)
         }"/>
       </VStepperVerticalItem>
 
-      <VStepperVerticalItem hide-actions :complete="step > 4" subtitle="Paso 4" title="Selecciona los participantes"
-        :value="4">
+      <VStepperVerticalItem hide-actions :complete="step > 3" subtitle="Paso 3" title="Selecciona los participantes"
+        :value="3">
         <ParticipantTeamSelector :team="team"  @back="() => {
           step--
         }" @next="() => {

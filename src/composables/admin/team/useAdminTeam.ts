@@ -15,7 +15,8 @@ const fetchTeam = async (id: string): Promise<Team> => {
 const useAdminTeam = (id: string) => {
   const { data, isError, isFetching, refetch } = useQuery({
     queryKey: ['team', id],
-    queryFn: () => fetchTeam(id)
+    queryFn: () => fetchTeam(id),
+    gcTime: 0
   });
   watch(data, () => {
     if (data.value) {

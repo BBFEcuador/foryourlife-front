@@ -10,6 +10,7 @@ import useAdminTeam from '@/composables/admin/team/useAdminTeam';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import ViewTeam from './ViewTeam.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -70,74 +71,7 @@ const tab = ref('1');
       </div>
     </v-col>
     <v-col cols="12" v-else>
-      <TeamBanner :team class="mb-2" />
-      <v-row>
-        <VCol cols="12" md="3" sm="12" class="tw:flex tw:flex-col tw:items-center">
-          <TeamDetails :team />
-        </VCol>
-        <VCol cols="12" md="9" sm="12" class="tw:grid tw:gap-4">
-          <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
-            <v-tabs v-model="tab">
-              <v-tab value="1">Participantes</v-tab>
-              <v-tab value="2" v-if="team.training.courseLevel == 'FOCUS'">Visionarios</v-tab>
-              <v-tab value="3"
-                v-if="team.training.courseLevel == 'YOUR' || team.training.courseLevel == 'FOCUS'">Staff</v-tab>
-              <v-tab value="4" v-if="team.training.courseLevel == 'LIFE'">Master life</v-tab>
-            </v-tabs>
-            <v-card-text>
-              <v-tabs-window v-model="tab">
-                <v-tabs-window-item value="1">
-                  <!-- <div class="tw:bg-gray-50 pa-4 tw:mb-4 tw:rounded-lg tw:flex tw:gap-4 tw:justify-center">
-                    <div class="tw:flex tw:items-center tw:gap-2">
-                      <v-btn color="success" variant="tonal" size="small" icon>
-                        <Icon icon="mdi:check" />
-                      </v-btn>
-                      <span class="tw:text-sm">Asistió</span>
-                    </div>
-                    <div class="tw:flex tw:items-center tw:gap-2">
-                      <v-btn color="error" variant="tonal" size="small" icon>
-                        <Icon icon="mdi:close" />
-                      </v-btn>
-                      <span class="tw:text-sm">No asistió</span>
-                    </div>
-                    <div class="tw:flex tw:items-center tw:gap-2">
-                      <v-btn color="warning" variant="tonal" size="small" icon>
-                        <Icon icon="mdi:run-fast" />
-                      </v-btn>
-                      <span class="tw:text-sm">Desertó</span>
-                    </div>
-                  </div> -->
-                  <TeamParticipantsList :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
-                    @refetchTeam="fetchTeamData" />
-                </v-tabs-window-item>
-                <v-tabs-window-item value="2" v-if="team.training.courseLevel == 'FOCUS'">
-                  <TeamVisionary :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
-                    @refetchTeam="fetchTeamData" />
-                </v-tabs-window-item>
-                <v-tabs-window-item value="3"
-                  v-if="team.training.courseLevel == 'YOUR' || team.training.courseLevel == 'FOCUS'">
-                  <TeamStaff :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
-                    @refetchTeam="fetchTeamData" />
-                </v-tabs-window-item>
-                <v-tabs-window-item value="4" v-if="team.training.courseLevel == 'LIFE'">
-                  <TeamMasterLife :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
-                    @refetchTeam="fetchTeamData" />
-                </v-tabs-window-item>
-              </v-tabs-window>
-              <div class="tw:p-4 tw:bg-gray-50">
-                <v-btn v-if="team.training.courseLevel !== 'LIFE_GRADUATE'" color="primary" variant="flat" size="large"
-                  class="tw:w-full tw:py-3 tw:text-lg tw:rounded-xl tw:shadow-md" @click="onPromoteTeam">
-                  🚀 Promover Equipo
-                </v-btn>
-                <v-btn v-else disabled color="secondary" variant="flat" size="large"
-                  class="tw:w-full tw:py-3 tw:text-lg tw:rounded-xl tw:shadow-md">
-                  El equipo ya se encuentra graduado.
-                </v-btn>
-              </div>
-            </v-card-text>
-          </v-card>
-        </VCol>
-      </v-row>
+     <ViewTeam :team="team" :is-team-error="isTeamError" :is-team-loading="isTeamLoading" :is-for-edit="true"/>
     </v-col>
   </vRow>
 </template>

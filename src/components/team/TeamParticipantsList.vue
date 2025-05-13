@@ -5,22 +5,22 @@ import type { Participant, Team } from '@/models/Participants';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
-import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
-import UiParentCard from '../shared/UiParentCard.vue';
 import InputSection from '../forms/InputSection.vue';
+import UiParentCard from '../shared/UiParentCard.vue';
 
 interface Props {
   team: Team;
   isTeamLoading: boolean;
   isTeamError: boolean;
+  isForEdit:boolean
 }
 const props = defineProps<Props>();
 const { removeParticipantsMutations } = useAdminTeamMutations();
 const userToDelete = ref<Participant>({} as Participant);
 const showDeleteParticipant = ref(false);
 
-const headers = ref([
+const headers = props.isForEdit ?[
   {
     title: 'Participante',
     value: 'name',
@@ -49,78 +49,30 @@ const headers = ref([
     align: 'center' as const,
     sortable: false
   }
-]);
+] : [
+  {
+    title: 'Participante',
+    value: 'name',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Contacto',
+    value: 'phone',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Correo',
+    value: 'email',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  }
+];
 
-// const AttendanceStatus = {
-//     PRESENT: 'present',
-//     ABSENT: 'absent',
-//     DESERTED: 'deserted'
-// } as const;
-
-// type AttendanceType = typeof AttendanceStatus[keyof typeof AttendanceStatus];
-
-// const mockAttendance = ref(new Map(props.team.users.map(user => [
-//     user.id,
-//     {
-//         friday: Math.random() > 0.7 ? AttendanceStatus.ABSENT : 
-//                Math.random() > 0.9 ? AttendanceStatus.DESERTED : AttendanceStatus.PRESENT,
-//         saturday: Math.random() > 0.7 ? AttendanceStatus.ABSENT : 
-//                  Math.random() > 0.9 ? AttendanceStatus.DESERTED : AttendanceStatus.PRESENT,
-//         sunday: Math.random() > 0.7 ? AttendanceStatus.ABSENT : 
-//                Math.random() > 0.9 ? AttendanceStatus.DESERTED : AttendanceStatus.PRESENT
-//     }
-// ])));
-
-// const getAttendanceColor = (status: AttendanceType): string => {
-//     switch (status) {
-//         case AttendanceStatus.PRESENT:
-//             return 'success';
-//         case AttendanceStatus.ABSENT:
-//             return 'error';
-//         case AttendanceStatus.DESERTED:
-//             return 'warning';
-//         default:
-//             return 'error';
-//     }
-// };
-
-// const getAttendanceIcon = (status: AttendanceType): string => {
-//     switch (status) {
-//         case AttendanceStatus.PRESENT:
-//             return 'mdi:check';
-//         case AttendanceStatus.ABSENT:
-//             return 'mdi:close';
-//         case AttendanceStatus.DESERTED:
-//             return 'mdi:run-fast';
-//         default:
-//             return 'mdi:close';
-//     }
-// };
-
-// const toggleAttendance = (userId: string, day: 'friday' | 'saturday' | 'sunday') => {
-//     const userAttendance = mockAttendance.value.get(userId);
-//     if (userAttendance) {
-//         const currentStatus = userAttendance[day];
-//         let newStatus: AttendanceType;
-
-//         switch (currentStatus) {
-//             case AttendanceStatus.PRESENT:
-//                 newStatus = AttendanceStatus.ABSENT;
-//                 break;
-//             case AttendanceStatus.ABSENT:
-//                 newStatus = AttendanceStatus.DESERTED;
-//                 break;
-//             case AttendanceStatus.DESERTED:
-//                 newStatus = AttendanceStatus.PRESENT;
-//                 break;
-//             default:
-//                 newStatus = AttendanceStatus.PRESENT;
-//         }
-
-//         userAttendance[day] = newStatus;
-//         mockAttendance.value.set(userId, { ...userAttendance });
-//     }
-// };
 
 const handleContact = (type: 'email' | 'phone', contact: string) => {
   if (type === 'email') {
@@ -164,7 +116,7 @@ const colorSwitch = computed(() => {
 });
 </script>
 <template>
-  <v-data-table :headers="headers" show-select :search="search" :items="team.users" :loading="isTeamLoading">
+  <v-data-table :headers="headers" :show-select="isForEdit" :search="search" :items="team.users" :loading="isTeamLoading">
     <template #top>
       <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
         :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
@@ -203,7 +155,7 @@ const colorSwitch = computed(() => {
         <span class="tw:text-nowrap ml-2">{{ item.email }}</span>
       </v-btn>
     </template>
-    <template #item.actions="{ item }">
+    <template #item.actions="{ item }" v-if="isForEdit">
       <VBtn icon variant="text" :loading="removeParticipantsMutations.isPending.value" color="error"
         @click="onRemoveParticipant(item)"
         class="!tw:bg-red-50 tw:rounded-xl !tw:shadow-sm hover:!tw:bg-red-100 tw:transition-all group"
@@ -271,7 +223,7 @@ const colorSwitch = computed(() => {
           </div>
         </div>
         <div class="tw:p-4 tw:rounded-xl">
-          <InputSection label="Tipo de Expulsión" class="mb-2">
+          <InputSection label="" class="mb-2">
             <div class="tw:flex tw:items-center align-center tw:gap-4">
               <Icon icon="mdi:account-off" class="text-error" height="24" />
               <span class="tw:font-medium text-error">Desertor</span>

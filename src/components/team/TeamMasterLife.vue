@@ -12,40 +12,63 @@ interface Props {
     team: Team;
     isTeamLoading: boolean;
     isTeamError: boolean;
+    isForEdit:boolean
 }
 const props = defineProps<Props>();
 const { removeParticipantsMutations } = useAdminTeamMutations();
 
-const headers = ref([
-    {
-        title: 'Participante',
-        value: 'name',
-        width: '200',
-        class: 'tw:text-nowrap',
-        sortable: true
-    },
-    {
-        title: 'Contacto',
-        value: 'phone',
-        width: '200',
-        class: 'tw:text-nowrap',
-        sortable: true
-    },
-    {
-        title: 'Correo',
-        value: 'email',
-        width: '200',
-        class: 'tw:text-nowrap',
-        sortable: true
-    },
-    {
-        title: 'Ajustes',
-        value: 'actions',
-        width: '110',
-        align: 'center' as const,
-        sortable: false
-    }
-]);
+const headers = props.isForEdit ?[
+  {
+    title: 'Participante',
+    value: 'name',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Contacto',
+    value: 'phone',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Correo',
+    value: 'email',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Ajustes',
+    value: 'actions',
+    width: '110',
+    align: 'center' as const,
+    sortable: false
+  }
+] : [
+  {
+    title: 'Participante',
+    value: 'name',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Contacto',
+    value: 'phone',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Correo',
+    value: 'email',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  }
+];
 
 const handleContact = (type: 'email' | 'phone', contact: string) => {
     if (type === 'email') {
@@ -134,7 +157,7 @@ const onRemoveParticipant = async (id: string) => {
                 <span class="tw:text-nowrap ml-2">{{ item.email }}</span>
             </v-btn>
         </template>
-        <template #item.actions="{ item }">
+        <template #item.actions="{ item }" v-if="isForEdit">
             <VBtn icon variant="text" :loading="removeParticipantsMutations.isPending.value" color="error" @click="onRemoveParticipant(item.id)"
                 class="!tw:bg-red-50 tw:rounded-xl !tw:shadow-sm hover:!tw:bg-red-100 tw:transition-all group"
                 v-tooltip="'Quitar participante'">
@@ -191,14 +214,6 @@ const onRemoveParticipant = async (id: string) => {
                 </VBtn>
             </div>
         </template>
-        <!-- <template #bottom>
-            <div class="tw:p-4 tw:bg-gray-50">
-                <v-btn color="primary" variant="flat" size="large"
-                    class="tw:w-full tw:py-3 tw:text-lg tw:rounded-xl tw:shadow-md" @click="onPromoteTeam">
-                    🚀 Promover Equipo
-                </v-btn>
-            </div>
-        </template> -->
     </v-data-table>
 </template>
 <style scoped></style>

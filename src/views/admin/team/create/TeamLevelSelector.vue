@@ -29,7 +29,7 @@ const onlevelSelected = (level: string) => {
           </v-card>
         </v-hover>
       </v-col>
-      <v-col cols="12" md="4">
+      <!-- <v-col cols="12" md="4">
         <v-hover v-slot="{ isHovering, props }">
           <v-card v-bind="props" :elevation="isHovering ? 8 : 2" class="transition-swing">
             <LevelsGrid @level-selected="onlevelSelected" :image="img2" description="Normal" title="Your" />
@@ -42,7 +42,7 @@ const onlevelSelected = (level: string) => {
             <LevelsGrid @level-selected="onlevelSelected" :image="img3" description="Avanzado" title="Life" />
           </v-card>
         </v-hover>
-      </v-col>
+      </v-col> -->
     </v-row>
   </v-card>
 </template>

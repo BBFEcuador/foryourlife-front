@@ -43,7 +43,8 @@ const headers = ref([
   { title: 'Nombre', value: 'name', class: 'my-header-style' },
   { title: 'Cédula', value: 'profile.dni', class: 'my-header-style' },
   { title: 'Telefono', value: 'phone' },
-  { title: 'Nivel', value: 'participantLevel.courseLevel' }
+  { title: 'Nivel', value: 'participantLevel.courseLevel' },
+  { title: 'Rezagado', value: 'isLingerer' },
 ]);
 
 const searchQuery = ref('');
@@ -60,6 +61,11 @@ const searchQuery = ref('');
         </template>
       </v-text-field>
       <VDataTable :items="participants" hide-default-footer :headers="headers" show-select v-model="sp" return-object :search="searchQuery">
+        <template #item.isLingerer="{item}">
+            <VChip :color="item.isLingerer ? 'error' : 'success'">
+              {{ item.isLingerer ? 'Rezagado' : 'No rezagado' }}
+            </VChip>
+        </template>
       </VDataTable>
     </div>
   </v-card>

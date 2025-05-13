@@ -14,6 +14,9 @@ import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import useCampus from '@/composables/admin/useCampus';
 import InputSection from '@/components/forms/InputSection.vue';
+import type { TeamLifePromotionRequest } from '@/models/Team';
+import type { Team } from '@/models/Participants';
+import ViewTeam from '../team/ViewTeam.vue';
 
 const { updateEventMutation, addEventMutation } = useCalendarMutations();
 const { data, isFetching, isError, refetch } = useCalendar();
@@ -40,8 +43,8 @@ const headers = [
   { title: 'Acciones', value: 'actions' }
 ];
 
-// Format dates for table display
-const adapter = useDate();
+const team = ref<Team>()
+const dialog = ref(false)
 const formatDate = (date: string | Date) => {
   return moment(date).format('LL');
 };
@@ -49,9 +52,16 @@ const formatDate = (date: string | Date) => {
 
 
 const handleViewEvent = (item: Calendar) => {
-  currentEvent.value = item;
+  
+  if (item.embedded.originalTeam) {
+    team.value = item.embedded.originalTeam
+    dialog.value = true
+  }else{
+    currentEvent.value = item;
   selectedDate.value = new Date(item.start);
   viewDialog.value = true;
+  }
+  
 };
 
 const handleAddEvent = () => {
@@ -233,6 +243,25 @@ watch(addEventMutation.isError, () => {
             Cancelar
           </v-btn>
         </v-card-actions>
+      </v-card>
+    </v-dialog>
+        <v-dialog
+      v-model="dialog"
+      transition="dialog-bottom-transition"
+      fullscreen
+    >
+      <v-card color="containerBg">
+        <v-toolbar>
+          <v-btn
+            icon
+            @click="dialog = false"
+          >
+          <Icon icon="material-symbols-light:cancel-outline-rounded"/>
+        </v-btn>
+        </v-toolbar>
+        <div class="px-8">
+          <ViewTeam :team="team" :is-for-edit="false" :is-team-error="false" :is-team-loading="false" v-if="team"/>
+        </div>
       </v-card>
     </v-dialog>
   </div>

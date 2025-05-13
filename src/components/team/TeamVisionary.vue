@@ -1,54 +1,74 @@
 <script setup lang="ts">
-import useAdminTeam from '@/composables/admin/team/useAdminTeam';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { Participant, Team } from '@/models/Participants';
-import { router } from '@/router';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
-import { useRoute } from 'vue-router';
 
 interface Props {
     team: Team;
     isTeamLoading: boolean;
     isTeamError: boolean;
+    isForEdit:boolean
 }
 const props = defineProps<Props>();
 const { removeParticipantsMutations } = useAdminTeamMutations();
 
-const headers = ref([
-    {
-        title: 'Visionario',
-        value: 'name',
-        width: '200',
-        class: 'tw:text-nowrap',
-        sortable: true
-    },
-    {
-        title: 'Contacto',
-        value: 'phone',
-        width: '200',
-        class: 'tw:text-nowrap',
-        sortable: true
-    },
-    {
-        title: 'Correo',
-        value: 'email',
-        width: '200',
-        class: 'tw:text-nowrap',
-        sortable: true
-    },
-    {
-        title: 'Ajustes',
-        value: 'actions',
-        width: '110',
-        align: 'center' as const,
-        sortable: false
-    }
-]);
+const headers = props.isForEdit ?[
+  {
+    title: 'Participante',
+    value: 'name',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Contacto',
+    value: 'phone',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Correo',
+    value: 'email',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Ajustes',
+    value: 'actions',
+    width: '110',
+    align: 'center' as const,
+    sortable: false
+  }
+] : [
+  {
+    title: 'Participante',
+    value: 'name',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Contacto',
+    value: 'phone',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  },
+  {
+    title: 'Correo',
+    value: 'email',
+    width: '200',
+    class: 'tw:text-nowrap',
+    sortable: true
+  }
+];
 
 const handleContact = (type: 'email' | 'phone', contact: string) => {
     if (type === 'email') {
@@ -93,7 +113,7 @@ const onRemoveParticipant = async (id: string) => {
 
 </script>
 <template>
-    <v-data-table :headers="headers" show-select :search="search" :items="team.visionaries" :loading="isTeamLoading">
+    <v-data-table :headers="headers" :show-select="isForEdit" :search="search" :items="team.visionaries" :loading="isTeamLoading">
         <template #top>
             <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
                 :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
@@ -137,7 +157,7 @@ const onRemoveParticipant = async (id: string) => {
                 <span class="tw:text-nowrap ml-2">{{ item.user.email }}</span>
             </v-btn>
         </template>
-        <template #item.actions="{ item }">
+        <template #item.actions="{ item }" v-if="isForEdit">
             <VBtn icon variant="text" :loading="removeParticipantsMutations.isPending.value" color="error" @click="onRemoveParticipant(item.id)"
                 class="!tw:bg-red-50 tw:rounded-xl !tw:shadow-sm hover:!tw:bg-red-100 tw:transition-all group"
                 v-tooltip="'Quitar participante'">
