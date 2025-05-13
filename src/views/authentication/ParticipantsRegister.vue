@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputSection from '@/components/forms/InputSection.vue';
+import PhoneList from '@/components/forms/PhoneList.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import useParticipantsMutations from '@/composables/participants/useParticipantsMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
@@ -8,14 +9,15 @@ import { showErrorToast } from '@/service/sweetAlert';
 import useVuelidate from '@vuelidate/core';
 import { email, numeric, required } from '@vuelidate/validators';
 import type { AxiosError } from 'axios';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import type { CountryCode } from 'libphonenumber-js';
 import { useRoute } from 'vue-router';
-import AuthRegister from './authForms/AuthRegister.vue';
 import Logo from '@/layouts/admin/logo/Logo.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { toast } from 'vue3-toastify';
 
-const participant = ref<Participant>({ profile: {},medicalRecord:{
+const participant = ref<Participant>({ profile: {}, medicalRecord:{
   medical_history_detail:"N/A",
   medication_history_detail:"N/A",
   psychiatric_history_detail:"N/A",
@@ -23,11 +25,39 @@ const participant = ref<Participant>({ profile: {},medicalRecord:{
 const { saveParticipantsMutation } = useParticipantsMutations();
 const route = useRoute();
 
+// Selected country code for phone number
+const selectedCountry = ref('EC' as CountryCode);
+
+// Handle country change from PhoneList component
+const onCountryChange = (country: string) => {
+  selectedCountry.value = country as CountryCode;
+};
+
+// Custom validator for phone number using libphonenumber-js
+const phoneValidator = (value: string | undefined | null): boolean => {
+  if (!value) return true;
+  
+  const phoneNumber = parsePhoneNumberFromString(value);
+  return phoneNumber ? phoneNumber.isValid() : false;
+};
+
+const phoneValidationMessage = () => {
+  return `Por favor ingrese un número de teléfono válido`;
+};
+
 const rules = {
   name: { required },
+  lastname: { required },
   email: { required, email },
   password: { required },
-  phone: { required, numeric },
+  phone: { 
+    required, 
+    numeric,
+    phoneValidator: { 
+      $validator: phoneValidator,
+      $message: phoneValidationMessage
+    }
+  },
   profile: {
     birthday: { required },
     address: { required },
@@ -53,7 +83,7 @@ const steps = [
 
 const validateStep = async () => {
   const fields = {
-    0: ['name', 'email', 'password', 'phone'],
+    0: ['name', 'lastname', 'email', 'password', 'phone'],
     1: ['profile.birthday', 'profile.gender', 'profile.occupation', 'profile.civilStatus', 'profile.dni', 'profile.city', 'profile.address'],
     2: []
   };
@@ -94,6 +124,7 @@ const prevStep = () => {
 
 const onSubmit = async () => {
   if (await validateStep()) {
+    // Phone number is already in E.164 format from the PhoneList component
     participant.value.token = route.params.token.toString();
     saveParticipantsMutation.mutate(participant.value);
   }
@@ -166,9 +197,9 @@ watch(saveParticipantsMutation.isSuccess, () => {
                           <h3 class="text-h5 mb-6">Información Básica</h3>
                           <v-row>
                             <v-col cols="12" md="6">
-                              <InputSection label="Nombre">
+                              <InputSection label="Nombre 1">
                                 <VTextField 
-                                  placeholder="Ingrese su nombre completo" 
+                                  placeholder="Ingrese sus nombre" 
                                   v-model="participant.name"
                                   :error-messages="validator.name.$errors.map((x) => x.$message.toString())"
                                   @update:model-value="validator.name.$touch()"
@@ -176,17 +207,48 @@ watch(saveParticipantsMutation.isSuccess, () => {
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
-                              <InputSection label="Teléfono">
+                              <InputSection label="Nombre 2">
                                 <VTextField 
-                                  placeholder="0987654321" 
-                                  v-model="participant.phone"
-                                  :error-messages="validator.phone.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.phone.$touch()"
+                                  placeholder="Ingrese sus nombre" 
+                                  v-model="participant.name"
+                                  :error-messages="validator.name.$errors.map((x) => x.$message.toString())"
+                                  @update:model-value="validator.name.$touch()"
                                 />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
-                              <InputSection label="Correo electrónico">
+                              <InputSection label="Apellido 1">
+                                <VTextField 
+                                  placeholder="Ingrese sus apellido" 
+                                  v-model="participant.lastname"
+                                  :error-messages="validator.lastname.$errors.map((x: any) => x.$message.toString())"
+                                  @update:model-value="validator.lastname.$touch()"
+                                />
+                              </InputSection>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                              <InputSection label="Apellido 2">
+                                <VTextField 
+                                  placeholder="Ingrese sus apellido" 
+                                  v-model="participant.lastname"
+                                  :error-messages="validator.lastname.$errors.map((x: any) => x.$message.toString())"
+                                  @update:model-value="validator.lastname.$touch()"
+                                />
+                              </InputSection>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                              <InputSection label="Teléfono">
+                                <PhoneList
+                                  v-model="participant.phone"
+                                  :error="validator.phone.$errors.length ? validator.phone.$errors.map((x) => x.$message.toString()).join(', ') : ''"
+                                  @update:model-value="validator.phone.$touch()"
+                                  @country-change="onCountryChange"
+                                  required
+                                />
+                              </InputSection>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                              <InputSection label="Correo electrónico" type="email">
                                 <VTextField 
                                   placeholder="example@example.com" 
                                   v-model="participant.email"
