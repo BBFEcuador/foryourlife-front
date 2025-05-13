@@ -10,6 +10,7 @@ export interface Participant {
   token: string;
   password: string;
   name: string;
+  lastname: string;
   phone: string;
   participantLevel: ParticipantLevel;
   profile: Profile;
@@ -30,6 +31,7 @@ export interface ParticipantUpdate {
   token: string;
   password: string;
   name: string;
+  lastname: string;
   phone: string;
   profile: Profile;
   invitationToken: string;
