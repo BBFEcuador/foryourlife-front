@@ -498,7 +498,7 @@ watch(saveParticipantsMutation.isSuccess, () => {
                             <VCol cols="12" v-if="hasMedication">
                               <InputSection label="Medicamentos">
                                 <VTextarea placeholder="Medicamento.." v-model="participant.medicalRecord.medication_history_detail" 
-                                :error-messages="validator.medicalRecord.medication_history_detail.$errors.map((x) => x.$message.toString())"
+                                :error-messages="validator.medicalRecord.medication_history_detail.$errors.map((x: any) => x.$message.toString())"
                                   @update:model-value="validator.medicalRecord.medication_history_detail.$touch()
                                   "/>
                               </InputSection>
