@@ -30,6 +30,16 @@ const route = useRoute();
 const docType = ['Cedula', 'Pasaporte'];
 const selectDocType = ref('Cedula');
 
+const hasMedication =ref(false)
+
+watch(hasMedication,() => {
+  if (hasMedication.value) {
+    participant.value.medicalRecord.medication_history_detail = ""
+  }else{
+    participant.value.medicalRecord.medication_history_detail = "N/A"
+  }
+})
+
 watch(selectDocType, () => {
   participant.value.profile.dni = '';
 });
@@ -87,9 +97,11 @@ const rules = {
       }
     },
     city: { required },
-    hasPsychiatricHistory: {required},
-    hasMedicalHistory: {required},
-    takesMedication: {required}
+  },
+   medicalRecord: {
+    medical_history_detail: {required},
+    medication_history_detail: {required},
+    psychiatric_history_detail: {required},
   },
   contact: {
     name: {required},
@@ -100,7 +112,7 @@ const rules = {
 
 const validator = useVuelidate(rules, participant);
 
-const step = ref(2);
+const step = ref(0);
 const steps = [
   { title: 'Información Básica', icon: 'mdi-account-outline', complete: false },
   { title: 'Información Personal', icon: 'mdi-card-account-details-outline', complete: false },
@@ -119,7 +131,7 @@ const validateStep = async () => {
       'profile.city',
       'profile.address'
     ],
-    2: []
+    2: ['medicalRecord.medication_history_detail','medicalRecord.medical_history_detail','medicalRecord.psychiatric_history_detail']
   };
 
   const stepFields = fields[step.value as keyof typeof fields];
@@ -158,7 +170,6 @@ const prevStep = () => {
 
 const onSubmit = async () => {
   if (await validateStep()) {
-    // Phone number is already in E.164 format from the PhoneList component
     participant.value.token = route.params.token.toString();
     saveParticipantsMutation.mutate(participant.value);
   }
@@ -439,12 +450,18 @@ watch(saveParticipantsMutation.isSuccess, () => {
                                 label="¿Tomas algún medicamento que altere tu conducta habitual?"
                                 color="primary"
                                 hide-details
-                                true-value="si"
-                                false-value="N/A"
-                                v-model="participant.medicalRecord.medication_history_detail"
+                                v-model="hasMedication"
                                 class="mb-4"
                               />
                             </v-col>
+                            <VCol cols="12" v-if="hasMedication">
+                              <InputSection label="Medicamentos">
+                                <VTextarea placeholder="Medicamento.." v-model="participant.medicalRecord.medication_history_detail" 
+                                :error-messages="validator.medicalRecord.medication_history_detail.$errors.map((x) => x.$message.toString())"
+                                  @update:model-value="validator.medicalRecord.medication_history_detail.$touch()
+                                  "/>
+                              </InputSection>
+                            </VCol>
                           </v-row>
                         </v-card-text>
                       </v-card>
