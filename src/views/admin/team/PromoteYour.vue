@@ -140,6 +140,19 @@ const isPromoting = ref(false);
                     </v-card-item>
                 </v-card>
             </v-col>
+            <VCol cols="12">
+                <v-card elevation="2" class="tw:rounded-xl tw:overflow-hidden tw:border tw:border-gray-200">
+                    <v-card-title class="d-flex align-center tw:gap-4">
+                        Nombre del equipo
+                    </v-card-title>
+                    <VCardSubtitle>
+                        <p>Puede asignar un nombre personalizado al equipo, de no asignarlo se quedara con el nombre del entrenamiento (LIFE-100)</p>
+                    </VCardSubtitle>
+                    <VCardItem >
+                        <VTextField placeholder="Nombre del equipo" v-model="promotionLifeRequest.name"/>
+                    </VCardItem>
+                </v-card>
+            </VCol>
 
             <v-col cols="12">
                 <v-row class="tw:py-6">

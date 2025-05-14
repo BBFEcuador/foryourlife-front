@@ -31,7 +31,11 @@ const useAdminTeam = (id: string) => {
         id: team.value.id,
         masterLife: team.value.masterLife,
         trainer: team.value.trainer.id,
-        users: team.value.users
+        users: team.value.users,
+        name:
+          team.value.training.nextLevel?.courseLevel == 'LIFE'
+            ? `${team.value.training.nextLevel.courseLevel}-${team.value.training.nextLevel.number}`
+            : team.value.name
       };
     }
   });

@@ -32,4 +32,5 @@ export interface TeamLifePromotionRequest {
   users: Participant[];
   masterLife: Participant[];
   trainer: string;
+  name: string;
 }

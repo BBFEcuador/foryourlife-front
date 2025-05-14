@@ -164,6 +164,11 @@ const rules = {
         $message: phoneValidationMessage
       }
     }
+  },
+  medicalRecord:{
+    medication_history_detail :{required: { ...required, $message: 'Debe ingresar un número de teléfono de contacto' }},
+    medical_history_detail :{required: { ...required, $message: 'Debe ingresar un número de teléfono de contacto' }},
+    psychiatric_history_detail :{required: { ...required, $message: 'Debe ingresar un número de teléfono de contacto' }},
   }
 };
 
