@@ -31,6 +31,16 @@ const route = useRoute();
 const docType = ['Cédula', 'Pasaporte'];
 const selectDocType = ref('Cédula');
 
+const hasMedication =ref(false)
+
+watch(hasMedication,() => {
+  if (hasMedication.value) {
+    participant.value.medicalRecord.medication_history_detail = ""
+  }else{
+    participant.value.medicalRecord.medication_history_detail = "N/A"
+  }
+})
+
 watch(selectDocType, () => {
   participant.value.profile.dni = '';
 });
@@ -168,7 +178,7 @@ const steps = [
 
 const validateStep = async () => {
   const fields = {
-    0: ['name1', 'lastname1', 'email', 'password', 'phone'],
+    0: ['name1', 'lastname1', 'email', 'password', 'phone', 'contact.name', 'contact.relationship', 'contact.phone'],
     1: [
       'profile.birthday',
       'profile.gender',
@@ -178,7 +188,7 @@ const validateStep = async () => {
       'profile.city',
       'profile.address'
     ],
-    2: ['contact.name', 'contact.relationship', 'contact.phone']
+    2: ['medicalRecord.medication_history_detail','medicalRecord.medical_history_detail','medicalRecord.psychiatric_history_detail']
   };
 
   const stepFields = fields[step.value as keyof typeof fields];
@@ -217,7 +227,6 @@ const prevStep = () => {
 
 const onSubmit = async () => {
   if (await validateStep()) {
-    // Phone number is already in E.164 format from the PhoneList component
     participant.value.token = route.params.token.toString();
     saveParticipantsMutation.mutate(participant.value);
   }
@@ -462,15 +471,38 @@ watch(saveParticipantsMutation.isSuccess, () => {
                             <v-col cols="12">
                               <v-checkbox
                                 label="¿Tienes algún antecedente personal de enfermedades psiquiátricas o estás bajo tratamiento actualmente?"
-                                color="primary" hide-details true-value="si" false-value="N/A"
-                                v-model="participant.medicalRecord.psychiatric_history_detail" class="mb-4" />
-                              <v-checkbox label="¿Tienes algún antecedente médico del cuál debamos tener conocimiento?"
-                                color="primary" hide-details true-value="si" false-value="N/A"
-                                v-model="participant.medicalRecord.medical_history_detail" class="mb-4" />
-                              <v-checkbox label="¿Tomas algún medicamento que altere tu conducta habitual?"
-                                color="primary" hide-details true-value="si" false-value="N/A"
-                                v-model="participant.medicalRecord.medication_history_detail" class="mb-4" />
+                                color="primary"
+                                hide-details
+                                true-value="si"
+                                false-value="N/A"
+                                v-model="participant.medicalRecord.psychiatric_history_detail"
+                                class="mb-4"
+                              />
+                              <v-checkbox
+                                label="¿Tienes algún antecedente médico del cuál debamos tener conocimiento?"
+                                color="primary"
+                                hide-details
+                                true-value="si"
+                                false-value="N/A"
+                                v-model="participant.medicalRecord.medical_history_detail"
+                                class="mb-4"
+                              />
+                              <v-checkbox
+                                label="¿Tomas algún medicamento que altere tu conducta habitual?"
+                                color="primary"
+                                hide-details
+                                v-model="hasMedication"
+                                class="mb-4"
+                              />
                             </v-col>
+                            <VCol cols="12" v-if="hasMedication">
+                              <InputSection label="Medicamentos">
+                                <VTextarea placeholder="Medicamento.." v-model="participant.medicalRecord.medication_history_detail" 
+                                :error-messages="validator.medicalRecord.medication_history_detail.$errors.map((x) => x.$message.toString())"
+                                  @update:model-value="validator.medicalRecord.medication_history_detail.$touch()
+                                  "/>
+                              </InputSection>
+                            </VCol>
                           </v-row>
                         </v-card-text>
                       </v-card>
