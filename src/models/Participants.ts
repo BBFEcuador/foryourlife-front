@@ -37,6 +37,13 @@ export interface SaveParticipantReq {
   phone: string;
   profile: Profile;
   medicalRecord: MedicalRecord;
+  contact: EmergencyContactReq;
+}
+
+export interface EmergencyContactReq {
+  name: string;
+  relationship: string;
+  phone: string;
 }
 
 export interface ParticipantUpdate {
