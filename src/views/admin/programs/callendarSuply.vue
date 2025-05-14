@@ -4,10 +4,10 @@ import type { Calendar } from '@/models/Calendar';
 import useCalendarMutations from '@/composables/admin/calendar/useCalendarEvents';
 import useCalendar from '@/composables/admin/calendar/useCalendar';
 import { Icon } from '@iconify/vue';
-import { VDateInput } from "vuetify/labs/VDateInput";
-import { VNumberInput } from "vuetify/labs/VNumberInput";
-import moment from "moment";
-import "moment/dist/locale/es.js";
+import { VDateInput } from 'vuetify/labs/VDateInput';
+import { VNumberInput } from 'vuetify/labs/VNumberInput';
+import moment from 'moment';
+import 'moment/dist/locale/es.js';
 import { useDate } from 'vuetify';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import type { AxiosError } from 'axios';
@@ -37,31 +37,27 @@ const updatedDate = ref({
 
 // Table headers
 const headers = [
-  { title: 'Título', value: 'title'},
-  { title: 'Fecha Inicio', value: 'start'},
-  { title: 'Fecha Fin', value: 'end'},
+  { title: 'Título', value: 'title' },
+  { title: 'Fecha Inicio', value: 'start' },
+  { title: 'Fecha Fin', value: 'end' },
   { title: 'Acciones', value: 'actions' }
 ];
 
-const team = ref<Team>()
-const dialog = ref(false)
+const team = ref<Team>();
+const dialog = ref(false);
 const formatDate = (date: string | Date) => {
   return moment(date).format('LL');
 };
 
-
-
 const handleViewEvent = (item: Calendar) => {
-  
   if (item.embedded.originalTeam) {
-    team.value = item.embedded.originalTeam
-    dialog.value = true
-  }else{
+    team.value = item.embedded.originalTeam;
+    dialog.value = true;
+  } else {
     currentEvent.value = item;
-  selectedDate.value = new Date(item.start);
-  viewDialog.value = true;
+    selectedDate.value = new Date(item.start);
+    viewDialog.value = true;
   }
-  
 };
 
 const handleAddEvent = () => {
@@ -72,7 +68,7 @@ const updateEvent = async () => {
   if (currentEvent.value) {
     updateEventMutation.mutateAsync({
       id: currentEvent.value.id,
-      startDate: moment(selectedDate.value).format("YYYY-MM-DD")
+      startDate: moment(selectedDate.value).format('YYYY-MM-DD')
     });
   }
 };
@@ -80,7 +76,7 @@ const updateEvent = async () => {
 const onAddCourses = async () => {
   addEventMutation.mutate({
     ...updatedDate.value,
-    startDate: moment(updatedDate.value.startDate).format("YYYY-MM-DD")
+    startDate: moment(updatedDate.value.startDate).format('YYYY-MM-DD')
   });
 };
 
@@ -115,7 +111,7 @@ watch(addEventMutation.isError, () => {
     showErrorToast(error);
   }
 });
-</script> 
+</script>
 
 <template>
   <div>
@@ -140,29 +136,17 @@ watch(addEventMutation.isError, () => {
           class="mb-4"
         />
 
-        <v-data-table
-          :headers="headers"
-          :items="data"
-          :search="search"
-          :loading="isFetching"
-          hover
-        >
+        <v-data-table :headers="headers" :items="data" :search="search" :loading="isFetching" hover>
           <template v-slot:item.start="{ item }">
-            {{  formatDate(item.start) }}
+            {{ formatDate(item.start) }}
           </template>
-          
+
           <template v-slot:item.end="{ item }">
             {{ formatDate(item.end) }}
           </template>
 
           <template v-slot:item.actions="{ item }">
-            <v-btn
-              icon
-              variant="text"
-              color="primary"
-              size="small"
-              @click="handleViewEvent(item)"
-            >
+            <v-btn icon variant="text" color="primary" size="small" @click="handleViewEvent(item)">
               <Icon icon="mdi-pencil" />
             </v-btn>
           </template>
@@ -208,18 +192,10 @@ watch(addEventMutation.isError, () => {
         <v-divider></v-divider>
         <v-card-text>
           <InputSection label="Número de cursos">
-            <VNumberInput
-              placeholder="##"
-              :min="1"
-              v-model="updatedDate.numberOfFocus"
-              variant="outlined"
-            ></VNumberInput>
+            <VNumberInput placeholder="##" :min="1" v-model="updatedDate.numberOfFocus" variant="outlined"></VNumberInput>
           </InputSection>
           <InputSection label="Fecha de inicio">
-            <VDateInput
-              v-model="updatedDate.startDate"
-              variant="outlined"
-            ></VDateInput>
+            <VDateInput v-model="updatedDate.startDate" variant="outlined"></VDateInput>
           </InputSection>
           <InputSection label="Sede">
             <v-select
@@ -245,22 +221,15 @@ watch(addEventMutation.isError, () => {
         </v-card-actions>
       </v-card>
     </v-dialog>
-        <v-dialog
-      v-model="dialog"
-      transition="dialog-bottom-transition"
-      fullscreen
-    >
+    <v-dialog v-model="dialog" transition="dialog-bottom-transition" fullscreen>
       <v-card color="containerBg">
         <v-toolbar>
-          <v-btn
-            icon
-            @click="dialog = false"
-          >
-          <Icon icon="material-symbols-light:cancel-outline-rounded"/>
-        </v-btn>
+          <v-btn icon @click="dialog = false">
+            <Icon icon="material-symbols-light:cancel-outline-rounded" />
+          </v-btn>
         </v-toolbar>
         <div class="px-8">
-          <ViewTeam :team="team" :is-for-edit="false" :is-team-error="false" :is-team-loading="false" v-if="team"/>
+          <ViewTeam :team="team" :is-for-edit="false" :is-team-error="false" :is-team-loading="false" v-if="team" />
         </div>
       </v-card>
     </v-dialog>

@@ -14,7 +14,7 @@ export interface Participant {
   phone: string;
   participantLevel: ParticipantLevel;
   profile: Profile;
-  user:User
+  user: User;
   invitationToken: string;
   roleId: string;
   isLingerer: boolean;
@@ -23,6 +23,20 @@ export interface Participant {
   modules: Modules;
   medicalRecord: MedicalRecord;
   team?: Team;
+}
+
+export interface SaveParticipantReq {
+  id: string;
+  email: string;
+  token: string;
+  password: string;
+  name1: string;
+  name2: string;
+  lastname1: string;
+  lastname2: string;
+  phone: string;
+  profile: Profile;
+  medicalRecord: MedicalRecord;
 }
 
 export interface ParticipantUpdate {
