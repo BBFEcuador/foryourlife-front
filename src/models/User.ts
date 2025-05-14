@@ -3,6 +3,10 @@ export interface User {
   email: string;
   password: string;
   name: string;
+  name1: string;
+  name2: string;
+  lastname1: string;
+  lastname2: string;
   phone: string;
   entityMap: EntityMap[];
 }

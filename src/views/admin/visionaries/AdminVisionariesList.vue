@@ -29,9 +29,12 @@ const search = ref();
 const staffRules = {
   role: { required },
   user: {
-    name: { required },
-    phone: { required, numeric },
-    email: { required, email }
+    name1: { required: { ...required, $message: 'Debe ingresar su primer nombre' } },
+    name2: { required: { ...required, $message: 'Debe ingresar su segundo nombre' } },
+    lastname1: { required: { ...required, $message: 'Debe ingresar su primer apellido' } },
+    lastname2: { required: { ...required, $message: 'Debe ingresar su segundo apellido' } },
+    phone: { required: { ...required, $message: 'Debe ingresar su número de teléfono' }, numeric },
+    email: { required: { ...required, $message: 'Debe ingresar su correo electrónico' }, email }
   }
 };
 const headers = [
@@ -59,8 +62,8 @@ const handleDisableVisionary = async (visionary: Visionary) => {
   const result = await Swal.fire({
     title: visionary.active ? '¿Desactivar Visionario?' : '¿Activar Visionario?',
     text: visionary.active
-      ? `¿Está seguro que desea desactivar a ${visionary.user.name}?`
-      : `¿Está seguro que desea activar a ${visionary.user.name}?`,
+      ? `¿Está seguro que desea desactivar a ${visionary.user.name1} ${visionary.user.lastname1}?`
+      : `¿Está seguro que desea activar a ${visionary.user.name1} ${visionary.user.lastname1}?`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -127,8 +130,8 @@ watch(saveVisionaryMutations.isSuccess, () => {
       class="tw:rounded-xl elevation-0" :loading-text="'Cargando visionarios...'"
       :no-data-text="'No se encontraron visionarios'" hover>
       <template v-slot:top>
-        <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion :initial="{ opacity: 0, y: -10 }"
-          :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+        <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
+          :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
           <div class="tw:flex-1 tw:max-w-md tw:relative">
             <VTextField v-model="search" placeholder="Buscar por nombre, email o teléfono..." variant="outlined"
               density="comfortable" hide-details class="tw:rounded-lg" bg-color="white">
@@ -143,7 +146,12 @@ watch(saveVisionaryMutations.isSuccess, () => {
             </VTextField>
           </div>
           <v-spacer></v-spacer>
-          <VBtn variant="elevated" color="primary" @click="showForm = true">
+          <VBtn variant="elevated" color="primary" @click="() => {
+            staff = {
+              user: {}
+            } as Visionary;
+            showForm = true
+          }">
             <Icon class="mr-2" icon="mdi:plus" />
             Agregar Visionario
           </VBtn>
@@ -229,16 +237,54 @@ watch(saveVisionaryMutations.isSuccess, () => {
 
       <v-form @submit.prevent="onSave" class="tw:flex tw:flex-col tw:gap-6">
         <div class="tw:space-y-6">
-          <InputSection label="Nombre" required>
-            <VTextField placeholder="Ingrese el nombre del visionario" v-model="staff.user.name"
-              :error-messages="validator.user.name.$errors.map((x) => x.$message.toString())" variant="outlined"
-              density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
-              <template v-slot:prepend>
-                <Icon icon="mdi:account" />
-              </template>
-            </VTextField>
-          </InputSection>
-
+          <VRow>
+            <VCol cols="12" sm="6">
+              <InputSection label="Nombre 1" required>
+                <VTextField placeholder="Ingrese el nombre del visionario" v-model="staff.user.name1"
+                  :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())" variant="outlined"
+                  density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
+                  <template v-slot:prepend>
+                    <Icon icon="mdi:account" />
+                  </template>
+                </VTextField>
+              </InputSection>
+            </VCol>
+            <VCol cols="12" sm="6">
+              <InputSection label="Nombre 2">
+                <VTextField placeholder="Ingrese el nombre del visionario" v-model="staff.user.name2"
+                  :error-messages="validator.user.name2.$errors.map((x) => x.$message.toString())" variant="outlined"
+                  density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
+                  <template v-slot:prepend>
+                    <Icon icon="mdi:account" />
+                  </template>
+                </VTextField>
+              </InputSection>
+            </VCol>
+            <VCol cols="12" sm="6">
+              <InputSection label="Apellido 1" required>
+                <VTextField placeholder="Ingrese el apellido del visionario" v-model="staff.user.lastname1"
+                  :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
+                  variant="outlined" density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm"
+                  bg-color="white">
+                  <template v-slot:prepend>
+                    <Icon icon="mdi:account" />
+                  </template>
+                </VTextField>
+              </InputSection>
+            </VCol>
+            <VCol cols="12" sm="6">
+              <InputSection label="Apellido 2">
+                <VTextField placeholder="Ingrese el apellido del visionario" v-model="staff.user.lastname2"
+                  :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
+                  variant="outlined" density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm"
+                  bg-color="white">
+                  <template v-slot:prepend>
+                    <Icon icon="mdi:account" />
+                  </template>
+                </VTextField>
+              </InputSection>
+            </VCol>
+          </VRow>
           <InputSection label="E-mail" required>
             <VTextField placeholder="Ingrese el correo electrónico" v-model="staff.user.email"
               :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())" variant="outlined"
