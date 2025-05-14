@@ -19,6 +19,7 @@ import { VSelect } from 'vuetify/components';
 
 const participant = ref<SaveParticipantReq>({
   profile: {},
+  contact: {},
   medicalRecord: {
     medical_history_detail: 'N/A',
     medication_history_detail: 'N/A',
@@ -27,11 +28,18 @@ const participant = ref<SaveParticipantReq>({
 } as SaveParticipantReq);
 const { saveParticipantsMutation } = useParticipantsMutations();
 const route = useRoute();
-const docType = ['Cedula', 'Pasaporte'];
-const selectDocType = ref('Cedula');
+const docType = ['Cédula', 'Pasaporte'];
+const selectDocType = ref('Cédula');
 
 watch(selectDocType, () => {
   participant.value.profile.dni = '';
+});
+
+// Make sure passport is always stored in uppercase
+watch(() => participant.value.profile.dni, (newValue) => {
+  if (selectDocType.value !== 'Cédula' && newValue) {
+    participant.value.profile.dni = newValue.toUpperCase();
+  }
 });
 
 const selectedCountry = ref('EC' as CountryCode);
@@ -51,56 +59,107 @@ const phoneValidationMessage = () => {
   return `Por favor ingrese un número de teléfono válido`;
 };
 
+const helpers = {
+  required: { $message: 'Este campo es obligatorio' },
+  email: { $message: 'Ingrese un correo electrónico válido' },
+  cedula: { $message: 'La cédula debe contener 10 dígitos numéricos' },
+  cedulaNumeric: { $message: 'La cédula debe contener solo números' },
+  phoneInvalid: { $message: 'Ingrese un número de teléfono válido' }
+};
+
 const rules = {
-  name1: { required },
-  lastname1: { required },
-  email: { required, email },
-  password: { required },
+  name1: {
+    required: { ...required, $message: 'Debe ingresar su primer nombre' }
+  },
+  lastname1: {
+    required: { ...required, $message: 'Debe ingresar su primer apellido' }
+  },
+  email: {
+    required: { ...required, $message: 'Debe ingresar un correo electrónico' },
+    email: { ...email, $message: 'Ingrese un correo electrónico válido' }
+  },
+  password: {
+    required: { ...required, $message: 'Debe ingresar una contraseña' }
+  },
   phone: {
-    required,
+    required: { ...required, $message: 'Debe ingresar un número de teléfono' },
     phoneValidator: {
       $validator: phoneValidator,
       $message: phoneValidationMessage
     }
   },
   profile: {
-    birthday: { required },
-    address: { required },
-    occupation: { required },
-    gender: { required },
-    civilStatus: { required },
+    birthday: {
+      required: { ...required, $message: 'Debe ingresar su fecha de nacimiento' }
+    },
+    address: {
+      required: { ...required, $message: 'Debe ingresar su dirección' }
+    },
+    occupation: {
+      required: { ...required, $message: 'Debe ingresar su ocupación' }
+    },
+    gender: {
+      required: { ...required, $message: 'Debe seleccionar su género' }
+    },
+    civilStatus: {
+      required: { ...required, $message: 'Debe seleccionar su estado civil' }
+    },
     dni: {
-      required,
-      numeric: () => {
-        if (selectDocType.value == 'Cedula') {
-          return participant.value.profile.dni.match('^[0-9]+$');
-        } else {
-          return true;
-        }
+      required: { ...required, $message: () => `Debe ingresar su ${selectDocType.value}` },
+      numeric: {
+        $validator: () => {
+          if (selectDocType.value == 'Cédula') {
+            return participant.value.profile.dni.match('^[0-9]+$');
+          } else {
+            return true;
+          }
+        },
+        $message: 'La cédula debe contener solo números'
       },
-      length: () => {
-        if (selectDocType.value == 'Cedula') {
-          return participant.value.profile.dni.length == 10;
-        } else {
-          return true;
-        }
+      length: {
+        $validator: () => {
+          if (selectDocType.value == 'Cédula') {
+            return participant.value.profile.dni.length == 10;
+          } else {
+            return true;
+          }
+        },
+        $message: 'La cédula debe tener exactamente 10 dígitos'
       }
     },
-    city: { required },
-    hasPsychiatricHistory: {required},
-    hasMedicalHistory: {required},
-    takesMedication: {required}
+    city: {
+      required: { ...required, $message: 'Debe seleccionar su ciudad' }
+    },
+    hasPsychiatricHistory: {
+      required: { ...required, $message: 'Debe responder esta pregunta' }
+    },
+    hasMedicalHistory: {
+      required: { ...required, $message: 'Debe responder esta pregunta' }
+    },
+    takesMedication: {
+      required: { ...required, $message: 'Debe responder esta pregunta' }
+    }
   },
   contact: {
-    name: {required},
-    relationship: {required},
-    phone: {required}
+    name: {
+      required: { ...required, $message: 'Debe ingresar el nombre del contacto' }
+    },
+    relationship: {
+      required: { ...required, $message: 'Debe ingresar la relación con el contacto' }
+    },
+    phone: {
+      required: { ...required, $message: 'Debe ingresar un número de teléfono de contacto' },
+      phoneValidator: {
+        $validator: phoneValidator,
+        $message: phoneValidationMessage
+      }
+    }
   }
 };
 
 const validator = useVuelidate(rules, participant);
 
-const step = ref(2);
+const step = ref(0);
 const steps = [
   { title: 'Información Básica', icon: 'mdi-account-outline', complete: false },
   { title: 'Información Personal', icon: 'mdi-card-account-details-outline', complete: false },
@@ -119,7 +178,7 @@ const validateStep = async () => {
       'profile.city',
       'profile.address'
     ],
-    2: []
+    2: ['contact.name', 'contact.relationship', 'contact.phone']
   };
 
   const stepFields = fields[step.value as keyof typeof fields];
@@ -205,13 +264,10 @@ watch(saveParticipantsMutation.isSuccess, () => {
                     <v-row justify="center" class="mb-4">
                       <v-col cols="auto" v-for="(s, i) in steps" :key="i">
                         <div class="d-flex align-center">
-                          <div
-                            class="step-circle d-flex align-center justify-center"
-                            :class="{
-                              completed: s.complete,
-                              active: i === step
-                            }"
-                          >
+                          <div class="step-circle d-flex align-center justify-center" :class="{
+                            completed: s.complete,
+                            active: i === step
+                          }">
                             <Icon :icon="s.icon" :class="{ 'text-white': i === step || s.complete }" />
                           </div>
                           <div v-if="i < steps.length - 1" class="step-line" :class="{ completed: s.complete }"></div>
@@ -232,12 +288,9 @@ watch(saveParticipantsMutation.isSuccess, () => {
                           <v-row>
                             <v-col cols="12" md="6">
                               <InputSection label="Nombre 1*">
-                                <VTextField
-                                  placeholder="Ingrese sus nombre"
-                                  v-model="participant.name1"
+                                <VTextField placeholder="Ingrese sus nombre" v-model="participant.name1"
                                   :error-messages="validator.name1.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.name1.$touch()"
-                                />
+                                  @update:model-value="validator.name1.$touch()" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
@@ -247,12 +300,9 @@ watch(saveParticipantsMutation.isSuccess, () => {
                             </v-col>
                             <v-col cols="12" md="6">
                               <InputSection label="Apellido 1*">
-                                <VTextField
-                                  placeholder="Ingrese sus apellido"
-                                  v-model="participant.lastname1"
+                                <VTextField placeholder="Ingrese sus apellido" v-model="participant.lastname1"
                                   :error-messages="validator.lastname1.$errors.map((x: any) => x.$message.toString())"
-                                  @update:model-value="validator.lastname1.$touch()"
-                                />
+                                  @update:model-value="validator.lastname1.$touch()" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
@@ -263,38 +313,26 @@ watch(saveParticipantsMutation.isSuccess, () => {
 
                             <v-col cols="12" md="6">
                               <InputSection label="Teléfono*">
-                                <PhoneList
-                                  v-model="participant.phone"
-                                  :error="
-                                    validator.phone.$errors.length
-                                      ? validator.phone.$errors.map((x) => x.$message.toString()).join(', ')
-                                      : ''
-                                  "
-                                  @update:model-value="validator.phone.$touch()"
-                                  @country-change="onCountryChange"
-                                  required
-                                />
+                                <PhoneList v-model="participant.phone" :error="validator.phone.$errors.length
+                                  ? validator.phone.$errors.map((x) => x.$message.toString()).join(', ')
+                                  : ''
+                                  " @update:model-value="validator.phone.$touch()" @country-change="onCountryChange"
+                                  required />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
                               <InputSection label="Correo electrónico*" type="email">
-                                <VTextField
-                                  placeholder="example@example.com"
-                                  v-model="participant.email"
+                                <VTextField placeholder="example@example.com" v-model="participant.email"
                                   :error-messages="validator.email.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.email.$touch()"
-                                />
+                                  @update:model-value="validator.email.$touch()" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
                               <InputSection label="Contraseña*">
-                                <VTextField
-                                  :type="showPassword ? 'text' : 'password'"
-                                  placeholder="***********"
+                                <VTextField :type="showPassword ? 'text' : 'password'" placeholder="***********"
                                   v-model="participant.password"
                                   :error-messages="validator.password.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.password.$touch()"
-                                >
+                                  @update:model-value="validator.password.$touch()">
                                   <template #append-inner>
                                     <VBtn icon variant="text" @click="showPassword = !showPassword">
                                       <Icon v-if="showPassword" icon="mdi-eye-off" />
@@ -303,6 +341,34 @@ watch(saveParticipantsMutation.isSuccess, () => {
                                   </template>
                                 </VTextField>
                               </InputSection>
+                            </v-col>
+                            <v-col cols="12">
+                              <p class="text-h5 mb-3">Contacto de emergencia</p>
+                              <v-row>
+                                <v-col cols="12" md="6">
+                                  <InputSection label="Nombre">
+                                    <VTextField placeholder="Ingrese el nombre" v-model="participant.contact.name"
+                                      :error-messages="validator.contact.name.$errors.map((x) => x.$message.toString())"
+                                      @update:model-value="validator.contact.name.$touch()" />
+                                  </InputSection>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                  <InputSection label="Número de contacto">
+                                    <PhoneList v-model="participant.contact.phone" :error="validator.contact.phone.$errors.length
+                                      ? validator.contact.phone.$errors.map((x) => x.$message.toString()).join(', ')
+                                      : ''" @update:model-value="validator.contact.phone.$touch()"
+                                      @country-change="onCountryChange" required />
+                                  </InputSection>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                  <InputSection label="Parentesco">
+                                    <VTextField placeholder="Ingrese el parentesco"
+                                      v-model="participant.contact.relationship"
+                                      :error-messages="validator.contact.relationship.$errors.map((x) => x.$message.toString())"
+                                      @update:model-value="validator.contact.relationship.$touch()" />
+                                  </InputSection>
+                                </v-col>
+                              </v-row>
                             </v-col>
                           </v-row>
                         </v-card-text>
@@ -317,47 +383,34 @@ watch(saveParticipantsMutation.isSuccess, () => {
                           <v-row>
                             <v-col cols="12" md="6">
                               <InputSection label="¿Cuándo cumples años?">
-                                <VTextField
-                                  type="date"
-                                  v-model="participant.profile.birthday"
+                                <VTextField type="date" v-model="participant.profile.birthday"
                                   :error-messages="validator.profile.birthday.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.profile.birthday.$touch()"
-                                />
+                                  @update:model-value="validator.profile.birthday.$touch()" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
                               <InputSection label="Género">
-                                <VSelect
-                                  :items="[
-                                    { label: 'Femenino', value: 'M' },
-                                    { label: 'Masculino', value: 'H' }
-                                  ]"
-                                  v-model="participant.profile.gender"
-                                  item-title="label"
-                                  item-value="value"
+                                <VSelect :items="[
+                                  { label: 'Femenino', value: 'M' },
+                                  { label: 'Masculino', value: 'H' }
+                                ]" v-model="participant.profile.gender" item-title="label" item-value="value"
                                   :error-messages="validator.profile.gender.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.profile.gender.$touch()"
-                                />
+                                  @update:model-value="validator.profile.gender.$touch()" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
                               <InputSection label="Ocupación">
-                                <VTextField
-                                  placeholder="Profesional"
-                                  v-model="participant.profile.occupation"
+                                <VTextField placeholder="Profesional" v-model="participant.profile.occupation"
                                   :error-messages="validator.profile.occupation.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.profile.occupation.$touch()"
-                                />
+                                  @update:model-value="validator.profile.occupation.$touch()" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
                               <InputSection label="Estado Civil">
-                                <VSelect
-                                  :items="['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión de Hecho']"
+                                <VSelect :items="['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión de Hecho']"
                                   v-model="participant.profile.civilStatus"
                                   :error-messages="validator.profile.civilStatus.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.profile.civilStatus.$touch()"
-                                />
+                                  @update:model-value="validator.profile.civilStatus.$touch()" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6">
@@ -365,44 +418,34 @@ watch(saveParticipantsMutation.isSuccess, () => {
                                 <VSelect :items="docType" v-model="selectDocType" />
                               </InputSection>
                             </v-col>
-                            <v-col cols="12" md="6" v-if="selectDocType == 'Cedula'">
-                              <InputSection label="Cedula">
-                                <VTextField
-                                  placeholder="17########"
-                                  v-model="participant.profile.dni"
+                            <v-col cols="12" md="6" v-if="selectDocType == 'Cédula'">
+                              <InputSection label="Cédula">
+                                <VTextField placeholder="17########" v-model="participant.profile.dni"
                                   :error-messages="validator.profile.dni.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.profile.dni.$touch()"
-                                />
+                                  @update:model-value="validator.profile.dni.$touch()" inputmode="numeric"
+                                  pattern="[0-9]*" maxlength="10" class="hide-spin-buttons" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12" md="6" v-else>
                               <InputSection label="Pasaporte">
-                                <VTextField
-                                  placeholder="L7283I"
-                                  v-model="participant.profile.dni"
+                                <VTextField placeholder="L7283I" v-model="participant.profile.dni"
                                   :error-messages="validator.profile.dni.$errors.map((x) => x.$message.toString())"
                                   @update:model-value="validator.profile.dni.$touch()"
-                                />
+                                  @input="participant.profile.dni = $event.target.value.toUpperCase()" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12">
                               <InputSection label="Ciudad">
-                                <VTextField
-                                  placeholder="Quito"
-                                  v-model="participant.profile.city"
+                                <VTextField placeholder="Quito" v-model="participant.profile.city"
                                   :error-messages="validator.profile.city.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.profile.city.$touch()"
-                                />
+                                  @update:model-value="validator.profile.city.$touch()" />
                               </InputSection>
                             </v-col>
                             <v-col cols="12">
                               <InputSection label="Dirección">
-                                <VTextarea
-                                  placeholder="Av......"
-                                  v-model="participant.profile.address"
+                                <VTextarea placeholder="Av......" v-model="participant.profile.address"
                                   :error-messages="validator.profile.address.$errors.map((x) => x.$message.toString())"
-                                  @update:model-value="validator.profile.address.$touch()"
-                                />
+                                  @update:model-value="validator.profile.address.$touch()" />
                               </InputSection>
                             </v-col>
                           </v-row>
@@ -419,31 +462,14 @@ watch(saveParticipantsMutation.isSuccess, () => {
                             <v-col cols="12">
                               <v-checkbox
                                 label="¿Tienes algún antecedente personal de enfermedades psiquiátricas o estás bajo tratamiento actualmente?"
-                                color="primary"
-                                hide-details
-                                true-value="si"
-                                false-value="N/A"
-                                v-model="participant.medicalRecord.psychiatric_history_detail"
-                                class="mb-4"
-                              />
-                              <v-checkbox
-                                label="¿Tienes algún antecedente médico del cuál debamos tener conocimiento?"
-                                color="primary"
-                                hide-details
-                                true-value="si"
-                                false-value="N/A"
-                                v-model="participant.medicalRecord.medical_history_detail"
-                                class="mb-4"
-                              />
-                              <v-checkbox
-                                label="¿Tomas algún medicamento que altere tu conducta habitual?"
-                                color="primary"
-                                hide-details
-                                true-value="si"
-                                false-value="N/A"
-                                v-model="participant.medicalRecord.medication_history_detail"
-                                class="mb-4"
-                              />
+                                color="primary" hide-details true-value="si" false-value="N/A"
+                                v-model="participant.medicalRecord.psychiatric_history_detail" class="mb-4" />
+                              <v-checkbox label="¿Tienes algún antecedente médico del cuál debamos tener conocimiento?"
+                                color="primary" hide-details true-value="si" false-value="N/A"
+                                v-model="participant.medicalRecord.medical_history_detail" class="mb-4" />
+                              <v-checkbox label="¿Tomas algún medicamento que altere tu conducta habitual?"
+                                color="primary" hide-details true-value="si" false-value="N/A"
+                                v-model="participant.medicalRecord.medication_history_detail" class="mb-4" />
                             </v-col>
                           </v-row>
                         </v-card-text>
@@ -525,5 +551,16 @@ watch(saveParticipantsMutation.isSuccess, () => {
 
 .v-card {
   transition: all 0.3s ease;
+}
+
+.hide-spin-buttons:deep(input[type=number]) {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.hide-spin-buttons:deep(input::-webkit-outer-spin-button),
+.hide-spin-buttons:deep(input::-webkit-inner-spin-button) {
+  -webkit-appearance: none;
+  margin: 0;
 }
 </style>

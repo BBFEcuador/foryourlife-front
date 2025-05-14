@@ -127,7 +127,7 @@ const updateFormattedPhone = (value: string) => {
     emit('update:modelValue', '');
     return;
   }
-  
+
   // Check if the input starts with + and try to auto-detect country
   if (value.startsWith('+')) {
     // Extract the country calling code
@@ -140,7 +140,7 @@ const updateFormattedPhone = (value: string) => {
           longestMatch = callingCode;
         }
       }
-      
+
       // If we found a match, update the selected country
       if (longestMatch && callingCodeMap.value[longestMatch]) {
         selectedCountry.value = callingCodeMap.value[longestMatch] as CountryCode;
@@ -148,11 +148,11 @@ const updateFormattedPhone = (value: string) => {
       }
     }
   }
-  
+
   const formatter = new AsYouType(selectedCountry.value as CountryCode);
   const formatted = formatter.input(value);
   phoneInput.value = formatted;
-  
+
   // Emit the full international format
   const phoneNumber = parsePhoneNumberFromString(formatted, selectedCountry.value as CountryCode);
   if (phoneNumber) {
@@ -168,10 +168,10 @@ const filterCountries = (searchTerm: string) => {
     filteredCountries.value = countryOptions.value;
     return;
   }
-  
+
   const term = searchTerm.toLowerCase();
-  filteredCountries.value = countryOptions.value.filter(country => 
-    country.country.toLowerCase().includes(term) || 
+  filteredCountries.value = countryOptions.value.filter(country =>
+    country.country.toLowerCase().includes(term) ||
     country.dialCode.includes(term)
   );
 };
@@ -182,7 +182,7 @@ const selectCountry = (country: typeof countryOptions.value[0]) => {
   countrySearch.value = '';
   dialogOpen.value = false;
   emit('country-change', country.code);
-  
+
   // Update the phone number with the new country code
   if (phoneInput.value) {
     updateFormattedPhone(phoneInput.value);
@@ -223,43 +223,26 @@ watch(() => props.modelValue, (newValue) => {
     <label v-if="label" class="phone-label">
       {{ label }} <span v-if="required" class="required-mark">*</span>
     </label>
-    
+
     <div class="phone-input-container">
       <!-- Country selector button -->
-      <button 
-        type="button" 
-        class="country-selector-btn"
-        @click="openCountryDialog"
-      >
-        <img 
-          :src="selectedCountryFlagUrl" 
-          :alt="selectedCountry" 
-          class="country-flag-img"
-          width="24"
-          height="18"
-        />
+      <button type="button" class="country-selector-btn" @click="openCountryDialog">
+        <img :src="selectedCountryFlagUrl" :alt="selectedCountry" class="country-flag-img" width="24" height="18" />
         <span class="country-code">{{ selectedCountryDialCode }}</span>
         <Icon icon="mdi-chevron-down" class="dropdown-icon" />
       </button>
-      
+
       <!-- Phone number input -->
-      <input
-        type="tel"
-        class="phone-number-input"
-        :class="{ 'has-error': error }"
-        v-model="phoneInput"
-        :placeholder="placeholder || phoneExample"
-        @input="updateFormattedPhone(phoneInput)"
-        @paste="(event) => {
+      <input type="tel" class="phone-number-input" :class="{ 'has-error': error }" v-model="phoneInput"
+        :placeholder="placeholder || phoneExample" @input="updateFormattedPhone(phoneInput)" @paste="(event) => {
           const text = event.clipboardData?.getData('text') || '';
           updateFormattedPhone(text);
-        }"
-      />
+        }" />
     </div>
-    
+
     <!-- Error message -->
     <div v-if="error" class="error-message">{{ error }}</div>
-    
+
     <!-- Country selection dialog -->
     <v-dialog v-model="dialogOpen" max-width="400px">
       <v-card>
@@ -270,36 +253,18 @@ watch(() => props.modelValue, (newValue) => {
             <Icon icon="mdi-close" />
           </v-btn>
         </v-card-title>
-        
+
         <v-card-text>
           <!-- Search input -->
-          <v-text-field
-            v-model="countrySearch"
-            prepend-inner-icon="mdi-magnify"
-            label="Buscar país o código"
-            variant="outlined"
-            density="compact"
-            hide-details
-            class="mb-4"
-          ></v-text-field>
-          
+          <v-text-field v-model="countrySearch" prepend-inner-icon="mdi-magnify" label="Buscar país o código"
+            variant="outlined" density="compact" hide-details class="mb-4"></v-text-field>
+
           <!-- Countries list -->
           <v-list class="country-list">
-            <v-list-item
-              v-for="country in filteredCountries"
-              :key="country.code"
-              @click="selectCountry(country)"
-              :active="country.code === selectedCountry"
-              class="country-list-item"
-            >
+            <v-list-item v-for="country in filteredCountries" :key="country.code" @click="selectCountry(country)"
+              :active="country.code === selectedCountry" class="country-list-item">
               <template v-slot:prepend>
-                <img 
-                  :src="country.flagUrl" 
-                  :alt="country.code" 
-                  class="country-flag-img"
-                  width="24"
-                  height="18"
-                />
+                <img :src="country.flagUrl" :alt="country.code" class="country-flag-img" width="24" height="18" />
               </template>
               <v-list-item-title>{{ country.country }}</v-list-item-title>
               <v-list-item-subtitle>{{ country.dialCode }}</v-list-item-subtitle>
