@@ -48,7 +48,20 @@ const formattedBirthday = computed({
     <v-card elevation="0" class="">
         <v-card-item>
             <h4 class="text-h4 mb-2 font-weight-bold">Información personal</h4>
-            <v-text-field v-model="props.participant.name" label="Nombre" variant="outlined" />
+            <v-row>
+                <v-col cols="12" md="6">
+                    <v-text-field v-model="props.participant.user.name1" label="Nombre 1" variant="outlined" />
+                </v-col>
+                <v-col cols="12" md="6">
+                    <v-text-field v-model="props.participant.user.name2" label="Nombre 2" variant="outlined" />
+                </v-col>
+                <v-col cols="12" md="6">
+                    <v-text-field v-model="props.participant.user.lastname1" label="Apellido 1" variant="outlined" />
+                </v-col>
+                <v-col cols="12" md="6">
+                    <v-text-field v-model="props.participant.user.lastname2" label="Apellido 2" variant="outlined" />
+                </v-col>
+            </v-row>
             <v-text-field v-model="props.participant.email" label="Correo Electrónico" variant="outlined" />
             <v-text-field v-model="props.participant.phone" label="Teléfono" variant="outlined" />
             <v-text-field v-model="props.participant.profile.address" label="Dirección" variant="outlined" />

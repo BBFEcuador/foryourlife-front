@@ -69,14 +69,6 @@ const phoneValidationMessage = () => {
   return `Por favor ingrese un número de teléfono válido`;
 };
 
-const helpers = {
-  required: { $message: 'Este campo es obligatorio' },
-  email: { $message: 'Ingrese un correo electrónico válido' },
-  cedula: { $message: 'La cédula debe contener 10 dígitos numéricos' },
-  cedulaNumeric: { $message: 'La cédula debe contener solo números' },
-  phoneInvalid: { $message: 'Ingrese un número de teléfono válido' }
-};
-
 const rules = {
   name1: {
     required: { ...required, $message: 'Debe ingresar su primer nombre' }
