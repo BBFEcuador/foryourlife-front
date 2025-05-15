@@ -65,7 +65,6 @@ const searchQuery = ref('');
       </v-text-field>
       <VDataTable
         :items="masterlife"
-        hide-default-footer
         :headers="headers"
         show-select
         v-model="vmodel"
