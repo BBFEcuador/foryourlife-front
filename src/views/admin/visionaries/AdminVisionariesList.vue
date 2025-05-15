@@ -14,7 +14,7 @@ import { ref, watch, watchEffect } from 'vue';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 
-const { isVisionariesError, isVisionariesloading, refetchVisionaries, visionariesData } = useVisionaries();
+const { isVisionariesError, isVisionariesloading, refetchVisionaries, visionariesData, page, perPage, search } = useVisionaries();
 const { saveVisionaryMutations, changeStatusMutations } = useVisionarymutations();
 const showForm = ref(false);
 const breadcrumbs = ref([
@@ -25,7 +25,6 @@ const breadcrumbs = ref([
   }
 ]);
 
-const search = ref();
 const staffRules = {
   role: { required },
   user: {
@@ -77,8 +76,8 @@ const handleDisableVisionary = async (visionary: Visionary) => {
   }
 };
 const onVisionaryEdit = async (item: Visionary) => {
-  staff.value = JSON.parse(JSON.stringify(item))
-  showForm.value = true
+  staff.value = JSON.parse(JSON.stringify(item));
+  showForm.value = true;
 };
 
 watch(changeStatusMutations.isSuccess, () => {
@@ -86,14 +85,14 @@ watch(changeStatusMutations.isSuccess, () => {
     refetchVisionaries();
     showSuccessToast('Visionario desactivado correctamente');
   }
-})
+});
 
 watch(changeStatusMutations.isError, () => {
   if (changeStatusMutations.isError.value) {
     const error = changeStatusMutations.error.value as AxiosError<ErrorApiResponse>;
     showErrorToast(error);
   }
-})
+});
 
 watch(saveVisionaryMutations.isError, () => {
   if (saveVisionaryMutations.isError.value) {
@@ -113,6 +112,23 @@ watch(saveVisionaryMutations.isSuccess, () => {
     showSuccessToast('Visionario guardado correctamente');
   }
 });
+const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
+  if (data.page) {
+    if (data.page != page.value - 1) {
+      page.value = data.page - 1;
+    }
+  }
+
+  if (data.page) {
+    if (data.itemsPerPage != perPage.value) {
+      if (data.itemsPerPage == -1) {
+        perPage.value = visionariesData.value.totalElements;
+      } else {
+        perPage.value = data.itemsPerPage;
+      }
+    }
+  }
+};
 </script>
 
 <template>
@@ -126,15 +142,39 @@ watch(saveVisionaryMutations.isSuccess, () => {
       <Icon icon="mdi:format-list-bulleted" />
     </template>
 
-    <v-data-table :headers="headers" :search="search" :items="visionariesData" :loading="isVisionariesloading"
-      class="tw:rounded-xl elevation-0" :loading-text="'Cargando visionarios...'"
-      :no-data-text="'No se encontraron visionarios'" hover>
+    <v-data-table-server
+      :headers="headers"
+      :search="search"
+      :items="visionariesData.content"
+      :loading="isVisionariesloading"
+      class="tw:rounded-xl elevation-0"
+      :loading-text="'Cargando visionarios...'"
+      :no-data-text="'No se encontraron visionarios'"
+      hover
+      :items-length="visionariesData.totalElements"
+      :items-per-page="10"
+      @update:options="loadItems"
+    >
       <template v-slot:top>
-        <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
-          :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+        <v-toolbar
+          class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+          flat
+          v-motion
+          :initial="{ opacity: 0, y: -10 }"
+          :enter="{ opacity: 1, y: 0 }"
+          :delay="200"
+          :duration="250"
+        >
           <div class="tw:flex-1 tw:max-w-md tw:relative">
-            <VTextField v-model="search" placeholder="Buscar por nombre, email o teléfono..." variant="outlined"
-              density="comfortable" hide-details class="tw:rounded-lg" bg-color="white">
+            <VTextField
+              v-model="search"
+              placeholder="Buscar por nombre, email o teléfono..."
+              variant="outlined"
+              density="comfortable"
+              hide-details
+              class="tw:rounded-lg"
+              bg-color="white"
+            >
               <template #prepend-inner>
                 <Icon icon="mdi:magnify" height="18" />
               </template>
@@ -146,12 +186,18 @@ watch(saveVisionaryMutations.isSuccess, () => {
             </VTextField>
           </div>
           <v-spacer></v-spacer>
-          <VBtn variant="elevated" color="primary" @click="() => {
-            staff = {
-              user: {}
-            } as Visionary;
-            showForm = true
-          }">
+          <VBtn
+            variant="elevated"
+            color="primary"
+            @click="
+              () => {
+                staff = {
+                  user: {}
+                } as Visionary;
+                showForm = true;
+              }
+            "
+          >
             <Icon class="mr-2" icon="mdi:plus" />
             Agregar Visionario
           </VBtn>
@@ -183,8 +229,7 @@ watch(saveVisionaryMutations.isSuccess, () => {
 
       <template #item.role="{ item }">
         <div class="tw:text-nowrap">
-          <VChip :color="item.role === 'CAPITAN' ? 'amber' : 'primary'" variant="flat" class="!tw:font-normal"
-            size="small">
+          <VChip :color="item.role === 'CAPITAN' ? 'amber' : 'primary'" variant="flat" class="!tw:font-normal" size="small">
             {{ item.role }}
           </VChip>
         </div>
@@ -200,15 +245,27 @@ watch(saveVisionaryMutations.isSuccess, () => {
 
       <template #item.actions="{ item }">
         <div class="tw:flex tw:items-center tw:justify-center tw:gap-2 tw:text-nowrap">
-          <VBtn icon variant="text" color="primary" height="32"
-            class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100" v-tooltip="'Editar visionario'"
-            @click="onVisionaryEdit(item)">
+          <VBtn
+            icon
+            variant="text"
+            color="primary"
+            height="32"
+            class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+            v-tooltip="'Editar visionario'"
+            @click="onVisionaryEdit(item)"
+          >
             <Icon icon="mdi:pencil" />
           </VBtn>
-          <VBtn icon variant="text" height="32" :color="item.active ? 'error' : 'success'"
+          <VBtn
+            icon
+            variant="text"
+            height="32"
+            :color="item.active ? 'error' : 'success'"
             :class="item.active ? '!tw:bg-red-50 hover:!tw:bg-red-100' : '!tw:bg-green-50 hover:!tw:bg-green-100'"
-            class="tw:rounded-lg !tw:shadow-sm" v-tooltip="item.active ? 'Desactivar visionario' : 'Activar visionario'"
-            @click="handleDisableVisionary(item)">
+            class="tw:rounded-lg !tw:shadow-sm"
+            v-tooltip="item.active ? 'Desactivar visionario' : 'Activar visionario'"
+            @click="handleDisableVisionary(item)"
+          >
             <Icon :icon="item.active ? 'mdi:toggle-switch' : 'mdi:toggle-switch-off'" />
           </VBtn>
         </div>
@@ -225,12 +282,14 @@ watch(saveVisionaryMutations.isSuccess, () => {
           <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
         </div>
       </template>
-    </v-data-table>
+    </v-data-table-server>
   </UiParentCard>
 
   <VDialog max-width="500" v-model="showForm" transition="dialog-bottom-transition" persistent>
-    <UiParentCard :title="staff.user.id ? 'Editar Visionario' : 'Nuevo Visionario'"
-      class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100">
+    <UiParentCard
+      :title="staff.user.id ? 'Editar Visionario' : 'Nuevo Visionario'"
+      class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100"
+    >
       <template #prepend>
         <Icon :icon="staff.user.id ? 'mdi:account-edit' : 'mdi:account-plus'" class="tw:text-gray-600 tw:mr-2" />
       </template>
@@ -240,9 +299,16 @@ watch(saveVisionaryMutations.isSuccess, () => {
           <VRow>
             <VCol cols="12" sm="6">
               <InputSection label="Nombre 1" required>
-                <VTextField placeholder="Ingrese el nombre del visionario" v-model="staff.user.name1"
-                  :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())" variant="outlined"
-                  density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
+                <VTextField
+                  placeholder="Ingrese el nombre del visionario"
+                  v-model="staff.user.name1"
+                  :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details="auto"
+                  class="tw:rounded-lg !tw:shadow-sm"
+                  bg-color="white"
+                >
                   <template v-slot:prepend>
                     <Icon icon="mdi:account" />
                   </template>
@@ -251,9 +317,16 @@ watch(saveVisionaryMutations.isSuccess, () => {
             </VCol>
             <VCol cols="12" sm="6">
               <InputSection label="Nombre 2">
-                <VTextField placeholder="Ingrese el nombre del visionario" v-model="staff.user.name2"
-                  :error-messages="validator.user.name2.$errors.map((x) => x.$message.toString())" variant="outlined"
-                  density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
+                <VTextField
+                  placeholder="Ingrese el nombre del visionario"
+                  v-model="staff.user.name2"
+                  :error-messages="validator.user.name2.$errors.map((x) => x.$message.toString())"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details="auto"
+                  class="tw:rounded-lg !tw:shadow-sm"
+                  bg-color="white"
+                >
                   <template v-slot:prepend>
                     <Icon icon="mdi:account" />
                   </template>
@@ -262,10 +335,16 @@ watch(saveVisionaryMutations.isSuccess, () => {
             </VCol>
             <VCol cols="12" sm="6">
               <InputSection label="Apellido 1" required>
-                <VTextField placeholder="Ingrese el apellido del visionario" v-model="staff.user.lastname1"
+                <VTextField
+                  placeholder="Ingrese el apellido del visionario"
+                  v-model="staff.user.lastname1"
                   :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
-                  variant="outlined" density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm"
-                  bg-color="white">
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details="auto"
+                  class="tw:rounded-lg !tw:shadow-sm"
+                  bg-color="white"
+                >
                   <template v-slot:prepend>
                     <Icon icon="mdi:account" />
                   </template>
@@ -274,10 +353,16 @@ watch(saveVisionaryMutations.isSuccess, () => {
             </VCol>
             <VCol cols="12" sm="6">
               <InputSection label="Apellido 2">
-                <VTextField placeholder="Ingrese el apellido del visionario" v-model="staff.user.lastname2"
+                <VTextField
+                  placeholder="Ingrese el apellido del visionario"
+                  v-model="staff.user.lastname2"
                   :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
-                  variant="outlined" density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm"
-                  bg-color="white">
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details="auto"
+                  class="tw:rounded-lg !tw:shadow-sm"
+                  bg-color="white"
+                >
                   <template v-slot:prepend>
                     <Icon icon="mdi:account" />
                   </template>
@@ -286,9 +371,16 @@ watch(saveVisionaryMutations.isSuccess, () => {
             </VCol>
           </VRow>
           <InputSection label="E-mail" required>
-            <VTextField placeholder="Ingrese el correo electrónico" v-model="staff.user.email"
-              :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())" variant="outlined"
-              density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
+            <VTextField
+              placeholder="Ingrese el correo electrónico"
+              v-model="staff.user.email"
+              :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
+              variant="outlined"
+              density="comfortable"
+              hide-details="auto"
+              class="tw:rounded-lg !tw:shadow-sm"
+              bg-color="white"
+            >
               <template v-slot:prepend>
                 <Icon icon="mdi:email" />
               </template>
@@ -296,9 +388,16 @@ watch(saveVisionaryMutations.isSuccess, () => {
           </InputSection>
 
           <InputSection label="Teléfono" required>
-            <VTextField placeholder="Ingrese el número telefónico" v-model="staff.user.phone"
-              :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())" variant="outlined"
-              density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
+            <VTextField
+              placeholder="Ingrese el número telefónico"
+              v-model="staff.user.phone"
+              :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
+              variant="outlined"
+              density="comfortable"
+              hide-details="auto"
+              class="tw:rounded-lg !tw:shadow-sm"
+              bg-color="white"
+            >
               <template v-slot:prepend>
                 <Icon icon="mdi:phone" />
               </template>
@@ -306,20 +405,32 @@ watch(saveVisionaryMutations.isSuccess, () => {
           </InputSection>
 
           <InputSection label="Rol" required>
-            <VSelect placeholder="Seleccione el rol" :items="[
-              { title: 'Capitán', value: 'CAPITAN', icon: 'mdi:shield-star' },
-              { title: 'Staff', value: 'STAFF', icon: 'mdi:account-tie' }
-            ]" item-title="title" item-value="value" v-model="staff.role"
-              :error-messages="validator.role.$errors.map((x) => x.$message.toString())" variant="outlined"
-              hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
+            <VSelect
+              placeholder="Seleccione el rol"
+              :items="[
+                { title: 'Capitán', value: 'CAPITAN', icon: 'mdi:shield-star' },
+                { title: 'Staff', value: 'STAFF', icon: 'mdi:account-tie' }
+              ]"
+              item-title="title"
+              item-value="value"
+              v-model="staff.role"
+              :error-messages="validator.role.$errors.map((x) => x.$message.toString())"
+              variant="outlined"
+              hide-details="auto"
+              class="tw:rounded-lg !tw:shadow-sm"
+              bg-color="white"
+            >
               <template v-slot:prepend>
                 <Icon icon="mdi:shield-account" />
               </template>
               <template v-slot:item="{ item, props }">
                 <v-list-item v-bind="props">
                   <template v-slot:prepend>
-                    <Icon class="mr-2" :icon="item.raw.icon"
-                      :class="item.raw.value === 'CAPITAN' ? 'tw:text-amber-500' : 'tw:text-blue-500'" />
+                    <Icon
+                      class="mr-2"
+                      :icon="item.raw.icon"
+                      :class="item.raw.value === 'CAPITAN' ? 'tw:text-amber-500' : 'tw:text-blue-500'"
+                    />
                   </template>
                 </v-list-item>
               </template>
@@ -328,13 +439,22 @@ watch(saveVisionaryMutations.isSuccess, () => {
         </div>
 
         <div class="tw:flex tw:justify-end tw:gap-3 tw:mt-6">
-          <VBtn variant="text" color="error" @click="showForm = false"
-            :disabled="saveVisionaryMutations.isPending.value" class="!tw:font-normal tw:rounded-lg tw:min-w-[120px]">
+          <VBtn
+            variant="text"
+            color="error"
+            @click="showForm = false"
+            :disabled="saveVisionaryMutations.isPending.value"
+            class="!tw:font-normal tw:rounded-lg tw:min-w-[120px]"
+          >
             <Icon icon="mdi:close" class="tw:mr-2" />
             Cancelar
           </VBtn>
-          <VBtn color="primary" @click="onSave" :loading="saveVisionaryMutations.isPending.value"
-            class="!tw:font-normal tw:rounded-lg tw:min-w-[120px] !tw:bg-primary">
+          <VBtn
+            color="primary"
+            @click="onSave"
+            :loading="saveVisionaryMutations.isPending.value"
+            class="!tw:font-normal tw:rounded-lg tw:min-w-[120px] !tw:bg-primary"
+          >
             <Icon :icon="staff.user.id ? 'mdi:content-save-edit' : 'mdi:content-save-plus'" class="tw:mr-2" />
             {{ staff.user.id ? 'Actualizar' : 'Guardar' }}
           </VBtn>

@@ -1,25 +1,41 @@
 import { api } from '@/api/axios';
+import type { PageableApiResponse } from '@/models/ApiResponse';
 import type { Trainers } from '@/models/Trainers';
 import { useQuery } from '@tanstack/vue-query';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
-const trainers = ref<Trainers[]>([]);
-const fetchTrainers = async (): Promise<Trainers[]> => {
-  const { data } = await api.get('/trainer');
+const page = ref(0);
+const perPage = ref(10);
+const search = ref('');
+
+const fetchTrainers = async (): Promise<PageableApiResponse<Trainers[]>> => {
+  const { data } = await api.get('/trainer', {
+    params: {
+      page: page.value,
+      perPage: perPage.value,
+      search: search.value
+    }
+  });
   return data;
 };
 
 const useTrainer = () => {
-  const { data, isFetching, isError } = useQuery({ queryKey: ['trainers'], queryFn: fetchTrainers });
-  watch(data, () => {
-    if (data.value) {
-      trainers.value = JSON.parse(JSON.stringify(data.value));
-    }
+  const { data, isFetching, isError, refetch } = useQuery({
+    queryKey: ['trainers', page, perPage, search],
+    queryFn: fetchTrainers,
+    initialData: {
+      numberOfElements: 0
+    } as PageableApiResponse<Trainers[]>
   });
+
   return {
-    trainers,
+    trainers: data,
     isFetching,
-    isError
+    isError,
+    page,
+    perPage,
+    search,
+    refetch
   };
 };
 

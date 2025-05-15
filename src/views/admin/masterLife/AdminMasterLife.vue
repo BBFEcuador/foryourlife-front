@@ -14,7 +14,7 @@ import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 
-const { isMasterLifeError, isMasterLifeLoading, masterLifeData, refetchMasterLife } = useMasterLifes();
+const { isMasterLifeError, isMasterLifeLoading, masterLifeData, refetchMasterLife, page, perPage, search } = useMasterLifes();
 const { saveMasterLifeMutations, changeStatusMutations } = useMasterLifeMutations();
 
 const headers = [
@@ -32,7 +32,6 @@ const breadcrumbs = ref([
   }
 ]);
 
-const search = ref();
 const showForm = ref();
 const masterLife = ref<MasterLife>({
   user: {},
@@ -52,13 +51,15 @@ const staffRules = {
 };
 const validator = useVuelidate(staffRules, masterLife);
 const onVisionaryEdit = (item: MasterLife) => {
-  masterLife.value = JSON.parse(JSON.stringify(item))
-  showForm.value = true
+  masterLife.value = JSON.parse(JSON.stringify(item));
+  showForm.value = true;
 };
 const onChangeStatus = async (item: MasterLife) => {
   const result = await Swal.fire({
     title: item.active ? '¿Desactivar Visionario?' : '¿Activar Visionario?',
-    text: item.active ? `¿Está seguro que desea desactivar a ${item.user.name1} ${item.user.lastname1}?` : `¿Está seguro que desea activar a ${item.user.name1} ${item.user.lastname1}?`,
+    text: item.active
+      ? `¿Está seguro que desea desactivar a ${item.user.name1} ${item.user.lastname1}?`
+      : `¿Está seguro que desea activar a ${item.user.name1} ${item.user.lastname1}?`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -100,7 +101,7 @@ watch(saveMasterLifeMutations.isError, () => {
 
 watch(saveMasterLifeMutations.isSuccess, () => {
   if (saveMasterLifeMutations.isSuccess.value) {
-    validator.value.$reset()
+    validator.value.$reset();
     showForm.value = false;
     masterLife.value = {
       user: {}
@@ -108,6 +109,24 @@ watch(saveMasterLifeMutations.isSuccess, () => {
     refetchMasterLife();
   }
 });
+
+const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
+  if (data.page) {
+    if (data.page != page.value - 1) {
+      page.value = data.page - 1;
+    }
+  }
+
+  if (data.page) {
+    if (data.itemsPerPage != perPage.value) {
+      if (data.itemsPerPage == -1) {
+        perPage.value = masterLifeData.value.totalElements;
+      } else {
+        perPage.value = data.itemsPerPage;
+      }
+    }
+  }
+};
 </script>
 
 <template>
@@ -115,12 +134,34 @@ watch(saveMasterLifeMutations.isSuccess, () => {
   <VRow>
     <v-col cols="12">
       <UiParentCard title="Lista de Master life">
-        <v-data-table :headers="headers" :search="search" :items="masterLifeData" :loading="isMasterLifeLoading">
+        <v-data-table-server
+          :headers="headers"
+          :search="search"
+          :items="masterLifeData.content"
+          :loading="isMasterLifeLoading"
+          :items-length="masterLifeData.totalElements"
+          :items-per-page="10"
+          @update:options="loadItems"
+        >
           <template v-slot:top>
-            <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
-              :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
-              <VTextField v-model="search" placeholder="Buscar Usuarios..." variant="outlined" density="comfortable"
-                hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm" bg-color="white">
+            <v-toolbar
+              class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+              flat
+              v-motion
+              :initial="{ opacity: 0, y: -10 }"
+              :enter="{ opacity: 1, y: 0 }"
+              :delay="200"
+              :duration="250"
+            >
+              <VTextField
+                v-model="search"
+                placeholder="Buscar Usuarios..."
+                variant="outlined"
+                density="comfortable"
+                hide-details
+                class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+                bg-color="white"
+              >
                 <template #prepend-inner>
                   <div class="tw:relative">
                     <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
@@ -128,8 +169,13 @@ watch(saveMasterLifeMutations.isSuccess, () => {
                   </div>
                 </template>
                 <template #append v-if="search">
-                  <VBtn icon variant="text" size="small" @click="search = ''"
-                    class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+                  <VBtn
+                    icon
+                    variant="text"
+                    size="small"
+                    @click="search = ''"
+                    class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                  >
                     <Icon icon="mdi:close" height="18" />
                   </VBtn>
                 </template>
@@ -143,8 +189,7 @@ watch(saveMasterLifeMutations.isSuccess, () => {
           </template>
           <template #item.user.name="{ item }">
             <div class="tw:flex tw:items-center tw:gap-3 tw:overflow-hidden">
-              <div
-                class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
+              <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
                 <Icon icon="mdi:account" class="tw:text-gray-600" />
               </div>
               <span class="tw:font-medium tw:truncate tw:w-[30ch]">{{ item.user.name }}</span>
@@ -152,9 +197,13 @@ watch(saveMasterLifeMutations.isSuccess, () => {
           </template>
 
           <template #item.active="{ item }">
-            <VChip :color="item.active ? 'success' : 'error'" size="small" variant="flat"
+            <VChip
+              :color="item.active ? 'success' : 'error'"
+              size="small"
+              variant="flat"
               class="!tw:font-normal tw:text-xs !tw:min-w-[80px]"
-              :class="item.active ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'">
+              :class="item.active ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'"
+            >
               <template #prepend>
                 <Icon :icon="item.active ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-2" />
               </template>
@@ -163,15 +212,26 @@ watch(saveMasterLifeMutations.isSuccess, () => {
           </template>
           <template #item.actions="{ item }">
             <div class="d-flex ga-2">
-              <v-btn icon color="info" variant="text" size="32"
-                class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100" v-tooltip="'Editar Staff'"
-                @click="onVisionaryEdit(item)">
+              <v-btn
+                icon
+                color="info"
+                variant="text"
+                size="32"
+                class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                v-tooltip="'Editar Staff'"
+                @click="onVisionaryEdit(item)"
+              >
                 <Icon icon="tabler:pencil" height="18" />
               </v-btn>
-              <v-btn :color="item.active ? 'error' : 'success'" icon variant="text" size="32"
+              <v-btn
+                :color="item.active ? 'error' : 'success'"
+                icon
+                variant="text"
+                size="32"
                 v-tooltip="item.active ? 'Desactivar' : 'Activar'"
                 :class="item.active ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
-                @click="onChangeStatus(item)">
+                @click="onChangeStatus(item)"
+              >
                 <Icon :icon="item.active ? 'mdi-power' : 'mdi-power-off'" height="18" />
               </v-btn>
             </div>
@@ -187,39 +247,57 @@ watch(saveMasterLifeMutations.isSuccess, () => {
               <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </UiParentCard>
       <VDialog max-width="500" v-model="showForm">
         <UiParentCard title="Guardar Master Life">
           <VRow>
             <v-col cols="12" md="6">
               <InputSection label="Nombre 1">
-                <VTextField placeholder="Nombre 1" v-model="masterLife.user.name1"
-                  :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())" />
+                <VTextField
+                  placeholder="Nombre 1"
+                  v-model="masterLife.user.name1"
+                  :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())"
+                />
               </InputSection>
               <InputSection label="Apellido 1">
-                <VTextField placeholder="Apellido 1" v-model="masterLife.user.lastname1"
-                  :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())" />
+                <VTextField
+                  placeholder="Apellido 1"
+                  v-model="masterLife.user.lastname1"
+                  :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
+                />
               </InputSection>
             </v-col>
             <v-col cols="12" md="6">
               <InputSection label="Nombre 2">
-                <VTextField placeholder="Nombre 2" v-model="masterLife.user.name2"
-                  :error-messages="validator.user.name2.$errors.map((x) => x.$message.toString())" />
+                <VTextField
+                  placeholder="Nombre 2"
+                  v-model="masterLife.user.name2"
+                  :error-messages="validator.user.name2.$errors.map((x) => x.$message.toString())"
+                />
               </InputSection>
               <InputSection label="Apellido 2">
-                <VTextField placeholder="Apellido 2" v-model="masterLife.user.lastname2"
-                  :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())" />
+                <VTextField
+                  placeholder="Apellido 2"
+                  v-model="masterLife.user.lastname2"
+                  :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
+                />
               </InputSection>
             </v-col>
           </VRow>
           <InputSection label="Correo">
-            <VTextField placeholder="Correo" v-model="masterLife.user.email"
-              :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())" />
+            <VTextField
+              placeholder="Correo"
+              v-model="masterLife.user.email"
+              :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
+            />
           </InputSection>
           <InputSection label="Teléfono">
-            <VTextField placeholder="Teléfono" v-model="masterLife.user.phone"
-              :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())" />
+            <VTextField
+              placeholder="Teléfono"
+              v-model="masterLife.user.phone"
+              :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
+            />
           </InputSection>
           <div class="tw:w-full tw:flex tw:justify-end">
             <VBtn @click="onSave" color="primary" :loading="saveMasterLifeMutations.isPending.value">Guardar</VBtn>

@@ -1,13 +1,22 @@
 import { api } from '@/api/axios';
+import type { PageableApiResponse } from '@/models/ApiResponse';
 import type { Criteria } from '@/models/Criteria';
 import type { Participant } from '@/models/Participants';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 
-const participants = ref<Participant[]>([]);
+const page = ref(0);
+const perPage = ref(10);
+const search = ref('');
 
-const fetchParticipants = async (): Promise<Participant[]> => {
-  const { data } = await api.get('/users');
+const fetchParticipants = async (): Promise<PageableApiResponse<Participant[]>> => {
+  const { data } = await api.get('/users', {
+    params: {
+      page: page.value,
+      perPage: perPage.value,
+      search: search.value
+    }
+  });
   return data;
 };
 
@@ -17,27 +26,26 @@ const fetchMatch = async (criteria: Criteria): Promise<Participant[]> => {
 };
 
 const useParticipants = () => {
-  const { data, isError, isFetching, refetch } = useQuery({ queryFn: fetchParticipants, queryKey: ['participants'] });
-  const criteriaMutations = useMutation({
-    mutationFn: fetchMatch,
-    onSuccess(data, variables, context) {
-      participants.value = data;
-    }
+  const { data, isError, isFetching, refetch } = useQuery({
+    queryFn: fetchParticipants,
+    queryKey: ['participants', page, perPage, search],
+    initialData: {
+      numberOfElements: 0
+    } as PageableApiResponse<Participant[]>
   });
-
-  watch(data, () => {
-    if (data.value) {
-      participants.value = data.value;
-    }
+  const criteriaMutations = useMutation({
+    mutationFn: fetchMatch
   });
 
   return {
-    participants,
+    participants: data,
     isParticipantsError: isError,
     isParticipantsLoading: isFetching,
     criteriaMutations,
-    data,
-    refetchParticipants: refetch
+    refetchParticipants: refetch,
+    page,
+    perPage,
+    search
   };
 };
 export default useParticipants;

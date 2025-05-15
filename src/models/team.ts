@@ -1,5 +1,4 @@
 import type { Participant } from './Participants';
-import type { MinimalEntity } from './Shared';
 import type { StaffWriteModel } from './Staff';
 import type { Trainers } from './Trainers';
 import type { TrainingData } from './Training';

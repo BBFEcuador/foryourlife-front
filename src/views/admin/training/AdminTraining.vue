@@ -14,7 +14,7 @@ import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import Swal from 'sweetalert2';
 import { toast } from 'vue3-toastify';
 
-const { isError, isFetching, trainers } = useTrainer();
+const { isError, isFetching, trainers, page, perPage, search,refetch } = useTrainer();
 const { saveTrainerMutations, disableTrainerMutation } = useTrainerMutations();
 const breadcrumbs = ref([
   {
@@ -23,8 +23,6 @@ const breadcrumbs = ref([
     href: '#'
   }
 ]);
-
-const showForm = ref(false);
 
 watch(saveTrainerMutations.isError, () => {
   if (saveTrainerMutations.isError.value) {
@@ -35,37 +33,32 @@ watch(saveTrainerMutations.isError, () => {
 
 watch(saveTrainerMutations.isSuccess, () => {
   if (saveTrainerMutations.isSuccess.value) {
-    let x = new Set(trainers.value);
-    trainers.value = Array.from(x);
-    showForm.value = false;
+    showCreateForm.value = false;
+    showEditForm.value = false;
+    refetch()
   }
 });
 
-const onTrainerSelected = (item: Trainers) => {
-  trainer.value = { ...item };
-  showForm.value = true;
-};
-
 const onToggleUserStatus = (user: Trainers) => {
   const isCurrentlyActive = user.active;
-  const action = isCurrentlyActive ? "desactivar" : "activar";
-  const confirmText = isCurrentlyActive ? "Desactivar" : "Activar";
-  const confirmColor = isCurrentlyActive ? "#d33" : "#3085d6";
+  const action = isCurrentlyActive ? 'desactivar' : 'activar';
+  const confirmText = isCurrentlyActive ? 'Desactivar' : 'Activar';
+  const confirmColor = isCurrentlyActive ? '#d33' : '#3085d6';
 
   Swal.fire({
     title: `¿Estás seguro de ${action} este Entrenador?`,
     text: `Estás a punto de ${action} el Entrenador ${user.name}. ¿Deseas continuar?`,
-    icon: "warning",
+    icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: confirmColor,
-    cancelButtonColor: "#6c757d",
+    cancelButtonColor: '#6c757d',
     confirmButtonText: confirmText,
-    cancelButtonText: "Cancelar",
+    cancelButtonText: 'Cancelar'
   }).then((params) => {
     if (params.isConfirmed) {
       disableTrainerMutation.mutate({
         id: user.id,
-        isActive: !isCurrentlyActive,
+        isActive: !isCurrentlyActive
       });
     }
   });
@@ -73,26 +66,23 @@ const onToggleUserStatus = (user: Trainers) => {
 
 watch(disableTrainerMutation.isSuccess, () => {
   if (disableTrainerMutation.isSuccess.value) {
-    trainers.value.find(x => x.id == disableTrainerMutation.variables.value?.id)!.active = disableTrainerMutation.variables.value!.isActive!
+    refetch()
     toast.success("Acción Exitosa", {
       autoClose: 3000,
       closeButton: true
     })
   }
-}
-)
+});
 
 watch(disableTrainerMutation.isError, () => {
   if (disableTrainerMutation.isError.value) {
-    const error = disableTrainerMutation.error.value as AxiosError<ErrorApiResponse>
-    showErrorToast(error)
+    const error = disableTrainerMutation.error.value as AxiosError<ErrorApiResponse>;
+    showErrorToast(error);
   }
-}
-)
+});
 
 const showCreateForm = ref(false);
 const showEditForm = ref(false);
-const search = ref();
 const headers = [
   { title: 'Nombre', value: 'name', sortable: true },
   { title: 'E-mail', value: 'email', sortable: true },
@@ -120,23 +110,23 @@ const onTrainerSubmit = (trainer: Trainers) => {
   saveTrainerMutations.mutate(trainer);
 };
 
-watch(saveTrainerMutations.isSuccess, () => {
-  if (saveTrainerMutations.isSuccess.value) {
-    if (trainers.value.find((x) => x.id == trainer.value.id)) {
-      trainers.value = trainers.value.filter((x) => x.id != trainer.value.id)
-      showSuccessToast('Actualización Exitosa');
-    } else {
-      showSuccessToast('Entrenador creado exitosamente');
+const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
+  if (data.page) {
+    if (data.page != page.value - 1) {
+      page.value = data.page - 1;
     }
-    trainers.value.push(trainer.value)
-    let x = new Set(trainers.value);
-    trainers.value = Array.from(x);
-    showCreateForm.value = false;
-    showEditForm.value = false;
-    trainer.value = {} as Trainers
-
   }
-});
+
+  if (data.page) {
+    if (data.itemsPerPage != perPage.value) {
+      if (data.itemsPerPage == -1) {
+        perPage.value = trainers.value.totalElements;
+      } else {
+        perPage.value = data.itemsPerPage;
+      }
+    }
+  }
+};
 </script>
 <template>
   <BaseBreadcrumb :title="'Entrenadores'" :breadcrumbs="breadcrumbs" class="tw:mb-6">
@@ -147,22 +137,22 @@ watch(saveTrainerMutations.isSuccess, () => {
 
   <v-row>
     <v-col cols="12">
-      <UiParentCard 
-        title="Lista de entrenadores" 
-        class="!tw:shadow-lg !tw:rounded-xl !tw:border !tw:border-gray-100"
-      >
+      <UiParentCard title="Lista de entrenadores" class="!tw:shadow-lg !tw:rounded-xl !tw:border !tw:border-gray-100">
         <template #prepend>
           <Icon icon="mdi:format-list-bulleted" />
         </template>
 
-        <v-data-table 
-          :headers="headers" 
-          :search="search" 
-          :items="trainers" 
+        <v-data-table-server
+          :headers="headers"
+          :search="search"
+          :items="trainers.content"
           :loading="isFetching"
           class="tw:rounded-xl elevation-0"
           :loading-text="'Cargando entrenadores...'"
           :no-data-text="'No se encontraron entrenadores'"
+          :items-length="trainers.totalElements"
+          :items-per-page="10"
+          @update:options="loadItems"
           hover
         >
           <template v-slot:top>
@@ -176,9 +166,9 @@ watch(saveTrainerMutations.isSuccess, () => {
               :duration="250"
             >
               <div class="tw:flex-1 tw:max-w-md tw:relative">
-                <VTextField 
-                  v-model="search" 
-                  placeholder="Buscar por nombre, email o teléfono..." 
+                <VTextField
+                  v-model="search"
+                  placeholder="Buscar por nombre, email o teléfono..."
                   variant="outlined"
                   density="comfortable"
                   hide-details
@@ -189,24 +179,14 @@ watch(saveTrainerMutations.isSuccess, () => {
                     <Icon icon="mdi:magnify" height="18" />
                   </template>
                   <template #append v-if="search">
-                    <VBtn
-                      icon
-                      variant="text"
-                      size="small"
-                      @click="search = ''"
-                    >
+                    <VBtn icon variant="text" size="small" @click="search = ''">
                       <Icon icon="mdi:close" height="18" />
                     </VBtn>
                   </template>
                 </VTextField>
               </div>
               <v-spacer></v-spacer>
-              <VBtn 
-                variant="elevated" 
-                color="primary" 
-                @click="openCreateTrainerModal"
-                class="!tw:font-normal tw:rounded-lg"
-              >
+              <VBtn variant="elevated" color="primary" @click="openCreateTrainerModal" class="!tw:font-normal tw:rounded-lg">
                 <Icon class="mr-2" icon="mdi:plus" />
                 Agregar Entrenador
               </VBtn>
@@ -245,10 +225,7 @@ watch(saveTrainerMutations.isSuccess, () => {
               :class="item.active ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'"
             >
               <template #prepend>
-                <Icon 
-                  :icon="item.active ? 'mdi:check-circle' : 'mdi:close-circle'" 
-                  class="tw:mr-1"
-                />
+                <Icon :icon="item.active ? 'mdi:check-circle' : 'mdi:close-circle'" class="tw:mr-1" />
               </template>
               {{ item.active ? 'Activo' : 'Inactivo' }}
             </VChip>
@@ -256,8 +233,8 @@ watch(saveTrainerMutations.isSuccess, () => {
 
           <template #item.actions="{ item }">
             <div class="tw:flex tw:gap-2">
-              <VBtn 
-                icon 
+              <VBtn
+                icon
                 color="info"
                 variant="text"
                 size="32"
@@ -267,8 +244,8 @@ watch(saveTrainerMutations.isSuccess, () => {
               >
                 <Icon icon="tabler:pencil" class="tw:text-blue-600" />
               </VBtn>
-              <v-btn 
-                :color="item.active ? 'error' : 'success'" 
+              <v-btn
+                :color="item.active ? 'error' : 'success'"
                 icon
                 variant="text"
                 size="32"
@@ -278,20 +255,13 @@ watch(saveTrainerMutations.isSuccess, () => {
                 class="tw:rounded-lg !tw:shadow-sm"
                 v-tooltip="item.active ? 'Desactivar entrenador' : 'Activar entrenador'"
               >
-                <Icon 
-                  :icon="item.active ? 'mdi-power' : 'mdi-power-off'" 
-                  :class="item.active ? 'tw:text-red-600' : 'tw:text-green-600'"
-                />
+                <Icon :icon="item.active ? 'mdi-power' : 'mdi-power-off'" :class="item.active ? 'tw:text-red-600' : 'tw:text-green-600'" />
               </v-btn>
             </div>
           </template>
 
           <template #loading>
-            <v-progress-linear
-              color="primary"
-              indeterminate
-              class="tw:rounded-t-xl"
-            ></v-progress-linear>
+            <v-progress-linear color="primary" indeterminate class="tw:rounded-t-xl"></v-progress-linear>
           </template>
 
           <template #no-data>
@@ -301,49 +271,33 @@ watch(saveTrainerMutations.isSuccess, () => {
               <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </UiParentCard>
     </v-col>
 
-    <VDialog 
-      v-model="showCreateForm" 
-      max-width="500"
-      transition="dialog-bottom-transition"
-      persistent
-    >
-      <UiParentCard 
-        :title="`Crear entrenador`"
-        class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100"
-      >
+    <VDialog v-model="showCreateForm" max-width="500" transition="dialog-bottom-transition" persistent>
+      <UiParentCard :title="`Crear entrenador`" class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100">
         <template #prepend>
           <Icon icon="mdi:dumbbell-plus" class="tw:text-gray-600" />
         </template>
-        <TrainerForm 
-          :trainer="trainer" 
+        <TrainerForm
+          :trainer="trainer"
           :is-loading="saveTrainerMutations.isPending.value"
-          @onsubmit="onTrainerSubmit" 
+          @onsubmit="onTrainerSubmit"
           @cancel="showCreateForm = false"
         />
       </UiParentCard>
     </VDialog>
 
-    <VDialog 
-      v-model="showEditForm" 
-      max-width="500"
-      transition="dialog-bottom-transition"
-      persistent
-    >
-      <UiParentCard 
-        :title="`Editar entrenador: ${trainer.name}`"
-        class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100"
-      >
+    <VDialog v-model="showEditForm" max-width="500" transition="dialog-bottom-transition" persistent>
+      <UiParentCard :title="`Editar entrenador: ${trainer.name}`" class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100">
         <template #prepend>
           <Icon icon="mdi:dumbbell-edit" class="tw:text-gray-600" />
         </template>
-        <TrainerForm 
-          :trainer="trainer" 
+        <TrainerForm
+          :trainer="trainer"
           :is-loading="saveTrainerMutations.isPending.value"
-          @onsubmit="onTrainerSubmit" 
+          @onsubmit="onTrainerSubmit"
           @cancel="showEditForm = false"
         />
       </UiParentCard>
