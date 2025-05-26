@@ -70,6 +70,11 @@ const sidebarItem: menu[] = [
     ]
   },
   {
+    title: 'Productos',
+    icon: 'material-symbols:shopping-bag-speed',
+    to: 'products-admin'
+  },
+  {
     title: 'Generales',
     icon: 'material-symbols:settings',
     children: [
@@ -78,7 +83,7 @@ const sidebarItem: menu[] = [
         to: 'settings'
       }
     ]
-  }
+  },
 ];
 
 export default sidebarItem;

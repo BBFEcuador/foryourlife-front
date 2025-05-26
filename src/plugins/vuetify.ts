@@ -3,6 +3,7 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import 'vuetify/styles';
+import { es } from 'vuetify/locale';
 
 const light: ThemeDefinition = {
   dark: false,
@@ -56,7 +57,50 @@ const light: ThemeDefinition = {
   }
 };
 
+// Configuración de localización en español
+const spanishLocale = {
+  ...es,
+  dataTable: {
+    itemsPerPageText: 'Elementos por página:',
+    ariaLabel: {
+      sortDescending: 'Orden descendente.',
+      sortAscending: 'Orden ascendente.',
+      sortNone: 'Sin ordenar.',
+      activateNone: 'Activar para quitar orden.',
+      activateDescending: 'Activar para ordenar descendentemente.',
+      activateAscending: 'Activar para ordenar ascendentemente.',
+    },
+    sortBy: 'Ordenar por',
+  },
+  dataFooter: {
+    itemsPerPageText: 'Elementos por página:',
+    itemsPerPageAll: 'Todos',
+    nextPage: 'Página siguiente',
+    prevPage: 'Página anterior',
+    firstPage: 'Primera página',
+    lastPage: 'Última página',
+    pageText: '{0}-{1} de {2}',
+  },
+  noDataText: 'No hay datos disponibles',
+  close: 'Cerrar',
+  dataIterator: {
+    noResultsText: 'No se encontraron registros',
+    loadingText: 'Cargando...',
+  },
+  datePicker: {
+    itemsSelected: '{0} seleccionados',
+    nextMonthAriaLabel: 'Próximo mes',
+    nextYearAriaLabel: 'Próximo año',
+    prevMonthAriaLabel: 'Mes anterior',
+    prevYearAriaLabel: 'Año anterior',
+  },
+};
+
 export default createVuetify({
+  locale: {
+    locale: 'es',
+    messages: { es: spanishLocale },
+  },
   components,
   directives,
   icons: {
