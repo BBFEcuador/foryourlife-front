@@ -7,7 +7,7 @@ export interface Product {
     description: string
     rules: any
     programs: Program[]
-    active: boolean
+    isActive: boolean
 }
 
 export interface Content {
@@ -19,7 +19,7 @@ export interface Content {
     description: string
     rules: any
     programs: Program[]
-    active: boolean
+    isActive: boolean
 }
 
 export interface Program {

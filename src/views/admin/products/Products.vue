@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
+import CreateProduct from '@/components/products/createProduct.vue';
+import EditProduct from '@/components/products/editProduct.vue';
 import useProducts from '@/composables/admin/products/useProducts';
+import useProductMutations from '@/composables/admin/products/useProductMutations';
+import usePrograms from '@/composables/programs/usePrograms';
 import { ref, watch } from 'vue';
 import { Icon } from '@iconify/vue';
+import type { Product } from '@/models/Products';
 
 const { productsData, isProductsLoading, page, perPage, search, refetchProducts } = useProducts();
+const { programs } = usePrograms();
 
 const breadcrumbs = ref([
     {
@@ -15,13 +21,23 @@ const breadcrumbs = ref([
     }
 ]);
 
+const getProgramColor = (level: string): string => {
+    type LevelKeys = 'FOCUS' | 'YOUR' | 'LIFE';
+    const colors: Record<LevelKeys, string> = {
+        'FOCUS': 'blue',
+        'YOUR': 'green',
+        'LIFE': 'purple',
+    };
+    return colors[level.toUpperCase() as LevelKeys] || 'grey';
+};
+
 const headers = [
     { title: 'Nombre', value: 'name', sortable: true },
     { title: 'Código', value: 'code', sortable: true },
     { title: 'Precio', value: 'basePrice', sortable: true },
     { title: 'Moneda', value: 'currency', sortable: false },
     { title: 'Programas', value: 'programs', sortable: false },
-    { title: 'Estado', value: 'active', sortable: true },
+    { title: 'Estado', value: 'isActive', sortable: true },
     { title: 'Acciones', value: 'actions', sortable: false }
 ];
 
@@ -47,6 +63,53 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 watch(search, () => {
     page.value = 0;
 });
+
+const showCreateDialog = ref(false);
+const showEditDialog = ref(false);
+const selectedProduct = ref<Product | null>(null);
+
+const onCreateProduct = () => {
+    selectedProduct.value = null;
+    showCreateDialog.value = true;
+};
+
+const onEditProduct = (id: string) => {
+    selectedProduct.value = productsData.value.content.find((p: Product) => p.id === id) || null;
+    showEditDialog.value = true;
+};
+
+const onChangeStatus = async (item: Product) => {
+    try {
+        // Aquí iría la lógica para cambiar el estado del producto
+        // Por ejemplo: await changeProductStatus(item.id, !item.isActive);
+        await refetchProducts();
+    } catch (error) {
+        console.error('Error al cambiar el estado del producto:', error);
+    }
+};
+
+const saveProductMutations = useProductMutations().saveProductMutations;
+const updateProductMutations = useProductMutations().updateProductMutations;
+
+const handleSaveProduct = async (productData: Partial<Product>) => {
+    try {
+        await saveProductMutations.mutateAsync(productData as Product);
+        await refetchProducts();
+        showCreateDialog.value = false;
+    } catch (error) {
+        console.error('Error al guardar el producto:', error);
+    }
+};
+
+const handleUpdateProduct = async (productData: Partial<Product>) => {
+    try {
+        await updateProductMutations.mutateAsync(productData as Product);
+        await refetchProducts();
+        showEditDialog.value = false;
+    } catch (error) {
+        console.error('Error al actualizar el producto:', error);
+    }
+};
 </script>
 
 <template>
@@ -82,7 +145,7 @@ watch(search, () => {
                                 </template>
                             </VTextField>
                             <v-spacer></v-spacer>
-                            <VBtn variant="elevated" color="primary" @click="() => { }">
+                            <VBtn variant="elevated" color="primary" @click="onCreateProduct">
                                 <Icon class="mr-2" icon="mdi:plus" />
                                 Agregar Producto
                             </VBtn>
@@ -99,18 +162,21 @@ watch(search, () => {
                         </div>
                     </template>
                     <template #item.programs="{ item }">
-                        <div>
-                            <span v-for="program in item.programs" :key="program.id">({{ program.name }} , {{ program.courseLevel }})</span>
+                        <div class="d-flex flex-wrap gap-2">
+                            <v-chip v-for="program in item.programs" :key="program.id" size="small" variant="outlined"
+                                class="text-caption mr-2" :color="getProgramColor(program.courseLevel)">
+                                {{ program.courseLevel }}
+                            </v-chip>
                         </div>
                     </template>
-                    <template #item.active="{ item }">
-                        <VChip :color="item.active ? 'success' : 'error'" size="small" variant="flat"
+                    <template #item.isActive="{ item }">
+                        <VChip :color="item.isActive ? 'success' : 'error'" size="small" variant="flat"
                             class="!tw:font-normal tw:text-xs !tw:min-w-[80px]"
-                            :class="item.active ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'">
+                            :class="item.isActive ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'">
                             <template #prepend>
-                                <Icon :icon="item.active ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-2" />
+                                <Icon :icon="item.isActive ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-2" />
                             </template>
-                            {{ item.active ? 'Activo' : 'Inactivo' }}
+                            {{ item.isActive ? 'Activo' : 'Inactivo' }}
                         </VChip>
                     </template>
 
@@ -118,14 +184,14 @@ watch(search, () => {
                         <div class="d-flex ga-2">
                             <v-btn icon color="info" variant="text" size="32"
                                 class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                                v-tooltip="'Editar Producto'" :to="`/admin/products/edit/${item.id}`">
+                                v-tooltip="'Editar Producto'" @click="onEditProduct(item.id)">
                                 <Icon icon="tabler:pencil" height="18" />
                             </v-btn>
                             <v-btn color="error" icon variant="text" size="32"
-                                v-tooltip="item.active ? 'Desactivar' : 'Activar'"
-                                :class="item.active ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
-                                @click="() => { }">
-                                <Icon :icon="item.active ? 'mdi-power' : 'mdi-power-off'" height="18" />
+                                v-tooltip="item.isActive ? 'Desactivar' : 'Activar'"
+                                :class="item.isActive ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
+                                @click="onChangeStatus(item)">
+                                <Icon :icon="item.isActive ? 'mdi-power' : 'mdi-power-off'" height="18" />
                             </v-btn>
                         </div>
                     </template>
@@ -145,6 +211,19 @@ watch(search, () => {
             </UiParentCard>
         </v-col>
     </v-row>
+    <CreateProduct 
+    v-model:modelValue="showCreateDialog" 
+    :programs="programs || []" 
+    @save="handleSaveProduct" 
+/>
+
+<EditProduct 
+    v-if="selectedProduct"
+    v-model:modelValue="showEditDialog" 
+    :product="selectedProduct"
+    @save="handleUpdateProduct"
+    @cancel="showEditDialog = false"
+/>
 </template>
 
 <style scoped>
