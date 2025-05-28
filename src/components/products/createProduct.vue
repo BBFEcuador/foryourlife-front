@@ -5,13 +5,8 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric } from '@vuelidate/validators';
 import usePrograms from '@/composables/programs/usePrograms';
-import useProductMutations from '@/composables/admin/products/useProductMutations';
-import { showErrorToast } from '@/service/sweetAlert';
-import type { AxiosError } from 'axios';
-import type { ErrorApiResponse } from '@/models/ApiResponse';
 
-const { programs, isProgramsError, isProgramsLoading } = usePrograms();
-const { saveProductMutations } = useProductMutations();
+const { programs, isProgramsError } = usePrograms();
 
 interface FormData {
     id?: string;
@@ -105,32 +100,27 @@ const closeDialog = () => {
 
 const saveProduct = async () => {
     if (!v$.value) return;
-
     const isValid = await v$.value.$validate();
     if (!isValid) return;
+    
+    const productData: Omit<Product, 'id'> & { id?: string } = {
+        name: formData.value.name || '',
+        code: formData.value.code || '',
+        description: formData.value.description || '',
+        basePrice: Number(formData.value.basePrice) || 0,
+        currency: formData.value.currency || 'USD',
+        isActive: formData.value.isActive ?? true,
+        programs: programs.value?.filter((p: Program) =>
+            formData.value.programs.includes(p.id)
+        ) || [],
+        rules: formData.value.rules
+    };
 
-    try {
-        const productData: Omit<Product, 'id'> & { id?: string } = {
-            name: formData.value.name || '',
-            code: formData.value.code || '',
-            description: formData.value.description || '',
-            basePrice: Number(formData.value.basePrice) || 0,
-            currency: formData.value.currency || 'USD',
-            isActive: formData.value.isActive ?? true,
-            programs: programs.value?.filter((p: Program) =>
-                formData.value.programs.includes(p.id)
-            ) || [],
-            rules: formData.value.rules
-        };
-
-        if (props.product?.id) {
-            productData.id = props.product.id;
-        }
-
-        await saveProductMutations.mutateAsync(productData as Product);
-    } catch (error) {
-        console.error('Error al guardar el producto:', error);
+    if (props.product?.id) {
+        productData.id = props.product.id;
     }
+
+    emit('save', productData);
 };
 
 const focus = () => {
@@ -142,19 +132,7 @@ defineExpose({
     resetForm
 });
 
-watch(() => saveProductMutations.isSuccess.value, (isSuccess) => {
-    if (isSuccess) {
-        emit('update:modelValue', false);
-        emit('cancel');
-    }
-});
-
-watch(() => saveProductMutations.isError.value, (isError) => {
-    if (isError) {
-        const error = saveProductMutations.error.value as AxiosError<ErrorApiResponse>;
-        showErrorToast(error);
-    }
-});
+// El padre manejará el guardado y el cierre
 </script>
 <template>
     <v-dialog v-model="isOpen" max-width="600" persistent>
@@ -195,7 +173,7 @@ watch(() => saveProductMutations.isError.value, (isError) => {
                                 type="number" min="0" step="0.01" variant="outlined" density="comfortable" required>
                                 <template v-slot:prepend-inner>
                                     <span class="text-subtitle-2">{{ formData.currency === 'USD' ? '$' : 'COP '
-                                    }}</span>
+                                        }}</span>
                                 </template>
                             </v-text-field>
                         </v-col>

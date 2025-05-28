@@ -32,6 +32,14 @@ const sidebarItem: menu[] = [
       {
         title: 'Sedes',
         to: 'sedes-admin'
+      },
+      {
+        title: 'Productos',
+        to: 'products-admin'
+      },
+      {
+        title: 'Descuentos',
+        to: 'discounts-admin'
       }
     ]
   },
@@ -66,13 +74,8 @@ const sidebarItem: menu[] = [
       {
         title: 'Staff',
         to: 'staff-admin'
-      }
+      },
     ]
-  },
-  {
-    title: 'Productos',
-    icon: 'material-symbols:shopping-bag-speed',
-    to: 'products-admin'
   },
   {
     title: 'Generales',

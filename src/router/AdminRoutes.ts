@@ -124,6 +124,11 @@ const AdminRoutes: RouteRecordRaw[] = [
         name: 'products-admin',
         path: 'products',
         component: () => import('@/views/admin/products/Products.vue')
+      },
+      {
+        name: 'discounts-admin',
+        path: 'discounts',
+        component: () => import('@/views/admin/discounts/DiscountList.vue')
       }
     ]
   }

@@ -5,7 +5,7 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric } from '@vuelidate/validators';
 import usePrograms from '@/composables/programs/usePrograms';
-import useProductMutations from '@/composables/admin/products/useProductMutations';
+import { showErrorToast } from '@/service/sweetAlert';
 
 interface FormData {
     id?: string;
@@ -31,12 +31,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
-    (e: 'update:product', product: Product): void;
+    (e: 'save', product: Omit<Product, 'id'> & { id?: string }): void;
     (e: 'cancel'): void;
 }>();
 
 const { programs, isProgramsError, isProgramsLoading } = usePrograms();
-const { updateProductMutations } = useProductMutations();
 
 const isOpen = ref(false);
 const form = ref<HTMLFormElement | null>(null);
@@ -97,32 +96,25 @@ const closeDialog = () => {
 };
 
 const updateProduct = async () => {
+    if (!v$.value) return;
     const isValid = await v$.value.$validate();
     if (!isValid) return;
 
-    try {
-        const productData: Omit<Product, 'id'> & { id?: string } = {
-            name: formData.value.name || '',
-            code: formData.value.code || '',
-            description: formData.value.description || '',
-            basePrice: Number(formData.value.basePrice) || 0,
-            currency: formData.value.currency || 'USD',
-            isActive: formData.value.isActive ?? true,
-            programs: programs.value?.filter((p: Program) =>
-                formData.value.programs.includes(p.id)
-            ) || [],
-            rules: formData.value.rules
-        };
+    const productData: Omit<Product, 'id'> & { id?: string } = {
+        id: formData.value.id,
+        name: formData.value.name || '',
+        code: formData.value.code || '',
+        description: formData.value.description || '',
+        basePrice: Number(formData.value.basePrice) || 0,
+        currency: formData.value.currency || 'USD',
+        isActive: formData.value.isActive ?? true,
+        programs: programs.value?.filter((p: Program) => 
+            formData.value.programs.includes(p.id)
+        ) || [],
+        rules: formData.value.rules
+    };
 
-        if (props.product?.id) {
-            productData.id = props.product.id;
-        }
-
-        await updateProductMutations.mutateAsync(productData as Product);
-        closeDialog();
-    } catch (error) {
-        console.error('Error al actualizar el producto:', error);
-    }
+    emit('save', productData);
 };
 
 const focus = () => {

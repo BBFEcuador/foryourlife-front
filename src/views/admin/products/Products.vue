@@ -9,9 +9,15 @@ import usePrograms from '@/composables/programs/usePrograms';
 import { ref, watch } from 'vue';
 import { Icon } from '@iconify/vue';
 import type { Product } from '@/models/Products';
+import Swal from 'sweetalert2';
+import { toast } from 'vue3-toastify';
+import { showErrorToast } from '@/service/sweetAlert';
+import type { AxiosError } from 'axios';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const { productsData, isProductsLoading, page, perPage, search, refetchProducts } = useProducts();
-const { programs } = usePrograms();
+const { programs, refetchPrograms } = usePrograms();
+const { changeStatusMutations } = useProductMutations();
 
 const breadcrumbs = ref([
     {
@@ -79,14 +85,60 @@ const onEditProduct = (id: string) => {
 };
 
 const onChangeStatus = async (item: Product) => {
-    try {
-        // Aquí iría la lógica para cambiar el estado del producto
-        // Por ejemplo: await changeProductStatus(item.id, !item.isActive);
-        await refetchProducts();
-    } catch (error) {
-        console.error('Error al cambiar el estado del producto:', error);
-    }
+    const isCurrentlyActive = item.isActive;
+    const action = isCurrentlyActive ? 'desactivar' : 'activar';
+    const confirmText = isCurrentlyActive ? 'Desactivar' : 'Activar';
+    const confirmColor = isCurrentlyActive ? '#d33' : '#3085d6';
+
+    Swal.fire({
+        title: `¿Estás seguro de ${action} este Producto?`,
+        text: `Estás a punto de ${action} el Producto ${item.name}. ¿Deseas continuar?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: confirmColor,
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: confirmText,
+        cancelButtonText: 'Cancelar'
+    }).then(async (params) => {
+        if (params.isConfirmed) {
+            try {
+                await changeStatusMutations.mutateAsync({
+                    id: item.id,
+                    isActive: !isCurrentlyActive
+                });
+                Swal.fire(
+                    '¡Éxito!',
+                    `El producto ha sido ${!isCurrentlyActive ? 'activado' : 'desactivado'} correctamente.`,
+                    'success'
+                );
+            } catch (error) {
+                console.error('Error al cambiar el estado del producto:', error);
+                Swal.fire(
+                    'Error',
+                    'No se pudo actualizar el estado del producto',
+                    'error'
+                );
+            }
+        }
+    });
 };
+
+watch(changeStatusMutations.isSuccess, () => {
+    if (changeStatusMutations.isSuccess.value) {
+        refetchProducts();
+        toast.success("Acción Exitosa", {
+            autoClose: 3000,
+            closeButton: true
+        })
+    }
+});
+
+watch(changeStatusMutations.isError, () => {
+    if (changeStatusMutations.isError.value) {
+        const error = changeStatusMutations.error.value as AxiosError<ErrorApiResponse>;
+        showErrorToast(error);
+    }
+});
 
 const saveProductMutations = useProductMutations().saveProductMutations;
 const updateProductMutations = useProductMutations().updateProductMutations;
@@ -96,8 +148,11 @@ const handleSaveProduct = async (productData: Partial<Product>) => {
         await saveProductMutations.mutateAsync(productData as Product);
         await refetchProducts();
         showCreateDialog.value = false;
+        await refetchPrograms();
+        toast.success('Producto guardado exitosamente');
     } catch (error) {
         console.error('Error al guardar el producto:', error);
+        Swal.fire('Error', 'No se pudo guardar el producto', 'error');
     }
 };
 
@@ -106,8 +161,11 @@ const handleUpdateProduct = async (productData: Partial<Product>) => {
         await updateProductMutations.mutateAsync(productData as Product);
         await refetchProducts();
         showEditDialog.value = false;
+        await refetchPrograms();
+        toast.success('Producto actualizado exitosamente');
     } catch (error) {
         console.error('Error al actualizar el producto:', error);
+        Swal.fire('Error', 'No se pudo actualizar el producto', 'error');
     }
 };
 </script>
@@ -214,15 +272,17 @@ const handleUpdateProduct = async (productData: Partial<Product>) => {
     <CreateProduct 
     v-model:modelValue="showCreateDialog" 
     :programs="programs || []" 
-    @save="handleSaveProduct" 
+    @save="handleSaveProduct"
+    @cancel="showCreateDialog = false"
 />
 
-<EditProduct 
-    v-if="selectedProduct"
+    <EditProduct 
+    v-if="selectedProduct" 
     v-model:modelValue="showEditDialog" 
     :product="selectedProduct"
-    @save="handleUpdateProduct"
-    @cancel="showEditDialog = false"
+    :programs="programs || []"
+    @save="handleUpdateProduct" 
+    @cancel="showEditDialog = false" 
 />
 </template>
 

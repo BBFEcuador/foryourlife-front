@@ -8,11 +8,14 @@ const fetchPrograms = async (): Promise<Program[]> => {
 }
 
 const usePrograms = () => {
-    const { data: programs, isError, isFetching } = useQuery({ queryKey: ['programs'], queryFn: fetchPrograms });
+    const { data: programs, isError, isFetching, refetch } = useQuery({ queryKey: ['programs'], queryFn: fetchPrograms });
     return {
         programs,
         isProgramsError: isError,
-        isProgramsLoading: isFetching
+        isProgramsLoading: isFetching,
+        refetchPrograms: () => {
+            refetch();
+        }
     };
 };
 

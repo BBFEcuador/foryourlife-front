@@ -12,7 +12,10 @@ const updateProduct = async (product: Product): Promise<any> => {
     return data;
 }
 
-const changeStatus = async (item: Product): Promise<any> => {
+const changeStatus = async (item: {
+    id: string;
+    isActive: boolean;
+}): Promise<any> => {
     const { data } = await api.patch('/product/' + item.id, item);
     return data;
 };
