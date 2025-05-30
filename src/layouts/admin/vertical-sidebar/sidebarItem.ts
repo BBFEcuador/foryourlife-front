@@ -40,6 +40,10 @@ const sidebarItem: menu[] = [
       {
         title: 'Descuentos',
         to: 'discounts-admin'
+      },
+      {
+        title: 'Pagos',
+        to: 'payments-admin'
       }
     ]
   },

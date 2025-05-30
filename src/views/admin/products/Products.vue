@@ -15,7 +15,7 @@ import { showErrorToast } from '@/service/sweetAlert';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 
-const { productsData, isProductsLoading, page, perPage, search, refetchProducts } = useProducts();
+const { productsData, isProductsLoading, page, perPage, productSearch, refetchProducts } = useProducts();
 const { programs, refetchPrograms } = usePrograms();
 const { changeStatusMutations } = useProductMutations();
 
@@ -66,7 +66,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
     }
 };
 
-watch(search, () => {
+watch(productSearch, () => {
     page.value = 0;
 });
 
@@ -176,14 +176,14 @@ const handleUpdateProduct = async (productData: Partial<Product>) => {
     <v-row>
         <v-col cols="12">
             <UiParentCard title="Lista de Productos">
-                <v-data-table-server :headers="headers" :search="search" :items="productsData.content"
+                <v-data-table-server :headers="headers" :search="productSearch" :items="productsData.content"
                     :loading="isProductsLoading" :items-length="productsData.totalElements" :items-per-page="10"
                     @update:options="loadItems">
                     <template v-slot:top>
                         <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
                             :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200"
                             :duration="250">
-                            <VTextField v-model="search" placeholder="Buscar productos..." variant="outlined"
+                            <VTextField v-model="productSearch" placeholder="Buscar productos..." variant="outlined"
                                 density="comfortable" hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
                                 bg-color="white">
                                 <template #prepend-inner>
@@ -195,8 +195,8 @@ const handleUpdateProduct = async (productData: Partial<Product>) => {
                                         </div>
                                     </div>
                                 </template>
-                                <template #append v-if="search">
-                                    <VBtn icon variant="text" size="small" @click="search = ''"
+                                <template #append v-if="productSearch">
+                                    <VBtn icon variant="text" size="small" @click="productSearch = ''"
                                         class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
                                         <Icon icon="mdi:close" height="18" />
                                     </VBtn>
@@ -269,21 +269,11 @@ const handleUpdateProduct = async (productData: Partial<Product>) => {
             </UiParentCard>
         </v-col>
     </v-row>
-    <CreateProduct 
-    v-model:modelValue="showCreateDialog" 
-    :programs="programs || []" 
-    @save="handleSaveProduct"
-    @cancel="showCreateDialog = false"
-/>
+    <CreateProduct v-model:modelValue="showCreateDialog" :programs="programs || []" @save="handleSaveProduct"
+        @cancel="showCreateDialog = false" />
 
-    <EditProduct 
-    v-if="selectedProduct" 
-    v-model:modelValue="showEditDialog" 
-    :product="selectedProduct"
-    :programs="programs || []"
-    @save="handleUpdateProduct" 
-    @cancel="showEditDialog = false" 
-/>
+    <EditProduct v-if="selectedProduct" v-model:modelValue="showEditDialog" :product="selectedProduct"
+        :programs="programs || []" @save="handleUpdateProduct" @cancel="showEditDialog = false" />
 </template>
 
 <style scoped>

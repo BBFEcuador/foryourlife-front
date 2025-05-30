@@ -1,6 +1,6 @@
 import { api } from '@/api/axios';
 import type { PageableApiResponse } from '@/models/ApiResponse';
-import type { Product } from '@/models/Products';
+import type { Payment } from '@/models/Payments';
 import { useQuery } from '@tanstack/vue-query';
 import { ref } from 'vue';
 
@@ -8,8 +8,8 @@ const page = ref(0);
 const perPage = ref(10);
 const search = ref('');
 
-const fetchProducts = async (): Promise<PageableApiResponse<Product[]>> => {
-    const { data } = await api.get('/product', {
+const fetchProducts = async (): Promise<PageableApiResponse<Payment[]>> => {
+    const { data } = await api.get('/payments', {
         params: {
             page: page.value,
             perPage: perPage.value,
@@ -19,28 +19,28 @@ const fetchProducts = async (): Promise<PageableApiResponse<Product[]>> => {
     return data;
 };
 
-const useProducts = () => {
+const usePayments = () => {
     const {
         data,
         isError,
         isFetching,
         refetch
     } = useQuery({
-        queryKey: ['admin-products-p', page, perPage, search],
+        queryKey: ['admin-payments-p', page, perPage, search],
         queryFn: fetchProducts,
         initialData: {
             totalElements: 0,
-        } as PageableApiResponse<Product[]>
+        } as PageableApiResponse<Payment[]>
     });
     return {
-        productsData: data,
+        paymentsData: data,
         page,
         perPage,
-        productSearch: search,
-        isProductsError: isError,
-        isProductsLoading: isFetching,
-        refetchProducts: refetch,
+        search,
+        isPaymentsError: isError,
+        isPaymentsLoading: isFetching,
+        refetchPayments: refetch,
     };
 };
 
-export default useProducts;
+export default usePayments;

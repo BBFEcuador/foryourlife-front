@@ -45,7 +45,7 @@ const useParticipants = () => {
     refetchParticipants: refetch,
     page,
     perPage,
-    search
+    participantSearch: search
   };
 };
 export default useParticipants;

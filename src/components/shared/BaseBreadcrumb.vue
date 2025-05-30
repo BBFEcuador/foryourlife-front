@@ -28,13 +28,17 @@ const props = defineProps({
                 </div>
               </template>
               <template v-slot:prepend>
-                <router-link :to="{name:'home-admin'}" class="text-darkText text-h6 text-decoration-none"> Home </router-link>
+                <router-link :to="{ name: 'home-admin' }" class="text-darkText text-h6 text-decoration-none"> Home
+                </router-link>
                 <div class="d-flex align-center px-2">
                   <SvgSprite name="custom-chevron-outline" style="width: 12px; height: 12px" />
                 </div>
               </template>
             </v-breadcrumbs>
-            <h2 class="text-h2 font-weight-bold mb-0">{{ props.title }}</h2>
+            <div class="tw:flex tw:items-center tw:justify-between">
+              <h2 class="text-h2 font-weight-bold mb-0">{{ props.title }}</h2>
+              <slot name="action" />
+            </div>
           </v-col>
         </v-row>
       </v-card>
