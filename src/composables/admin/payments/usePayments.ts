@@ -9,38 +9,34 @@ const perPage = ref(10);
 const search = ref('');
 
 const fetchProducts = async (): Promise<PageableApiResponse<Payment[]>> => {
-    const { data } = await api.get('/payments', {
-        params: {
-            page: page.value,
-            perPage: perPage.value,
-            search: search.value || undefined
-        }
-    });
-    return data;
+  const { data } = await api.get('/payments', {
+    params: {
+      page: page.value,
+      perPage: perPage.value,
+      search: search.value || undefined
+    }
+  });
+  return data;
 };
 
 const usePayments = () => {
-    const {
-        data,
-        isError,
-        isFetching,
-        refetch
-    } = useQuery({
-        queryKey: ['admin-payments-p', page, perPage, search],
-        queryFn: fetchProducts,
-        initialData: {
-            totalElements: 0,
-        } as PageableApiResponse<Payment[]>
-    });
-    return {
-        paymentsData: data,
-        page,
-        perPage,
-        search,
-        isPaymentsError: isError,
-        isPaymentsLoading: isFetching,
-        refetchPayments: refetch,
-    };
+  const { data, isError, isFetching, refetch } = useQuery({
+    queryKey: ['admin-payments-p', page, perPage, search],
+    queryFn: fetchProducts,
+    initialData: {
+      totalElements: 0,
+      content: [] as Payment[]
+    } as PageableApiResponse<Payment[]>
+  });
+  return {
+    paymentsData: data,
+    page,
+    perPage,
+    search,
+    isPaymentsError: isError,
+    isPaymentsLoading: isFetching,
+    refetchPayments: refetch
+  };
 };
 
 export default usePayments;

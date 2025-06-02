@@ -101,14 +101,14 @@ const processPayment = async () => {
 
     isLoading.value = true;
     const paymentData = {
-        product: (selectedProduct.value as any).id,
+        products: [(selectedProduct.value as any).id],
         participant: (selectedParticipant.value as any).id,
         campus: (selectedCampus.value as any).id,
         total: grandTotal.value
     };
     
     console.log('Enviando datos de pago:', paymentData);
-    await savePaymentMutations.mutate(paymentData);
+    savePaymentMutations.mutate(paymentData);
 };
 
 // Calcular el total final (subtotal - descuento)
@@ -126,7 +126,7 @@ const grandTotal = computed(() => {
 <template>
     <BaseBreadcrumb :title="'Crear Nuevo Cobro'" :breadcrumbs="breadcrumbs">
         <template #action>
-            <v-btn color="primary" @click="processPayment" :loading="isLoading" :disabled="isLoading || !selectedProduct || !selectedParticipant">
+            <v-btn color="primary" @click="processPayment" :loading="savePaymentMutations.isPending.value" :disabled="!selectedProduct || !selectedParticipant">
                 Procesar cobro
             </v-btn>
         </template>
