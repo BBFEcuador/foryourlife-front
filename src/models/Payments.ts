@@ -19,6 +19,13 @@ export interface PaymentRequest {
   participant: string;
   campus: string;
   total: number;
+  invoice: {
+    fullName: string;
+    address: string;
+    document: string;
+    phone: string;
+    email: string;
+  }
 }
 
 export interface PaymentResponse {

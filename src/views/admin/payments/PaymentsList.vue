@@ -126,6 +126,33 @@ const onCreatePayment = () => {
           </v-chip>
         </div>
       </template>
+
+      <template #item.actions="{ item }">
+        <div class="d-flex ga-2">
+          <v-btn
+            icon
+            color="info"
+            variant="text"
+            size="32"
+            class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+            v-tooltip="'Ver lista de pagos'"
+            @click=""
+          >
+            <Icon icon="mdi:list-box-outline" />
+          </v-btn>
+          <v-btn
+            color="error"
+            icon
+            variant="text"
+            size="32"
+            v-tooltip="'Cerrar Cobro'"
+            class="tw:bg-red-300 hover:!tw:bg-red-100"
+            @click=""
+          >
+            <Icon icon="mdi-power" height="18" />
+          </v-btn>
+        </div>
+      </template>
     </v-data-table-server>
   </UiParentCard>
 </template>
