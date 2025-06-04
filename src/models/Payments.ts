@@ -35,3 +35,17 @@ export interface PaymentResponse {
   campus: string;
   total: number;
 }
+
+export interface PaymentMethod {
+  id: string;
+  type: string;
+  isActive: boolean;
+}
+
+export interface PaymentHistoryRequest {
+  date: string;
+  amount: string;
+  paymentMethod: string;
+  paymentMethodId: string;
+  paymentId: string;
+}
