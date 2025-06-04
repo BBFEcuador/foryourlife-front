@@ -5,10 +5,8 @@ import useParticipants from '@/composables/admin/participants/useParticipants';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
-import ParticipantFilters from './ParticipantFilters.vue';
 import type { Criteria, Filter } from '@/models/Criteria';
 import useInvitation from '@/composables/invitation/useInvitation';
-import { userStore } from '@/stores/useStore';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { showErrorToast } from '@/service/sweetAlert';
@@ -16,6 +14,7 @@ import InputSection from '@/components/forms/InputSection.vue';
 import { VNumberInput } from 'vuetify/labs/VNumberInput';
 import { useRouter } from 'vue-router';
 import { adminStore } from '@/stores/adminStore';
+import useCampus from '@/composables/admin/useCampus.ts';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
@@ -23,7 +22,7 @@ const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch } = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitation();
 const router = useRouter();
-
+const { isError, refetch, campus, isFetching } = useCampus();
 const adminS = adminStore();
 const headers = [
   {
@@ -69,6 +68,9 @@ const breadcrumbs = ref([
   }
 ]);
 
+const openCreateInvitation = () => {
+  showInvitationForm.value = true;
+};
 const onFilterSubmit = (criteria: Criteria) => {
   criteriaMutations.mutate(criteria);
 };
@@ -77,6 +79,8 @@ const onFilterClear = () => {
   criteriaMutations.mutate({ filters: [] as Filter[], limit: 0, offset: 0 });
 };
 
+const campusId = ref();
+const showInvitationForm = ref(false);
 const showInvitation = ref(false);
 const showInvitationLot = ref(false);
 const quantity = ref(1);
@@ -97,23 +101,32 @@ const handleGenerateInvitation = () => {
   const userId = adminS.user.id;
   console.log(adminS.user);
   console.log(userId);
-
-  generateInvitationMutation.mutate(userId, {
-    onSuccess: (data) => {
-      invitationLink.value = `${window.location.origin}/register/${data}`;
-      showInvitation.value = true;
-    },
-    onError: (error) => {
-      const er = error as AxiosError<ErrorApiResponse>;
-      showErrorToast(er);
+  if (!campusId.value) {
+    return;
+  }
+  generateInvitationMutation.mutate(
+    { userId: userId, campusId: campusId.value },
+    {
+      onSuccess: (data) => {
+        invitationLink.value = `${window.location.origin}/register/${data}`;
+        showInvitationForm.value = false;
+        showInvitation.value = true;
+      },
+      onError: (error) => {
+        const er = error as AxiosError<ErrorApiResponse>;
+        showErrorToast(er);
+      }
     }
-  });
+  );
 };
 
 const handleGenerateInvitationLot = () => {
+  if (!campusId.value) {
+    return;
+  }
   const userId = adminS.user.id;
   generateInvitationWithQuantityMutation.mutate(
-    { id: userId, quantity: quantity.value.toString() },
+    { id: userId, quantity: quantity.value.toString(), campusId: campusId.value },
     {
       onSuccess: (data) => {
         invitationLink.value = `${window.location.origin}/register/${data}`;
@@ -183,12 +196,6 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 
 <template>
   <BaseBreadcrumb :title="'Participantes'" :breadcrumbs="breadcrumbs" class="tw:mb-6">
-    <template #action>
-      <VBtn color="primary" variant="elevated" @click="handleGenerateInvitation">
-        <Icon icon="mdi:account-plus" class="tw:mr-2" />
-        Invitar Participante
-      </VBtn>
-    </template>
   </BaseBreadcrumb>
 
   <VRow v-auto-animate>
@@ -256,10 +263,11 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                   variant="elevated"
                   color="primary"
                   class="mr-2"
-                  @click="handleGenerateInvitation"
+                  @click="openCreateInvitation"
                   :loading="generateInvitationMutation.isPending.value"
                 >
-                  <Icon icon="weui:add-friends-filled" class="mr-2" height="20" /> Invitar Participante
+                  <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
+                  Invitar Participante
                 </VBtn>
                 <VBtn
                   variant="elevated"
@@ -267,7 +275,8 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                   @click="showInvitationLot = true"
                   :loading="generateInvitationMutation.isPending.value"
                 >
-                  <Icon icon="weui:add-friends-filled" class="mr-2" height="20" /> Invitar lote
+                  <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
+                  Invitar lote
                 </VBtn>
               </v-toolbar>
             </template>
@@ -359,6 +368,22 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
     </VCol>
   </VRow>
 
+  <VDialog v-model="showInvitationForm" width="500">
+    <VCard class="tw:rounded-xl">
+      <VCardTitle class="tw:p-6 tw:pb-0">
+        <h3 class="tw:text-xl tw:font-medium">Invitar Participante</h3>
+      </VCardTitle>
+      <VCardText class="tw:p-6">
+        <InputSection label="Campus">
+          <VSelect placeholder="Elija el campus" v-model="campusId" :items="campus" item-title="city" item-value="id"></VSelect>
+        </InputSection>
+      </VCardText>
+      <VCardActions class="tw:flex tw:justify-end">
+        <VBtn color="primary" variant="elevated" @click="handleGenerateInvitation" class="!tw:font-normal"> Invitar </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+
   <VDialog v-model="showInvitation" width="500">
     <VCard class="tw:rounded-xl">
       <VCardTitle class="tw:p-6 tw:pb-0">
@@ -381,10 +406,13 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
       <InputSection label="Usos">
         <VNumberInput variant="outlined" placeholder="cantidad de usos para este token" v-model="quantity" :min="1" />
       </InputSection>
+      <InputSection label="Campus">
+        <VSelect placeholder="Elija el campus" v-model="campusId" :items="campus" item-title="city" item-value="id"></VSelect>
+      </InputSection>
       <div class="tw:flex tw:justify-end">
         <VBtn color="primary" @click="handleGenerateInvitationLot" :loading="generateInvitationWithQuantityMutation.isPending.value"
-          >Generar</VBtn
-        >
+          >Generar
+        </VBtn>
       </div>
     </UiParentCard>
   </VDialog>
