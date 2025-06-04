@@ -20,7 +20,7 @@ import { adminStore } from '@/stores/adminStore';
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
 const { lgAndUp } = useDisplay();
-const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, search } = useParticipants();
+const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch } = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitation();
 const router = useRouter();
 
@@ -198,7 +198,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
           <VDataTableServer
             :items="participants.content"
             :headers="headers"
-            :search="search"
+            :search="participantSearch"
             :loading="isParticipantsLoading"
             :loading-text="'Cargando participantes...'"
             :no-data-text="'No se encontraron participantes'"
@@ -224,7 +224,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               >
                 <div class="tw:flex-1 tw:max-w-md tw:relative">
                   <VTextField
-                    v-model="search"
+                    v-model="participantSearch"
                     placeholder="Buscar equipos..."
                     variant="outlined"
                     density="comfortable"
@@ -238,12 +238,12 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                         <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
                       </div>
                     </template>
-                    <template #append v-if="search">
+                    <template #append v-if="participantSearch">
                       <VBtn
                         icon
                         variant="text"
                         size="small"
-                        @click="search = ''"
+                        @click="participantSearch = ''"
                         class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
                       >
                         <Icon icon="mdi:close" height="18" />

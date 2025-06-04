@@ -1,25 +1,51 @@
-import type { Product } from "./Products";
-import type { Participant } from "./Participants";
+import type { Product } from './Products';
+import type { Participant } from './Participants';
+import type { Campus } from './Campus';
 
 export interface Payment {
-    id: string;
-    product: Product;
-    participant: Participant;
-    campus: string;
-    total: number;
+  id: string;
+  products: Product[];
+  discount: any;
+  participant: Participant;
+  campus: Campus;
+  paymentshistory: any[];
+  total: number;
+  status: string;
+  note: any;
 }
 
 export interface PaymentRequest {
-    product: string[]; // Ahora es un array de strings
-    participant: string;
-    campus: string;
-    total: number;    
+  products: string[];
+  participant: string;
+  campus: string;
+  total: number;
+  invoice: {
+    fullName: string;
+    address: string;
+    document: string;
+    phone: string;
+    email: string;
+  }
 }
 
 export interface PaymentResponse {
-    id: string;
-    product: Product;
-    participant: Participant;
-    campus: string;
-    total: number;    
+  id: string;
+  product: Product;
+  participant: Participant;
+  campus: string;
+  total: number;
+}
+
+export interface PaymentMethod {
+  id: string;
+  type: string;
+  isActive: boolean;
+}
+
+export interface PaymentHistoryRequest {
+  date: string;
+  amount: string;
+  paymentMethod: string;
+  paymentMethodId: string;
+  paymentId: string;
 }
