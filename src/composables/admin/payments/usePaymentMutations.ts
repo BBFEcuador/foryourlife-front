@@ -9,9 +9,13 @@ const savePaymentRecord = async (paymentRecord: PaymentHistoryRequest): Promise<
 
 const changeStatus = async (item: {
     id: string;
-    isActive: boolean;
+    newStatus: string;
 }): Promise<any> => {
-    const { data } = await api.patch('/product/change-status/' + item.id
+    const { data } = await api.patch('/payments/change-status/' + item.id,null, {
+        params: {
+            status: item.newStatus
+        }
+    }
     );
     return data;
 };
@@ -20,8 +24,12 @@ const usePaymentRecordMutations = () => {
     const savePaymentRecordMutations = useMutation({
         mutationFn: savePaymentRecord
     });
+    const cancelPaymentMutation = useMutation({
+        mutationFn: changeStatus
+    });
     return {
         savePaymentRecordMutations,
+        cancelPaymentMutation
     };
 };
 

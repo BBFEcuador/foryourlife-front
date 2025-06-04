@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import usePayments from '@/composables/admin/payments/usePayments';
+import usePaymentRecordMutations from '@/composables/admin/payments/usePaymentMutations';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
 import PaymentHistoryList from '@/components/payments/PaymentHistoryList.vue';
@@ -12,8 +13,6 @@ const showPaymentHistory = ref(false);
 const selectPayment = ref<Payment>({
   paymentshistory: [] as any[]
 } as Payment);
-
-const { paymentsData, isPaymentsLoading, page, perPage, search, refetchPayments } = usePayments();
 const breadcrumbs = ref([
   {
     title: 'Cobros',
@@ -21,6 +20,9 @@ const breadcrumbs = ref([
     href: '#'
   }
 ]);
+
+const { paymentsData, isPaymentsLoading, page, perPage, search, refetchPayments } = usePayments();
+const { cancelPaymentMutation } = usePaymentRecordMutations();
 
 const headers = [
   { title: 'Nombre', value: 'participant.user.name', sortable: true },
@@ -88,10 +90,11 @@ const onChangeStatus = (item: Payment) => {
   }).then(async (params) => {
     if (params.isConfirmed) {
       try {
-        /* await changeStatusMutations.mutateAsync({
-                    id: item.id,
-                    isActive: !isCurrentlyActive
-                }); */
+        await cancelPaymentMutation.mutateAsync({ id: item.id, newStatus: 'CANCELLED' });
+        const index = paymentsData.value.content.findIndex((p) => p.id === item.id);
+        if (index !== -1) {
+          paymentsData.value.content[index].status = 'CANCELLED';
+        }
         Swal.fire('¡Éxito!', `El producto ha sido CANCELADO correctamente.`, 'success');
       } catch (error) {
         console.error('Error al cambiar el estado del producto:', error);
