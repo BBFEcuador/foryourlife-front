@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import usePaymentMutations from '@/composables/admin/payments/usePaymentsMutations';
-import Logo from '@/layouts/dashboard/logo/Logo.vue';
 import { computed } from 'vue';
 
 interface Item {
