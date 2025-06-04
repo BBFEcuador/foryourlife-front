@@ -10,7 +10,7 @@ export interface Payment {
 }
 
 export interface PaymentRequest {
-    product: string;
+    product: string[]; // Ahora es un array de strings
     participant: string;
     campus: string;
     total: number;    

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import usePaymentMutations from '@/composables/admin/payments/usePaymentsMutations';
-import Logo from '@/layouts/dashboard/logo/Logo.vue';
 import { computed } from 'vue';
 
 interface Item {
@@ -19,8 +17,6 @@ interface Props {
     paymentNumber: string;
     billedBy: Address;
     billedTo: Address;
-    dateIssued: string | Date;
-    dueDate: string | Date;
     items: Item[];
     discountAmount: number;
     notes?: string;
@@ -44,13 +40,6 @@ const formatNumber = (value: number) => {
     });
 };
 
-const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-};
 </script>
 
 <template>
@@ -83,7 +72,6 @@ const formatDate = (date: string | Date) => {
         <div class="tw:grid tw:grid-cols-2 tw:mb-8">
             <div>
                 <p class="tw:text-gray-600 tw:mb-2">Fecha de emisión:</p>
-                <p>{{ formatDate(dateIssued) }}</p>
             </div>
         </div>
 

@@ -3,6 +3,9 @@ import GeneralPayment from '@/components/payments/GeneralPayment.vue';
 import PaymentPreview from '@/components/payments/PaymentPreview.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import usePaymentMutations from '@/composables/admin/payments/usePaymentsMutations';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
+import type { AxiosError } from 'axios';
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -14,6 +17,9 @@ const selectedParticipant = ref(null);
 const selectedDiscount = ref(null);
 const selectedCampus = ref(null);
 const notes = ref('');
+const { savePaymentMutations } = usePaymentMutations();
+const router = useRouter();
+const isLoading = ref(false);
 
 // Información de la empresa
 const billedBy = {
@@ -38,25 +44,13 @@ const billedTo = computed(() => {
     };
 });
 
-// Para depuración
-watch(selectedParticipant, (newVal: any) => {
-    console.log('Participante seleccionado:', newVal);
-});
 
-// Fechas
-const dateIssued = new Date();
-const dueDate = computed(() => {
-    const date = new Date(dateIssued);
-    date.setDate(date.getDate() + 14); // 2 semanas de plazo
-    return date;
-});
 
 const invoiceItems = computed(() => {
     if (!selectedProduct.value) return [];
-
     const product = selectedProduct.value as any;
     return [{
-        name: product.name || 'Producto sin nombre',
+        name: product.name,
         quantity: 1,
         unitPrice: product.basePrice || 0
     }];
@@ -69,10 +63,8 @@ const discountAmount = computed(() => {
     const price = product.basePrice || 0;
 
     if (discount.discountType === 'P') {
-        // Descuento porcentual
         return parseFloat((price * parseFloat(discount.discountValue) / 100).toFixed(2));
     } else if (discount.discountType === 'E') {
-        // Descuento de monto exacto
         return parseFloat(parseFloat(discount.discountValue).toFixed(2));
     }
     return 0;
@@ -92,22 +84,23 @@ const breadcrumbs = [
 ];
 
 // Obtener la mutación para guardar el pago
-const { savePaymentMutations } = usePaymentMutations();
-const router = useRouter();
-const isLoading = ref(false);
 
 // Función para procesar el pago
 const processPayment = async () => {
+    if (!selectedProduct.value) {
+        showErrorToast('Debe seleccionar un producto' as any);
+        return;
+    }
 
     isLoading.value = true;
+    
+    const productId = (selectedProduct.value as any)?.id;
     const paymentData = {
-        product: (selectedProduct.value as any).id,
-        participant: (selectedParticipant.value as any).id,
-        campus: (selectedCampus.value as any).id,
+        product: [productId],
+        participant: (selectedParticipant.value as any)?.id,
+        campus: (selectedCampus.value as any)?.id,
         total: grandTotal.value
     };
-    
-    console.log('Enviando datos de pago:', paymentData);
     await savePaymentMutations.mutate(paymentData);
 };
 
@@ -121,6 +114,20 @@ const grandTotal = computed(() => {
     return parseFloat((price - discountAmount.value).toFixed(2));
 });
 
+watch(savePaymentMutations.isSuccess, () => {
+    if (savePaymentMutations.isSuccess.value) {
+        isLoading.value = false;
+        showSuccessToast('Cobro guardado exitosamente');
+        router.push({name: 'payments-admin'});
+    }
+});
+
+watch(savePaymentMutations.isError, () => {
+    if (savePaymentMutations.isError.value) {
+        const error = savePaymentMutations.error.value as AxiosError<ErrorApiResponse>;
+        showErrorToast(error);
+    }
+});
 </script>
 
 <template>
@@ -153,7 +160,7 @@ const grandTotal = computed(() => {
                     </v-card-title>
                     <v-card-text>
                         <PaymentPreview :payment-number="paymentNumber" :billed-by="billedBy" :billed-to="billedTo"
-                            :date-issued="dateIssued" :due-date="dueDate" :items="invoiceItems"
+                            :items="invoiceItems"
                             :discount-amount="discountAmount" :notes="notes" />
                     </v-card-text>
                 </v-card>
