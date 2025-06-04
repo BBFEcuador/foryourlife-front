@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import PaymentHistoryList from '@/components/payments/PaymentHistoryList.vue';
 import { useRouter } from 'vue-router';
 import type { Payment } from '@/models/Payments';
+import Swal from 'sweetalert2';
 
 const showPaymentHistory = ref(false);
 const selectPayment = ref<Payment>({
@@ -69,10 +70,35 @@ const onPaymentHistoryShow = (items: Payment) => {
 const handlePaymentUpdated = (updatedPayment: Payment) => {
   selectPayment.value = updatedPayment;
 
-  const index = paymentsData.value.content.findIndex(p => p.id === updatedPayment.id);
+  const index = paymentsData.value.content.findIndex((p) => p.id === updatedPayment.id);
   if (index !== -1) {
     paymentsData.value.content[index] = updatedPayment;
   }
+};
+
+const onChangeStatus = (item: Payment) => {
+  Swal.fire({
+    title: `¿Estás seguro de CANCELAR este Pago?`,
+    text: `Estás a punto de CANCELAR el Pago. ¿Deseas continuar?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    confirmButtonText: `<span class="tw:text-white">Continuar</span>`,
+    cancelButtonText: `<span class="tw:text-white">Atras</span>`
+  }).then(async (params) => {
+    if (params.isConfirmed) {
+      try {
+        /* await changeStatusMutations.mutateAsync({
+                    id: item.id,
+                    isActive: !isCurrentlyActive
+                }); */
+        Swal.fire('¡Éxito!', `El producto ha sido CANCELADO correctamente.`, 'success');
+      } catch (error) {
+        console.error('Error al cambiar el estado del producto:', error);
+        Swal.fire('Error', 'No se pudo actualizar el estado del producto', 'error');
+      }
+    }
+  });
 };
 </script>
 
@@ -168,18 +194,34 @@ const handlePaymentUpdated = (updatedPayment: Payment) => {
             size="32"
             v-tooltip="'Cerrar Cobro'"
             class="tw:bg-red-300 hover:!tw:bg-red-100"
-            @click=""
+            @click="onChangeStatus(item)"
           >
             <Icon icon="mdi-power" height="18" />
           </v-btn>
         </div>
       </template>
     </v-data-table-server>
-    <PaymentHistoryList v-model="showPaymentHistory" :payment="selectPayment"  @payment-updated="handlePaymentUpdated" />
+    <PaymentHistoryList v-model="showPaymentHistory" :payment="selectPayment" @payment-updated="handlePaymentUpdated" />
   </UiParentCard>
 </template>
 
 <style scoped>
+.swal-confirm-text {
+  background-color: #d33;
+  color: white !important;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+}
+
+.swal-cancel-text {
+  background-color: #3085d6;
+  color: yellow !important;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+}
+
 .v-data-table :deep(th) {
   background-color: #f8fafc !important;
   color: #64748b;
