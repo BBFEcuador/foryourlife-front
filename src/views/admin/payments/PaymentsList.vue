@@ -3,7 +3,14 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import usePayments from '@/composables/admin/payments/usePayments';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
+import PaymentHistoryList from '@/components/payments/PaymentHistoryList.vue';
 import { useRouter } from 'vue-router';
+import type { Payment } from '@/models/Payments';
+
+const showPaymentHistory = ref(false);
+const selectPayment = ref<Payment>({
+  paymentshistory: [] as any[]
+} as Payment);
 
 const { paymentsData, isPaymentsLoading, page, perPage, search, refetchPayments } = usePayments();
 const breadcrumbs = ref([
@@ -52,6 +59,20 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 const router = useRouter();
 const onCreatePayment = () => {
   router.push({ name: 'payments-admin-create' });
+};
+
+const onPaymentHistoryShow = (items: Payment) => {
+  showPaymentHistory.value = true;
+  selectPayment.value = items;
+};
+
+const handlePaymentUpdated = (updatedPayment: Payment) => {
+  selectPayment.value = updatedPayment;
+
+  const index = paymentsData.value.content.findIndex(p => p.id === updatedPayment.id);
+  if (index !== -1) {
+    paymentsData.value.content[index] = updatedPayment;
+  }
 };
 </script>
 
@@ -136,7 +157,7 @@ const onCreatePayment = () => {
             size="32"
             class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
             v-tooltip="'Ver lista de pagos'"
-            @click=""
+            @click="onPaymentHistoryShow(item)"
           >
             <Icon icon="mdi:list-box-outline" />
           </v-btn>
@@ -154,6 +175,7 @@ const onCreatePayment = () => {
         </div>
       </template>
     </v-data-table-server>
+    <PaymentHistoryList v-model="showPaymentHistory" :payment="selectPayment"  @payment-updated="handlePaymentUpdated" />
   </UiParentCard>
 </template>
 
