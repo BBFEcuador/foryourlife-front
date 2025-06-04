@@ -2,7 +2,12 @@ import { userApi } from '@/api/userAxios';
 import { useMutation } from '@tanstack/vue-query';
 
 const generateInvitationWithQuantityUser = async (req: { id: string; quantity: string }) => {
-  const { data } = await userApi.post('/invitation/create-by-user-quantity', req);
+  const { data } = await userApi.post('/invitation/create-by-user-quantity', null, {
+    params: {
+      id: req.id,
+      quantity: req.quantity
+    }
+  });
   return data;
 };
 
