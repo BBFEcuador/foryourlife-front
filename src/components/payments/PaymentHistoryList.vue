@@ -19,7 +19,6 @@ const props = defineProps<{
 const emit = defineEmits(['update:modelValue', 'payment-updated']);
 
 const loading = ref(false);
-const total = ref(0);
 const formRef = ref();
 const form = ref({
   date: new Date(),
@@ -29,7 +28,7 @@ const form = ref({
 });
 
 const paymentId = computed(() => props.payment.id);
-const { payment, isPaymentError, isPaymentLoading, refetchPayment } = usePayment(paymentId)
+const { payment, isPaymentError, isPaymentLoading, refetchPayment } = usePayment(paymentId);
 
 const { paymentMethodsData } = usePaymentMethods();
 const { savePaymentRecordMutations } = usePaymentRecordMutations();
@@ -76,16 +75,32 @@ const onPaymentMethodSelected = (id: string) => {
   form.value.paymentMethodId = id;
   form.value.paymentMethod = paymentMethodsList.value.find((m) => m.id === id)?.type || '';
 };
+
+const itemsPerPage = 5;
+const page = ref(1);
+
+const total = computed(() => props.payment.paymentshistory.length);
+
+const paginatedHistory = computed(() => {
+  const sorted = [...props.payment.paymentshistory].reverse(); // más recientes primero
+  const start = (page.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return sorted.slice(start, end);
+});
+
+// Función para manejar el evento que emite la tabla con la página seleccionada
+const onUpdateOptions = (options: any) => {
+  page.value = options.page;
+};
 </script>
 <template>
   <v-dialog v-model="visible" max-width="800">
     <v-card>
-      <v-card-title class="d-flex justify-space-between align-center">
-        <span class="tw:text-lg tw:font-semibold">Historial de pagos</span>
+      <v-toolbar color="primary" :title="'Historial de pagos'">
         <VBtn icon variant="text" size="small" @click="close" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
           <Icon icon="mdi:close" height="18" />
         </VBtn>
-      </v-card-title>
+      </v-toolbar>
 
       <v-card-text>
         <v-form ref="formRef" @submit.prevent="submitForm">
@@ -117,10 +132,11 @@ const onPaymentMethodSelected = (id: string) => {
       <v-card-text>
         <v-data-table-server
           :headers="headers"
-          :items="props.payment.paymentshistory"
+          :items="paginatedHistory"
           :loading="loading"
           :items-length="total"
-          :items-per-page="5"
+          :items-per-page="itemsPerPage"
+          @update:options="onUpdateOptions"
         >
           <template #item.actions="{ item }">
             <div class="d-flex ga-2">
