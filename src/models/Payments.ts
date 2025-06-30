@@ -19,6 +19,7 @@ export interface PaymentRequest {
   participant: string;
   campus: string;
   total: number;
+  paymentsHistory?: PaymentHistory[];
   invoice: {
     fullName: string;
     address: string;
@@ -26,6 +27,8 @@ export interface PaymentRequest {
     phone: string;
     email: string;
   }
+  note?: string;
+  cashDrawerId: string;
 }
 
 export interface PaymentResponse {
@@ -40,12 +43,31 @@ export interface PaymentMethod {
   id: string;
   type: string;
   isActive: boolean;
+  code: string;
+}
+
+export interface PaymentHistory {
+  date: string;
+  amount: string;
+  paymentMethod: PaymentMethod
 }
 
 export interface PaymentHistoryRequest {
-  date: string;
-  amount: string;
-  paymentMethod: string;
-  paymentMethodId: string;
   paymentId: string;
+  paymentHistory: PaymentHistory;
+  cashDrawerId: string;
+}
+
+export interface PaymentMethodRequest {
+  id?:string;
+  type:string;
+  isActive:boolean;
+  code:string;
+}
+
+export interface SriPaymentMethod {
+  id:string;
+  method:string;
+  name:string;
+  code:string;
 }

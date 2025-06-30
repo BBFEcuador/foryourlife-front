@@ -34,7 +34,7 @@ const onLoginSubmit = () => {
 watch(postLoginMutation.isError, () => {
   if (postLoginMutation.isError) {
     let error = postLoginMutation.error.value as AxiosError<ErrorApiResponse>;
-    showErrorToast(error)
+    showErrorToast(error);
   }
 });
 
@@ -44,6 +44,10 @@ watch(postLoginMutation.isSuccess, () => {
     if (response) {
       store.setToken(response.token);
       store.setAdmin(response.admin);
+      if (response.cashDrawer.length > 0) {
+        store.setCashDrawerOpen(true);
+        store.setCashDrawer(response.cashDrawer[0]);
+      }
       router.push({ name: 'home-admin' });
     }
   }
@@ -52,7 +56,6 @@ watch(postLoginMutation.isSuccess, () => {
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value;
 };
-
 </script>
 
 <template>
@@ -62,23 +65,45 @@ const togglePasswordVisibility = () => {
   <Form class="mt-7 loginForm" @submit.prevent="onLoginSubmit">
     <div class="mb-6">
       <v-label>Correo electrónico</v-label>
-      <v-text-field v-model="AdminLoginRequest.username"
-        :error-messages="validator.username.$errors.map((x) => x.$message.toString())" color="primary"
-        placeholder="Introduce tu correo" outlined></v-text-field>
+      <v-text-field
+        v-model="AdminLoginRequest.username"
+        :error-messages="validator.username.$errors.map((x) => x.$message.toString())"
+        color="primary"
+        placeholder="Introduce tu correo"
+        outlined
+      ></v-text-field>
     </div>
     <div>
       <v-label>Contraseña</v-label>
-      <v-text-field v-model="AdminLoginRequest.password"
-        :error-messages="validator.password.$errors.map((x) => x.$message.toString())" color="primary"
-        placeholder="Introduce tu contraseña" :type="showPassword ? 'text' : 'password'" class="pwdInput" outlined>
+      <v-text-field
+        v-model="AdminLoginRequest.password"
+        :error-messages="validator.password.$errors.map((x) => x.$message.toString())"
+        color="primary"
+        placeholder="Introduce tu contraseña"
+        :type="showPassword ? 'text' : 'password'"
+        class="pwdInput"
+        outlined
+      >
         <template #append-inner>
-          <Icon :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'"
-            @click="togglePasswordVisibility" height="18" class="cursor-pointer" />
+          <Icon
+            :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'"
+            @click="togglePasswordVisibility"
+            height="18"
+            class="cursor-pointer"
+          />
         </template>
       </v-text-field>
     </div>
-    <v-btn color="darkprimary" block class="mt-5" variant="flat" size="large" rounded="md" type="submit"
-      :loading="postLoginMutation.isPending.value">
+    <v-btn
+      color="darkprimary"
+      block
+      class="mt-5"
+      variant="flat"
+      size="large"
+      rounded="md"
+      type="submit"
+      :loading="postLoginMutation.isPending.value"
+    >
       Login
     </v-btn>
   </Form>

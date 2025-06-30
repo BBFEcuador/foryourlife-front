@@ -13,6 +13,7 @@ const usePaymentMethods = () => {
         queryFn: fetchPaymentMethods,
         initialData: []
     });
+    
     return {
         paymentMethodsData: data,
         isPaymentMethodsError: isError,

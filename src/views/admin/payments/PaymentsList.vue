@@ -61,7 +61,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 };
 const router = useRouter();
 const onCreatePayment = () => {
-  router.push({ name: 'payments-admin-create' });
+  router.push({ name: 'pos-preload' });
 };
 
 const onPaymentHistoryShow = (items: Payment) => {

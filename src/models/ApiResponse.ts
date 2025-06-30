@@ -1,8 +1,10 @@
+import type { CashDrawer } from './CashDrawer';
 import type { User } from './User';
 
 export interface LoginApiResponse {
   admin: User;
   token: string;
+  cashDrawer: CashDrawer[];
 }
 
 export interface ErrorApiResponse {
@@ -37,3 +39,4 @@ export interface Sort {
   unsorted: boolean;
   sorted: boolean;
 }
+

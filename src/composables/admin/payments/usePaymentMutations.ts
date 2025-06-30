@@ -11,7 +11,7 @@ const changeStatus = async (item: {
     id: string;
     newStatus: string;
 }): Promise<any> => {
-    const { data } = await api.patch('/payments/change-status/' + item.id,null, {
+    const { data } = await api.patch('/payments/change-status/' + item.id, null, {
         params: {
             status: item.newStatus
         }

@@ -3,7 +3,6 @@ import useDiscounts from '@/composables/admin/discounts/useDiscounts';
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import useProducts from '@/composables/admin/products/useProducts';
 import useCampus from '@/composables/admin/useCampus';
-import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
@@ -109,49 +108,31 @@ const discountsList = computed(() => {
   return discountsData?.value?.content || [];
 });
 
-// Función para buscar clientes
 const searchClient = (s: string) => {
   participantSearch.value = s;
 };
 
-// Función para buscar productos
 const searchProduct = (s: string) => {
   productSearch.value = s;
 };
 
-// Función para buscar descuentos
 const searchDiscount = (s: string) => {
   search.value = s;
 };
 
-// Función para manejar el cambio de participante
 const handleParticipantChange = (participant: any) => {
   console.log('Participante seleccionado en GeneralPayment:', participant);
   emit('update:selectedParticipant', participant);
 };
 
-// Función para manejar el cambio de producto
 const handleProductChange = (product: any) => {
   console.log('Producto seleccionado en GeneralPayment:', product);
   emit('update:selectedProduct', product);
 };
 
-// Función para manejar el cambio de descuento
 const handleDiscountChange = (discount: any) => {
   console.log('Descuento seleccionado:', discount);
   emit('update:selectedDiscount', discount);
-};
-
-// Función para eliminar el descuento seleccionado
-const clearDiscount = () => {
-  // Primero emitimos el evento para actualizar el componente padre
-  emit('update:selectedDiscount', null);
-
-  // Luego establecemos el valor local a null con un pequeño retraso para evitar conflictos
-  setTimeout(() => {
-    selectedDiscount.value = null;
-    console.log('Descuento eliminado');
-  }, 50);
 };
 
 // Observamos cambios en el producto seleccionado
@@ -170,13 +151,29 @@ const selectedProductDetails = computed(() => {
     programs: product.programs
   };
 });
+
+const resetTextFields = () => {
+  fullname.value = '';
+  address.value = '';
+  document.value = '';
+  phone.value = '';
+  email.value = '';
+  notes.value = '';
+  selectedParticipant.value = null;
+  selectedProduct.value = null;
+  selectedDiscount.value = null;
+  selectedCampus.value = null;
+};
+
+defineExpose({resetTextFields})
+
 </script>
 
 <template>
-  <div class="general-payment-container">
-    <div class="tw:grid tw:grid-cols-2 tw:gap-6">
+  <div>
+    <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
       <div>
-        <h3 class="tw:text-lg tw:font-semibold mb-4">Otorgado a</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Otorgado a</h3>
         <VCombobox
           @update:search="searchClient"
           v-model="selectedParticipant"
@@ -184,8 +181,7 @@ const selectedProductDetails = computed(() => {
           item-title="name"
           item-value="id"
           variant="outlined"
-          density="compact"
-          placeholder="Seleccionar cliente"
+          :placeholder="participantsList.length > 0 ? 'Seleccionar cliente' : 'No hay clientes disponibles'"
           return-object
           @update:model-value="handleParticipantChange"
         >
@@ -202,14 +198,13 @@ const selectedProductDetails = computed(() => {
         </VCombobox>
       </div>
       <div>
-        <h3 class="tw:text-lg tw:font-semibold mb-4">Campus</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Campus</h3>
         <v-select
           v-model="selectedCampus"
           :items="campus"
           item-title="city"
           item-value="id"
           variant="outlined"
-          density="compact"
           placeholder="Seleccionar campus"
           return-object
         ></v-select>
@@ -217,9 +212,9 @@ const selectedProductDetails = computed(() => {
     </div>
 
     <!-- Artículos/Servicios -->
-    <div class="tw:grid tw:grid-cols-2 tw:gap-6">
+    <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
       <div>
-        <h3 class="tw:text-lg tw:font-semibold mb-4">Artículos/Servicios</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Artículos/Servicios</h3>
         <VCombobox
           @update:search="searchProduct"
           v-model="selectedProduct"
@@ -227,7 +222,6 @@ const selectedProductDetails = computed(() => {
           item-title="name"
           item-value="id"
           variant="outlined"
-          density="compact"
           placeholder="Buscar producto"
           return-object
           @update:model-value="handleProductChange"
@@ -246,14 +240,13 @@ const selectedProductDetails = computed(() => {
         </VCombobox>
       </div>
       <div>
-        <h4 class="tw:text-lg tw:font-semibold mb-4">Descuento</h4>
+        <h4 class="tw:text-lg tw:font-semibold pb-2">Descuento</h4>
         <v-select
           v-model="selectedDiscount"
           :items="discountsList"
           item-title="name"
           item-value="id"
           variant="outlined"
-          density="compact"
           placeholder="Seleccionar descuento"
           return-object
           clearable
@@ -272,12 +265,12 @@ const selectedProductDetails = computed(() => {
         </v-select>
       </div>
     </div>
-    <div v-if="selectedProductDetails" class="tw:border tw:border-gray-200 tw:rounded-md pa-4 mb-3">
+    <div v-if="selectedProductDetails" class="tw:border tw:border-gray-200 tw:rounded-md pa-3 mb-2">
       <div class="tw:flex tw:flex-col tw:gap-4">
         <div class="tw:flex tw:justify-between tw:items-start">
           <div>
             <h3 class="tw:font-medium tw:text-lg">{{ selectedProductDetails.name }}</h3>
-            <p v-if="selectedProductDetails.description" class="tw:text-sm tw:text-gray-600 tw:mt-1">
+            <p v-if="selectedProductDetails.description" class="tw:text-sm tw:text-gray-600">
               Descripción: {{ selectedProductDetails.description }}
             </p>
           </div>
@@ -298,14 +291,14 @@ const selectedProductDetails = computed(() => {
       </div>
     </div>
 
-    <div v-else class="mt-4 tw:border tw:border-gray-200 tw:rounded-md p-4 tw:text-center tw:text-gray-500 py-8 mb-3">
+    <div v-else class="tw:border tw:border-gray-200 tw:rounded-md p-4 tw:text-center tw:text-gray-500 py-8 mb-2">
       Seleccione un producto para ver sus detalles
     </div>
 
     <!-- Datos de facturacion -->
-    <div class="tw:grid tw:grid-cols-2 tw:gap-6">
+    <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
       <div>
-        <h3 class="tw:text-lg tw:font-semibold tw:mb-4">Nombre Completo</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Nombre Completo</h3>
         <v-text-field
           v-model="fullname"
           variant="outlined"
@@ -314,7 +307,7 @@ const selectedProductDetails = computed(() => {
         ></v-text-field>
       </div>
       <div>
-        <h3 class="tw:text-lg tw:font-semibold tw:mb-4">Dirección</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Dirección</h3>
         <v-text-field
           v-model="address"
           variant="outlined"
@@ -324,9 +317,9 @@ const selectedProductDetails = computed(() => {
       </div>
     </div>
 
-    <div class="tw:grid tw:grid-cols-2 tw:gap-6">
+    <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
       <div>
-        <h3 class="tw:text-lg tw:font-semibold tw:mb-4">Cédula/Pasaporte o Ruc</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Cédula/Pasaporte o Ruc</h3>
         <v-text-field
           v-model="document"
           variant="outlined"
@@ -335,7 +328,7 @@ const selectedProductDetails = computed(() => {
         ></v-text-field>
       </div>
       <div>
-        <h3 class="tw:text-lg tw:font-semibold tw:mb-4">Teléfono</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Teléfono</h3>
         <v-text-field
           v-model="phone"
           variant="outlined"
@@ -344,9 +337,9 @@ const selectedProductDetails = computed(() => {
         ></v-text-field>
       </div>
     </div>
-    <div class="tw:grid tw:grid-cols-2 tw:gap-6">
+    <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
       <div>
-        <h3 class="tw:text-lg tw:font-semibold tw:mb-4">Email</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Email</h3>
         <v-text-field
           v-model="email"
           variant="outlined"
@@ -358,7 +351,7 @@ const selectedProductDetails = computed(() => {
 
     <!-- Notas -->
     <div>
-      <h3 class="tw:text-lg tw:font-semibold tw:mb-4">Notas</h3>
+      <h3 class="tw:text-lg tw:font-semibold pb-2">Notas</h3>
       <v-textarea
         v-model="notes"
         variant="outlined"

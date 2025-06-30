@@ -15,11 +15,16 @@ export interface menu {
   subCaption?: string;
 }
 
-const sidebarItem: menu[] = [
+const sidebarItem = [
   {
     title: 'Dashboard',
     icon: 'material-symbols:dashboard-2-outline',
     to: 'home-admin'
+  },
+  {
+    title: 'Punto de Venta',
+    icon: 'mdi:cash-register',
+    to: 'pos-preload',
   },
   {
     title: 'Administrativo',
@@ -44,6 +49,10 @@ const sidebarItem: menu[] = [
       {
         title: 'Pagos',
         to: 'payments-admin'
+      },
+      {
+        title: 'Métodos de Pago',
+        to: 'payment-methods'
       }
     ]
   },

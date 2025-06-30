@@ -1,4 +1,4 @@
-import type { PaymentRequest, PaymentHistoryRequest } from "@/models/Payments";
+import type { PaymentRequest } from "@/models/Payments";
 import { api } from "@/api/axios";
 import { useMutation } from "@tanstack/vue-query";
 

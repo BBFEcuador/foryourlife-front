@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
+import { adminStore } from '@/stores/adminStore';
 
 const AdminRoutes: RouteRecordRaw[] = [
   {
@@ -138,7 +139,43 @@ const AdminRoutes: RouteRecordRaw[] = [
       {
         name: 'payments-admin-create',
         path: 'payments/create',
-        component: () => import('@/views/admin/payments/PaymentsCreate.vue')
+        component: () => import('@/views/admin/payments/PaymentsCreate.vue'),
+        beforeEnter: (to, from, next) => {
+          if (adminStore().isCashDrawerOpen) {
+            next();
+          } else {
+            next({ name: 'pos-main' });
+          }
+        }
+      },
+      {
+        name: 'payment-methods',
+        path: 'payment-methods',
+        component: () => import('@/views/admin/paymentMethods/PaymentMethodsList.vue')
+      },
+      {
+        name: 'pos-preload',
+        path: 'pos-preload',
+        component: () => { },
+        beforeEnter: (to, from, next) => {
+          if (adminStore().isCashDrawerOpen) {
+            next({ name: 'payments-admin-create' });
+          } else {
+            next({ name: 'pos-main' });
+          }
+        }
+      },
+      {
+        name: 'pos-main',
+        path: 'pos',
+        component: () => import('@/views/admin/pos/Pos.vue'),
+        beforeEnter: (to, from, next) => {
+          if (adminStore().isCashDrawerOpen) {
+            next({ name: 'payments-admin-create' });
+          } else {
+            next();
+          }
+        }
       }
     ]
   }

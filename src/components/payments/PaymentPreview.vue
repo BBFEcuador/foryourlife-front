@@ -94,7 +94,7 @@ const formatDate = (date: string | Date) => {
     </div>
 
     <div class="tw:mb-8">
-      <h3 class="tw:text-lg tw:font-semibold tw:mb-4">Detalles del pago</h3>
+      <h3 class="tw:text-lg tw:font-semibold tw:mb-4">Detalle</h3>
       <table class="tw:w-full">
         <thead>
           <tr class="tw:border-b tw:border-gray-300">
