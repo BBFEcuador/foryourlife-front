@@ -44,6 +44,7 @@ export interface PaymentMethod {
   type: string;
   isActive: boolean;
   code: string;
+  campus:Campus;
 }
 
 export interface PaymentHistory {
@@ -63,6 +64,7 @@ export interface PaymentMethodRequest {
   type:string;
   isActive:boolean;
   code:string;
+  campusId:string;
 }
 
 export interface SriPaymentMethod {

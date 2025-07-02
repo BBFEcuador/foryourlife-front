@@ -1,3 +1,4 @@
+import type { Campus } from './Campus';
 import type { StaffWriteModel } from './Staff';
 import type { Trainers } from './Trainers';
 import type { TrainingData } from './Training';
@@ -6,15 +7,16 @@ import type { Visionary } from './Visionary';
 
 export interface Participant {
   id: string;
+  user: User;
+  participantLevel: ParticipantLevel;
+  profile: Profile;
+  campus:Campus;
   email: string;
   token: string;
   password: string;
   name: string;
   lastname: string;
   phone: string;
-  participantLevel: ParticipantLevel;
-  profile: Profile;
-  user: User;
   invitationToken: string;
   roleId: string;
   isLingerer: boolean;

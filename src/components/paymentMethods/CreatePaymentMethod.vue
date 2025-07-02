@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits } from 'vue';
+import { ref, watch, defineProps, defineEmits, computed } from 'vue';
 import useSriPaymentMethods from '@/composables/admin/paymentMethods/useSriPaymentMethods';
+import useCampus from '@/composables/admin/useCampus';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
@@ -9,6 +10,7 @@ import type { PaymentMethodRequest } from '@/models/Payments';
 interface FormData {
   type: string;
   code: string;
+  campusId: string;
 }
 
 const props = withDefaults(
@@ -38,17 +40,20 @@ watch(
 );
 
 const { sriPaymentMethodsData, isSriPaymentMethodsError, isSriPaymentMethodsLoading, refetchSriPaymentMethods } = useSriPaymentMethods();
+const { campus, isError, isFetching, refetch } = useCampus();
 
 const createDefaultFormData = (): FormData => ({
   type: '',
-  code: ''
+  code: '',
+  campusId: ''
 });
 
 const formData = ref<FormData>(createDefaultFormData());
 
 const rules = {
   type: { required },
-  code: { required }
+  code: { required },
+  campusId: { required }
 };
 
 const v$ = useVuelidate(rules, formData);
@@ -77,6 +82,7 @@ const savePaymentMethod = async () => {
   };
 
   emit('save', paymentMethodData);
+  resetForm()
 };
 
 defineExpose({
@@ -97,7 +103,7 @@ defineExpose({
       <v-card-text class="pt-4">
         <v-form ref="form" @submit.prevent="savePaymentMethod">
           <v-row>
-            <v-col cols="12">
+            <v-col cols="6">
               <v-text-field
                 v-model="formData.type"
                 label="Nombre del método"
@@ -109,6 +115,20 @@ defineExpose({
               ></v-text-field>
             </v-col>
 
+            <v-col cols="6">
+              <v-select
+                v-model="formData.campusId"
+                label="Campus"
+                :items="campus"
+                item-title="city"
+                item-value="id"
+                :error-messages="v$.campusId.$errors.map((e: any) => e.$message.toString())"
+                @blur="v$.campusId.$touch"
+                variant="outlined"
+                density="comfortable"
+                required
+              ></v-select>
+            </v-col>
             <v-col cols="12">
               <v-select
                 v-model="formData.code"

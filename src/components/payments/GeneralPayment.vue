@@ -45,7 +45,6 @@ interface CartItem {
 const { participants, participantSearch } = useParticipants();
 const { productsData, productSearch } = useProducts();
 const { discountsData, search } = useDiscounts();
-const { campus } = useCampus();
 const selectedParticipant = ref(null);
 const selectedProduct = ref(null);
 const selectedDiscount = ref(null);
@@ -121,17 +120,15 @@ const searchDiscount = (s: string) => {
 };
 
 const handleParticipantChange = (participant: any) => {
-  console.log('Participante seleccionado en GeneralPayment:', participant);
+  selectedCampus.value = participant.campus
   emit('update:selectedParticipant', participant);
 };
 
 const handleProductChange = (product: any) => {
-  console.log('Producto seleccionado en GeneralPayment:', product);
   emit('update:selectedProduct', product);
 };
 
 const handleDiscountChange = (discount: any) => {
-  console.log('Descuento seleccionado:', discount);
   emit('update:selectedDiscount', discount);
 };
 
@@ -201,12 +198,12 @@ defineExpose({resetTextFields})
         <h3 class="tw:text-lg tw:font-semibold pb-2">Campus</h3>
         <v-select
           v-model="selectedCampus"
-          :items="campus"
           item-title="city"
           item-value="id"
           variant="outlined"
-          placeholder="Seleccionar campus"
+          placeholder="Seleccione un cliente"
           return-object
+          disabled
         ></v-select>
       </div>
     </div>

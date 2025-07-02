@@ -47,6 +47,9 @@ watch(postLoginMutation.isSuccess, () => {
       if (response.cashDrawer.length > 0) {
         store.setCashDrawerOpen(true);
         store.setCashDrawer(response.cashDrawer[0]);
+      }else{
+        store.setCashDrawerOpen(false)
+        store.setCashDrawer({})
       }
       router.push({ name: 'home-admin' });
     }

@@ -28,6 +28,7 @@ const { savePaymentMethodMutation, changePaymentMethodStatusMutation } = usePaym
 const headers = [
   { title: 'Nombre', value: 'type', sortable: true },
   { title: 'Tipo de pago SRI', value: 'code', sortable: true },
+  { title: 'Campus', value: 'campus', sortable: true },
   { title: 'Estado', value: 'isActive', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
@@ -50,13 +51,13 @@ const onChangeStatus = async (item: PaymentMethod) => {
   }).then(async (params) => {
     if (params.isConfirmed) {
       try {
-
-        const paymentMethodReq: PaymentMethodRequest ={
-          id:item.id,
+        const paymentMethodReq: PaymentMethodRequest = {
+          id: item.id,
           type: item.type,
           isActive: !item.isActive,
-          code: item.code
-        } 
+          code: item.code,
+          campusId: item.campus.id
+        };
 
         await savePaymentMethodMutation.mutateAsync(paymentMethodReq);
         refetchPaymentMethods();
@@ -78,7 +79,7 @@ const onCreatePaymentMethod = () => {
   showCreateDialog.value = true;
 };
 
-const onEditPaymentMethod = (item:PaymentMethod) => {
+const onEditPaymentMethod = (item: PaymentMethod) => {
   selectedPaymentMethod.value = item;
   isMethodSelected.value = true;
   showEditDialog.value = true;
@@ -160,6 +161,9 @@ const handleSavePaymentMethod = async (paymenMethodData: Partial<PaymentMethodRe
             </v-toolbar>
           </template>
 
+          <template #item.campus="{ item }">
+            {{ item.campus.city }}
+          </template>
           <template #item.isActive="{ item }">
             <VChip
               :color="item.isActive ? 'success' : 'error'"

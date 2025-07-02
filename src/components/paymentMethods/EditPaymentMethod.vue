@@ -5,10 +5,12 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
 import type { PaymentMethod, PaymentMethodRequest } from '@/models/Payments';
+import useCampus from '@/composables/admin/useCampus';
 
 interface FormData {
   type: string;
   code: string;
+  campusId:string;
 }
 
 const props = withDefaults(
@@ -40,17 +42,20 @@ const isOpen = computed({
 });
 
 const { sriPaymentMethodsData, isSriPaymentMethodsError, isSriPaymentMethodsLoading, refetchSriPaymentMethods } = useSriPaymentMethods();
+const { campus, isError, isFetching, refetch } = useCampus();
 
 const createDefaultFormData = (): FormData => ({
   type: paymentMethod.value.type,
-  code: paymentMethod.value.code
+  code: paymentMethod.value.code,
+  campusId: paymentMethod.value.campus.id
 });
 
 const formData = ref<FormData>(createDefaultFormData());
 
 const rules = {
   type: { required },
-  code: { required }
+  code: { required },
+  campusId:{required}
 };
 
 const v$ = useVuelidate(rules, formData);
@@ -100,7 +105,7 @@ defineExpose({
       <v-card-text class="pt-4">
         <v-form ref="form" @submit.prevent="savePaymentMethod">
           <v-row>
-            <v-col cols="12">
+            <v-col cols="6">
               <v-text-field
                 v-model="formData.type"
                 label="Nombre del método"
@@ -110,6 +115,20 @@ defineExpose({
                 density="comfortable"
                 required
               ></v-text-field>
+            </v-col>
+            <v-col cols="6">
+              <v-select
+                v-model="formData.campusId"
+                label="Campus"
+                :items="campus"
+                item-title="city"
+                item-value="id"
+                :error-messages="v$.campusId.$errors.map((e: any) => e.$message.toString())"
+                @blur="v$.campusId.$touch"
+                variant="outlined"
+                density="comfortable"
+                required
+              ></v-select>
             </v-col>
 
             <v-col cols="12">
