@@ -24,7 +24,7 @@ const handleCloseCashDrawer = async () => {
     userId: store.user.user.id
   };
   await closeCashDrawerMutation.mutateAsync(cashDrawer, {
-    onSuccess: (response) => {
+    onSuccess: () => {
       toast.success('Caja cerrada exitosamente');
       store.setCashDrawer({});
       store.setCashDrawerOpen(false);
@@ -76,24 +76,24 @@ const handleCloseCashDrawer = async () => {
       <v-col cols="12" md="4" class="tw:flex tw:flex-col tw:justify-center tw:items-center tw:gap-4 px-4">
         <div class="tw:text-lg">Saldo Actual: {{ props.cashDrawer.actualBalance }} $</div>
         <v-btn
-          color="green"
+          color="success"
           variant="tonal"
+          class="tw:w-full"
           @click="
             router.push({
               name: 'payments-admin'
             })
           "
-          class="tw:w-full"
         >
           <Icon icon="mdi:eye" class="mr-2" />
           Ver Pagos
         </v-btn>
         <div class="tw:flex tw:gap-2 tw:w-full">
-          <v-btn class="tw:flex-1" color="orange" variant="tonal">
+          <v-btn class="tw:flex-1" color="warning" variant="tonal">
             <Icon icon="majesticons:restricted-line" class="mr-1" />
             Bloquear Caja
           </v-btn>
-          <v-btn variant="tonal" class="tw:flex-1" color="red" @click="handleCloseCashDrawer">
+          <v-btn variant="tonal" class="tw:flex-1" color="error" @click="handleCloseCashDrawer">
             <Icon icon="mdi:lock" class="mr-1" />
             Cerrar Caja
           </v-btn>

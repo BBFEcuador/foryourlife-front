@@ -7,14 +7,14 @@ const MainRoutes = {
   component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
   children: [
     {
-      name: 'Default',
-      path: '/dashboard/default',
-      component: () => import('@/views/dashboards/default/DefaultDashboard.vue')
-    },
-    {
       name: 'UserDashboard',
       path: '/dashboard',
       component: () => import('@/views/user/UserDashboard.vue')
+    },
+    {
+      name: 'userPayments',
+      path: '/payments',
+      component: () => import('@/views/user/PaymentsList.vue')
     }
   ]
 };

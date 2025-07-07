@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 import { useCustomizerStore } from '../../../stores/customizer';
+import useCampus from '@/composables/admin/useCampus';
+import { adminStore } from '@/stores/adminStore';
+import { router } from '@/router';
 
 // dropdown imports
 import NotificationDD from './NotificationDD.vue';
@@ -14,6 +17,18 @@ watch(priority, (newPriority) => {
   // yes, console.log() is a side effect
   priority.value = newPriority;
 });
+
+const selectCampus = computed(() => (adminStore().isCampusSelected ? adminStore().selectCampusId : ''));
+
+const { campus } = useCampus();
+
+const storeCampusOnAdmin = (id: string) => {
+  adminStore().setIsCampusSelected(id ? true : false);
+  adminStore().setSelectedCampusId(id);
+  router.push({ name: 'home-admin' });
+};
+
+const vselectItems = computed(() => [{ city: 'Todas las sucursales', id: '' }, ...campus.value]);
 </script>
 
 <template>
@@ -64,9 +79,16 @@ watch(priority, (newPriority) => {
     <!-- ---------------------------------------------- -->
     <!-- Search part -->
     <!-- ---------------------------------------------- -->
-    <v-sheet color="transparent" class="d-none d-lg-block" width="224">
-      <!-- <Searchbar /> -->
-    </v-sheet>
+    <v-spacer />
+    <v-select
+      class="mt-5"
+      :model-value="selectCampus"
+      placeholder="Elija el campus"
+      :items="vselectItems"
+      item-title="city"
+      item-value="id"
+      @update:model-value="storeCampusOnAdmin"
+    ></v-select>
 
     <!---/Search part -->
 

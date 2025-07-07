@@ -1,35 +1,24 @@
 <script setup>
-import { ref, onMounted } from 'vue';
 const props = defineProps({ item: Object, level: Number });
-import SvgSprite from '@/components/shared/SvgSprite.vue';
-import { string } from 'yup';
+import { Icon } from '@iconify/vue';
 
-const relativeURL = ref(string);
 
-onMounted(async () => {
-  try {
-    relativeURL.value = await import.meta.env.BASE_URL;
-  } catch (error) {
-    console.error('Error url not found:', error);
-  }
-});
 </script>
 
 <template>
   <!---Single Item-->
   <v-list-item
     v-if="props.item.getURL === true"
-    :to="item.type === 'external' ? '' : {name: item.to}"
-    :href="`${relativeURL}${item.to}`"
+    :to="item.type === 'external' ? '' : { name: item.to }"
     rounded
-    exact
     color="primary"
+    exact
     :disabled="item.disabled"
     :target="item.type === 'external' ? '_blank' : ''"
   >
     <!---If icon-->
     <template v-slot:prepend>
-      <SvgSprite :name="props.item.icon || ''" :level="props.level" />
+      <Icon :icon="props.item.icon || ''" :level="props.level" height="24"/>
     </template>
     <v-list-item-title>{{ item.title }}</v-list-item-title>
     <!---If Caption-->
@@ -45,17 +34,16 @@ onMounted(async () => {
   </v-list-item>
   <v-list-item
     v-else
-    :to="item.type === 'external' ? '' : {name: item.to}"
-    :href="item.type === 'external' ? item.to : ''"
+    :to="item.type === 'external' ? '' : { name: item.to }"
     rounded
-    exact
     color="primary"
     :disabled="item.disabled"
+    exact
     :target="item.type === 'external' ? '_blank' : ''"
   >
     <!---If icon-->
     <template v-slot:prepend>
-      <SvgSprite :name="props.item.icon || ''" :level="props.level" />
+      <Icon :icon="props.item.icon || ''" :level="props.level" height="24"/>
     </template>
     <v-list-item-title>{{ item.title }}</v-list-item-title>
     <!---If Caption-->

@@ -128,7 +128,7 @@ const processPayment = async () => {
   };
 
   savePaymentMutations.mutate(paymentData, {
-    onSuccess: (data) => {
+    onSuccess: () => {
       showSuccessModal.value = true;
       redirectCountdown.value = maxCountdown;
       const interval = setInterval(() => {
@@ -208,7 +208,7 @@ const clearPaymentHistory = () => {
       <v-card-actions class="justify-center">
         <v-btn color="primary" @click="showSuccessModal = false">Cerrar</v-btn>
       </v-card-actions>
-      <v-progress-linear color="green" height="5" :model-value="progressValue" />
+      <v-progress-linear color="success" height="5" :model-value="progressValue" />
     </v-card>
   </v-dialog>
   <div class="tw:flex tw:flex-col">
@@ -255,7 +255,7 @@ const clearPaymentHistory = () => {
         </v-card>
 
         <div>
-          <v-btn color="green" variant="tonal" @click="showPaymentHistoryModal = true">
+          <v-btn color="success" variant="tonal" @click="showPaymentHistoryModal = true">
             <Icon icon="mdi:plus" class="mr-2" />
             Añadir Pago
           </v-btn>
@@ -291,11 +291,11 @@ const clearPaymentHistory = () => {
         </v-card>
 
         <v-btn
-          color="primary"
-          @click="processPayment"
           :loading="isLoading"
           :disabled="isLoading || !selectedProduct || !selectedParticipant"
+          color="primary"
           class="tw:w-full mt-4"
+          @click="processPayment"
         >
           Procesar cobro
         </v-btn>
@@ -304,8 +304,8 @@ const clearPaymentHistory = () => {
 
     <PaymentHistoryList
       :model-value="showPaymentHistoryModal"
-      @update:model-value="closePaymentHistoryModal"
       :origin-pos="true"
+      @update:model-value="closePaymentHistoryModal"
       @update:payment-pos-origin="addPaymentHistoryRow"
     />
   </div>

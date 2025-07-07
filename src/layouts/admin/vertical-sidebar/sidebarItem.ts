@@ -91,14 +91,9 @@ const sidebarItem = [
     ]
   },
   {
-    title: 'Generales',
+    title: 'Configuración',
     icon: 'material-symbols:settings',
-    children: [
-      {
-        title: 'Perfil',
-        to: 'settings'
-      }
-    ]
+    to: 'settings'
   },
 ];
 

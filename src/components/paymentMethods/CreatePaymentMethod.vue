@@ -6,12 +6,15 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
 import type { PaymentMethodRequest } from '@/models/Payments';
+import { adminStore } from '@/stores/adminStore';
 
 interface FormData {
   type: string;
   code: string;
   campusId: string;
 }
+
+const store = adminStore();
 
 const props = withDefaults(
   defineProps<{
@@ -45,7 +48,7 @@ const { campus, isError, isFetching, refetch } = useCampus();
 const createDefaultFormData = (): FormData => ({
   type: '',
   code: '',
-  campusId: ''
+  campusId: store.selectCampusId || ''
 });
 
 const formData = ref<FormData>(createDefaultFormData());
@@ -82,7 +85,7 @@ const savePaymentMethod = async () => {
   };
 
   emit('save', paymentMethodData);
-  resetForm()
+  resetForm();
 };
 
 defineExpose({
@@ -120,6 +123,7 @@ defineExpose({
                 v-model="formData.campusId"
                 label="Campus"
                 :items="campus"
+                :disabled="store.isCampusSelected"
                 item-title="city"
                 item-value="id"
                 :error-messages="v$.campusId.$errors.map((e: any) => e.$message.toString())"

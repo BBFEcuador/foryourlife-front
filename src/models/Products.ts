@@ -1,13 +1,17 @@
+import type { Campus } from "./Campus"
+
 export interface Product {
     id: string
     name: string
     code: string
     basePrice: number
     currency: string
+    isActive: boolean
     description: string
+    contificoId:string
     rules: any
     programs: Program[]
-    isActive: boolean
+    campus:Campus
 }
 
 export interface Content {

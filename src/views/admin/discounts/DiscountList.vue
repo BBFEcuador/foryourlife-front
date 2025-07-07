@@ -70,7 +70,7 @@ const onChangeStatus = async (item: Discount) => {
         confirmButtonColor: confirmColor,
         cancelButtonColor: '#6c757d',
         confirmButtonText: confirmText,
-        cancelButtonText: 'Cancelar'
+        cancelButtonText: 'Cancelar',
     }).then(async (params) => {
         if (params.isConfirmed) {
             try {

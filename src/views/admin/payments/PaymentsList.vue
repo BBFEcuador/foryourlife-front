@@ -8,8 +8,10 @@ import PaymentHistoryList from '@/components/payments/PaymentHistoryList.vue';
 import { useRouter } from 'vue-router';
 import type { Payment } from '@/models/Payments';
 import Swal from 'sweetalert2';
+import usePaymentPdf from '@/composables/admin/payments/usePaymentPdf';
 
 const showPaymentHistory = ref(false);
+const selectPaymentIdPdf = ref('');
 const selectPayment = ref<Payment>({
   paymentshistory: [] as any[]
 } as Payment);
@@ -21,7 +23,9 @@ const breadcrumbs = ref([
   }
 ]);
 
-const { paymentsData, isPaymentsLoading, page, perPage, search, refetchPayments } = usePayments();
+const { pdfArray, isPaymentPdfError, isPaymentPdfLoading, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
+
+const { paymentsData, isPaymentsLoading, page, perPage, search } = usePayments();
 const { cancelPaymentMutation } = usePaymentRecordMutations();
 
 const headers = [
@@ -103,6 +107,18 @@ const onChangeStatus = (item: Payment) => {
     }
   });
 };
+
+const handleDownloadPdf = async (item: Payment) => {
+  selectPaymentIdPdf.value = item.id;
+
+  const { data } = await refetchPaymentPdf();
+
+  if (data) {
+    const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  }
+};
 </script>
 
 <template>
@@ -119,9 +135,9 @@ const onChangeStatus = (item: Payment) => {
     >
       <template v-slot:top>
         <v-toolbar
+          v-motion
           class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
           flat
-          v-motion
           :initial="{ opacity: 0, y: -10 }"
           :enter="{ opacity: 1, y: 0 }"
           :delay="200"
@@ -142,8 +158,8 @@ const onChangeStatus = (item: Payment) => {
                 <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
               </div>
             </template>
-            <template #append v-if="search">
-              <VBtn icon variant="text" size="small" @click="search = ''" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+            <template v-if="search" #append>
+              <VBtn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors" @click="search = ''">
                 <Icon icon="mdi:close" height="18" />
               </VBtn>
             </template>
@@ -180,22 +196,33 @@ const onChangeStatus = (item: Payment) => {
       <template #item.actions="{ item }">
         <div class="d-flex ga-2">
           <v-btn
+            v-tooltip="'Ver lista de pagos'"
             icon
             color="info"
             variant="text"
             size="32"
             class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-            v-tooltip="'Ver lista de pagos'"
             @click="onPaymentHistoryShow(item)"
           >
             <Icon icon="mdi:list-box-outline" />
           </v-btn>
           <v-btn
+            v-tooltip="'Imprimir compromiso de cobro'"
+            icon
+            color="success"
+            variant="text"
+            size="32"
+            class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+            @click="handleDownloadPdf(item)"
+          >
+            <Icon icon="material-symbols:print-outline-rounded" />
+          </v-btn>
+          <v-btn
+            v-tooltip="'Cerrar Cobro'"
             color="error"
             icon
             variant="text"
             size="32"
-            v-tooltip="'Cerrar Cobro'"
             class="tw:bg-red-300 hover:!tw:bg-red-100"
             @click="onChangeStatus(item)"
           >

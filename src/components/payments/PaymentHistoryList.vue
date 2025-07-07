@@ -59,7 +59,7 @@ const onPaymentMethodSelected = (id: string) => {
 };
 
 const submitForm = async () => {
-  const { valid } = await formRef.value?.validate();
+  const { valid } = await formRef.value.validate();
   if (!valid) return;
 
   if (!adminStore().isCashDrawerOpen) {

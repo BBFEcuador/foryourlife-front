@@ -16,11 +16,15 @@ export interface menu {
 }
 
 const sidebarItem: menu[] = [
-  { header: 'Dashboard' },
   {
-    title: 'Inicio',
-    icon: 'custom-home-trend',
+    title: 'Invitación',
+    icon: 'mdi:qrcode',
     to: 'UserDashboard'
+  },
+  {
+    title: 'Mis pagos',
+    icon: 'hugeicons:payment-02',
+    to: 'userPayments'
   },
 ];
 

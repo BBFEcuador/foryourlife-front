@@ -232,7 +232,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                 <div class="tw:flex-1 tw:max-w-md tw:relative">
                   <VTextField
                     v-model="participantSearch"
-                    placeholder="Buscar equipos..."
+                    placeholder="Buscar participantes..."
                     variant="outlined"
                     density="comfortable"
                     hide-details

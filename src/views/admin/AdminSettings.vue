@@ -1,51 +1,88 @@
 <script setup lang="ts">
-import UpdateAccountForm from '@/components/account/UpdateAccountForm.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import useAccount from '@/composables/admin/useAdminSettings';
+import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
-
-
-const { account, accountHasError, idlAccount, isAccountLoading } = useAccount();
-
+import AdminAccount from './settings/AdminAccount.vue';
+import ContificoSettings from './settings/ContificoSettings.vue';
 
 const breadcrumbs = ref([
   {
-    title: 'Entrenamiento',
+    title: 'Configuración',
     disabled: false,
     href: '#'
   }
 ]);
+
+interface Section {
+  title: string;
+  description: string;
+  value: string;
+  icon: string;
+}
+
+const sections: Section[] = [
+  {
+    title: 'Cuenta',
+    description: 'Personalización de datos de cuenta',
+    value: 'cuenta',
+    icon: 'mdi:account'
+  },
+  {
+    title: 'Contifico',
+    description: 'Configuración de datos para el funcionamiento de la facturación',
+    value: 'contifico',
+    icon: 'ph:coins-fill'
+  },
+  {
+    title: 'Otros',
+    description: 'Configuración de datos para el funcionamiento de la facturación',
+    value: 'others',
+    icon: 'material-symbols:settings-suggest'
+  }
+];
+
+const selectedSection = ref<Section | null>(null);
 </script>
 <template>
-    <BaseBreadcrumb :title="'Cuenta'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
-    <v-row v-if="isAccountLoading">
-        <v-col cols="12" md="6">
-            <v-card elevation="1">
-                <v-skeleton-loader type="card"></v-skeleton-loader>
-            </v-card>
-        </v-col>
-    </v-row>
-    <v-row v-else-if="accountHasError">
-        <v-col cols="12">
-            <p>error</p>
-        </v-col>
-    </v-row>
-    <v-row v-else>
-        <v-col cols="12" md="5">
-            <v-card class="tw:text-center tw:h-full" overflow-hidden rounded="lg" flat>
-                <v-card-title class="tw:rounded-t-lg bg-primary mb-3 tw:w-full"> Información actual </v-card-title>
-                <v-card-subtitle class="mt-4 tw:w-full"> Perfil de Administrador </v-card-subtitle>
-                <v-card-item class="tw:grid tw:place-content-center">
-                    <h3 class="tw:font-semibold text-h3">{{ idlAccount.name }}</h3>
-                    <h4 class="text-lightText text-h4">{{ idlAccount.email }}</h4>
-                </v-card-item>
-            </v-card>
-        </v-col>
-        <v-col cols="12" md="7">
-            <UpdateAccountForm :account="account" />
-        </v-col>
-    </v-row>
+  <BaseBreadcrumb :title="'Configuración'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+
+  <v-row dense>
+    <v-col v-for="section in sections" :key="section.value" :cols="12" :md="12 / sections.length">
+      <v-card
+        :elevation="selectedSection?.value === section.value ? 8 : 2"
+        class="tw:cursor-pointer h-100"
+        :color="selectedSection?.value === section.value ? 'primary' : 'white'"
+        @click="selectedSection = section"
+      >
+        <v-card-title class="d-flex tw:gap-x-2 align-center">
+          <Icon :icon="section.icon" />
+          <div class="tw:font-bold">{{ section.title }}</div>
+        </v-card-title>
+        <v-card-text class="tw-flex tw-items-center tw-text-sm">
+          <div class="tw-whitespace-normal tw-break-words">
+            {{ section.description }}
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
+
+  <v-row>
+    <v-col cols="12">
+      <v-card elevation="2" class="pa-4">
+        <template v-if="selectedSection?.value === 'cuenta'">
+          <AdminAccount />
+        </template>
+        <template v-else-if="selectedSection?.value === 'contifico'">
+          <ContificoSettings />
+        </template>
+        <template v-else-if="selectedSection?.value === 'others'">
+          <div>TODO</div>
+        </template>
+        <template v-else>
+          <p>Selecciona una sección para ver el contenido.</p>
+        </template>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
-
-
-<style scoped></style>

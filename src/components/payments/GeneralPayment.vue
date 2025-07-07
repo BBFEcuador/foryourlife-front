@@ -3,7 +3,10 @@ import useDiscounts from '@/composables/admin/discounts/useDiscounts';
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import useProducts from '@/composables/admin/products/useProducts';
 import useCampus from '@/composables/admin/useCampus';
+import { router } from '@/router';
+import Swal from 'sweetalert2';
 import { ref, computed, watch } from 'vue';
+import { toast } from 'vue3-toastify';
 
 const props = defineProps({
   modelValue: {
@@ -120,12 +123,29 @@ const searchDiscount = (s: string) => {
 };
 
 const handleParticipantChange = (participant: any) => {
-  selectedCampus.value = participant.campus
+  selectedCampus.value = participant.campus;
   emit('update:selectedParticipant', participant);
 };
 
 const handleProductChange = (product: any) => {
-  emit('update:selectedProduct', product);
+  if (product.programs.length === 0) {
+    Swal.fire({
+      text: `Este producto no cuenta con programas asignados`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#2ca87f',
+      cancelButtonColor: '#ff6464',
+      confirmButtonText: 'Configurar Productos',
+      cancelButtonText: 'Volver'
+    }).then(async (params) => {
+      if (params.isConfirmed) {
+        router.push({ name: 'products-admin' });
+      }
+    });
+    selectedProduct.value = null;
+  } else {
+    emit('update:selectedProduct', product);
+  }
 };
 
 const handleDiscountChange = (discount: any) => {
@@ -162,8 +182,7 @@ const resetTextFields = () => {
   selectedCampus.value = null;
 };
 
-defineExpose({resetTextFields})
-
+defineExpose({ resetTextFields });
 </script>
 
 <template>
