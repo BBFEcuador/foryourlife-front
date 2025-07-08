@@ -11,15 +11,21 @@ import { toast } from 'vue3-toastify';
 import useCashBoxes from '@/composables/admin/pos/useCashBoxes';
 import { router } from '@/router';
 import CreateCashDrawer from '@/components/cashDrawer/CreateCashDrawer.vue';
+import useContificoPosMutation from '@/composables/admin/contifico/useContificoPos';
+import useStores from '@/composables/admin/pos/useStores';
 
-const { cashBoxes, isCashBoxesError, isCashBoxesLoading, refetchCashBoxes } = useCashBoxes();
+const { cashBoxes, isCashBoxesLoading, refetchCashBoxes } = useCashBoxes();
+const { storesData, isStoresDataLoading, refetchStoresData } = useStores();
 const { saveCashBoxMutation } = useCashBoxMutation();
 const { openCashDrawerMutation } = useCashDrawerMutation();
+const { useContificoSyncPosMutations, isSyncPosLoading } = useContificoPosMutation();
 
 const store = adminStore();
 const showCreateCashBox = ref(false);
 const auxCashBox = ref<CashBox>({} as CashBox);
 const showCreateCashDrawer = ref(false);
+
+const disabledProperty = ref(!store.isCampusSelected);
 
 const sortedCashDrawers = computed(() => cashBoxes.value?.slice().sort((a, b) => parseInt(a.number) - parseInt(b.number)) || []);
 
@@ -49,11 +55,16 @@ const handleSaveCashBox = async (cashBox: Partial<CashBox>) => {
 
 const handleOpenCashDrawer = async (cashBox: CashBox) => {
   auxCashBox.value = cashBox;
-  showCreateCashDrawer.value = true
+  showCreateCashDrawer.value = true;
 };
 
 const openCashDrawer = async (cashDrawerData: { openingBalance: number; details: string }) => {
-  const cashDrawer = { cashBoxId: auxCashBox.value.id, userId: auxCashBox.value.createdBy.id, openingBalance: cashDrawerData.openingBalance, detail: cashDrawerData.details };
+  const cashDrawer = {
+    cashBoxId: auxCashBox.value.id,
+    userId: auxCashBox.value.createdBy.id,
+    openingBalance: cashDrawerData.openingBalance,
+    detail: cashDrawerData.details
+  };
   await openCashDrawerMutation.mutateAsync(cashDrawer, {
     onSuccess: (response) => {
       toast.success('Caja abierta exitosamente');
@@ -67,17 +78,30 @@ const openCashDrawer = async (cashDrawerData: { openingBalance: number; details:
     }
   });
 };
+
+const syncPos = async() => {
+  await useContificoSyncPosMutations(undefined, {
+    onSuccess: () => {
+      toast.success('Sincronización exitosa');
+      refetchStoresData();
+    },
+    onError: (error) => {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || 'Error al sincronizar');
+    }
+  });
+};
 </script>
 
 <template>
   <div class="d-flex align-center pb-4">
     <h3 class="text-h3 font-weight-bold">Cajas disponibles</h3>
     <v-spacer />
-    <v-btn color="green" @click="router.push({ name: 'payments-admin' })" class="mr-2">
+    <v-btn color="success" @click="router.push({ name: 'payments-admin' })" class="mr-2">
       <Icon icon="mdi:eye" class="mr-2" />
       Ver Pagos
     </v-btn>
-    <v-btn color="primary" @click="showCreateCashBox = true">
+    <v-btn color="primary" @click="showCreateCashBox = true" :disabled="disabledProperty">
       <Icon icon="mdi:plus" class="mr-2" />
       Nueva caja
     </v-btn>
@@ -101,7 +125,7 @@ const openCashDrawer = async (cashDrawerData: { openingBalance: number; details:
             <span class="text-wrap">Caja No. {{ cashBox.number }}</span>
           </div>
 
-          <v-chip :color="cashBox.isActive ? 'green' : 'red'" class="me-1">
+          <v-chip :color="cashBox.isActive ? 'success' : 'red'" class="me-1">
             {{ cashBox.isActive ? 'Activa' : 'Inactiva' }}
           </v-chip>
 
@@ -123,6 +147,52 @@ const openCashDrawer = async (cashDrawerData: { openingBalance: number; details:
     <Icon icon="mdi:cash-register" height="48" class="mb-4" />
     <p class="text-subtitle-1">No se encontraron cajas</p>
     <p class="text-body-2">Intenta crear una nueva</p>
+  </div>
+
+  <div class="d-flex align-center pb-4">
+    <h3 class="text-h3 font-weight-bold">Puntos de Venta Contifico</h3>
+    <v-spacer />
+    <v-btn :loading="isSyncPosLoading" color="success" @click="syncPos" class="mr-2" :disabled="disabledProperty">
+      <Icon icon="mdi:reload" class="mr-2" />
+      Sincronizar
+    </v-btn>
+  </div>
+
+  <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
+    <Icon icon="cil:warning" height="48" class="mb-4" />
+    <p class="text-subtitle-1">Elija un campus para ver los puntos de venta de Contifico</p>
+  </div>
+
+  <div v-else>
+    <div v-if="isStoresDataLoading || isSyncPosLoading" class="d-flex justify-center align-center pa-5">
+      <v-progress-circular indeterminate color="primary" />
+    </div>
+
+    <v-row v-else-if="storesData.length" dense>
+      <v-col v-for="store in storesData" :key="store.id" cols="12" md="4">
+        <v-card variant="outlined" class="h-100 d-flex flex-column justify-space-between">
+          <v-card-item>
+            <div class="d-flex justify-space-between align-start text-h4 mb-2">
+              {{ store }}
+              <span class="text-wrap">Caja No. {{}}</span>
+            </div>
+          </v-card-item>
+
+          <v-card-actions class="pa-3 d-flex flex-wrap gap-2">
+            <v-btn class="flex-grow" variant="tonal" color="primary" @click="">
+              <Icon icon="mdi:key" class="mr-1" />
+              Abrir Caja
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <div v-else class="d-flex flex-column align-center justify-center py-12 text-grey">
+      <Icon icon="mdi:cash-register" height="48" class="mb-4" />
+      <p class="text-subtitle-1">No se encontraron puntos de venta</p>
+      <p class="text-body-2">Intenta sincronizar los datos</p>
+    </div>
   </div>
 
   <div>

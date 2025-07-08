@@ -4,11 +4,11 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric } from '@vuelidate/validators';
 import type { CashBox } from '@/models/CashDrawer';
-import type { User } from '@/models/User';
 
 interface FormData {
   number: string;
-  detail: string;
+  firstNumberInvoice: string;
+  store: string;
 }
 
 const props = withDefaults(
@@ -31,13 +31,16 @@ const form = ref<HTMLFormElement | null>(null);
 
 const createDefaultFormData = (): FormData => ({
   number: '',
-  detail: ''
+  firstNumberInvoice: '',
+  store: ''
 });
 
 const formData = ref<FormData>(createDefaultFormData());
 
 const rules = {
-  number: { required, numeric }
+  number: { required, numeric },
+  firstNumberInvoice: { required, numeric },
+  store: { required, numeric }
 };
 
 const v$ = useVuelidate(rules, formData);
@@ -66,11 +69,12 @@ const saveCashBox = async () => {
   const isValid = await v$.value.$validate();
   if (!isValid) return;
 
-  const cashDrawerData = {
-    ...formData.value
+  const cashBoxData = {
+    ...formData.value,
+    firstNumberInvoice: parseInt(formData.value.firstNumberInvoice)
   };
 
-  emit('save', cashDrawerData);
+  emit('save', cashBoxData);
   resetForm();
 };
 
@@ -104,6 +108,32 @@ defineExpose({
                 density="comfortable"
                 required
               ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="formData.firstNumberInvoice"
+                label="Numero de factura"
+                type="number"
+                :error-messages="v$.firstNumberInvoice.$errors.map((e: any) => e.$message.toString())"
+                @blur="v$.firstNumberInvoice.$touch"
+                variant="outlined"
+                density="comfortable"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-select
+                v-model="formData.store"
+                label="Punto de venta Contifico"
+                type="number"
+                :error-messages="v$.store.$errors.map((e: any) => e.$message.toString())"
+                @blur="v$.store.$touch"
+                variant="outlined"
+                density="comfortable"
+                required
+              ></v-select>
             </v-col>
           </v-row>
         </v-form>
