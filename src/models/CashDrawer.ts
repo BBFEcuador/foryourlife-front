@@ -18,7 +18,12 @@ export interface CashBoxRequest {
   store: Store;
 }
 
-export interface Store { }
+
+export interface Store {
+  id: string;
+  address: string;
+  number: string;
+}
 
 export interface CashDrawer {
   id: string;

@@ -79,7 +79,7 @@ const openCashDrawer = async (cashDrawerData: { openingBalance: number; details:
   });
 };
 
-const syncPos = async() => {
+const syncPos = async () => {
   await useContificoSyncPosMutations(undefined, {
     onSuccess: () => {
       toast.success('Sincronización exitosa');
@@ -110,6 +110,7 @@ const syncPos = async() => {
       :is-loading="isCashBoxesLoading"
       @cancel="showCreateCashBox = false"
       @save="handleSaveCashBox"
+      :stores="storesData"
     />
   </div>
 
@@ -149,18 +150,18 @@ const syncPos = async() => {
     <p class="text-body-2">Intenta crear una nueva</p>
   </div>
 
-  <div class="d-flex align-center pb-4">
-    <h3 class="text-h3 font-weight-bold">Puntos de Venta Contifico</h3>
+  <div class="d-flex align-center pb-4 mt-4">
+    <h3 class="text-h3 font-weight-bold">Establecimientos de Contifico</h3>
     <v-spacer />
     <v-btn :loading="isSyncPosLoading" color="success" @click="syncPos" class="mr-2" :disabled="disabledProperty">
       <Icon icon="mdi:reload" class="mr-2" />
-      Sincronizar
+      Sincronizar establecimientos de Contifico
     </v-btn>
   </div>
 
   <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
     <Icon icon="cil:warning" height="48" class="mb-4" />
-    <p class="text-subtitle-1">Elija un campus para ver los puntos de venta de Contifico</p>
+    <p class="text-subtitle-1">Elija un campus para ver los establecimientos de Contifico</p>
   </div>
 
   <div v-else>
@@ -173,17 +174,10 @@ const syncPos = async() => {
         <v-card variant="outlined" class="h-100 d-flex flex-column justify-space-between">
           <v-card-item>
             <div class="d-flex justify-space-between align-start text-h4 mb-2">
-              {{ store }}
-              <span class="text-wrap">Caja No. {{}}</span>
+              <span class="text-wrap">Establecimiento No. {{ store.number }}</span>
             </div>
+            <div>{{ store.address }}</div>
           </v-card-item>
-
-          <v-card-actions class="pa-3 d-flex flex-wrap gap-2">
-            <v-btn class="flex-grow" variant="tonal" color="primary" @click="">
-              <Icon icon="mdi:key" class="mr-1" />
-              Abrir Caja
-            </v-btn>
-          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>

@@ -19,6 +19,9 @@ const { productsData, isProductsLoading, page, perPage, productSearch, refetchPr
 const { changeStatusMutations, updateProductMutations } = useProductMutations();
 const { useContificoSyncProductsMutation, isSyncProductLoading } = useContificoProductsMutation();
 
+const store = adminStore()
+const disabledProperty = !store.isCampusSelected
+
 const breadcrumbs = ref([
   {
     title: 'Productos',
@@ -126,12 +129,12 @@ watch(changeStatusMutations.isError, () => {
 });
 
 const syncContificoProducts = () => {
-  if (!adminStore().isCampusSelected) {
+  if (!store.isCampusSelected) {
     toast.error('Seleccione un campus para sincronizar');
     return;
   }
 
-  useContificoSyncProductsMutation(adminStore().selectCampusId, {
+  useContificoSyncProductsMutation(store.selectCampusId, {
     onSuccess() {
       toast.success('Productos actualizados correctamente');
       refetchProducts();
@@ -209,7 +212,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
                 </template>
               </VTextField>
               <v-spacer></v-spacer>
-              <VBtn variant="elevated" color="success" @click="syncContificoProducts">
+              <VBtn variant="elevated" color="success" @click="syncContificoProducts" :disabled="disabledProperty">
                 <Icon class="mr-2" icon="mdi:reload" />
                 Actualizar productos de contifico
               </VBtn>

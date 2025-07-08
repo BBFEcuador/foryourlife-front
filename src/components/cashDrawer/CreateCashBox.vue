@@ -3,18 +3,19 @@ import { ref, defineProps, defineEmits, watch } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric } from '@vuelidate/validators';
-import type { CashBox } from '@/models/CashDrawer';
+import type { CashBox, Store } from '@/models/CashDrawer';
 
 interface FormData {
   number: string;
   firstNumberInvoice: string;
-  store: string;
+  store: Store;
 }
 
 const props = withDefaults(
   defineProps<{
     modelValue: boolean;
     isLoading?: boolean;
+    stores: Store[];
   }>(),
   {
     isLoading: false
@@ -32,7 +33,11 @@ const form = ref<HTMLFormElement | null>(null);
 const createDefaultFormData = (): FormData => ({
   number: '',
   firstNumberInvoice: '',
-  store: ''
+  store: {
+    id: '',
+    address: '',
+    number: ''
+  }
 });
 
 const formData = ref<FormData>(createDefaultFormData());
@@ -40,7 +45,7 @@ const formData = ref<FormData>(createDefaultFormData());
 const rules = {
   number: { required, numeric },
   firstNumberInvoice: { required, numeric },
-  store: { required, numeric }
+  store: { required }
 };
 
 const v$ = useVuelidate(rules, formData);
@@ -112,7 +117,7 @@ defineExpose({
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="formData.firstNumberInvoice"
-                label="Numero de factura"
+                label="Numero de factura inicial"
                 type="number"
                 :error-messages="v$.firstNumberInvoice.$errors.map((e: any) => e.$message.toString())"
                 @blur="v$.firstNumberInvoice.$touch"
@@ -127,12 +132,14 @@ defineExpose({
               <v-select
                 v-model="formData.store"
                 label="Punto de venta Contifico"
-                type="number"
+                :items="props.stores"
+                item-title="address"
                 :error-messages="v$.store.$errors.map((e: any) => e.$message.toString())"
                 @blur="v$.store.$touch"
                 variant="outlined"
                 density="comfortable"
                 required
+                return-object
               ></v-select>
             </v-col>
           </v-row>
