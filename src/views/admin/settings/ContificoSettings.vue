@@ -9,8 +9,9 @@ import { toast } from 'vue3-toastify';
 
 const apiToken = ref('');
 const authorization = ref('');
+const ruc = ref('');
 
-const disableConfig = computed(() => !adminStore().isCampusSelected);
+const disableConfig = !adminStore().isCampusSelected;
 const campusId = ref(adminStore().selectCampusId);
 
 const { saveContificoSettingsMutation } = useContificoSettingsMutations();
@@ -23,7 +24,8 @@ const handleSaveConfiguration = async () => {
   const configReq: ContificoConfigRequest = {
     campusId: campusId.value,
     apiKey: apiToken.value,
-    apiSecret: authorization.value
+    apiSecret: authorization.value,
+    ruc: ruc.value
   };
 
   await saveContificoSettingsMutation.mutateAsync(configReq, {
@@ -44,12 +46,15 @@ const handleSaveConfiguration = async () => {
     <div class="tw:w-8/12 tw:border-l tw:border-gray-200 pl-4">
       <div class="d-flex align-center tw:gap-x-3">
         <p class="tw:font-medium tw:md:w-4/12">Api Token</p>
-        <v-text-field v-model="apiToken" :placeholder="prevKey" persistent-hint variant="outlined"></v-text-field>
+        <v-text-field v-model="apiToken" :placeholder="prevKey" dense hide-details persistent-hint variant="outlined"></v-text-field>
       </div>
-      <v-spacer class="ma-2" />
-      <div class="d-flex align-center tw:gap-x-3">
+      <div class="d-flex align-center tw:gap-x-3 mt-2">
         <p class="tw:font-medium tw:md:w-4/12">Autorización</p>
         <v-text-field v-model="authorization" :placeholder="prevAuth" variant="outlined" dense hide-details></v-text-field>
+      </div>
+      <div class="d-flex align-center tw:gap-x-3 mt-2">
+        <p class="tw:font-medium tw:md:w-4/12">RUC</p>
+        <v-text-field v-model="ruc" :placeholder="contificoConfig.ruc" variant="outlined" dense hide-details></v-text-field>
       </div>
     </div>
     <v-btn class="ml-2" color="success" variant="flat" @click="handleSaveConfiguration">Guardar</v-btn>
