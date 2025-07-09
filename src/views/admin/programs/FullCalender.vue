@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, watchEffect } from 'vue';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
@@ -26,13 +26,13 @@ import ViewTeam from '../team/ViewTeam.vue';
 
 const { updateEventMutation, addEventMutation } = useCalendarMutations();
 
-const { data, isFetching, isError, refetch } = useCalendar();
+const { trainingsData, startDate, endDate, refetch, perPage, isLoading } = useCalendar(true);
 const { campus } = useCampus();
 const viewModalShow = ref(false);
 const addModalShow = ref(false);
 const currentEvent = ref<Calendar>({} as Calendar);
-const team = ref<Team>()
-const dialog = ref(false)
+const team = ref<Team>();
+const dialog = ref(false);
 
 const updatedDate = ref({
   startDate: new Date(),
@@ -49,7 +49,7 @@ const handleDateSelect = (selectInfo: any) => {
     start: selectInfo.startStr,
     end: selectInfo.endStr,
     allDay: selectInfo.allDay,
-    embedded:{} as TrainingData
+    embedded: {} as TrainingData
   };
 };
 
@@ -60,11 +60,11 @@ const formatDate = (date: string | Date) => {
 };
 
 const handleEventClick = (clickInfo: any) => {
-  const isUpdateOrView = data.value.find(x => x.id == clickInfo.event.id)
+  const isUpdateOrView = trainingsData.value.content.find((x) => x.id == clickInfo.event.id);
   if (isUpdateOrView?.embedded.originalTeam) {
-    team.value = isUpdateOrView.embedded.originalTeam
-    dialog.value = true
-  }else{
+    team.value = isUpdateOrView.embedded.originalTeam;
+    dialog.value = true;
+  } else {
     viewModalShow.value = true;
     currentEvent.value = clickInfo.event;
     selectedDate.value = new Date(clickInfo.event.start);
@@ -74,30 +74,43 @@ const isModalOpen = ref(false);
 
 const a: CalendarOptions = {};
 
-const calendarOption = ref({
-  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-  initialView: 'dayGridMonth',
-  headerToolbar: {
-    left: 'prev,next today',
-    center: 'title',
-    right: 'customButton'
-  },
-  locale: LocaleEs,
-  editable: true,
-  selectable: true,
-  events: computed(() => data.value),
-  eventClick: handleEventClick,
-  select: handleDateSelect,
-  eventStartEditable: false,
-  eventDurationEditable: false,
-  customButtons: {
-    customButton: {
-      text: 'Agregar nuevos cursos',
-      click: () => {
-        isModalOpen.value = true;
+const isRefetchingManually = ref(false);
+
+const handleDatesSet = async (arg: { start: Date; end: Date }) => {
+  perPage.value = 20;
+  startDate.value = arg.start.toISOString().split('T')[0];
+  endDate.value = arg.end.toISOString().split('T')[0];
+
+  await refetch();
+};
+
+const calendarOption = computed(() => {
+  return {
+    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'customButton'
+    },
+    locale: LocaleEs,
+    editable: true,
+    selectable: true,
+    events: trainingsData.value.content,
+    eventClick: handleEventClick,
+    select: handleDateSelect,
+    datesSet: handleDatesSet,
+    eventStartEditable: false,
+    eventDurationEditable: false,
+    customButtons: {
+      customButton: {
+        text: 'Agregar nuevos cursos',
+        click: () => {
+          isModalOpen.value = true;
+        }
       }
     }
-  }
+  };
 });
 
 const updateEvent = async () => {
@@ -151,10 +164,10 @@ const onAddCourses = async () => {
 </script>
 
 <template>
-  <div class="demo-app">
+  <div v-if="!isLoading" class="demo-app">
     <div class="demo-app-main">
-      <FullCalendar class='demo-app-calendar rounded-md' :options='calendarOption' >
-        <template v-slot:eventContent='arg'>
+      <FullCalendar class="demo-app-calendar rounded-md" :options="calendarOption">
+        <template v-slot:eventContent="arg">
           <div class="text-subtitle-1 pa-1 text-truncate">{{ arg.event.title }}</div>
         </template>
       </FullCalendar>
@@ -235,25 +248,18 @@ const onAddCourses = async () => {
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog
-      v-model="dialog"
-      transition="dialog-bottom-transition"
-      fullscreen
-    >
-      <v-card color="containerBg">
-        <v-toolbar>
-          <v-btn
-            icon
-            @click="dialog = false"
-          >
-          <Icon icon="material-symbols-light:cancel-outline-rounded"/>
-        </v-btn>
-        </v-toolbar>
-        <div class="px-8">
-          <ViewTeam :team="team" :is-for-edit="false" :is-team-error="false" :is-team-loading="false" v-if="team"/>
-        </div>
-      </v-card>
-    </v-dialog>
+      <v-dialog v-model="dialog" transition="dialog-bottom-transition" fullscreen>
+        <v-card color="containerBg">
+          <v-toolbar>
+            <v-btn icon @click="dialog = false">
+              <Icon icon="material-symbols-light:cancel-outline-rounded" />
+            </v-btn>
+          </v-toolbar>
+          <div class="px-8">
+            <ViewTeam :team="team" :is-for-edit="false" :is-team-error="false" :is-team-loading="false" v-if="team" />
+          </div>
+        </v-card>
+      </v-dialog>
     </div>
   </div>
 </template>

@@ -63,6 +63,8 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
     }
   }
 };
+
+
 const router = useRouter();
 const onCreatePayment = () => {
   router.push({ name: 'pos-preload' });

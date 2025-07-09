@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 import type { Calendar } from '@/models/Calendar';
 import useCalendarMutations from '@/composables/admin/calendar/useCalendarEvents';
 import useCalendar from '@/composables/admin/calendar/useCalendar';
@@ -8,25 +8,21 @@ import { VDateInput } from 'vuetify/labs/VDateInput';
 import { VNumberInput } from 'vuetify/labs/VNumberInput';
 import moment from 'moment';
 import 'moment/dist/locale/es.js';
-import { useDate } from 'vuetify';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import useCampus from '@/composables/admin/useCampus';
 import InputSection from '@/components/forms/InputSection.vue';
-import type { TeamLifePromotionRequest } from '@/models/Team';
 import type { Team } from '@/models/Participants';
 import ViewTeam from '../team/ViewTeam.vue';
 
 const { updateEventMutation, addEventMutation } = useCalendarMutations();
-const { data, isFetching, isError, refetch } = useCalendar();
+const { trainingsData, refetch, page, perPage, search, isLoading } = useCalendar(false);
 const { campus } = useCampus();
-
 const viewDialog = ref(false);
 const addDialog = ref(false);
 const currentEvent = ref<Calendar>({} as Calendar);
 const selectedDate = ref(new Date());
-const search = ref('');
 
 const updatedDate = ref({
   startDate: new Date(),
@@ -111,6 +107,24 @@ watch(addEventMutation.isError, () => {
     showErrorToast(error);
   }
 });
+
+const loadItems = async (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
+  if (data.page) {
+    if (data.page != page.value - 1) {
+      page.value = data.page - 1;
+    }
+  }
+
+  if (data.page) {
+    if (data.itemsPerPage != perPage.value) {
+      if (data.itemsPerPage == -1) {
+        perPage.value = trainingsData.value.totalElements;
+      } else {
+        perPage.value = data.itemsPerPage;
+      }
+    }
+  }
+};
 </script>
 
 <template>
@@ -136,7 +150,18 @@ watch(addEventMutation.isError, () => {
           class="mb-4"
         />
 
-        <v-data-table :headers="headers" :items="data" :search="search" :loading="isFetching" hover>
+        <VDataTableServer
+          :items="trainingsData.content"
+          :headers="headers"
+          :search="search"
+          :loading="isLoading"
+          class="tw:rounded-xl elevation-0"
+          v-motion
+          :items-length="trainingsData.totalElements"
+          :items-per-page="perPage"
+          @update:options="loadItems"
+          hover
+        >
           <template v-slot:item.start="{ item }">
             {{ formatDate(item.start) }}
           </template>
@@ -150,7 +175,7 @@ watch(addEventMutation.isError, () => {
               <Icon icon="mdi-pencil" />
             </v-btn>
           </template>
-        </v-data-table>
+        </VDataTableServer>
       </v-card-text>
     </v-card>
 
