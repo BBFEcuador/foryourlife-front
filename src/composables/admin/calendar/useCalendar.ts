@@ -38,7 +38,7 @@ const useCalendar = (originCalendar: boolean) => {
 
   const { data, isError, refetch, isLoading } = useQuery({
     queryFn: fetchCalendar,
-    queryKey: ['trainings-calendar', page, perPage, endDate],
+    queryKey: ['trainings-calendar', page, perPage, endDate, search],
     initialData: {
       totalElements: 0,
       content: [] as Calendar[]

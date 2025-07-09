@@ -18,6 +18,7 @@ import ViewTeam from '../team/ViewTeam.vue';
 
 const { updateEventMutation, addEventMutation } = useCalendarMutations();
 const { trainingsData, refetch, page, perPage, search, isLoading } = useCalendar(false);
+const debouncedSearch = ref('');
 const { campus } = useCampus();
 const viewDialog = ref(false);
 const addDialog = ref(false);
@@ -59,6 +60,15 @@ const handleViewEvent = (item: Calendar) => {
 const handleAddEvent = () => {
   addDialog.value = true;
 };
+
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(debouncedSearch, (val) => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    search.value = val;
+  }, 400);
+});
 
 const updateEvent = async () => {
   if (currentEvent.value) {
@@ -140,7 +150,7 @@ const loadItems = async (data: { page: number; itemsPerPage: number; sortBy: str
 
       <v-card-text>
         <v-text-field
-          v-model="search"
+          v-model="debouncedSearch"
           prepend-inner-icon="mdi-magnify"
           label="Buscar"
           single-line
@@ -153,7 +163,7 @@ const loadItems = async (data: { page: number; itemsPerPage: number; sortBy: str
         <VDataTableServer
           :items="trainingsData.content"
           :headers="headers"
-          :search="search"
+          :search="debouncedSearch"
           :loading="isLoading"
           class="tw:rounded-xl elevation-0"
           v-motion
