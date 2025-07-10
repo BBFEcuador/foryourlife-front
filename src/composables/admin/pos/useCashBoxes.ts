@@ -1,9 +1,14 @@
 import { api } from '@/api/axios';
 import type { CashBox } from '@/models/CashDrawer';
+import { adminStore } from '@/stores/adminStore';
 import { useQuery } from '@tanstack/vue-query';
 
 const fetchCashBoxes = async (): Promise<CashBox[]> => {
-    const { data } = await api.get('/cash-box/available')
+    const { data } = await api.get('/cash-box/available', {
+        params: {
+            campusId: adminStore().selectCampusId
+        }
+    })
     return data;
 }
 
@@ -12,6 +17,7 @@ const useCashBoxes = () => {
         queryKey: ['cash-drawers'],
         queryFn: fetchCashBoxes,
         initialData: [] as CashBox[],
+        enabled: adminStore().isCampusSelected
     });
 
     return {

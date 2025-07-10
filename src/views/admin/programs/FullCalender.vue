@@ -104,7 +104,7 @@ const calendarOption = computed(() => {
     eventDurationEditable: false,
     customButtons: {
       customButton: {
-        text: 'Agregar nuevos cursos',
+        text: 'Agregar nuevos entrenamienos',
         click: () => {
           isModalOpen.value = true;
         }

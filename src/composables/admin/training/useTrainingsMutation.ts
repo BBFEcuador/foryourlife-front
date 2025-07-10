@@ -1,9 +1,14 @@
 import { api } from '@/api/axios';
 import type { TrainingData } from '@/models/Training';
+import { adminStore } from '@/stores/adminStore';
 import { useMutation } from '@tanstack/vue-query';
 
 const fetchByLvl = async (lvl: string): Promise<TrainingData[]> => {
-  const { data } = await api.post('/admin/training/filter/' + lvl);
+  const { data } = await api.post('/admin/training/filter/' + lvl, null, {
+    params: {
+      campusId: adminStore().selectCampusId
+    }
+  });
   return data;
 };
 

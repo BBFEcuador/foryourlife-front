@@ -9,7 +9,7 @@ import { useDisplay } from 'vuetify';
 
 const router = useRouter();
 
-const { data, isError, isLoading, criteriaMutations, refetchTeams, teamsData, page, perPage, search } = useAdminTeams();
+const { isLoading, criteriaMutations, refetchTeams, teamsData, page, perPage, search } = useAdminTeams();
 
 const breadcrumbs = ref([
   {

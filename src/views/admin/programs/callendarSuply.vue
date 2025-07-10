@@ -144,7 +144,7 @@ const loadItems = async (data: { page: number; itemsPerPage: number; sortBy: str
         <div class="text-h5">Calendario de Programas</div>
         <v-btn color="primary" @click="handleAddEvent">
           <Icon icon="mdi-plus"></Icon>
-          Agregar nuevos cursos
+          Agregar nuevos entrenamientos
         </v-btn>
       </v-card-title>
 
@@ -165,12 +165,17 @@ const loadItems = async (data: { page: number; itemsPerPage: number; sortBy: str
           :headers="headers"
           :search="debouncedSearch"
           :loading="isLoading"
+          :loading-text="'Cargando participantes...'"
+          :no-data-text="'No se encontraron participantes'"
+          hover
           class="tw:rounded-xl elevation-0"
           v-motion
+          :initial="{ opacity: 0, y: 20 }"
+          :enter="{ opacity: 1, y: 0 }"
+          :delay="200"
           :items-length="trainingsData.totalElements"
-          :items-per-page="perPage"
+          :items-per-page="10"
           @update:options="loadItems"
-          hover
         >
           <template v-slot:item.start="{ item }">
             {{ formatDate(item.start) }}
@@ -221,7 +226,7 @@ const loadItems = async (data: { page: number; itemsPerPage: number; sortBy: str
     <v-dialog v-model="addDialog" max-width="500">
       <v-card>
         <v-card-title class="d-flex align-center">
-          <Icon icon="mdi-calendar-plus" class="mr-2" color="primary" />
+          <Icon icon="mdi-calendar" class="mr-2" color="primary" />
           <span>Crear Nuevo Evento</span>
         </v-card-title>
         <v-divider></v-divider>
@@ -230,28 +235,41 @@ const loadItems = async (data: { page: number; itemsPerPage: number; sortBy: str
             <VNumberInput placeholder="##" :min="1" v-model="updatedDate.numberOfFocus" variant="outlined"></VNumberInput>
           </InputSection>
           <InputSection label="Fecha de inicio">
-            <VDateInput v-model="updatedDate.startDate" variant="outlined"></VDateInput>
+            <VDateInput placeholder="" v-model="updatedDate.startDate" variant="outlined"></VDateInput>
           </InputSection>
           <InputSection label="Sede">
-            <v-select
+            <VSelect
               placeholder="Seleccione las sedes del usuario"
               :items="campus"
               item-title="city"
               item-value="id"
+              clearable
               v-model="updatedDate.campusId"
+            />
+          </InputSection>
+          <InputSection label="Primer focus">
+            <VNumberInput
               variant="outlined"
-            ></v-select>
+              placeholder="Seleccione las sedes del usuario"
+              :items="campus"
+              item-title="city"
+              item-value="id"
+              :min="1"
+              clearable
+              v-model="updatedDate.firstFocus"
+            />
           </InputSection>
         </v-card-text>
+
         <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" @click="onAddCourses" :loading="addEventMutation.isPending.value">
-            <Icon icon="mdi-content-save" class="mr-2" />
-            Guardar
-          </v-btn>
+          <v-spacer></v-spacer>
           <v-btn color="error" @click="addDialog = false">
-            <Icon icon="mdi-close" class="mr-2" />
-            Cancelar
+            <Icon icon="mdi-close" left />
+            Cancelar</v-btn
+          >
+          <v-btn color="primary" @click="onAddCourses">
+            <Icon icon="mdi-pencil" left />
+            Guardar
           </v-btn>
         </v-card-actions>
       </v-card>

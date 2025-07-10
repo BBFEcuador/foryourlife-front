@@ -20,10 +20,10 @@ const breadcrumbs = ref([
 </script>
 
 <template>
-    <BaseBreadcrumb :title="'Programas'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+    <BaseBreadcrumb :title="'Entrenamientos'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
     <v-row>
         <v-col cols="12">
-            <UiParentCard title="Todos los programas">
+            <UiParentCard title="Todos los entrenamientos">
                 <div class="d-flex justify-end mb-4">
                     <v-btn-group>
                         <v-btn

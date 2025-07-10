@@ -40,8 +40,7 @@ const useCalendar = (originCalendar: boolean) => {
     queryFn: fetchCalendar,
     queryKey: ['trainings-calendar', page, perPage, endDate, search],
     initialData: {
-      totalElements: 0,
-      content: [] as Calendar[]
+      numberOfElements: 0
     } as PageableApiResponse<Calendar[]>,
     enabled: !originCalendar
   });

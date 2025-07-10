@@ -69,7 +69,7 @@ const sidebarItem = [
         to: 'training-admin'
       },
       {
-        title: 'Programas',
+        title: 'Entrenamientos',
         to: 'programs-admin'
       },
       {

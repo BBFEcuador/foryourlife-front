@@ -114,40 +114,46 @@ const syncPos = async () => {
     />
   </div>
 
-  <div v-if="isCashBoxesLoading" class="d-flex justify-center align-center pa-5">
-    <v-progress-circular indeterminate color="primary" />
+  <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
+    <Icon icon="cil:warning" height="48" class="mb-4" />
+    <p class="text-subtitle-1">Elija un campus para ver las Cajas Disponibles</p>
   </div>
+  <div v-else>
+    <div v-if="isCashBoxesLoading" class="d-flex justify-center align-center pa-5">
+      <v-progress-circular indeterminate color="primary" />
+    </div>
 
-  <v-row v-else-if="sortedCashDrawers.length" dense>
-    <v-col v-for="cashBox in sortedCashDrawers" :key="cashBox.id" cols="12" md="4">
-      <v-card variant="outlined" class="h-100 d-flex flex-column justify-space-between">
-        <v-card-item>
-          <div class="d-flex justify-space-between align-start text-h4 mb-2">
-            <span class="text-wrap">Caja No. {{ cashBox.number }}</span>
-          </div>
+    <v-row v-else-if="sortedCashDrawers.length" dense>
+      <v-col v-for="cashBox in sortedCashDrawers" :key="cashBox.id" cols="12" md="4">
+        <v-card variant="outlined" class="h-100 d-flex flex-column justify-space-between">
+          <v-card-item>
+            <div class="d-flex justify-space-between align-start text-h4 mb-2">
+              <span class="text-wrap">Caja No. {{ cashBox.number }}</span>
+            </div>
 
-          <v-chip :color="cashBox.isActive ? 'success' : 'red'" class="me-1">
-            {{ cashBox.isActive ? 'Activa' : 'Inactiva' }}
-          </v-chip>
+            <v-chip :color="cashBox.isActive ? 'success' : 'red'" class="me-1">
+              {{ cashBox.isActive ? 'Activa' : 'Inactiva' }}
+            </v-chip>
 
-          <div>Creada por: {{ cashBox.createdBy.name }}</div>
-          <div>Fecha de creación: {{ formatDate(cashBox.created_at) }}</div>
-        </v-card-item>
+            <div>Creada por: {{ cashBox.createdBy.name }}</div>
+            <div>Fecha de creación: {{ formatDate(cashBox.created_at) }}</div>
+          </v-card-item>
 
-        <v-card-actions class="pa-3 d-flex flex-wrap gap-2">
-          <v-btn class="flex-grow" variant="tonal" color="primary" @click="handleOpenCashDrawer(cashBox)">
-            <Icon icon="mdi:key" class="mr-1" />
-            Abrir Caja
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
+          <v-card-actions class="pa-3 d-flex flex-wrap gap-2">
+            <v-btn class="flex-grow" variant="tonal" color="primary" @click="handleOpenCashDrawer(cashBox)">
+              <Icon icon="mdi:key" class="mr-1" />
+              Abrir Caja
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
 
-  <div v-else class="d-flex flex-column align-center justify-center py-12 text-grey">
-    <Icon icon="mdi:cash-register" height="48" class="mb-4" />
-    <p class="text-subtitle-1">No se encontraron cajas</p>
-    <p class="text-body-2">Intenta crear una nueva</p>
+    <div v-else class="d-flex flex-column align-center justify-center py-12 text-grey">
+      <Icon icon="mdi:cash-register" height="48" class="mb-4" />
+      <p class="text-subtitle-1">No se encontraron cajas</p>
+      <p class="text-body-2">Intenta crear una nueva</p>
+    </div>
   </div>
 
   <div class="d-flex align-center pb-4 mt-4">

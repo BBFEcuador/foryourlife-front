@@ -6,8 +6,6 @@ import { ref, watch } from 'vue';
 import { VDataTable } from 'vuetify/components';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 
-const { data, isError, isLoading, criteriaMutations, refetchTeams } = useAdminTeams();
-
 interface Props {
     trainings: TrainingData[]
 }

@@ -2,6 +2,7 @@ import { api } from '@/api/axios';
 import type { PageableApiResponse } from '@/models/ApiResponse';
 import type { Criteria } from '@/models/Criteria';
 import type { Team } from '@/models/Participants';
+import { adminStore } from '@/stores/adminStore';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 
@@ -14,7 +15,8 @@ const fetchTeams = async (): Promise<PageableApiResponse<Team[]>> => {
     params: {
       page: page.value,
       perPage: perPage.value,
-      search: search.value
+      search: search.value,
+      campusId: adminStore().selectCampusId
     }
   });
   return data;
@@ -38,7 +40,6 @@ const useAdminTeams = () => {
 
   return {
     teamsData: data,
-    data,
     isLoading: isFetching,
     isError,
     criteriaMutations,
