@@ -39,6 +39,10 @@ const sidebarItem = [
         to: 'sedes-admin'
       },
       {
+        title: 'Facturas',
+        to: 'invoices-admin'
+      },
+      {
         title: 'Productos',
         to: 'products-admin'
       },

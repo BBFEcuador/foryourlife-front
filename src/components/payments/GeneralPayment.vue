@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useDiscounts from '@/composables/admin/discounts/useDiscounts';
 import useParticipants from '@/composables/admin/participants/useParticipants';
-import useProducts from '@/composables/admin/products/useProducts';
+import useAvailableProducts from '@/composables/admin/products/useAvailableProducts';
 import useCampus from '@/composables/admin/useCampus';
 import { router } from '@/router';
 import Swal from 'sweetalert2';
@@ -46,7 +46,7 @@ interface CartItem {
 
 // Obtenemos los participantes y productos del composable
 const { participants, participantSearch } = useParticipants();
-const { productsData, productSearch } = useProducts();
+const { productsData, productSearch } = useAvailableProducts();
 const { discountsData, search } = useDiscounts();
 const selectedParticipant = ref(null);
 const selectedProduct = ref(null);
