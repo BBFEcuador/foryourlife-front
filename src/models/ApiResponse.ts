@@ -1,8 +1,8 @@
+import type { Admin } from './Admin';
 import type { CashDrawer } from './CashDrawer';
-import type { User } from './User';
 
 export interface LoginApiResponse {
-  admin: User;
+  admin: Admin;
   token: string;
   cashDrawer: CashDrawer[];
 }

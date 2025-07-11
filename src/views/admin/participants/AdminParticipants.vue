@@ -375,7 +375,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
       </VCardTitle>
       <VCardText class="tw:p-6">
         <InputSection label="Campus">
-          <VSelect placeholder="Elija el campus" v-model="campusId" :items="campus" item-title="city" item-value="id"></VSelect>
+          <VSelect placeholder="Elija el campus" v-model="campusId" :items="adminS.availableCampus" item-title="city" item-value="id"></VSelect>
         </InputSection>
       </VCardText>
       <VCardActions class="tw:flex tw:justify-end">
@@ -407,7 +407,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
         <VNumberInput variant="outlined" placeholder="cantidad de usos para este token" v-model="quantity" :min="1" />
       </InputSection>
       <InputSection label="Campus">
-        <VSelect placeholder="Elija el campus" v-model="campusId" :items="campus" item-title="city" item-value="id"></VSelect>
+        <VSelect placeholder="Elija el campus" v-model="campusId" :items="adminS.availableCampus" item-title="city" item-value="id"></VSelect>
       </InputSection>
       <div class="tw:flex tw:justify-end">
         <VBtn color="primary" @click="handleGenerateInvitationLot" :loading="generateInvitationWithQuantityMutation.isPending.value"

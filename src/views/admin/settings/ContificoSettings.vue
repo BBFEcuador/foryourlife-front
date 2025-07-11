@@ -43,7 +43,7 @@ const handleSaveConfiguration = async () => {
 <template>
   <v-card class="d-flex align-center" elevation="0" :disabled="disableConfig">
     <div class="tw:font-semibold tw:w-3/12">Accesos</div>
-    <div class="tw:w-8/12 tw:border-l tw:border-gray-200 pl-4">
+    <div class="tw:w-9/12 tw:border-l tw:border-gray-200 pl-4">
       <div class="d-flex align-center tw:gap-x-3">
         <p class="tw:font-medium tw:md:w-4/12">Api Token</p>
         <v-text-field v-model="apiToken" :placeholder="prevKey" dense hide-details persistent-hint variant="outlined"></v-text-field>
@@ -52,12 +52,26 @@ const handleSaveConfiguration = async () => {
         <p class="tw:font-medium tw:md:w-4/12">Autorización</p>
         <v-text-field v-model="authorization" :placeholder="prevAuth" variant="outlined" dense hide-details></v-text-field>
       </div>
-      <div class="d-flex align-center tw:gap-x-3 mt-2">
+    </div>
+  </v-card>
+  <v-divider class="tw:border tw:border-gray-200 ma-2"></v-divider>
+  <v-card class="d-flex align-center" elevation="0" :disabled="disableConfig">
+    <div class="tw:font-semibold tw:w-3/12">Facturación</div>
+    <div class="tw:w-9/12 tw:border-l tw:border-gray-200 pl-4">
+      <div class="d-flex align-center tw:gap-x-3">
         <p class="tw:font-medium tw:md:w-4/12">RUC</p>
+        <v-text-field v-model="ruc" :placeholder="contificoConfig.ruc" dense hide-details persistent-hint variant="outlined"></v-text-field>
+      </div>
+      <div class="d-flex align-center tw:gap-x-3 mt-2">
+        <p class="tw:font-medium tw:md:w-4/12">Razón Social</p>
+        <v-text-field :placeholder="'s'" variant="outlined" dense hide-details></v-text-field>
+      </div>
+      <div class="d-flex align-center tw:gap-x-3 mt-2">
+        <p class="tw:font-medium tw:md:w-4/12">Dirección:</p>
         <v-text-field v-model="ruc" :placeholder="contificoConfig.ruc" variant="outlined" dense hide-details></v-text-field>
       </div>
     </div>
-    <v-btn class="ml-2" color="success" variant="flat" @click="handleSaveConfiguration">Guardar</v-btn>
   </v-card>
   <v-divider class="tw:border tw:border-gray-200 ma-2"></v-divider>
+  <v-btn class="ml-2" color="success" variant="flat" @click="handleSaveConfiguration">Guardar</v-btn>
 </template>

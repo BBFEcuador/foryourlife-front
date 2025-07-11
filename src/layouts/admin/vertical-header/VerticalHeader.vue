@@ -13,22 +13,32 @@ import Searchbar from './SearchBarPanel.vue';
 
 const customizer = useCustomizerStore();
 const priority = ref(customizer.setHorizontalLayout ? 0 : 0);
+const store = adminStore();
 watch(priority, (newPriority) => {
   // yes, console.log() is a side effect
   priority.value = newPriority;
 });
 
-const selectCampus = computed(() => (adminStore().isCampusSelected ? adminStore().selectCampusId : ''));
-
 const { campus } = useCampus();
 
+const selectCampus = computed(() => (store.isCampusSelected ? store.selectCampusId : ''));
+
 const storeCampusOnAdmin = (id: string) => {
-  adminStore().setIsCampusSelected(id ? true : false);
-  adminStore().setSelectedCampusId(id);
+  store.setIsCampusSelected(id ? true : false);
+  store.setSelectedCampusId(id);
   router.push({ name: 'home-admin' });
 };
 
-const vselectItems = computed(() => [{ city: 'Todas las sucursales', id: '' }, ...campus.value]);
+const vselectItems = computed(() => {
+  if (campus.value.length === store.availableCampus.length) {
+    store.setIsCampusSelected(false);
+    return [{ city: 'Todas las sucursales', id: '' }, ...store.availableCampus];
+  } else {
+    store.setIsCampusSelected(true);
+    store.setSelectedCampusId(store.availableCampus[0].id);
+    return [...store.availableCampus];
+  }
+});
 </script>
 
 <template>

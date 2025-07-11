@@ -101,6 +101,7 @@ const breadcrumbs = [
   }
 ];
 
+const selectPaymentIdPdf = ref('');
 const { savePaymentMutations } = usePaymentMutations();
 const isLoading = ref(false);
 const showSuccessModal = ref(false);
@@ -127,8 +128,8 @@ const processPayment = async () => {
     note: notes.value
   };
 
-  savePaymentMutations.mutate(paymentData, {
-    onSuccess: () => {
+  await savePaymentMutations.mutate(paymentData, {
+    onSuccess: async (data) => {
       showSuccessModal.value = true;
       redirectCountdown.value = maxCountdown;
       const interval = setInterval(() => {
@@ -156,10 +157,19 @@ const processPayment = async () => {
       paymentHistoryArr.value = [];
 
       generalPaymentRef.value?.resetTextFields();
+
+      if (data) {
+        console.log(data);
+
+        const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      }
     },
     onError: (error) => {
       const val = error as AxiosError<{ message: string }>;
       val.response?.data?.message ? toast.error(val.response.data.message) : toast.error(error);
+      isLoading.value = false;
     }
   });
   isLoading.value = false;

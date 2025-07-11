@@ -1,3 +1,5 @@
+import type { Campus } from "./Campus";
+
 export interface User {
   id: string;
   email: string;

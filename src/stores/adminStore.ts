@@ -10,6 +10,7 @@ export const adminStore = defineStore(
     const cashDrawer = ref<any>({} as any);
     const selectCampusId = ref('')
     const isCampusSelected = ref(false)
+    const availableCampus = ref([{} as any])
 
     const logout = () => {
       user.value = {} as any;
@@ -18,6 +19,7 @@ export const adminStore = defineStore(
       cashDrawer.value = {} as any;
       selectCampusId.value = ''
       isCampusSelected.value = false
+      availableCampus.value = []
     };
     const setToken = (newToken: string) => {
       token.value = newToken;
@@ -37,6 +39,10 @@ export const adminStore = defineStore(
     const setIsCampusSelected = (bool: boolean) => {
       isCampusSelected.value = bool
     }
+
+    const setAvailableCampus = (campus: any[]) => {
+      availableCampus.value = campus
+    }
     return {
       token,
       user,
@@ -44,13 +50,15 @@ export const adminStore = defineStore(
       cashDrawer,
       selectCampusId,
       isCampusSelected,
+      availableCampus,
       logout,
       setToken,
       setAdmin,
       setCashDrawerOpen,
       setCashDrawer,
       setIsCampusSelected,
-      setSelectedCampusId
+      setSelectedCampusId,
+      setAvailableCampus
     };
   },
   { persist: true }
