@@ -5,8 +5,9 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric } from '@vuelidate/validators';
 import usePrograms from '@/composables/programs/usePrograms';
-import { showErrorToast } from '@/service/sweetAlert';
 import type { Campus } from '@/models/Campus';
+import useCampus from '@/composables/admin/useCampus';
+import { adminStore } from '@/stores/adminStore';
 
 interface FormData {
   id?: string;
@@ -38,7 +39,8 @@ const emit = defineEmits<{
   (e: 'cancel'): void;
 }>();
 
-const { programs, isProgramsError, isProgramsLoading } = usePrograms();
+const { programs, isProgramsError } = usePrograms();
+const { campus } = useCampus();
 
 const isOpen = ref(false);
 const form = ref<HTMLFormElement | null>(null);
@@ -65,7 +67,8 @@ const rules = {
   basePrice: { required, numeric },
   currency: { required },
   programs: { required },
-  isActive: { required }
+  isActive: { required },
+  campus: { required }
 };
 
 const v$ = useVuelidate(rules, formData as any, { $autoDirty: true });
@@ -84,7 +87,8 @@ watch(
     if (val && props.product) {
       formData.value = {
         ...props.product,
-        programs: props.product.programs?.map((p) => p.id) || []
+        programs: props.product.programs?.map((p) => p.id) || [],
+        contificoId: props.product.contificoId || ''
       };
     } else {
       resetForm();
@@ -170,6 +174,20 @@ defineExpose({
                 required
               />
             </v-col>
+            <v-col cols="12">
+              <v-select
+                v-model="formData.campus"
+                :items="campus"
+                item-title="city"
+                label="Campus"
+                :error-messages="v$.campus.$errors.map((e: any) => e.$message as string)"
+                variant="outlined"
+                density="comfortable"
+                return-object
+                disabled
+                required
+              />
+            </v-col>
 
             <v-col cols="12">
               <v-textarea
@@ -195,7 +213,7 @@ defineExpose({
                 required
               >
                 <template v-slot:prepend-inner>
-                  <span class="text-subtitle-2">{{ formData.currency === 'DOLAR' ? '$' : 'COP' }}</span>
+                  <span class="text-subtitle-2">{{ formData.currency === 'USD' ? '$' : 'COP' }}</span>
                 </template>
               </v-text-field>
             </v-col>

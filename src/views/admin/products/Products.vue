@@ -258,7 +258,6 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
                 variant="elevated"
                 color="primary"
                 @click="showCreateDialog = true"
-                :disabled="disabledProperty"
                 :loading="isSyncProductLoading"
               >
                 <Icon class="mr-2" icon="mdi:add" />
@@ -348,7 +347,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
     </v-col>
   </v-row>
 
-  <CreateProduct :model-value="showCreateDialog" @cancel="showCreateDialog = false" @save="" />
+  <CreateProduct :model-value="showCreateDialog" @cancel="showCreateDialog = false" @save="saveProduct" />
   <editProduct :model-value="showEditDialog" :product="selectedProduct" @save="updateProduct" @cancel="showEditDialog = false" />
 </template>
 
