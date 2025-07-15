@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 import { useCustomizerStore } from '../../../stores/customizer';
 import useCampus from '@/composables/admin/useCampus';
@@ -15,30 +15,44 @@ const customizer = useCustomizerStore();
 const priority = ref(customizer.setHorizontalLayout ? 0 : 0);
 const store = adminStore();
 watch(priority, (newPriority) => {
-  // yes, console.log() is a side effect
   priority.value = newPriority;
 });
 
 const { campus } = useCampus();
 
-const selectCampus = computed(() => (store.isCampusSelected ? store.selectCampusId : ''));
+const selectCampus = ref(store.selectCampusId);
+
+const hasFullAccess = computed(() => store.availableCampus.length === campus.value.length);
+
+const vselectItems = computed(() => {
+  return hasFullAccess.value ? [{ city: 'Todas las sucursales', id: '' }, ...campus.value] : store.availableCampus;
+});
+
+watch(
+  [() => store.availableCampus, () => campus.value],
+  ([available, allCampuses]) => {
+    if (!selectCampus.value && available.length && allCampuses.length) {
+      if (available.length === allCampuses.length) {
+        selectCampus.value = '';
+        store.setSelectedCampusId('');
+        store.setIsCampusSelected(false);
+      } else {
+        const defaultCampus = available[0];
+        selectCampus.value = defaultCampus.id;
+        store.setSelectedCampusId(defaultCampus.id);
+        store.setIsCampusSelected(true);
+      }
+    }
+  },
+  { immediate: true, flush: 'post' }
+);
 
 const storeCampusOnAdmin = (id: string) => {
+  selectCampus.value = id;
   store.setIsCampusSelected(id ? true : false);
   store.setSelectedCampusId(id);
   router.push({ name: 'home-admin' });
 };
-
-const vselectItems = computed(() => {
-  if (campus.value.length === store.availableCampus.length) {
-    store.setIsCampusSelected(false);
-    return [{ city: 'Todas las sucursales', id: '' }, ...store.availableCampus];
-  } else {
-    store.setIsCampusSelected(true);
-    store.setSelectedCampusId(store.availableCampus[0].id);
-    return [...store.availableCampus];
-  }
-});
 </script>
 
 <template>

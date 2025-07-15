@@ -14,13 +14,14 @@ import { showErrorToast } from '@/service/sweetAlert';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { adminStore } from '@/stores/adminStore';
+import CreateProduct from '@/components/products/createProduct.vue';
 
 const { productsData, isProductsLoading, page, perPage, productSearch, refetchProducts } = useProducts();
-const { changeStatusMutations, updateProductMutations } = useProductMutations();
+const { changeStatusMutations, updateProductMutations, saveProductMutations } = useProductMutations();
 const { useContificoSyncProductsMutation, isSyncProductLoading } = useContificoProductsMutation();
 
-const store = adminStore()
-const disabledProperty = !store.isCampusSelected
+const store = adminStore();
+const disabledProperty = !store.isCampusSelected;
 
 const breadcrumbs = ref([
   {
@@ -42,7 +43,7 @@ const getProgramColor = (level: string): string => {
 
 const headers = [
   { title: 'Nombre', value: 'name', sortable: true },
-  { title: 'Código', value: 'code', sortable: true },
+  { title: 'Campus', value: 'campus.city', sortable: true },
   { title: 'Precio', value: 'basePrice', sortable: true },
   { title: 'Moneda', value: 'currency', sortable: false },
   { title: 'Programas', value: 'programs', sortable: false },
@@ -73,6 +74,7 @@ watch(productSearch, () => {
 });
 
 const showEditDialog = ref(false);
+const showCreateDialog = ref(false);
 const selectedProduct = ref<Product | null>(null);
 
 const onEditProduct = (id: string) => {
@@ -146,10 +148,38 @@ const syncContificoProducts = () => {
   });
 };
 
+const saveProduct = (product: Partial<Product>) => {
+  const productReq: Product = {
+    id: product.id!!,
+    name: product.name!!,
+    code: product.code!!,
+    basePrice: product.basePrice!!,
+    currency: product.currency!!,
+    isActive: product.isActive!!,
+    description: product.description!!,
+    rules: product.rules!!,
+    programs: product.programs!!,
+    campus: product.campus!!
+  };
+  saveProductMutations.mutate(productReq, {
+    onSuccess: async () => {
+      showCreateDialog.value = false;
+      toast.success('Producto creado exitosamente');
+      await refetchProducts();
+    },
+    onError(error) {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || 'Error al procesar la caja');
+    }
+  });
+};
+
 const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => {
   await updateProductMutations.mutateAsync(product as Product, {
     onSuccess: () => {
+      showEditDialog.value=false
       toast.success('Producto actualizado correctamente');
+      refetchProducts()
     },
     onError(error) {
       const err = error as AxiosError<{ message: string }>;
@@ -212,9 +242,27 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
                 </template>
               </VTextField>
               <v-spacer></v-spacer>
-              <VBtn variant="elevated" color="success" @click="syncContificoProducts" :disabled="disabledProperty">
+              <VBtn
+                class="ml-2"
+                variant="elevated"
+                color="info"
+                @click="syncContificoProducts"
+                :disabled="disabledProperty"
+                :loading="isSyncProductLoading"
+              >
                 <Icon class="mr-2" icon="mdi:reload" />
                 Actualizar productos de contifico
+              </VBtn>
+              <VBtn
+                class="ml-2"
+                variant="elevated"
+                color="primary"
+                @click="showCreateDialog = true"
+                :disabled="disabledProperty"
+                :loading="isSyncProductLoading"
+              >
+                <Icon class="mr-2" icon="mdi:add" />
+                Agregar producto
               </VBtn>
             </v-toolbar>
           </template>
@@ -240,11 +288,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
                 {{ program.courseLevel }}
               </v-chip>
             </div>
-            <div v-else class="d-flex flex-wrap gap-2">
-              <v-chip size="small" variant="outlined" class="text-caption mr-2" color="error">
-                ¡No hay programas asignados a este producto!
-              </v-chip>
-            </div>
+            <div v-else class="d-flex flex-wrap text-wrap gap-2 text-red">¡Este producto no tiene programas asignados!</div>
           </template>
           <template #item.isActive="{ item }">
             <VChip
@@ -304,6 +348,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
     </v-col>
   </v-row>
 
+  <CreateProduct :model-value="showCreateDialog" @cancel="showCreateDialog = false" @save="" />
   <editProduct :model-value="showEditDialog" :product="selectedProduct" @save="updateProduct" @cancel="showEditDialog = false" />
 </template>
 

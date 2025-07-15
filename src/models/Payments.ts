@@ -44,7 +44,8 @@ export interface PaymentMethod {
   type: string;
   isActive: boolean;
   code: string;
-  campus:Campus;
+  campus: Campus;
+  bank?: BankAccount;
 }
 
 export interface PaymentHistory {
@@ -60,16 +61,33 @@ export interface PaymentHistoryRequest {
 }
 
 export interface PaymentMethodRequest {
-  id?:string;
-  type:string;
-  isActive:boolean;
-  code:string;
-  campusId:string;
+  id?: string;
+  type: string;
+  isActive: boolean;
+  code: string;
+  campusId: string;
+  bankId?: string;
 }
 
 export interface SriPaymentMethod {
-  id:string;
-  method:string;
-  name:string;
-  code:string;
+  id: string;
+  method: string;
+  name: string;
+  code: string;
 }
+
+export interface BankAccount {
+  id: string;
+  name: string;
+  number: string;
+  contificoId: string;
+  campus: Campus;
+}
+
+export interface BankAccountRequest {
+  id?: string;
+  name: string;
+  number: string;
+  campusId: string;
+}
+

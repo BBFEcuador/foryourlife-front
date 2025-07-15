@@ -8,9 +8,10 @@ import usePaymentMethodMutations from '@/composables/admin/paymentMethods/usePay
 import type { PaymentMethod, PaymentMethodRequest } from '@/models/Payments';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import Swal from 'sweetalert2';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { toast } from 'vue3-toastify';
 import type { AxiosError } from 'axios';
+import BankAccounts from '@/components/paymentMethods/BankAccounts.vue';
 const breadcrumbs = ref([
   {
     title: 'Métodos de pago',
@@ -21,6 +22,16 @@ const breadcrumbs = ref([
 
 const search = ref('');
 const isMethodSelected = ref(false);
+const switchBankAccount = ref(false);
+const title = ref('Lista de Métodos de Pago');
+
+watch(switchBankAccount, (newVal) => {
+  if (newVal) {
+    title.value = 'Lista de Cuentas Bancarias';
+  } else {
+    title.value = 'Lista de Métodos de Pago';
+  }
+});
 
 const { paymentMethodsData, isPaymentMethodsError, isPaymentMethodsLoading, refetchPaymentMethods } = usePaymentMethods();
 const { savePaymentMethodMutation, changePaymentMethodStatusMutation } = usePaymentMethodMutations();
@@ -107,103 +118,121 @@ const handleSavePaymentMethod = async (paymenMethodData: Partial<PaymentMethodRe
   isMethodSelected.value = false;
   showCreateDialog.value = false;
 };
+
+const switchViews = () => {
+  switchBankAccount.value = !switchBankAccount.value;
+};
 </script>
 
 <template>
   <BaseBreadcrumb :title="'Métodos de Pago'" :breadcrumbs="breadcrumbs" />
   <v-row>
     <v-col cols="12">
-      <UiParentCard title="Lista de métodos de pago">
-        <v-data-table-server
-          :headers="headers"
-          :search="search"
-          :items="paymentMethodsData"
-          :loading="isPaymentMethodsLoading"
-          :items-length="paymentMethodsData.length"
-          :items-per-page="10"
-        >
-          <template v-slot:top>
-            <v-toolbar
-              class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-              flat
-              v-motion
-              :initial="{ opacity: 0, y: -10 }"
-              :enter="{ opacity: 1, y: 0 }"
-              :delay="200"
-              :duration="250"
-            >
-              <VTextField
-                :model-value="search"
-                placeholder="Buscar método..."
-                variant="outlined"
-                density="comfortable"
-                hide-details
-                class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
-                bg-color="white"
+      <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
+        <v-card-item class="pa-5">
+          <div class="d-sm-flex align-center justify-space-between">
+            <v-card-title class="text-h4" style="line-height: 1.57">{{ title }}</v-card-title>
+            <VBtn variant="elevated" :color="switchBankAccount ? 'success' : 'info'" @click="switchViews">
+              <Icon class="mr-2" :icon="switchBankAccount ? 'ic:outline-payments' : 'mdi:bank'" />
+              {{ !switchBankAccount ? 'Cuentas Bancarias' : 'Métodos de pago' }}
+            </VBtn>
+          </div>
+        </v-card-item>
+        <v-divider></v-divider>
+        <v-card-text>
+          <BankAccounts v-if="switchBankAccount" />
+          <v-data-table-server
+            v-else
+            :headers="headers"
+            :search="search"
+            :items="paymentMethodsData"
+            :loading="isPaymentMethodsLoading"
+            :items-length="paymentMethodsData.length"
+            :items-per-page="10"
+          >
+            <template v-slot:top>
+              <v-toolbar
+                class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+                flat
+                v-motion
+                :initial="{ opacity: 0, y: -10 }"
+                :enter="{ opacity: 1, y: 0 }"
+                :delay="200"
+                :duration="250"
               >
-                <template #prepend-inner>
-                  <div class="tw:relative">
-                    <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                    <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-                  </div>
-                </template>
-                <template #append v-if="search">
-                  <VBtn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
-                    <Icon icon="mdi:close" height="18" />
-                  </VBtn>
-                </template>
-              </VTextField>
-              <v-spacer></v-spacer>
-              <VBtn variant="elevated" color="primary" @click="onCreatePaymentMethod">
-                <Icon class="mr-2" icon="mdi:plus" />
-                Agregar Método de Pago
-              </VBtn>
-            </v-toolbar>
-          </template>
+                <VTextField
+                  :model-value="search"
+                  placeholder="Buscar método..."
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                  class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+                  bg-color="white"
+                >
+                  <template #prepend-inner>
+                    <div class="tw:relative">
+                      <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                      <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                    </div>
+                  </template>
+                  <template #append v-if="search">
+                    <VBtn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+                      <Icon icon="mdi:close" height="18" />
+                    </VBtn>
+                  </template>
+                </VTextField>
+                <v-spacer></v-spacer>
+                <VBtn variant="elevated" color="primary" class="ml-2" @click="onCreatePaymentMethod">
+                  <Icon icon="mdi:plus" />
+                  Agregar Método de Pago
+                </VBtn>
+              </v-toolbar>
+            </template>
 
-          <template #item.campus="{ item }">
-            {{ item.campus.city }}
-          </template>
-          <template #item.isActive="{ item }">
-            <VChip
-              :color="item.isActive ? 'success' : 'error'"
-              size="small"
-              variant="flat"
-              class="!tw:font-medium tw:text-xs !tw:min-w-[80px] tw:justify-center"
-              :class="item.isActive ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'"
-            >
-              <Icon :icon="item.isActive ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-1" height="16" />
-              {{ item.isActive ? 'Activo' : 'Inactivo' }}
-            </VChip>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <div class="d-flex ga-2">
-              <v-btn
-                icon
-                color="info"
-                variant="text"
-                size="32"
-                class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                v-tooltip="'Editar Descuento'"
-                @click="onEditPaymentMethod(item)"
+            <template #item.campus="{ item }">
+              {{ item.campus.city }}
+            </template>
+            <template #item.isActive="{ item }">
+              <VChip
+                :color="item.isActive ? 'success' : 'error'"
+                size="small"
+                variant="flat"
+                class="!tw:font-medium tw:text-xs !tw:min-w-[80px] tw:justify-center"
+                :class="item.isActive ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'"
               >
-                <Icon icon="tabler:pencil" height="18" />
-              </v-btn>
-              <v-btn
-                color="error"
-                icon
-                variant="text"
-                size="32"
-                v-tooltip="item.isActive ? 'Desactivar' : 'Activar'"
-                :class="item.isActive ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
-                @click="onChangeStatus(item)"
-              >
-                <Icon :icon="item.isActive ? 'mdi-power' : 'mdi-power-off'" height="18" />
-              </v-btn>
-            </div>
-          </template>
-        </v-data-table-server>
-      </UiParentCard>
+                <Icon :icon="item.isActive ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-1" height="16" />
+                {{ item.isActive ? 'Activo' : 'Inactivo' }}
+              </VChip>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <div class="d-flex ga-2">
+                <v-btn
+                  icon
+                  color="info"
+                  variant="text"
+                  size="32"
+                  class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                  v-tooltip="'Editar Descuento'"
+                  @click="onEditPaymentMethod(item)"
+                >
+                  <Icon icon="tabler:pencil" height="18" />
+                </v-btn>
+                <v-btn
+                  color="error"
+                  icon
+                  variant="text"
+                  size="32"
+                  v-tooltip="item.isActive ? 'Desactivar' : 'Activar'"
+                  :class="item.isActive ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
+                  @click="onChangeStatus(item)"
+                >
+                  <Icon :icon="item.isActive ? 'mdi-power' : 'mdi-power-off'" height="18" />
+                </v-btn>
+              </div>
+            </template>
+          </v-data-table-server>
+        </v-card-text>
+      </v-card>
     </v-col>
   </v-row>
 

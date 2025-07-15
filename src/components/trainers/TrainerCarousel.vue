@@ -20,7 +20,6 @@ const searchQuery3 = ref('');
 const selectedTraining = ref<Trainers[]>([]);
 
 watch(selectedTraining, () => {
-  console.log(`selectedTraining`,selectedTraining.value );
   if (selectedTraining.value.length > 0 ) {
     emits('trainer-selected', selectedTraining.value[0]);
   }

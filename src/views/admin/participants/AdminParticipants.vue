@@ -99,8 +99,6 @@ const copyLink = async () => {
 
 const handleGenerateInvitation = () => {
   const userId = adminS.user.id;
-  console.log(adminS.user);
-  console.log(userId);
   if (!campusId.value) {
     return;
   }

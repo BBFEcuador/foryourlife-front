@@ -53,7 +53,6 @@ const loadAvailableTrainers = async () => {
 
   availableTrainerMutation.mutate(params, {
     onSuccess(data) {
-      console.log('Entrenadores obtenidos:', data);
       trainers.value = data;
       showTrainerSelect.value = true;
     },

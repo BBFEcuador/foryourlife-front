@@ -6,7 +6,8 @@ const contificoConfig = ref<ContificoConfig>({
     id: '',
     campusId: '',
     apiKey: '',
-    apiSecret: ''
+    apiSecret: '',
+    ruc:''
 })
 
 const fetchContificoConfigByCampus = async (campusId: string): Promise<ContificoConfig> => {
@@ -24,7 +25,8 @@ const useContificoConfigByCampus = (id: MaybeRef<string>) => {
                 id: '',
                 campusId: '',
                 apiKey: '',
-                apiSecret: ''
+                apiSecret: '',
+                ruc: ''
             };
             const response = await fetchContificoConfigByCampus(campusId.value);
             return response;
@@ -42,7 +44,8 @@ const useContificoConfigByCampus = (id: MaybeRef<string>) => {
                 id: '',
                 campusId: '',
                 apiKey: '',
-                apiSecret: ''
+                apiSecret: '',
+                ruc:''
             };
         }
     });

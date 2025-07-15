@@ -3,14 +3,17 @@ import { ref, watch, defineProps, defineEmits, computed } from 'vue';
 import useSriPaymentMethods from '@/composables/admin/paymentMethods/useSriPaymentMethods';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
-import { required } from '@vuelidate/validators';
+import { helpers, required, requiredIf } from '@vuelidate/validators';
 import type { PaymentMethod, PaymentMethodRequest } from '@/models/Payments';
 import useCampus from '@/composables/admin/useCampus';
+import useBankAccounts from '@/composables/admin/paymentMethods/useBankAccounts';
+import { adminStore } from '@/stores/adminStore';
 
 interface FormData {
   type: string;
   code: string;
-  campusId:string;
+  campusId: string;
+  bankId: string;
 }
 
 const props = withDefaults(
@@ -26,8 +29,6 @@ const props = withDefaults(
 
 const paymentMethod = computed(() => props.paymentMethod);
 
-console.log(paymentMethod.value);
-
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'save', paymentMethod: Partial<PaymentMethodRequest>): void;
@@ -41,22 +42,32 @@ const isOpen = computed({
   set: (val) => emit('update:modelValue', val)
 });
 
+const store = adminStore();
+const transferSelected = ref(props.paymentMethod.code === 'TRA' ? true : false);
 const { sriPaymentMethodsData, isSriPaymentMethodsError, isSriPaymentMethodsLoading, refetchSriPaymentMethods } = useSriPaymentMethods();
 const { campus, isError, isFetching, refetch } = useCampus();
+const { bankAccounts, isBankAccountsLoading, refetchBankAccounts } = useBankAccounts();
 
 const createDefaultFormData = (): FormData => ({
   type: paymentMethod.value.type,
   code: paymentMethod.value.code,
-  campusId: paymentMethod.value.campus.id
+  campusId: paymentMethod.value.campus.id,
+  bankId: paymentMethod.value.bank?.id!!
 });
 
 const formData = ref<FormData>(createDefaultFormData());
 
-const rules = {
+const rules = computed(() => ({
   type: { required },
   code: { required },
-  campusId:{required}
-};
+  campusId: { required },
+  bankId: {
+    required: helpers.withMessage(
+      'Campo requerido',
+      requiredIf(() => transferSelected.value)
+    )
+  }
+}));
 
 const v$ = useVuelidate(rules, formData);
 
@@ -91,6 +102,15 @@ defineExpose({
   focus,
   resetForm
 });
+
+const handleTransferSelected = (id: string) => {
+  if (id === 'TRA') {
+    transferSelected.value = true;
+  } else {
+    transferSelected.value = false;
+    formData.value.bankId = '';
+  }
+};
 </script>
 
 <template>
@@ -116,11 +136,13 @@ defineExpose({
                 required
               ></v-text-field>
             </v-col>
+
             <v-col cols="6">
               <v-select
                 v-model="formData.campusId"
                 label="Campus"
                 :items="campus"
+                :disabled="store.isCampusSelected"
                 item-title="city"
                 item-value="id"
                 :error-messages="v$.campusId.$errors.map((e: any) => e.$message.toString())"
@@ -130,7 +152,6 @@ defineExpose({
                 required
               ></v-select>
             </v-col>
-
             <v-col cols="12">
               <v-select
                 v-model="formData.code"
@@ -142,7 +163,21 @@ defineExpose({
                 @blur="v$.code.$touch"
                 variant="outlined"
                 density="comfortable"
+                @update:model-value="handleTransferSelected"
                 required
+              ></v-select>
+            </v-col>
+            <v-col v-if="transferSelected" cols="12">
+              <v-select
+                v-model="formData.bankId"
+                label="Cuenta Bancaria"
+                :items="bankAccounts"
+                :item-title="(item) => `${item?.name ?? ''} - ${item?.number ?? ''}`"
+                item-value="id"
+                :error-messages="v$.bankId.$errors.map((e: any) => e.$message.toString())"
+                @blur="v$.bankId.$touch"
+                variant="outlined"
+                density="comfortable"
               ></v-select>
             </v-col>
           </v-row>

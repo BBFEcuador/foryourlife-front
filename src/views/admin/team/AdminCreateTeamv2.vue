@@ -42,7 +42,6 @@ const nameFieldStatus = computed(() => team.value.lvl  != 'LIFE')
 
 
 watch(()=>team.value.lvl,() => {
-  console.log(team.value.lvl);
   switch (team.value.lvl) {
     case 'FOCUS':
       lasStep.value = 7

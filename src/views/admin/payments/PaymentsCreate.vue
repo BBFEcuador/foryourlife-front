@@ -11,6 +11,8 @@ import { toast } from 'vue3-toastify';
 import { adminStore } from '@/stores/adminStore';
 import PaymentHistoryList from '@/components/payments/PaymentHistoryList.vue';
 import type { PaymentHistory, PaymentHistoryRequest } from '@/models/Payments';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import usePaymentPdf from '@/composables/admin/payments/usePaymentPdf';
 
 // Tab controls
 // Datos de la factura
@@ -103,6 +105,7 @@ const breadcrumbs = [
 
 const selectPaymentIdPdf = ref('');
 const { savePaymentMutations } = usePaymentMutations();
+const { pdfArray, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
 const isLoading = ref(false);
 const showSuccessModal = ref(false);
 const redirectCountdown = ref(3);
@@ -128,19 +131,8 @@ const processPayment = async () => {
     note: notes.value
   };
 
-  await savePaymentMutations.mutate(paymentData, {
+  await savePaymentMutations.mutateAsync(paymentData, {
     onSuccess: async (data) => {
-      showSuccessModal.value = true;
-      redirectCountdown.value = maxCountdown;
-      const interval = setInterval(() => {
-        if (redirectCountdown.value > 0) {
-          redirectCountdown.value -= 1;
-        } else {
-          clearInterval(interval);
-          showSuccessModal.value = false;
-        }
-      }, 1000);
-
       cashDrawer.value.actualBalance += paymentHistoryArr.value.reduce((sum, row) => sum + parseFloat(row.amount), 0);
 
       paymentNumber.value = 'PAY-000001';
@@ -158,17 +150,29 @@ const processPayment = async () => {
 
       generalPaymentRef.value?.resetTextFields();
 
-      if (data) {
-        console.log(data);
-
-        const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+      selectPaymentIdPdf.value = data;
+      await refetchPaymentPdf();
+      if (pdfArray.value) {
+        const blob = new Blob([new Uint8Array(pdfArray.value)], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
       }
+      showSuccessModal.value = true;
+      redirectCountdown.value = maxCountdown;
+      const interval = setInterval(() => {
+        if (redirectCountdown.value > 0) {
+          redirectCountdown.value -= 1;
+        } else {
+          clearInterval(interval);
+          showSuccessModal.value = false;
+        }
+      }, 1000);
     },
-    onError: (error) => {
-      const val = error as AxiosError<{ message: string }>;
-      val.response?.data?.message ? toast.error(val.response.data.message) : toast.error(error);
+    onError(error) {
+      const err = error as AxiosError<ErrorApiResponse>;
+      console.log(err);
+
+      toast.error(err.response?.data?.message || 'Error al procesar el cobro');
       isLoading.value = false;
     }
   });

@@ -7,7 +7,6 @@ export const showErrorToast = (a: AxiosError<ErrorApiResponse>) => {
     if (a.response?.data?.message) {
         message = JSON.stringify(a.response?.data?.message);
         text = a.response?.data?.errors;
-        console.log(`a.response?.data?.errors`, a.response?.data);
     }
     const Toast = Swal.mixin({
         toast: true,

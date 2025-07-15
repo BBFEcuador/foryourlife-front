@@ -4,17 +4,21 @@ import useSriPaymentMethods from '@/composables/admin/paymentMethods/useSriPayme
 import useCampus from '@/composables/admin/useCampus';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
-import { required } from '@vuelidate/validators';
+import { helpers, required, requiredIf } from '@vuelidate/validators';
 import type { PaymentMethodRequest } from '@/models/Payments';
 import { adminStore } from '@/stores/adminStore';
+import useBankAccounts from '@/composables/admin/paymentMethods/useBankAccounts';
 
 interface FormData {
   type: string;
   code: string;
   campusId: string;
+  bankId: string;
 }
 
+const transferSelected = ref(false);
 const store = adminStore();
+const { bankAccounts, isBankAccountsLoading, refetchBankAccounts } = useBankAccounts();
 
 const props = withDefaults(
   defineProps<{
@@ -48,18 +52,26 @@ const { campus, isError, isFetching, refetch } = useCampus();
 const createDefaultFormData = (): FormData => ({
   type: '',
   code: '',
-  campusId: store.selectCampusId || ''
+  campusId: store.selectCampusId || '',
+  bankId: ''
 });
 
 const formData = ref<FormData>(createDefaultFormData());
 
-const rules = {
+const rules = computed(() => ({
   type: { required },
   code: { required },
-  campusId: { required }
-};
+  campusId: { required },
+  bankId: {
+    required: helpers.withMessage(
+      'Campo requerido',
+      requiredIf(() => transferSelected.value)
+    )
+  }
+}));
 
-const v$ = useVuelidate(rules, formData);
+
+const v$ = useVuelidate(rules, formData, { $autoDirty: true });
 
 const resetForm = () => {
   formData.value = createDefaultFormData();
@@ -86,6 +98,15 @@ const savePaymentMethod = async () => {
 
   emit('save', paymentMethodData);
   resetForm();
+};
+
+const handleTransferSelected = (id: string) => {
+  if (id === 'TRA') {
+    transferSelected.value = true;
+  } else {
+    transferSelected.value = false;
+    formData.value.bankId = '';
+  }
 };
 
 defineExpose({
@@ -144,7 +165,21 @@ defineExpose({
                 @blur="v$.code.$touch"
                 variant="outlined"
                 density="comfortable"
+                @update:model-value="handleTransferSelected"
                 required
+              ></v-select>
+            </v-col>
+            <v-col v-if="transferSelected" cols="12">
+              <v-select
+                v-model="formData.bankId"
+                label="Cuenta Bancaria"
+                :items="bankAccounts"
+                :item-title="(item) => `${item?.name ?? ''} - ${item?.number ?? ''}`"
+                item-value="id"
+                :error-messages="v$.bankId.$errors.map((e: any) => e.$message.toString())"
+                @blur="v$.bankId.$touch"
+                variant="outlined"
+                density="comfortable"
               ></v-select>
             </v-col>
           </v-row>

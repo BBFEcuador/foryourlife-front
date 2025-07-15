@@ -23,7 +23,6 @@ interface FormData {
 interface Props {
     modelValue: boolean;
     product?: Product | null;
-    programs: Program[];
     isLoading?: boolean;
 }
 
@@ -103,7 +102,7 @@ const saveProduct = async () => {
     const isValid = await v$.value.$validate();
     if (!isValid) return;
     
-    const productData: Omit<Product, 'id'> & { id?: string } = {
+    const productData: Partial<Product>= {
         name: formData.value.name || '',
         code: formData.value.code || '',
         description: formData.value.description || '',
@@ -138,7 +137,7 @@ defineExpose({
     <v-dialog v-model="isOpen" max-width="600" persistent>
         <v-card class="rounded-xl">
             <v-card-title class="d-flex align-center bg-primary">
-                <Icon icon="mdi-package-variant" />
+                <Icon icon="mdi-package-variant"  class="mr-2"/>
                 <span class="text-h6 text-white">{{ product ? 'Editar Producto' : 'Nuevo Producto' }}</span>
                 <v-spacer />
                 <v-btn icon variant="text" @click="closeDialog">

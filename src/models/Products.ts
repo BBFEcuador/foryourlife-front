@@ -8,7 +8,7 @@ export interface Product {
     currency: string
     isActive: boolean
     description: string
-    contificoId:string
+    contificoId?:string
     rules: any
     programs: Program[]
     campus:Campus
