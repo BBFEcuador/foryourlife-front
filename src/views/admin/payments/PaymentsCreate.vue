@@ -170,9 +170,9 @@ const processPayment = async () => {
     },
     onError(error) {
       const err = error as AxiosError<ErrorApiResponse>;
-      console.log(err);
-
-      toast.error(err.response?.data?.message || 'Error al procesar el cobro');
+      let message = err.response?.data?.message;
+      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
+      toast.error(message || 'Error al procesar el cobro');
       isLoading.value = false;
     }
   });
