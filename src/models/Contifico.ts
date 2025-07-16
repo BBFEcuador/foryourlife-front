@@ -1,9 +1,12 @@
 export interface ContificoConfigRequest {
-    id?: string;
+    id?: string | null;
     campusId: string;
     apiKey: string;
     apiSecret: string;
     ruc: string;
+    address: string;
+    razonSocial: string;
+    phone: string;
 }
 export interface ContificoConfig {
     id: string;
@@ -11,4 +14,7 @@ export interface ContificoConfig {
     apiKey: string;
     apiSecret: string;
     ruc: string;
+    address: string;
+    razonSocial: string
+    phone: string;
 }

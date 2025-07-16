@@ -6,12 +6,20 @@ import useCashDrawerMutation from '@/composables/admin/pos/useCashDrawerMutation
 import { adminStore } from '@/stores/adminStore';
 import { toast } from 'vue3-toastify';
 import type { AxiosError } from 'axios';
+import { ref } from 'vue';
 
 const props = defineProps<{
   cashDrawer: CashDrawer;
 }>();
+
 const store = adminStore();
 const { closeCashDrawerMutation } = useCashDrawerMutation();
+
+const pin = ref('');
+const enteredPin = ref('');
+const pinSet = ref(false);
+const pinDialog = ref(false);
+const unlockDialog = ref(false);
 
 function formatDate(dateStr: string): string {
   const [date, time] = dateStr.split('T');
@@ -28,13 +36,38 @@ const handleCloseCashDrawer = async () => {
       toast.success('Caja cerrada exitosamente');
       store.setCashDrawer({});
       store.setCashDrawerOpen(false);
-      router.push({ name: 'pos-main' });
+      router.push({ name: 'pos-preload' });
     },
     onError: (error) => {
       const err = error as AxiosError<{ message: string }>;
       toast.error(err.response?.data?.message || 'Error al procesar la caja');
     }
   });
+};
+
+const handleLock = () => {
+  if (pin.value.trim().length < 4) {
+    toast.warning('El PIN debe tener al menos 4 caracteres');
+    return;
+  }
+
+  store.setCashDrawerLock(true);
+  pinSet.value = true;
+  pinDialog.value = false;
+  toast.success('Caja bloqueada correctamente');
+};
+
+const handleUnlock = () => {
+  if (enteredPin.value === pin.value) {
+    store.setCashDrawerLock(false);
+    unlockDialog.value = false;
+    pinSet.value = false;
+    toast.success('Caja desbloqueada');
+    enteredPin.value = '';
+    pin.value = '';
+  } else {
+    toast.error('PIN incorrecto');
+  }
 };
 </script>
 <template>
@@ -89,10 +122,11 @@ const handleCloseCashDrawer = async () => {
           Ver Pagos
         </v-btn>
         <div class="tw:flex tw:gap-2 tw:w-full">
-          <v-btn class="tw:flex-1" color="warning" variant="tonal">
+          <v-btn class="tw:flex-1" color="warning" variant="tonal" @click="pinSet ? (unlockDialog = true) : (pinDialog = true)">
             <Icon icon="majesticons:restricted-line" class="mr-1" />
-            Bloquear Caja
+            {{ pinSet ? 'Desbloquear Caja' : 'Bloquear Caja' }}
           </v-btn>
+
           <v-btn variant="tonal" class="tw:flex-1" color="error" @click="handleCloseCashDrawer">
             <Icon icon="mdi:lock" class="mr-1" />
             Cerrar Caja
@@ -101,6 +135,26 @@ const handleCloseCashDrawer = async () => {
       </v-col>
     </v-row>
   </v-card>
+
+  <v-dialog v-model="pinDialog" width="400">
+    <v-card>
+      <v-card-title class="text-h3 text-center">Establecer PIN de 4 dígitos</v-card-title>
+      <v-card-text class="d-flex flex-column justify-center gap-2">
+        <v-otp-input v-model="pin" length="4"></v-otp-input>
+        <v-btn color="primary" @click="handleLock">Confirmar</v-btn>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="unlockDialog" width="400">
+    <v-card>
+      <v-card-title class="text-h3 text-center">Ingresar PIN para desbloquear</v-card-title>
+      <v-card-text class="d-flex flex-column justify-center gap-2">
+        <v-otp-input v-model="enteredPin" length="4"></v-otp-input>
+        <v-btn color="primary" @click="handleUnlock">Desbloquear</v-btn>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped>

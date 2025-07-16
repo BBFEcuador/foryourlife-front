@@ -25,6 +25,13 @@ export interface Store {
   number: string;
 }
 
+export interface StoreRequest {
+  id?: string;
+  address: string;
+  number: string;
+  campusId: string;
+}
+
 export interface CashDrawer {
   id: string;
   status: string;

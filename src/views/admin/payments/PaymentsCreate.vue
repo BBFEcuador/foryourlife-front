@@ -225,7 +225,17 @@ const clearPaymentHistory = () => {
       <v-progress-linear color="success" height="5" :model-value="progressValue" />
     </v-card>
   </v-dialog>
-  <div class="tw:flex tw:flex-col">
+  <div v-if="store.isCashDrawerLock">
+    <v-alert
+      type="warning"
+      variant="tonal"
+      class="mb-4 d-flex justify-center"
+      title="Caja bloqueada"
+      text="Desbloquea la caja para realizar nuevas transacciones."
+    ></v-alert>
+  </div>
+
+  <div v-else class="tw:flex tw:flex-col">
     <v-row>
       <v-col cols="12" md="6">
         <v-card class="payment-card h-full">

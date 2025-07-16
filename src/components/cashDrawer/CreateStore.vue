@@ -3,19 +3,20 @@ import { ref, defineProps, defineEmits, watch } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric } from '@vuelidate/validators';
-import type { CashBox, Store } from '@/models/CashDrawer';
+import type { StoreRequest } from '@/models/CashDrawer';
+import { adminStore } from '@/stores/adminStore';
+import useCampus from '@/composables/admin/useCampus';
 
 interface FormData {
+  address: string;
   number: string;
-  firstNumberInvoice: string;
-  store: Store;
+  campusId: string;
 }
 
 const props = withDefaults(
   defineProps<{
     modelValue: boolean;
     isLoading?: boolean;
-    stores: Store[];
   }>(),
   {
     isLoading: false
@@ -23,38 +24,33 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: 'save', cashBox: Partial<CashBox>): void;
+  (e: 'save', store: StoreRequest): void;
   (e: 'cancel'): void;
 }>();
 
 const isOpen = ref(false);
 const form = ref<HTMLFormElement | null>(null);
+const { campus } = useCampus();
+const store = adminStore();
 
 const createDefaultFormData = (): FormData => ({
   number: '',
-  firstNumberInvoice: '',
-  store: {
-    id: '',
-    address: '',
-    number: ''
-  }
+  campusId: store.selectCampusId,
+  address: ''
 });
 
 const formData = ref<FormData>(createDefaultFormData());
 
 const rules = {
   number: { required, numeric },
-  firstNumberInvoice: { required, numeric },
-  store: { required }
+  address: { required },
+  campusId: { required }
 };
 
 const v$ = useVuelidate(rules, formData);
 
 const resetForm = () => {
   formData.value = createDefaultFormData();
-  if (form.value) {
-    form.value.reset();
-  }
   v$.value.$reset();
 };
 
@@ -70,16 +66,15 @@ const closeDialog = () => {
   emit('cancel');
 };
 
-const saveCashBox = async () => {
+const saveStore = async () => {
   const isValid = await v$.value.$validate();
   if (!isValid) return;
 
-  const cashBoxData = {
-    ...formData.value,
-    firstNumberInvoice: parseInt(formData.value.firstNumberInvoice)
+  const storeData = {
+    ...formData.value
   };
 
-  emit('save', cashBoxData);
+  emit('save', storeData);
   resetForm();
 };
 
@@ -93,7 +88,7 @@ defineExpose({
     <v-card>
       <v-toolbar color="primary" class="text-white">
         <Icon icon="mdi:cash-register" class="ma-3" height="25" />
-        <span> Crear caja </span>
+        <span> Crear Establecimiento </span>
         <v-spacer></v-spacer>
         <v-btn icon @click="closeDialog">
           <Icon icon="mdi:close" />
@@ -105,7 +100,7 @@ defineExpose({
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="formData.number"
-                label="Numero de caja"
+                label="Numero de establecimiento"
                 type="number"
                 :error-messages="v$.number.$errors.map((e: any) => e.$message.toString())"
                 @blur="v$.number.$touch"
@@ -115,32 +110,32 @@ defineExpose({
               ></v-text-field>
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field
-                v-model="formData.firstNumberInvoice"
-                label="Numero de factura inicial"
-                type="number"
-                :error-messages="v$.firstNumberInvoice.$errors.map((e: any) => e.$message.toString())"
-                @blur="v$.firstNumberInvoice.$touch"
+              <v-select
+                v-model="formData.campusId"
+                label="Campus"
+                :items="campus"
+                item-title="city"
+                item-value="id"
+                :error-messages="v$.campusId.$errors.map((e: any) => e.$message.toString())"
+                @blur="v$.campusId.$touch"
                 variant="outlined"
                 density="comfortable"
                 required
-              ></v-text-field>
+                disabled
+              ></v-select>
             </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <v-select
-                v-model="formData.store"
-                label="Establecimiento"
-                :items="props.stores"
-                item-title="address"
-                :error-messages="v$.store.$errors.map((e: any) => e.$message.toString())"
-                @blur="v$.store.$touch"
+              <v-text-field
+                v-model="formData.address"
+                label="Dirección"
+                :error-messages="v$.address.$errors.map((e: any) => e.$message.toString())"
+                @blur="v$.address.$touch"
                 variant="outlined"
                 density="comfortable"
                 required
-                return-object
-              ></v-select>
+              ></v-text-field>
             </v-col>
           </v-row>
         </v-form>
@@ -148,7 +143,7 @@ defineExpose({
       <v-card-actions class="px-4 pb-4">
         <v-spacer></v-spacer>
         <v-btn variant="text" color="grey-darken-1" @click="closeDialog"> Cancelar </v-btn>
-        <v-btn color="primary" variant="elevated" :loading="isLoading" @click="saveCashBox"> Guardar </v-btn>
+        <v-btn color="primary" variant="elevated" :loading="isLoading" @click="saveStore"> Guardar </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

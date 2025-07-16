@@ -7,6 +7,7 @@ export const adminStore = defineStore(
     const token = ref('');
     const user = ref<any>({} as any);
     const isCashDrawerOpen = ref(false);
+    const isCashDrawerLock = ref(false);
     const cashDrawer = ref<any>({} as any);
     const selectCampusId = ref('')
     const isCampusSelected = ref(false)
@@ -16,6 +17,7 @@ export const adminStore = defineStore(
       user.value = {} as any;
       token.value = '';
       isCashDrawerOpen.value = false;
+      isCashDrawerLock.value = false;
       cashDrawer.value = {} as any;
       selectCampusId.value = ''
       isCampusSelected.value = false
@@ -29,6 +31,9 @@ export const adminStore = defineStore(
     };
     const setCashDrawerOpen = (isOpen: boolean) => {
       isCashDrawerOpen.value = isOpen;
+    };
+    const setCashDrawerLock = (isLock: boolean) => {
+      isCashDrawerLock.value = isLock;
     };
     const setCashDrawer = (drawer: any) => {
       cashDrawer.value = drawer;
@@ -51,6 +56,7 @@ export const adminStore = defineStore(
       selectCampusId,
       isCampusSelected,
       availableCampus,
+      isCashDrawerLock,
       logout,
       setToken,
       setAdmin,
@@ -58,7 +64,8 @@ export const adminStore = defineStore(
       setCashDrawer,
       setIsCampusSelected,
       setSelectedCampusId,
-      setAvailableCampus
+      setAvailableCampus,
+      setCashDrawerLock
     };
   },
   { persist: true }

@@ -6,10 +6,14 @@ import useContificoConfigByCampus from '@/composables/admin/contifico/useContifi
 import type { ContificoConfigRequest } from '@/models/Contifico';
 import type { AxiosError } from 'axios';
 import { toast } from 'vue3-toastify';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const apiToken = ref('');
 const authorization = ref('');
 const ruc = ref('');
+const address = ref('');
+const razonSocial = ref('');
+const phone = ref('');
 
 const disableConfig = !adminStore().isCampusSelected;
 const campusId = ref(adminStore().selectCampusId);
@@ -22,10 +26,14 @@ const prevAuth = computed(() => '*'.repeat((contificoConfig.value?.apiSecret || 
 
 const handleSaveConfiguration = async () => {
   const configReq: ContificoConfigRequest = {
+    id: contificoConfig.value.id || null,
     campusId: campusId.value,
-    apiKey: apiToken.value,
-    apiSecret: authorization.value,
-    ruc: ruc.value
+    apiKey: apiToken.value || contificoConfig.value.apiKey,
+    apiSecret: authorization.value || contificoConfig.value.apiSecret,
+    ruc: ruc.value || contificoConfig.value.ruc,
+    address: address.value || contificoConfig.value.address,
+    razonSocial: razonSocial.value || contificoConfig.value.razonSocial,
+    phone: phone.value || contificoConfig.value.phone
   };
 
   await saveContificoSettingsMutation.mutateAsync(configReq, {
@@ -34,8 +42,10 @@ const handleSaveConfiguration = async () => {
       refetchContificoConfig();
     },
     onError: (error) => {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || 'Error al guardar la configuración');
+      const err = error as AxiosError<ErrorApiResponse>;
+      let message = err.response?.data?.message;
+      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
+      toast.error(message || 'Error al procesar el cobro');
     }
   });
 };
@@ -64,14 +74,21 @@ const handleSaveConfiguration = async () => {
       </div>
       <div class="d-flex align-center tw:gap-x-3 mt-2">
         <p class="tw:font-medium tw:md:w-4/12">Razón Social</p>
-        <v-text-field :placeholder="'s'" variant="outlined" dense hide-details></v-text-field>
+        <v-text-field v-model="razonSocial" :placeholder="contificoConfig.razonSocial" variant="outlined" dense hide-details></v-text-field>
       </div>
       <div class="d-flex align-center tw:gap-x-3 mt-2">
-        <p class="tw:font-medium tw:md:w-4/12">Dirección:</p>
-        <v-text-field v-model="ruc" :placeholder="contificoConfig.ruc" variant="outlined" dense hide-details></v-text-field>
+        <p class="tw:font-medium tw:md:w-4/12">Dirección</p>
+        <v-text-field v-model="address" :placeholder="contificoConfig.address" variant="outlined" dense hide-details></v-text-field>
+      </div>
+      <div class="d-flex align-center tw:gap-x-3 mt-2">
+        <p class="tw:font-medium tw:md:w-4/12">Teléfono</p>
+        <v-text-field v-model="phone" :placeholder="contificoConfig.phone" variant="outlined" dense hide-details></v-text-field>
       </div>
     </div>
   </v-card>
   <v-divider class="tw:border tw:border-gray-200 ma-2"></v-divider>
-  <v-btn class="ml-2" color="success" variant="flat" @click="handleSaveConfiguration">Guardar</v-btn>
+  <v-card class="d-flex" elevation="0" :disabled="disableConfig">
+    <v-spacer></v-spacer>
+    <v-btn class="ml-2" color="success" variant="flat" @click="handleSaveConfiguration">Guardar</v-btn>
+  </v-card>
 </template>

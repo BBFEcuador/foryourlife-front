@@ -5,7 +5,7 @@ import useCashDrawerMutation from '@/composables/admin/pos/useCashDrawerMutation
 import useCashBoxMutation from '@/composables/admin/pos/useCashBoxMutation';
 import CreateCashBox from '@/components/cashDrawer/CreateCashBox.vue';
 import { adminStore } from '@/stores/adminStore';
-import type { CashBox, CashBoxRequest } from '@/models/CashDrawer';
+import type { CashBox, CashBoxRequest, StoreRequest } from '@/models/CashDrawer';
 import type { AxiosError } from 'axios';
 import { toast } from 'vue3-toastify';
 import useCashBoxes from '@/composables/admin/pos/useCashBoxes';
@@ -13,15 +13,19 @@ import { router } from '@/router';
 import CreateCashDrawer from '@/components/cashDrawer/CreateCashDrawer.vue';
 import useContificoPosMutation from '@/composables/admin/contifico/useContificoPos';
 import useStores from '@/composables/admin/pos/useStores';
+import CreateStore from '@/components/cashDrawer/CreateStore.vue';
+import useStoreMutations from '@/composables/admin/pos/useStoreMutations';
 
 const { cashBoxes, isCashBoxesLoading, refetchCashBoxes } = useCashBoxes();
 const { storesData, isStoresDataLoading, refetchStoresData } = useStores();
 const { saveCashBoxMutation } = useCashBoxMutation();
 const { openCashDrawerMutation } = useCashDrawerMutation();
 const { useContificoSyncPosMutations, isSyncPosLoading } = useContificoPosMutation();
+const { saveStoreMutation } = useStoreMutations();
 
 const store = adminStore();
 const showCreateCashBox = ref(false);
+const showCreateStore = ref(false);
 const auxCashBox = ref<CashBox>({} as CashBox);
 const showCreateCashDrawer = ref(false);
 
@@ -91,6 +95,20 @@ const syncPos = async () => {
     }
   });
 };
+
+const saveStore = (store: StoreRequest) => {
+  saveStoreMutation.mutate(store, {
+    onSuccess: () => {
+      toast.success('Establecimiento guardado exitosamente');
+      showCreateStore.value = false;
+      refetchStoresData();
+    },
+    onError: (error) => {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || 'Error al guardar el establecimiento');
+    }
+  });
+};
 </script>
 
 <template>
@@ -157,17 +175,22 @@ const syncPos = async () => {
   </div>
 
   <div class="d-flex align-center pb-4 mt-4">
-    <h3 class="text-h3 font-weight-bold">Establecimientos de Contifico</h3>
+    <h3 class="text-h3 font-weight-bold">Establecimientos</h3>
     <v-spacer />
-    <v-btn :loading="isSyncPosLoading" color="success" @click="syncPos" class="mr-2" :disabled="disabledProperty">
+    <v-btn :loading="isSyncPosLoading" color="info" @click="syncPos" class="mr-2" :disabled="disabledProperty">
       <Icon icon="mdi:reload" class="mr-2" />
       Sincronizar establecimientos de Contifico
     </v-btn>
+    <v-btn color="primary" @click="showCreateStore = true" class="mr-2" :disabled="disabledProperty">
+      <Icon icon="mdi:add" class="mr-2" />
+      Agregar establecimiento
+    </v-btn>
+    <CreateStore :model-value="showCreateStore" @cancel="showCreateStore = false" @save="saveStore" />
   </div>
 
   <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
     <Icon icon="cil:warning" height="48" class="mb-4" />
-    <p class="text-subtitle-1">Elija un campus para ver los establecimientos de Contifico</p>
+    <p class="text-subtitle-1">Elija un campus para ver los establecimientos</p>
   </div>
 
   <div v-else>

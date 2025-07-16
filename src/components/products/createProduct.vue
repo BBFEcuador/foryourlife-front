@@ -60,7 +60,6 @@ const createDefaultFormData = (): FormData => ({
 });
 
 const formData = ref<FormData>(createDefaultFormData());
-const selectedCampus = ref({} as Campus);
 
 const rules = {
   name: { required },
