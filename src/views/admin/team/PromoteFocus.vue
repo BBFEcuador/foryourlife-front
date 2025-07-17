@@ -241,7 +241,7 @@ watch(promoteToYourMutation.isSuccess, () => {
                   <ParticipantsSelect :team="team" v-model="promotionYourRequest.users" />
                 </v-window-item>
                 <v-window-item value="actualParticipants">
-                  <NewParticipantsSelect :team="team" v-model="promotionYourRequest.users" />
+                  <NewParticipantsSelect :team="team" v-model="promotionYourRequest.users" :origin="'FOCUS'" />
                 </v-window-item>
               </v-window>
             </v-card-text>
@@ -282,10 +282,10 @@ watch(promoteToYourMutation.isSuccess, () => {
             <v-card-text>
               <v-window v-model="tab2">
                 <v-window-item value="newStaff">
-                  <StaffSelect :team="team" v-model="promotionYourRequest.staffs"/>
+                  <StaffSelect :team="team" v-model="promotionYourRequest.staffs" />
                 </v-window-item>
                 <v-window-item value="actualStaff">
-                  <NewStaffSelect :team="team" v-model="promotionYourRequest.staffs"/>
+                  <NewStaffSelect :team="team" v-model="promotionYourRequest.staffs" />
                 </v-window-item>
               </v-window>
             </v-card-text>

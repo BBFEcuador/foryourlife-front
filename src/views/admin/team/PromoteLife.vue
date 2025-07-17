@@ -299,7 +299,7 @@ const isPromoting = computed(() => {
             <v-card-text class="tw:p-0">
               <v-window v-model="tab" class="tw:mt-4">
                 <v-window-item value="actualParticipants">
-                  <NewParticipantsSelect :team="team" v-model="promotionLifeRequest.users" />
+                  <NewParticipantsSelect :origin="'LIFE'" :team="team" v-model="promotionLifeRequest.users" />
                 </v-window-item>
               </v-window>
             </v-card-text>

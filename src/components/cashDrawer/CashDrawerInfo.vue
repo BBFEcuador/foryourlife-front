@@ -106,7 +106,7 @@ const handleUnlock = () => {
           </div>
         </v-card-text>
       </v-col>
-      <v-col cols="12" md="4" class="tw:flex tw:flex-col tw:justify-center tw:items-center tw:gap-4 px-4">
+      <v-col cols="12" md="4" class="tw:flex tw:flex-col tw:justify-center tw:items-center tw:gap-4 px-6">
         <div class="tw:text-lg">Saldo Actual: {{ props.cashDrawer.actualBalance }} $</div>
         <v-btn
           color="success"

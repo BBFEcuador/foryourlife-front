@@ -291,7 +291,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                     color="error"
                     height="38"
                     class="!tw:bg-red-50 tw:rounded-xl !tw:shadow-sm hover:!tw:bg-red-100 tw:transition-all group"
-                    v-tooltip="'Quitar participantes'"
+                    v-tooltip="'Editar Equipo'"
                     @click="removeParticipantSelected(item.id)"
                   >
                     <div class="tw:relative">

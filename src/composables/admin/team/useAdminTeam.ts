@@ -1,6 +1,7 @@
 import { api } from '@/api/axios';
-import type { Team } from '@/models/Participants';
+import type { Participant, Team } from '@/models/Participants';
 import type { TeamLifePromotionRequest, TeamYourPromotionRequest } from '@/models/Team';
+import type { User } from '@/models/User';
 import { useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 
@@ -25,13 +26,13 @@ const useAdminTeam = (id: string) => {
         id: team.value.id,
         staffs: team.value.staffs,
         trainer: team.value.trainer.id,
-        users: team.value.users
+        users: [] as Participant[]
       };
       promotionLifeRequest.value = {
         id: team.value.id,
         masterLife: team.value.masterLife,
         trainer: team.value.trainer.id,
-        users: team.value.users,
+        users: [] as Participant[],
         name:
           team.value.training.nextLevel?.courseLevel == 'LIFE'
             ? `${team.value.training.nextLevel.courseLevel}-${team.value.training.nextLevel.number}`

@@ -236,7 +236,7 @@ const isPromoting = ref(false);
                                     <ParticipantsSelect :team="team" v-model="promotionLifeRequest.users"/>
                                 </v-window-item>
                                 <v-window-item value="actualParticipants">
-                                    <NewParticipantsSelect :team="team" v-model="promotionLifeRequest.users"/>
+                                    <NewParticipantsSelect :origin="'YOUR'" :team="team" v-model="promotionLifeRequest.users"/>
                                 </v-window-item>
                             </v-window>
                         </v-card-text>
