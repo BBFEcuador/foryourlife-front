@@ -88,7 +88,7 @@ const handleEditBankAccount = (item: BankAccount) => {
       >
         <VTextField
           v-model="search"
-          placeholder="Buscar método..."
+          placeholder="Buscar cuenta..."
           variant="outlined"
           density="comfortable"
           hide-details
