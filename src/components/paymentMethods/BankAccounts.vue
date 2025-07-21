@@ -28,6 +28,7 @@ const headers = [
 
 const showCreateDialog = ref(false);
 const showEditDialog = ref(false);
+const search = ref('');
 
 const saveBankAccount = async (bankAccount: BankAccountRequest) => {
   await saveBankAccountMutation.mutateAsync(bankAccount, {
@@ -68,11 +69,12 @@ const handleEditBankAccount = (item: BankAccount) => {
 };
 </script>
 <template>
-  <v-data-table-server
+  <v-data-table
     :headers="headers"
     :items="bankAccounts"
     :items-length="bankAccounts.length"
     :loading="isBankAccountsLoading || loadingProperty"
+    :search="search"
   >
     <template v-slot:top>
       <v-toolbar
@@ -84,6 +86,27 @@ const handleEditBankAccount = (item: BankAccount) => {
         :delay="200"
         :duration="250"
       >
+        <VTextField
+          v-model="search"
+          placeholder="Buscar método..."
+          variant="outlined"
+          density="comfortable"
+          hide-details
+          class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+          bg-color="white"
+        >
+          <template #prepend-inner>
+            <div class="tw:relative">
+              <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+              <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+            </div>
+          </template>
+          <template #append v-if="search">
+            <VBtn icon variant="text" size="small" @click="search = ''" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+              <Icon icon="mdi:close" height="18" />
+            </VBtn>
+          </template>
+        </VTextField>
         <v-spacer></v-spacer>
         <VBtn
           variant="elevated"
@@ -118,7 +141,7 @@ const handleEditBankAccount = (item: BankAccount) => {
         </v-btn>
       </div>
     </template>
-  </v-data-table-server>
+  </v-data-table>
 
   <CreateBankAccount :model-value="showCreateDialog" @cancel="showCreateDialog = false" @save="saveBankAccount" />
 

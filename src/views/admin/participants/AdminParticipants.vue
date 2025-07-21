@@ -3,7 +3,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import type { Criteria, Filter } from '@/models/Criteria';
 import useInvitation from '@/composables/invitation/useInvitation';
@@ -59,6 +59,17 @@ const headers = [
     sortable: false
   }
 ];
+
+const debouncedSearch = ref('');
+
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(debouncedSearch, (val) => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    participantSearch.value = val;
+  }, 400);
+});
 
 const breadcrumbs = ref([
   {
@@ -193,8 +204,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 </script>
 
 <template>
-  <BaseBreadcrumb :title="'Participantes'" :breadcrumbs="breadcrumbs" class="tw:mb-6">
-  </BaseBreadcrumb>
+  <BaseBreadcrumb :title="'Participantes'" :breadcrumbs="breadcrumbs" class="tw:mb-6"> </BaseBreadcrumb>
 
   <VRow v-auto-animate>
     <VCol cols="12">
@@ -203,7 +213,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
           <VDataTableServer
             :items="participants.content"
             :headers="headers"
-            :search="participantSearch"
+            :search="debouncedSearch"
             :loading="isParticipantsLoading"
             :loading-text="'Cargando participantes...'"
             :no-data-text="'No se encontraron participantes'"
@@ -229,7 +239,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               >
                 <div class="tw:flex-1 tw:max-w-md tw:relative">
                   <VTextField
-                    v-model="participantSearch"
+                    v-model="debouncedSearch"
                     placeholder="Buscar participantes..."
                     variant="outlined"
                     density="comfortable"
@@ -243,12 +253,12 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                         <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
                       </div>
                     </template>
-                    <template #append v-if="participantSearch">
+                    <template #append v-if="debouncedSearch">
                       <VBtn
                         icon
                         variant="text"
                         size="small"
-                        @click="participantSearch = ''"
+                        @click="debouncedSearch = ''"
                         class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
                       >
                         <Icon icon="mdi:close" height="18" />
@@ -373,7 +383,13 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
       </VCardTitle>
       <VCardText class="tw:p-6">
         <InputSection label="Campus">
-          <VSelect placeholder="Elija el campus" v-model="campusId" :items="adminS.availableCampus" item-title="city" item-value="id"></VSelect>
+          <VSelect
+            placeholder="Elija el campus"
+            v-model="campusId"
+            :items="adminS.availableCampus"
+            item-title="city"
+            item-value="id"
+          ></VSelect>
         </InputSection>
       </VCardText>
       <VCardActions class="tw:flex tw:justify-end">
@@ -405,7 +421,13 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
         <VNumberInput variant="outlined" placeholder="cantidad de usos para este token" v-model="quantity" :min="1" />
       </InputSection>
       <InputSection label="Campus">
-        <VSelect placeholder="Elija el campus" v-model="campusId" :items="adminS.availableCampus" item-title="city" item-value="id"></VSelect>
+        <VSelect
+          placeholder="Elija el campus"
+          v-model="campusId"
+          :items="adminS.availableCampus"
+          item-title="city"
+          item-value="id"
+        ></VSelect>
       </InputSection>
       <div class="tw:flex tw:justify-end">
         <VBtn color="primary" @click="handleGenerateInvitationLot" :loading="generateInvitationWithQuantityMutation.isPending.value"

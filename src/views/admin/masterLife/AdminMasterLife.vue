@@ -17,6 +17,17 @@ import type { ErrorApiResponse } from '@/models/ApiResponse';
 const { isMasterLifeError, isMasterLifeLoading, masterLifeData, refetchMasterLife, page, perPage, search } = useMasterLifes();
 const { saveMasterLifeMutations, changeStatusMutations } = useMasterLifeMutations();
 
+const debouncedSearch = ref('');
+
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(debouncedSearch, (val) => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    search.value = val;
+  }, 400);
+});
+
 const headers = [
   { title: 'Nombre', value: 'user.name', sortable: true },
   { title: 'E-mail', value: 'user.email', sortable: true },
@@ -136,7 +147,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
       <UiParentCard title="Lista de Master life">
         <v-data-table-server
           :headers="headers"
-          :search="search"
+          :search="debouncedSearch"
           :items="masterLifeData.content"
           :loading="isMasterLifeLoading"
           :items-length="masterLifeData.totalElements"
@@ -154,7 +165,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               :duration="250"
             >
               <VTextField
-                v-model="search"
+                v-model="debouncedSearch"
                 placeholder="Buscar Usuarios..."
                 variant="outlined"
                 density="comfortable"
@@ -168,12 +179,12 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                     <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
                   </div>
                 </template>
-                <template #append v-if="search">
+                <template #append v-if="debouncedSearch">
                   <VBtn
                     icon
                     variant="text"
                     size="small"
-                    @click="search = ''"
+                    @click="debouncedSearch = ''"
                     class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
                   >
                     <Icon icon="mdi:close" height="18" />

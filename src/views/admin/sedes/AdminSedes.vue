@@ -85,7 +85,7 @@ const onSaveCampus = () => {
               >
                 <VTextField
                   v-model="search"
-                  placeholder="Buscar Usuarios..."
+                  placeholder="Buscar Sedes..."
                   variant="outlined"
                   density="comfortable"
                   hide-details
@@ -143,7 +143,7 @@ const onSaveCampus = () => {
                 color="success"
                 @click="
                   () => {
-                    campusReq = {...item};
+                    campusReq = { ...item };
                     showEditDialog = true;
                   }
                 "

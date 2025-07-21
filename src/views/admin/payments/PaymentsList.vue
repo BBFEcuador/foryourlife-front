@@ -3,7 +3,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import usePayments from '@/composables/admin/payments/usePayments';
 import usePaymentRecordMutations from '@/composables/admin/payments/usePaymentMutations';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import PaymentHistoryList from '@/components/payments/PaymentHistoryList.vue';
 import { useRouter } from 'vue-router';
 import type { Payment } from '@/models/Payments';
@@ -27,6 +27,17 @@ const { pdfArray, isPaymentPdfError, isPaymentPdfLoading, refetchPaymentPdf } = 
 
 const { paymentsData, isPaymentsLoading, page, perPage, search } = usePayments();
 const { cancelPaymentMutation } = usePaymentRecordMutations();
+
+const debouncedSearch = ref('');
+
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(debouncedSearch, (val) => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    search.value = val;
+  }, 400);
+});
 
 const headers = [
   { title: 'Nombre', value: 'participant.user.name', sortable: true },
@@ -63,7 +74,6 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
     }
   }
 };
-
 
 const router = useRouter();
 const onCreatePayment = () => {
@@ -128,7 +138,7 @@ const handleDownloadPdf = async (item: Payment) => {
   <UiParentCard title="Lista de Cobros">
     <v-data-table-server
       :headers="headers"
-      :search="search"
+      :search="debouncedSearch"
       :items="paymentsData.content"
       :loading="isPaymentsLoading"
       :items-length="paymentsData.totalElements"
@@ -146,7 +156,7 @@ const handleDownloadPdf = async (item: Payment) => {
           :duration="250"
         >
           <VTextField
-            v-model="search"
+            v-model="debouncedSearch"
             placeholder="Buscar cobros..."
             variant="outlined"
             density="comfortable"
@@ -160,8 +170,14 @@ const handleDownloadPdf = async (item: Payment) => {
                 <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
               </div>
             </template>
-            <template v-if="search" #append>
-              <VBtn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors" @click="search = ''">
+            <template v-if="debouncedSearch" #append>
+              <VBtn
+                icon
+                variant="text"
+                size="small"
+                class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                @click="debouncedSearch = ''"
+              >
                 <Icon icon="mdi:close" height="18" />
               </VBtn>
             </template>

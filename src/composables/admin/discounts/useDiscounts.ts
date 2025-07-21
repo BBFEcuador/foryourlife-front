@@ -10,12 +10,10 @@ const perPage = ref(10);
 const search = ref('');
 const debouncedSearch = ref('');
 
-// Función de debounce para la búsqueda
 const updateDebouncedSearch = useDebounceFn((value: string) => {
   debouncedSearch.value = value;
-  // Resetear a la primera página al buscar
   page.value = 0;
-}, 500);
+}, 600);
 
 const fetchDiscounts = async (): Promise<PageableApiResponse<Discount[]>> => {
     const { data } = await api.get('/product-discounts', {

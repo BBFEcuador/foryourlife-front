@@ -25,6 +25,17 @@ const breadcrumbs = ref([
   }
 ]);
 
+const debouncedSearch = ref('');
+
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(debouncedSearch, (val) => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    search.value = val;
+  }, 400);
+});
+
 const staffRules = {
   role: { required },
   user: {
@@ -144,7 +155,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 
     <v-data-table-server
       :headers="headers"
-      :search="search"
+      :search="debouncedSearch"
       :items="visionariesData.content"
       :loading="isVisionariesloading"
       class="tw:rounded-xl elevation-0"
@@ -167,7 +178,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
         >
           <div class="tw:flex-1 tw:max-w-md tw:relative">
             <VTextField
-              v-model="search"
+              v-model="debouncedSearch"
               placeholder="Buscar por nombre, email o teléfono..."
               variant="outlined"
               density="comfortable"
@@ -178,8 +189,8 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               <template #prepend-inner>
                 <Icon icon="mdi:magnify" height="18" />
               </template>
-              <template #append v-if="search">
-                <VBtn icon variant="text" size="small" @click="search = ''">
+              <template #append v-if="debouncedSearch">
+                <VBtn icon variant="text" size="small" @click="debouncedSearch = ''">
                   <Icon icon="mdi:close" height="18" />
                 </VBtn>
               </template>

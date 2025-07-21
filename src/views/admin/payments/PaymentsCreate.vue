@@ -34,7 +34,7 @@ const showPaymentHistoryModal = ref(false);
 
 const store = adminStore();
 
-const cashDrawer = computed(() => store.cashDrawer);
+const cashDrawer = ref(store.cashDrawer);
 
 // Información de la empresa
 const billedBy = {
@@ -210,7 +210,7 @@ const clearPaymentHistory = () => {
 <template>
   <BaseBreadcrumb :title="'Crear Nuevo Cobro'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
 
-  <div class="mb-6">
+  <div v-if="cashDrawer" class="mb-6">
     <CashDrawerInfo :cash-drawer="cashDrawer" />
   </div>
 

@@ -141,7 +141,7 @@ const switchViews = () => {
         <v-divider></v-divider>
         <v-card-text>
           <BankAccounts v-if="switchBankAccount" />
-          <v-data-table-server
+          <v-data-table
             v-else
             :headers="headers"
             :search="search"
@@ -161,7 +161,7 @@ const switchViews = () => {
                 :duration="250"
               >
                 <VTextField
-                  :model-value="search"
+                  v-model="search"
                   placeholder="Buscar método..."
                   variant="outlined"
                   density="comfortable"
@@ -176,7 +176,13 @@ const switchViews = () => {
                     </div>
                   </template>
                   <template #append v-if="search">
-                    <VBtn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+                    <VBtn
+                      icon
+                      variant="text"
+                      size="small"
+                      @click="search = ''"
+                      class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                    >
                       <Icon icon="mdi:close" height="18" />
                     </VBtn>
                   </template>
@@ -230,7 +236,7 @@ const switchViews = () => {
                 </v-btn>
               </div>
             </template>
-          </v-data-table-server>
+          </v-data-table>
         </v-card-text>
       </v-card>
     </v-col>

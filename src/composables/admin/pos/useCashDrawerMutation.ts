@@ -4,8 +4,8 @@ import { useMutation } from "@tanstack/vue-query";
 const openCashDrawer = async (idsReq: {
     cashBoxId: string;
     userId: string;
-    openingBalance:number;
-    detail:string;
+    openingBalance: number;
+    detail: string;
 }): Promise<any> => {
     const { data } = await api.put('/cash-drawer/open/' + idsReq.cashBoxId, null, {
         params: {
@@ -19,11 +19,12 @@ const openCashDrawer = async (idsReq: {
 const closeCashDrawer = async (idsReq: {
     cashDrawerId: string;
     userId: string;
-}): Promise<any> => {
+}): Promise<Uint8Array> => {
     const { data } = await api.put('/cash-drawer/close/' + idsReq.cashDrawerId, null, {
         params: {
             userId: idsReq.userId
-        }
+        },
+        responseType: 'arraybuffer'
     })
     return data
 }

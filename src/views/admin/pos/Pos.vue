@@ -69,11 +69,12 @@ const openCashDrawer = async (cashDrawerData: { openingBalance: number; details:
     openingBalance: cashDrawerData.openingBalance,
     detail: cashDrawerData.details
   };
-  await openCashDrawerMutation.mutateAsync(cashDrawer, {
+  openCashDrawerMutation.mutate(cashDrawer, {
     onSuccess: (response) => {
-      toast.success('Caja abierta exitosamente');
       store.setCashDrawer(response);
       store.setCashDrawerOpen(true);
+      toast.success('Caja abierta exitosamente');
+
       router.push({ name: 'payments-admin-create' });
     },
     onError: (error) => {

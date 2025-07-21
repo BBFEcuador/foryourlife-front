@@ -14,7 +14,7 @@ import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import Swal from 'sweetalert2';
 import { toast } from 'vue3-toastify';
 
-const { isError, isFetching, trainers, page, perPage, search,refetch } = useTrainer();
+const { isError, isFetching, trainers, page, perPage, search, refetch } = useTrainer();
 const { saveTrainerMutations, disableTrainerMutation } = useTrainerMutations();
 const breadcrumbs = ref([
   {
@@ -23,6 +23,16 @@ const breadcrumbs = ref([
     href: '#'
   }
 ]);
+const debouncedSearch = ref('');
+
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(debouncedSearch, (val) => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    search.value = val;
+  }, 400);
+});
 
 watch(saveTrainerMutations.isError, () => {
   if (saveTrainerMutations.isError.value) {
@@ -35,7 +45,7 @@ watch(saveTrainerMutations.isSuccess, () => {
   if (saveTrainerMutations.isSuccess.value) {
     showCreateForm.value = false;
     showEditForm.value = false;
-    refetch()
+    refetch();
   }
 });
 
@@ -66,11 +76,11 @@ const onToggleUserStatus = (user: Trainers) => {
 
 watch(disableTrainerMutation.isSuccess, () => {
   if (disableTrainerMutation.isSuccess.value) {
-    refetch()
-    toast.success("Acción Exitosa", {
+    refetch();
+    toast.success('Acción Exitosa', {
       autoClose: 3000,
       closeButton: true
-    })
+    });
   }
 });
 
@@ -144,7 +154,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 
         <v-data-table-server
           :headers="headers"
-          :search="search"
+          :search="debouncedSearch"
           :items="trainers.content"
           :loading="isFetching"
           class="tw:rounded-xl elevation-0"
@@ -167,7 +177,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
             >
               <div class="tw:flex-1 tw:max-w-md tw:relative">
                 <VTextField
-                  v-model="search"
+                  v-model="debouncedSearch"
                   placeholder="Buscar por nombre, email o teléfono..."
                   variant="outlined"
                   density="comfortable"
@@ -178,8 +188,8 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                   <template #prepend-inner>
                     <Icon icon="mdi:magnify" height="18" />
                   </template>
-                  <template #append v-if="search">
-                    <VBtn icon variant="text" size="small" @click="search = ''">
+                  <template #append v-if="debouncedSearch">
+                    <VBtn icon variant="text" size="small" @click="debouncedSearch = ''">
                       <Icon icon="mdi:close" height="18" />
                     </VBtn>
                   </template>

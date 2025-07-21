@@ -13,6 +13,7 @@ const props = defineProps<{
 }>();
 
 const store = adminStore();
+const userIdref = ref(store.user.user.id);
 const { closeCashDrawerMutation } = useCashDrawerMutation();
 
 const pin = ref('');
@@ -29,10 +30,22 @@ function formatDate(dateStr: string): string {
 const handleCloseCashDrawer = async () => {
   const cashDrawer = {
     cashDrawerId: props.cashDrawer.cashBox.id,
-    userId: store.user.user.id
+    userId: userIdref.value
   };
   await closeCashDrawerMutation.mutateAsync(cashDrawer, {
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data) {
+        const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Cierre_Caja_${new Date().toLocaleDateString('es-EC').replace('/', '-')}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
       toast.success('Caja cerrada exitosamente');
       store.setCashDrawer({});
       store.setCashDrawerOpen(false);

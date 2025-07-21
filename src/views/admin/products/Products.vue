@@ -113,6 +113,17 @@ const onChangeStatus = async (item: Product) => {
   });
 };
 
+const debouncedSearch = ref('');
+
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(debouncedSearch, (val) => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    productSearch.value = val;
+  }, 400);
+});
+
 watch(changeStatusMutations.isSuccess, () => {
   if (changeStatusMutations.isSuccess.value) {
     refetchProducts();
@@ -177,9 +188,9 @@ const saveProduct = (product: Partial<Product>) => {
 const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => {
   await updateProductMutations.mutateAsync(product as Product, {
     onSuccess: () => {
-      showEditDialog.value=false
+      showEditDialog.value = false;
       toast.success('Producto actualizado correctamente');
-      refetchProducts()
+      refetchProducts();
     },
     onError(error) {
       const err = error as AxiosError<{ message: string }>;
@@ -197,7 +208,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
       <UiParentCard title="Lista de Productos">
         <v-data-table-server
           :headers="headers"
-          :search="productSearch"
+          :search="debouncedSearch"
           :items="productsData.content"
           :loading="isProductsLoading || isSyncProductLoading"
           :items-length="productsData.totalElements"
@@ -215,7 +226,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
               :duration="250"
             >
               <VTextField
-                v-model="productSearch"
+                v-model="debouncedSearch"
                 placeholder="Buscar productos..."
                 variant="outlined"
                 density="comfortable"
@@ -229,12 +240,12 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
                     <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
                   </div>
                 </template>
-                <template #append v-if="productSearch">
+                <template #append v-if="debouncedSearch">
                   <VBtn
                     icon
                     variant="text"
                     size="small"
-                    @click="productSearch = ''"
+                    @click="debouncedSearch = ''"
                     class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
                   >
                     <Icon icon="mdi:close" height="18" />
@@ -253,13 +264,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
                 <Icon class="mr-2" icon="mdi:reload" />
                 Actualizar productos de contifico
               </VBtn>
-              <VBtn
-                class="ml-2"
-                variant="elevated"
-                color="primary"
-                @click="showCreateDialog = true"
-                :loading="isSyncProductLoading"
-              >
+              <VBtn class="ml-2" variant="elevated" color="primary" @click="showCreateDialog = true" :loading="isSyncProductLoading">
                 <Icon class="mr-2" icon="mdi:add" />
                 Agregar producto
               </VBtn>
