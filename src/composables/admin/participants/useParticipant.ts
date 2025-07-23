@@ -11,21 +11,22 @@ const fetchParticipant = async (id: string): Promise<Participant> => {
 }
 
 const useParticipant = (id: string) => {
-    const { data, isError, isFetching } = useQuery({ 
-        queryKey: ['participant', id], 
-        queryFn: () => fetchParticipant(id)
+    const { data, isError, isFetching } = useQuery({
+        queryKey: ['participant', id],
+        queryFn: () => fetchParticipant(id),
+        gcTime: 0,
     });
     watch(data, () => {
-        if(data.value){
+        if (data.value) {
             participant.value = JSON.parse(JSON.stringify(data.value));
         }
     });
 
-    return { 
+    return {
         participant,
         isParticipantError: isError,
         isParticipantLoading: isFetching,
-     };
+    };
 }
 
 export default useParticipant;

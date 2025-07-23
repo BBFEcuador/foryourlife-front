@@ -8,6 +8,7 @@ import { useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
+import useInvitation from '@/composables/invitation/useInvitation';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 
 const route = useRoute();
@@ -17,7 +18,9 @@ interface props {
 }
 
 const props = defineProps<props>();
+
 const { promotionMasterLifeMutation, promotionVisionaryMutation, promotionStaffMutation } = useParticipantMutations();
+const { invitation, isInvitationLoading } = useInvitation(props.participant.invitationToken);
 
 const name = () => {
   Swal.fire({
@@ -36,8 +39,8 @@ const name = () => {
           const e = error as AxiosError<ErrorApiResponse>;
           showErrorToast(e);
         },
-        onSuccess(){
-            showSuccessToast("Master life creado exitosamente")
+        onSuccess() {
+          showSuccessToast('Master life creado exitosamente');
         }
       });
     }
@@ -56,15 +59,18 @@ const promotionVisionary = () => {
     cancelButtonText: '¡Lo pensaré!'
   }).then((result) => {
     if (result.isConfirmed) {
-      promotionVisionaryMutation.mutate({ userId: props.participant.user.id, role: 'VISIONARY' }, {
-        onError(error) {
-          const e = error as AxiosError<ErrorApiResponse>;
-          showErrorToast(e);
-        },
-        onSuccess(){
-          showSuccessToast("Visionario creado exitosamente")
+      promotionVisionaryMutation.mutate(
+        { userId: props.participant.user.id, role: 'VISIONARY' },
+        {
+          onError(error) {
+            const e = error as AxiosError<ErrorApiResponse>;
+            showErrorToast(e);
+          },
+          onSuccess() {
+            showSuccessToast('Visionario creado exitosamente');
+          }
         }
-      });
+      );
     }
   });
 };
@@ -81,17 +87,26 @@ const promotionStaff = () => {
     cancelButtonText: '¡Lo pensaré!'
   }).then((result) => {
     if (result.isConfirmed) {
-      promotionStaffMutation.mutate({ userId: props.participant.user.id, role: 'STAFF' }, {
-        onError(error) {
-          const e = error as AxiosError<ErrorApiResponse>;
-          showErrorToast(e);
-        },
-        onSuccess(){
-          showSuccessToast("Staff creado exitosamente")
+      promotionStaffMutation.mutate(
+        { userId: props.participant.user.id, role: 'STAFF' },
+        {
+          onError(error) {
+            const e = error as AxiosError<ErrorApiResponse>;
+            showErrorToast(e);
+          },
+          onSuccess() {
+            showSuccessToast('Staff creado exitosamente');
+          }
         }
-      });
+      );
     }
   });
+};
+
+const navigateToInvitation = (userId: string) => {
+  if (!invitation.value.admin) {
+    window.location.href = `/admin/participants/edit/${userId}`;
+  } else return;
 };
 </script>
 <template>
@@ -112,6 +127,10 @@ const promotionStaff = () => {
                 <h4 class="text-h4">{{ participant.participantLevel.courseLevel }}</h4>
                 <h6 class="text-h6 font-weight-regular">Nivel</h6>
               </v-col>
+              <v-label v-if="!isInvitationLoading" @click="navigateToInvitation(invitation.senderId)">
+                Invitado por:
+                <p class="tw:font-bold tw:underline ml-1">{{ invitation.enrolled.name }}</p>
+              </v-label>
             </v-row>
           </div>
         </v-col>
@@ -127,13 +146,9 @@ const promotionStaff = () => {
           </div>
         </v-col>
         <v-col cols="12" lg="4" sm="12" class="d-flex justify-center order-sml-first">
-          <v-menu location="bottom" v-if="participant.team?.trainingData?.curseLevel=='LIFE_GRADUATE'">
+          <v-menu location="bottom" v-if="participant.team?.trainingData?.curseLevel == 'LIFE_GRADUATE'">
             <template v-slot:activator="{ props }">
-              <v-btn
-                color="primary"
-                v-bind="props"
-                class="px-4"
-              >
+              <v-btn color="primary" v-bind="props" class="px-4">
                 <Icon icon="mdi:account-convert" class="mr-2" />
                 Promover participante
                 <Icon icon="mdi:chevron-down" class="ml-2" />
@@ -148,7 +163,7 @@ const promotionStaff = () => {
                 subtitle="Promover a Master Life"
                 class="mb-2 rounded-lg"
               >
-              <template v-slot:append>
+                <template v-slot:append>
                   <Icon icon="mdi:school" class="mr-2" />
                   <v-progress-circular
                     v-if="promotionMasterLifeMutation.isPending.value"
@@ -167,7 +182,7 @@ const promotionStaff = () => {
                 subtitle="Promover a Visionario"
                 class="mb-2 rounded-lg"
               >
-              <template v-slot:append>
+                <template v-slot:append>
                   <Icon icon="mdi:eye-outline" class="mr-2" />
                   <v-progress-circular
                     v-if="promotionVisionaryMutation.isPending.value"
@@ -186,15 +201,9 @@ const promotionStaff = () => {
                 subtitle="Promover a Staff"
                 class="rounded-lg"
               >
-              <template v-slot:append>
+                <template v-slot:append>
                   <Icon icon="mdi:account-tie" class="mr-2" />
-                  <v-progress-circular
-                    v-if="promotionStaffMutation.isPending.value"
-                    indeterminate
-                    size="20"
-                    width="2"
-                    color="primary"
-                  />
+                  <v-progress-circular v-if="promotionStaffMutation.isPending.value" indeterminate size="20" width="2" color="primary" />
                 </template>
               </v-list-item>
             </v-list>

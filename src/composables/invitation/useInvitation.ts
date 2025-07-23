@@ -1,35 +1,33 @@
-import { api } from '@/api/axios';
-import { useMutation } from '@tanstack/vue-query';
+import { api } from "@/api/axios";
+import type { Invitation } from "@/models/Invitation";
+import { useQuery } from "@tanstack/vue-query";
+import { ref, watch } from "vue";
 
-const generateInvitation = async (req: { userId: string; campusId: string }) => {
-  const { data } = await api.post('/invitation/create-by-admin', null, {
-    params: {
-      userId: req.userId,
-      campusId: req.campusId
+const invitation = ref<Invitation>({} as Invitation)
+
+const fetchInvitationByToken = async (token: string): Promise<Invitation> => {
+    const { data } = await api.get('/invitation/' + token);
+    return data
+}
+
+const useInvitation = (token: string) => {
+    const { data, isLoading, isError, refetch } = useQuery({
+        queryKey: ['invitation', token],
+        queryFn: () => fetchInvitationByToken(token)
+    })
+
+    watch(data, () => {
+        if (data.value) {
+            invitation.value = JSON.parse(JSON.stringify(data.value));
+        }
+    });
+
+    return {
+        invitation,
+        isInvitationLoading: isLoading,
+        isInvitationError: isError,
+        refetchInvitation: refetch
     }
-  });
-  return data;
-};
-
-const generateInvitationWithQuantity = async (req: { id: string; quantity: string, campusId : string }) => {
-  const { data } = await api.post('/invitation/create-by-admin-quantity', req);
-  return data;
-};
-
-const generateInvitationWithQuantityUser = async (req: { id: string; quantity: string , campusId: string}) => {
-  const { data } = await api.post('/invitation/create-by-user-quantity', req);
-  return data;
-};
-
-const useInvitation = () => {
-  const generateInvitationMutation = useMutation({ mutationFn: generateInvitation });
-  const generateInvitationWithQuantityMutation = useMutation({ mutationFn: generateInvitationWithQuantity });
-  const generateInvitationWithQuantityUserMutation = useMutation({ mutationFn: generateInvitationWithQuantityUser });
-  return {
-    generateInvitationMutation,
-    generateInvitationWithQuantityMutation,
-    generateInvitationWithQuantityUserMutation
-  };
-};
+}
 
 export default useInvitation;

@@ -1,7 +1,11 @@
 export interface Invitation {
   id: string;
   token: string;
-  users: any;
+  users: {
+    userId: string;
+    name: string;
+    enrolledDate: Date
+  }[];
   senderId: string;
   quantity: number;
   enrolled: Enrolled;
