@@ -29,6 +29,7 @@ const address = ref('');
 const document = ref('');
 const phone = ref('');
 const email = ref('');
+const type = ref('N');
 
 const generalPaymentRef = ref();
 const paymentHistoryArr = ref<PaymentHistory[]>([]);
@@ -132,7 +133,14 @@ const processPayment = async () => {
     participant: (selectedParticipant.value as any).id,
     campus: (selectedCampus.value as any).id,
     total: grandTotal.value,
-    invoice: { fullName: fullname.value, address: address.value, document: document.value, phone: phone.value, email: email.value },
+    invoice: {
+      type: type.value,
+      fullName: fullname.value,
+      address: address.value,
+      document: document.value,
+      phone: phone.value,
+      email: email.value
+    },
     cashDrawerId: cashDrawer.value.id,
     paymentsHistory: paymentHistoryArr.value,
     note: notes.value
@@ -262,6 +270,7 @@ const clearPaymentHistory = () => {
               @update:email="email = $event"
               @update:selected-discount="selectedDiscount = $event"
               @update:selected-campus="selectedCampus = $event"
+              @update:type="type = $event"
             />
           </v-card-text>
         </v-card>

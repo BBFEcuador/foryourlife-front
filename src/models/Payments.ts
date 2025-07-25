@@ -21,6 +21,7 @@ export interface PaymentRequest {
   total: number;
   paymentsHistory?: PaymentHistory[];
   invoice: {
+    type: string;
     fullName: string;
     address: string;
     document: string;

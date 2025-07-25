@@ -210,6 +210,13 @@ const handleDownloadPdf = async (item: Payment) => {
           </v-chip>
         </div>
       </template>
+      <template #item.status="{ item }">
+        <div class="d-flex flex-wrap gap-2">
+          <v-chip size="small" :color="item.status === 'PENDING' ? 'warning' : item.status === 'COMPLETED' ? 'success' : 'error'">
+            {{ item.status === 'PENDING' ? 'Pendiente' : item.status === 'COMPLETED' ? 'Completado' : 'Cancelado' }}
+          </v-chip>
+        </div>
+      </template>
 
       <template #item.actions="{ item }">
         <div class="d-flex ga-2">

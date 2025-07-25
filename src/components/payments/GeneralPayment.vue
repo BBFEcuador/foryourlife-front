@@ -3,6 +3,7 @@ import useDiscounts from '@/composables/admin/discounts/useDiscounts';
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAvailableProducts from '@/composables/admin/products/useAvailableProducts';
 import { router } from '@/router';
+import { Icon } from '@iconify/vue/dist/iconify.js';
 import Swal from 'sweetalert2';
 import { ref, computed, watch } from 'vue';
 
@@ -24,7 +25,8 @@ const emit = defineEmits([
   'update:phone',
   'update:email',
   'update:selectedDiscount',
-  'update:selectedCampus'
+  'update:selectedCampus',
+  'update:type'
 ]);
 
 // Definimos interfaces para los tipos
@@ -56,6 +58,7 @@ const address = ref('');
 const document = ref('');
 const phone = ref('');
 const email = ref('');
+const type = ref('N');
 
 // Observamos cambios en los valores seleccionados para emitir eventos
 watch(selectedParticipant, (newVal) => {
@@ -83,6 +86,9 @@ watch(phone, (newVal) => {
 });
 watch(email, (newVal) => {
   emit('update:email', newVal);
+});
+watch(type, (newVal) => {
+  emit('update:type', newVal);
 });
 
 watch(selectedDiscount, (newVal) => {
@@ -170,6 +176,7 @@ const resetTextFields = () => {
   phone.value = '';
   email.value = '';
   notes.value = '';
+  type.value = '';
   selectedParticipant.value = null;
   selectedProduct.value = null;
   selectedDiscount.value = null;
@@ -307,29 +314,30 @@ defineExpose({ resetTextFields });
 
     <!-- Datos de facturacion -->
     <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
+      <div class="d-flex tw:justify-center">
+        <v-btn-toggle v-model="type" class="mt-6" variant="tonal" color="success" mandatory divided>
+          <v-btn value="N">
+            <span>Natural</span>
+          </v-btn>
+          <v-btn value="J">
+            <span>Juridica</span>
+          </v-btn>
+        </v-btn-toggle>
+      </div>
       <div>
-        <h3 class="tw:text-lg tw:font-semibold pb-2">Nombre Completo</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">{{ type === 'N' ? 'Nombre Completo' : 'Razón Social' }}</h3>
         <v-text-field
           v-model="fullname"
           variant="outlined"
-          placeholder="Jhon Frederick Doe Marshall"
+          :placeholder="type === 'N' ? 'Jhon Frederick Doe Marshall' : 'Empresa S.A.'"
           @update:model-value="emit('update:fullname', fullname)"
-        ></v-text-field>
-      </div>
-      <div>
-        <h3 class="tw:text-lg tw:font-semibold pb-2">Dirección</h3>
-        <v-text-field
-          v-model="address"
-          variant="outlined"
-          placeholder="Av. Principal 123, Quito"
-          @update:model-value="emit('update:address', address)"
         ></v-text-field>
       </div>
     </div>
 
     <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
       <div>
-        <h3 class="tw:text-lg tw:font-semibold pb-2">Cédula/Pasaporte o Ruc</h3>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Cédula o RUC</h3>
         <v-text-field
           v-model="document"
           variant="outlined"
@@ -355,6 +363,15 @@ defineExpose({ resetTextFields });
           variant="outlined"
           placeholder="jhondoe@contoso.com"
           @update:model-value="emit('update:email', email)"
+        ></v-text-field>
+      </div>
+      <div>
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Dirección</h3>
+        <v-text-field
+          v-model="address"
+          variant="outlined"
+          placeholder="Av. Principal 123, Quito"
+          @update:model-value="emit('update:address', address)"
         ></v-text-field>
       </div>
     </div>

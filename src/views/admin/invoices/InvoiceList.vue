@@ -29,7 +29,7 @@ const showDetails = ref(false);
 const showEdit = ref(false);
 
 const headers = [
-  { title: 'Nro. Factura', value: 'invoiceNumber', sortable: true },
+  { title: 'Nro. Factura', value: 'invoiceContifico.documento', sortable: true },
   { title: 'Fecha', value: 'invoiceDate', sortable: true },
   { title: 'Identificación', value: 'document', sortable: true },
   { title: 'Nombre Completo', value: 'fullName', sortable: true },
