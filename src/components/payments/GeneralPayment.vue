@@ -2,11 +2,9 @@
 import useDiscounts from '@/composables/admin/discounts/useDiscounts';
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAvailableProducts from '@/composables/admin/products/useAvailableProducts';
-import useCampus from '@/composables/admin/useCampus';
 import { router } from '@/router';
 import Swal from 'sweetalert2';
 import { ref, computed, watch } from 'vue';
-import { toast } from 'vue3-toastify';
 
 const props = defineProps({
   modelValue: {
@@ -112,10 +110,6 @@ const discountsList = computed(() => {
 
 const searchClient = (s: string) => {
   participantSearch.value = s;
-};
-
-const searchProduct = (s: string) => {
-  productSearch.value = s;
 };
 
 const searchDiscount = (s: string) => {
@@ -232,7 +226,7 @@ defineExpose({ resetTextFields });
       <div>
         <h3 class="tw:text-lg tw:font-semibold pb-2">Artículos/Servicios</h3>
         <VCombobox
-          @update:search="searchProduct"
+          @update:search="productSearch = $event"
           v-model="selectedProduct"
           :items="productsList"
           item-title="name"

@@ -6,32 +6,38 @@ import { adminStore } from '@/stores/adminStore';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 
-const page = ref(0);
-const perPage = ref(10);
-const search = ref('');
-
-const fetchParticipants = async (): Promise<PageableApiResponse<Participant[]>> => {
-  const params = {
-    page: page.value,
-    perPage: perPage.value,
-    search: search.value,
-    campusId: adminStore().selectCampusId
-  }
-
-  const { data } = await api.get('/users', {
-    params: params
-  });
-  return data;
-};
-
-
-
-const fetchMatch = async (criteria: Criteria): Promise<Participant[]> => {
-  const { data } = await api.post('/users/match', criteria);
-  return data;
-};
-
 const useParticipants = () => {
+  const page = ref(0);
+  const perPage = ref(10);
+  const search = ref('');
+  const debouncedSearch = ref('');
+
+  let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  watch(debouncedSearch, (val) => {
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      search.value = val;
+    }, 400);
+  });
+
+  const fetchParticipants = async (): Promise<PageableApiResponse<Participant[]>> => {
+    const params = {
+      page: page.value,
+      perPage: perPage.value,
+      search: search.value,
+      campusId: adminStore().selectCampusId
+    };
+
+    const { data } = await api.get('/users', { params });
+    return data;
+  };
+
+  const fetchMatch = async (criteria: Criteria): Promise<Participant[]> => {
+    const { data } = await api.post('/users/match', criteria);
+    return data;
+  };
+
   const criteriaMutations = useMutation({
     mutationFn: fetchMatch
   });
@@ -52,7 +58,8 @@ const useParticipants = () => {
     refetchParticipants: refetch,
     page,
     perPage,
-    participantSearch: search
+    participantSearch: debouncedSearch
   };
 };
+
 export default useParticipants;

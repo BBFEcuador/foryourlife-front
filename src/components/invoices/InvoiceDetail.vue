@@ -1,8 +1,21 @@
 <script setup lang="ts">
+import useContificoConfigByCampus from '@/composables/admin/contifico/useContificoConfig';
 import type { Invoice } from '@/models/Invoice';
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import { computed } from 'vue';
 
 const props = defineProps<{ invoice: Invoice; showDialog: boolean }>();
+
+const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = useContificoConfigByCampus(props.invoice.payment.campus.id);
+
+const billedBy = computed(() => {
+  return {
+    name: contificoConfig.value.razonSocial,
+    ruc: contificoConfig.value.ruc,
+    address: contificoConfig.value.address,
+    phone: contificoConfig.value.phone
+  };
+});
 
 const emit = defineEmits<{
   (e: 'cancel'): void;
@@ -32,9 +45,10 @@ const formatDate = (date: string | Date) => {
       <div class="tw:grid tw:grid-cols-2 tw:mb-8">
         <div>
           <p class="tw:text-gray-600 mb-2">Facturado por:</p>
-          <p class="tw:font-semibold">Nombre de empresa</p>
-          <p>telefono</p>
-          <p>direccion</p>
+          <p class="tw:font-semibold">{{ billedBy.ruc }}</p>
+          <p class="tw:font-semibold">{{ billedBy.name }}</p>
+          <p>{{ billedBy.address }}</p>
+          <p>{{ billedBy.phone }}</p>
         </div>
         <div>
           <p class="tw:text-gray-600 mb-2">Facturado a:</p>

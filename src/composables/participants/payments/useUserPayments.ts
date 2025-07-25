@@ -24,7 +24,7 @@ const useUserPayments = () => {
         queryKey: ['user-payments-p', page, perPage],
         queryFn: fetchUserPayments,
         initialData: {
-            totalElements: 0,
+            numberOfElements: 0,
         } as PageableApiResponse<Payment[]>
     })
 

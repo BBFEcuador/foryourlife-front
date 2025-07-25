@@ -1,3 +1,4 @@
+import type { CashDrawer } from '@/models/CashDrawer';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
@@ -8,7 +9,7 @@ export const adminStore = defineStore(
     const user = ref<any>({} as any);
     const isCashDrawerOpen = ref(false);
     const isCashDrawerLock = ref(false);
-    const cashDrawer = ref<any>({} as any);
+    const cashDrawer = ref<CashDrawer>({} as CashDrawer);
     const selectCampusId = ref('')
     const isCampusSelected = ref(false)
     const availableCampus = ref([{} as any])
@@ -18,7 +19,7 @@ export const adminStore = defineStore(
       token.value = '';
       isCashDrawerOpen.value = false;
       isCashDrawerLock.value = false;
-      cashDrawer.value = {} as any;
+      cashDrawer.value = {} as CashDrawer;
       selectCampusId.value = ''
       isCampusSelected.value = false
       availableCampus.value = []

@@ -69,10 +69,6 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
   }
 };
 
-watch(productSearch, () => {
-  page.value = 0;
-});
-
 const showEditDialog = ref(false);
 const showCreateDialog = ref(false);
 const selectedProduct = ref<Product | null>(null);
@@ -112,17 +108,6 @@ const onChangeStatus = async (item: Product) => {
     }
   });
 };
-
-const debouncedSearch = ref('');
-
-let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
-
-watch(debouncedSearch, (val) => {
-  if (debounceTimeout) clearTimeout(debounceTimeout);
-  debounceTimeout = setTimeout(() => {
-    productSearch.value = val;
-  }, 400);
-});
 
 watch(changeStatusMutations.isSuccess, () => {
   if (changeStatusMutations.isSuccess.value) {
@@ -206,11 +191,19 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
   <v-row>
     <v-col cols="12">
       <UiParentCard title="Lista de Productos">
-        <v-data-table-server
-          :headers="headers"
-          :search="debouncedSearch"
+        <VDataTableServer
           :items="productsData.content"
-          :loading="isProductsLoading || isSyncProductLoading"
+          :headers="headers"
+          :search="productSearch"
+          :loading="isProductsLoading"
+          :loading-text="'Cargando productos...'"
+          :no-data-text="'No se encontraron productos'"
+          hover
+          class="tw:rounded-xl elevation-0"
+          v-motion
+          :initial="{ opacity: 0, y: 20 }"
+          :enter="{ opacity: 1, y: 0 }"
+          :delay="200"
           :items-length="productsData.totalElements"
           :items-per-page="10"
           @update:options="loadItems"
@@ -226,7 +219,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
               :duration="250"
             >
               <VTextField
-                v-model="debouncedSearch"
+                v-model="productSearch"
                 placeholder="Buscar productos..."
                 variant="outlined"
                 density="comfortable"
@@ -240,12 +233,12 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
                     <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
                   </div>
                 </template>
-                <template #append v-if="debouncedSearch">
+                <template #append v-if="productSearch">
                   <VBtn
                     icon
                     variant="text"
                     size="small"
-                    @click="debouncedSearch = ''"
+                    @click="productSearch = ''"
                     class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
                   >
                     <Icon icon="mdi:close" height="18" />
@@ -347,7 +340,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
               <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
             </div>
           </template>
-        </v-data-table-server>
+        </VDataTableServer>
       </UiParentCard>
     </v-col>
   </v-row>

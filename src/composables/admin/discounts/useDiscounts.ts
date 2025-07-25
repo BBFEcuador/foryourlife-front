@@ -11,8 +11,8 @@ const search = ref('');
 const debouncedSearch = ref('');
 
 const updateDebouncedSearch = useDebounceFn((value: string) => {
-  debouncedSearch.value = value;
-  page.value = 0;
+    debouncedSearch.value = value;
+    page.value = 0;
 }, 600);
 
 const fetchDiscounts = async (): Promise<PageableApiResponse<Discount[]>> => {
@@ -36,7 +36,7 @@ const useDiscounts = () => {
         queryKey: ['admin-discounts-p', page, perPage, debouncedSearch],
         queryFn: fetchDiscounts,
         initialData: {
-            totalElements: 0,
+            numberOfElements: 0,
         } as PageableApiResponse<Discount[]>
     });
     // Función para actualizar la búsqueda

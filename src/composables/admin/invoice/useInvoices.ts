@@ -26,7 +26,7 @@ const useInvoices = () => {
         queryKey: ['admin-invoices', page, perPage, search],
         queryFn: fetchInvoices,
         initialData: {
-            totalElements: 0,
+            numberOfElements: 0,
             content: [] as Invoice[]
         } as PageableApiResponse<Invoice[]>
     })

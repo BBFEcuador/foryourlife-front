@@ -1,3 +1,4 @@
+import type { Campus } from "./Campus";
 import type { User } from "./User";
 
 export interface CashBox {
@@ -23,6 +24,7 @@ export interface Store {
   id: string;
   address: string;
   number: string;
+  campus: Campus,
 }
 
 export interface StoreRequest {

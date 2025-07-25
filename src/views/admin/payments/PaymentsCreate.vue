@@ -13,6 +13,8 @@ import PaymentHistoryList from '@/components/payments/PaymentHistoryList.vue';
 import type { PaymentHistory, PaymentHistoryRequest } from '@/models/Payments';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import usePaymentPdf from '@/composables/admin/payments/usePaymentPdf';
+import useContificoConfigByCampus from '@/composables/admin/contifico/useContificoConfig';
+import { router } from '@/router';
 
 // Tab controls
 // Datos de la factura
@@ -36,11 +38,16 @@ const store = adminStore();
 
 const cashDrawer = ref(store.cashDrawer);
 
+const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = useContificoConfigByCampus(
+  cashDrawer.value.cashBox.store.campus.id
+);
+
 // Información de la empresa
 const billedBy = {
-  name: 'Impetus S.A',
-  address1: '789 Enterprise Avenue, Floor 2',
-  address2: 'Metropolis, Country'
+  name: contificoConfig.value.razonSocial,
+  ruc: contificoConfig.value.ruc,
+  address: contificoConfig.value.address,
+  phone: contificoConfig.value.phone
 };
 
 const billedTo = computed(() => {
@@ -238,7 +245,7 @@ const clearPaymentHistory = () => {
   <div v-else class="tw:flex tw:flex-col">
     <v-row>
       <v-col cols="12" md="6">
-        <v-card class="payment-card h-full">
+        <v-card class="payment-card h-full" :disabled="isContificoConfigError">
           <v-card-title class="py-2">
             <h3 class="tw:font-medium">Detalle de pago</h3>
           </v-card-title>
@@ -260,7 +267,18 @@ const clearPaymentHistory = () => {
         </v-card>
       </v-col>
       <v-col cols="12" md="6">
-        <v-card class="mb-4 h-full">
+        <v-alert
+          v-if="isContificoConfigError"
+          class="mb-4 d-flex justify-center"
+          variant="tonal"
+          type="error"
+          title="Datos de facturación no configurados"
+        >
+          <template v-slot:prepend> <Icon icon="mdi-alert-outline" height="40" /> </template>
+          Porfavor complete la <span class="tw:underline tw:cursor-pointer" @click="router.push({ name: 'settings' })">Configuración </span>
+        </v-alert>
+
+        <v-card v-else-if="!isContificoConfigLoading" class="mb-4 h-full">
           <v-card-title class="py-4">
             <h3 class="tw:font-medium">Vista Previa</h3>
           </v-card-title>

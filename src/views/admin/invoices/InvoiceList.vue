@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import EditInvoice from '@/components/invoices/EditInvoice.vue';
 import InvoiceDetail from '@/components/invoices/InvoiceDetail.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
+import useInvoiceMutations from '@/composables/admin/invoice/useInvoiceMutation';
 import useInvoices from '@/composables/admin/invoice/useInvoices';
-import type { Invoice } from '@/models/Invoice';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import type { EditInvoiceReq, Invoice } from '@/models/Invoice';
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import { email } from '@vuelidate/validators';
+import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
+import { toast } from 'vue3-toastify';
 
 const breadcrumbs = ref([
   {
@@ -14,10 +20,13 @@ const breadcrumbs = ref([
   }
 ]);
 
-const { invoicesData, isLoading, page, perPage, search } = useInvoices();
+const { invoicesData, isLoading, page, perPage, search, refetch } = useInvoices();
+const { updateInvoiceMutation, sendInvoicesToContificoMutation } = useInvoiceMutations();
+
 const debouncedSearch = ref('');
 const selectedInvoice = ref<Invoice>({} as Invoice);
 const showDetails = ref(false);
+const showEdit = ref(false);
 
 const headers = [
   { title: 'Nro. Factura', value: 'invoiceNumber', sortable: true },
@@ -25,6 +34,7 @@ const headers = [
   { title: 'Identificación', value: 'document', sortable: true },
   { title: 'Nombre Completo', value: 'fullName', sortable: true },
   { title: 'Total', value: 'amount', sortable: true },
+  { title: 'Enviada a Contifico', value: 'sentContifico', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 
@@ -59,6 +69,45 @@ const handleShowDetails = (item: Invoice) => {
   selectedInvoice.value = item;
   showDetails.value = true;
 };
+
+const handleShowEdit = (item: Invoice) => {
+  selectedInvoice.value = item;
+  showEdit.value = true;
+};
+
+const updateInvoice = async (invoiceReq: EditInvoiceReq) => {
+  await updateInvoiceMutation.mutateAsync(invoiceReq, {
+    onSuccess: async () => {
+      toast.success('Factura actualizada correctamente');
+      await refetch();
+      selectedInvoice.value = {} as Invoice;
+      showEdit.value = false;
+    },
+    onError(error) {
+      const err = error as AxiosError<ErrorApiResponse>;
+      let message = err.response?.data?.message;
+      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
+      toast.error(message || 'Error al actualizar la factura');
+    }
+  });
+};
+
+const sendInvoices = async () => {
+  await sendInvoicesToContificoMutation.mutateAsync(undefined, {
+    onSuccess: async () => {
+      toast.success('Facturas actualizada correctamente');
+      await refetch();
+      selectedInvoice.value = {} as Invoice;
+      showEdit.value = false;
+    },
+    onError(error) {
+      const err = error as AxiosError<ErrorApiResponse>;
+      let message = err.response?.data?.message;
+      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
+      toast.error(message || 'Error al actualizar la factura');
+    }
+  });
+};
 </script>
 
 <template>
@@ -68,7 +117,7 @@ const handleShowDetails = (item: Invoice) => {
       :headers="headers"
       :search="debouncedSearch"
       :items="invoicesData.content"
-      :loading="isLoading"
+      :loading="isLoading || updateInvoiceMutation.isPending.value || sendInvoicesToContificoMutation.isPending.value"
       :items-length="invoicesData.totalElements"
       @update:options="loadItems"
     >
@@ -98,14 +147,24 @@ const handleShowDetails = (item: Invoice) => {
               </div>
             </template>
           </VTextField>
+          <v-spacer></v-spacer>
+          <VBtn variant="elevated" color="info" class="ml-2" @click="sendInvoices">
+            <Icon class="mr-2" icon="meteor-icons:paper-plane" />
+            Enviar a Contifico
+          </VBtn>
         </v-toolbar>
       </template>
+      <template #item.sentContifico="{ item }">
+        <v-icon class="ml-2" :color="item.sentContifico ? 'success' : 'error'">
+          <Icon :icon="item.sentContifico ? 'material-symbols:check-circle-outline' : 'weui:close2-outlined'"></Icon>
+        </v-icon>
+      </template>
       <template #item.actions="{ item }">
-        <div class="d-flex ga-2">
+        <div class="d-flex align-middle">
           <v-btn
             v-tooltip="'Ver detalles de factura'"
             icon
-            color="success"
+            color="info"
             variant="text"
             size="32"
             class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
@@ -113,12 +172,34 @@ const handleShowDetails = (item: Invoice) => {
           >
             <Icon icon="mdi:eye" />
           </v-btn>
+          <div v-if="!item.sentContifico">
+            <v-btn
+              v-tooltip="'Actualizar datos de factura'"
+              icon
+              color="success"
+              variant="text"
+              size="32"
+              class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+              @click="handleShowEdit(item)"
+            >
+              <Icon icon="tabler:pencil" />
+            </v-btn>
+            <v-tooltip interactive>
+              <template v-slot:activator="{ props: activatorProps }">
+                <v-icon color="error" v-bind="activatorProps">
+                  <Icon icon="mdi-information-outline"></Icon>
+                </v-icon>
+              </template>
+              <span>{{ item.contificoError }}</span>
+            </v-tooltip>
+          </div>
         </div>
       </template>
     </v-data-table-server>
   </UiParentCard>
 
-  <InvoiceDetail :invoice="selectedInvoice" :showDialog="showDetails" @cancel="showDetails = !showDetails" />
+  <InvoiceDetail v-if="showDetails" :invoice="selectedInvoice" :showDialog="showDetails" @cancel="showDetails = !showDetails" />
+  <EditInvoice v-if="showEdit" :invoice="selectedInvoice" :showDialog="showEdit" @cancel="showEdit = !showEdit" @save="updateInvoice" />
 </template>
 
 <style scoped>

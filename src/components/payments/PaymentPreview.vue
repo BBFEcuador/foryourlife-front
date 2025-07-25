@@ -9,8 +9,9 @@ interface Item {
 
 interface Address {
   name: string;
-  address1: string;
-  address2: string;
+  ruc: string;
+  address: string;
+  phone: string;
 }
 
 interface Props {
@@ -73,8 +74,9 @@ const formatDate = (date: string | Date) => {
       <div>
         <p class="tw:text-gray-600 mb-2">Facturado por:</p>
         <p class="tw:font-semibold">{{ billedBy.name }}</p>
-        <p>{{ billedBy.address1 }}</p>
-        <p>{{ billedBy.address2 }}</p>
+        <p class="tw:font-semibold">{{ billedBy.ruc }}</p>
+        <p>{{ billedBy.address }}</p>
+        <p>{{ billedBy.phone }}</p>
       </div>
       <div>
         <p class="tw:text-gray-600 mb-2">Facturado a:</p>

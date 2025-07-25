@@ -22,7 +22,6 @@ const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch } = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitationMutation();
 const router = useRouter();
-const { isError, refetch, campus, isFetching } = useCampus();
 const adminS = adminStore();
 const headers = [
   {
@@ -60,16 +59,6 @@ const headers = [
   }
 ];
 
-const debouncedSearch = ref('');
-
-let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
-
-watch(debouncedSearch, (val) => {
-  if (debounceTimeout) clearTimeout(debounceTimeout);
-  debounceTimeout = setTimeout(() => {
-    participantSearch.value = val;
-  }, 400);
-});
 
 const breadcrumbs = ref([
   {
@@ -213,7 +202,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
           <VDataTableServer
             :items="participants.content"
             :headers="headers"
-            :search="debouncedSearch"
+            :search="participantSearch"
             :loading="isParticipantsLoading"
             :loading-text="'Cargando participantes...'"
             :no-data-text="'No se encontraron participantes'"
@@ -239,7 +228,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               >
                 <div class="tw:flex-1 tw:max-w-md tw:relative">
                   <VTextField
-                    v-model="debouncedSearch"
+                    v-model="participantSearch"
                     placeholder="Buscar participantes..."
                     variant="outlined"
                     density="comfortable"
@@ -253,12 +242,12 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                         <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
                       </div>
                     </template>
-                    <template #append v-if="debouncedSearch">
+                    <template #append v-if="participantSearch">
                       <VBtn
                         icon
                         variant="text"
                         size="small"
-                        @click="debouncedSearch = ''"
+                        @click="participantSearch = ''"
                         class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
                       >
                         <Icon icon="mdi:close" height="18" />

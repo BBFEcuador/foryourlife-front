@@ -7,7 +7,10 @@ const contificoConfig = ref<ContificoConfig>({
     campusId: '',
     apiKey: '',
     apiSecret: '',
-    ruc:''
+    ruc: '',
+    address: '',
+    razonSocial: '',
+    phone: ''
 })
 
 const fetchContificoConfigByCampus = async (campusId: string): Promise<ContificoConfig> => {
@@ -18,42 +21,26 @@ const fetchContificoConfigByCampus = async (campusId: string): Promise<Contifico
 const useContificoConfigByCampus = (id: MaybeRef<string>) => {
     const campusId = computed(() => toValue(id))
 
-    const { data, isError, isFetching, refetch } = useQuery({
+    const { data, isError, isLoading, refetch } = useQuery({
         queryKey: ['contifico-c', campusId],
-        queryFn: async () => {
-            contificoConfig.value = {
-                id: '',
-                campusId: '',
-                apiKey: '',
-                apiSecret: '',
-                ruc: ''
-            };
-            const response = await fetchContificoConfigByCampus(campusId.value);
-            return response;
-        },
+        queryFn: async () => fetchContificoConfigByCampus(campusId.value),
         enabled: computed(() => !!campusId.value),
+        gcTime: 0,
         staleTime: 0,
-        gcTime: 0
+        retry: false,
+        initialData: {} as ContificoConfig
     });
 
     watch(data, (newval) => {
         if (newval) {
             contificoConfig.value = JSON.parse(JSON.stringify(newval));
-        } else {
-            contificoConfig.value = {
-                id: '',
-                campusId: '',
-                apiKey: '',
-                apiSecret: '',
-                ruc:''
-            };
         }
     });
 
     return {
         contificoConfig,
         isContificoConfigError: isError,
-        isContificoConfigLoading: isFetching,
+        isContificoConfigLoading: isLoading,
         refetchContificoConfig: refetch,
     };
 };

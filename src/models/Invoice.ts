@@ -14,10 +14,20 @@ export interface Invoice {
     payment: Payment;
     taxAmount: number;
     contificoId: string;
+    contificoError: string;
     tax: number;
     amount: number;
     invoiceContifico: InvoiceContifico;
     sentContifico: boolean;
+}
+
+export interface EditInvoiceReq {
+    id: string;
+    fullName: string;
+    address: string;
+    document: string;
+    phone: string;
+    email: string;
 }
 
 export interface InvoiceContifico {

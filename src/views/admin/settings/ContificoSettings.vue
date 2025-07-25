@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 import { adminStore } from '@/stores/adminStore';
 import useContificoSettingsMutations from '@/composables/admin/contifico/useContificoConfigMutation';
 import useContificoConfigByCampus from '@/composables/admin/contifico/useContificoConfig';
@@ -19,10 +19,25 @@ const disableConfig = !adminStore().isCampusSelected;
 const campusId = ref(adminStore().selectCampusId);
 
 const { saveContificoSettingsMutation } = useContificoSettingsMutations();
-const { contificoConfig, refetchContificoConfig } = useContificoConfigByCampus(campusId);
 
 const prevKey = computed(() => '*'.repeat((contificoConfig.value?.apiKey || '').length));
 const prevAuth = computed(() => '*'.repeat((contificoConfig.value?.apiSecret || '').length));
+const { contificoConfig, refetchContificoConfig, isContificoConfigError } = useContificoConfigByCampus(campusId);
+
+watchEffect(() => {
+  if (isContificoConfigError.value) {
+    contificoConfig.value = {
+      id: '',
+      campusId: campusId.value,
+      apiKey: '',
+      apiSecret: '',
+      ruc: '',
+      address: '',
+      razonSocial: '',
+      phone: ''
+    };
+  }
+});
 
 const handleSaveConfiguration = async () => {
   const configReq: ContificoConfigRequest = {

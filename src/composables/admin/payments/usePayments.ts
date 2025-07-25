@@ -10,7 +10,7 @@ const perPage = ref(10);
 const search = ref('');
 const dataTotal = ref<PageableApiResponse<Payment[]>>({
   content: [] as Payment[],
-  totalElements: 0,
+  numberOfElements: 0,
 } as PageableApiResponse<Payment[]>)
 
 const fetchPayments = async (): Promise<PageableApiResponse<Payment[]>> => {
@@ -30,7 +30,7 @@ const usePayments = () => {
     queryKey: ['admin-payments-p', page, perPage, search],
     queryFn: fetchPayments,
     initialData: {
-      totalElements: 0,
+      numberOfElements: 0,
       content: [] as Payment[]
     } as PageableApiResponse<Payment[]>
   });
