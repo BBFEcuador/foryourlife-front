@@ -312,7 +312,6 @@ defineExpose({ resetTextFields });
       Seleccione un producto para ver sus detalles
     </div>
 
-    <!-- Datos de facturacion -->
     <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
       <div class="d-flex tw:justify-center">
         <v-btn-toggle v-model="type" class="mt-6" variant="tonal" color="success" mandatory divided>

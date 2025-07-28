@@ -52,9 +52,10 @@ const formatDate = (date: string | Date) => {
         </div>
         <div>
           <p class="tw:text-gray-600 mb-2">Facturado a:</p>
+          <p class="tw:font-semibold">{{ props.invoice.invoiceContifico.cliente.cedula }}</p>
+          <p class="tw:font-semibold">{{ props.invoice.invoiceContifico.cliente.ruc }}</p>
           <p class="tw:font-semibold">{{ props.invoice.invoiceContifico.cliente.razon_social }}</p>
           <p>{{ props.invoice.invoiceContifico.cliente.direccion }}</p>
-          <p>{{ props.invoice.invoiceContifico.cliente.ruc }}</p>
           <p>{{ props.invoice.invoiceContifico.cliente.telefonos }}</p>
           <p>{{ props.invoice.invoiceContifico.cliente.email }}</p>
         </div>

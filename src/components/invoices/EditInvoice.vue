@@ -53,7 +53,8 @@ const handleSaveInvoice = async () => {
     address: formData.value.address,
     document: formData.value.document,
     phone: formData.value.phone,
-    email: formData.value.email
+    email: formData.value.email,
+    type: props.invoice.clientType
   };
 
   emit('save', invoiceData);

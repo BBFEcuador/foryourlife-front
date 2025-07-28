@@ -19,6 +19,7 @@ export interface Invoice {
     amount: number;
     invoiceContifico: InvoiceContifico;
     sentContifico: boolean;
+    clientType: string
 }
 
 export interface EditInvoiceReq {
@@ -28,6 +29,7 @@ export interface EditInvoiceReq {
     document: string;
     phone: string;
     email: string;
+    type: string;
 }
 
 export interface InvoiceContifico {
