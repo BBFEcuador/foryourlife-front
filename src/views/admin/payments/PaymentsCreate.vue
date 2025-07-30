@@ -15,6 +15,8 @@ import type { ErrorApiResponse } from '@/models/ApiResponse';
 import usePaymentPdf from '@/composables/admin/payments/usePaymentPdf';
 import useContificoConfigByCampus from '@/composables/admin/contifico/useContificoConfig';
 import { router } from '@/router';
+import { helpers, numeric, required } from '@vuelidate/validators';
+import useVuelidate from '@vuelidate/core';
 
 // Tab controls
 // Datos de la factura
@@ -31,6 +33,44 @@ const phone = ref('');
 const email = ref('');
 const type = ref('N');
 
+const onlyDigits = helpers.withMessage('Solo se permiten números', (v: string) => v === '' || /^\d+$/.test(v));
+const len10or13 = helpers.withMessage('La cédula/RUC debe tener 10 o 13 dígitos', (v: string) => v.length === 10 || v.length === 13);
+
+const rules = {
+  fullname: {
+    required: helpers.withMessage('El nombre completo es obligatorio', required)
+  },
+  document: {
+    required: helpers.withMessage('El documento es obligatorio', required),
+    onlyDigits,
+    len10or13,
+    ruc: helpers.withMessage('El ruc debe acabar en 001', (v: string) => {
+      if (v.length == 12 + 1) {
+        return v.endsWith('001');
+      } else {
+        return true;
+      }
+    })
+  },
+  phone: {
+    required: helpers.withMessage('El teléfono es obligatorio', required),
+    onlyDigits,
+    numeric,
+    len10: helpers.withMessage('El teléfono debe tener 10', (v: string) => v.length === 10)
+  },
+  email: {
+    required: helpers.withMessage('El email es obligatorio', required),
+    email: helpers.withMessage('El email no es válido', (v: string) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return v === '' || emailRegex.test(v);
+    })
+  },
+  address: {
+    required: helpers.withMessage('La dirección es obligatoria', required)
+  }
+};
+const v$ = useVuelidate(rules, { fullname, document, phone, email, address });
+
 const generalPaymentRef = ref();
 const paymentHistoryArr = ref<PaymentHistory[]>([]);
 const showPaymentHistoryModal = ref(false);
@@ -43,7 +83,6 @@ const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = us
   cashDrawer.value.cashBox.store.campus.id
 );
 
-// Información de la empresa
 const billedBy = {
   name: contificoConfig.value.razonSocial,
   ruc: contificoConfig.value.ruc,
@@ -127,6 +166,11 @@ defineExpose({ showSuccessModal, redirectCountdown });
 
 const processPayment = async () => {
   isLoading.value = true;
+  v$.value.$validate();
+  if (v$.value.$error) {
+    isLoading.value = false;
+    return;
+  }
 
   const paymentData = {
     products: [(selectedProduct.value as any).id],
@@ -164,6 +208,8 @@ const processPayment = async () => {
       paymentHistoryArr.value = [];
 
       generalPaymentRef.value?.resetTextFields();
+
+      v$.value.$reset();
 
       selectPaymentIdPdf.value = data;
       await refetchPaymentPdf();
@@ -260,6 +306,7 @@ const clearPaymentHistory = () => {
           <v-card-text class="px-4">
             <GeneralPayment
               ref="generalPaymentRef"
+              :v$="v$"
               @update:selected-participant="selectedParticipant = $event"
               @update:selected-product="selectedProduct = $event"
               @update:notes="notes = $event"
@@ -343,7 +390,7 @@ const clearPaymentHistory = () => {
 
         <v-btn
           :loading="isLoading"
-          :disabled="isLoading || !selectedProduct || !selectedParticipant"
+          :disabled="isLoading || !selectedProduct || !selectedParticipant || v$.$invalid"
           color="primary"
           class="tw:w-full mt-4"
           @click="processPayment"

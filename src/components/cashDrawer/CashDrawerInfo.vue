@@ -49,7 +49,7 @@ const handleCloseCashDrawer = async () => {
       toast.success('Caja cerrada exitosamente');
       store.setCashDrawer({});
       store.setCashDrawerOpen(false);
-      router.push({ name: 'pos-preload' });
+      router.push({ name: 'pos-main' });
     },
     onError: (error) => {
       const err = error as AxiosError<{ message: string }>;

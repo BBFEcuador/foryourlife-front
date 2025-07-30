@@ -22,6 +22,7 @@ const { saveCashBoxMutation } = useCashBoxMutation();
 const { openCashDrawerMutation } = useCashDrawerMutation();
 const { useContificoSyncPosMutations, isSyncPosLoading } = useContificoPosMutation();
 const { saveStoreMutation } = useStoreMutations();
+const { closeCashDrawerMutation } = useCashDrawerMutation();
 
 const store = adminStore();
 const showCreateCashBox = ref(false);
@@ -29,6 +30,7 @@ const showCreateStore = ref(false);
 const auxCashBox = ref<CashBox>({} as CashBox);
 const showCreateCashDrawer = ref(false);
 
+const userIdref = ref(store.user.user.id);
 const disabledProperty = ref(!store.isCampusSelected);
 
 const sortedCashDrawers = computed(() => cashBoxes.value?.slice().sort((a, b) => parseInt(a.number) - parseInt(b.number)) || []);
@@ -58,8 +60,12 @@ const handleSaveCashBox = async (cashBox: Partial<CashBox>) => {
 };
 
 const handleOpenCashDrawer = async (cashBox: CashBox) => {
-  auxCashBox.value = cashBox;
-  showCreateCashDrawer.value = true;
+  if (store.isCashDrawerOpen) {
+    router.push({ name: 'payments-admin-create' });
+  } else {
+    auxCashBox.value = cashBox;
+    showCreateCashDrawer.value = true;
+  }
 };
 
 const openCashDrawer = async (cashDrawerData: { openingBalance: number; details: string }) => {
@@ -110,20 +116,52 @@ const saveStore = (store: StoreRequest) => {
     }
   });
 };
+
+const handleCloseCashDrawer = async () => {
+  const cashDrawer = {
+    cashDrawerId: store.cashDrawer.cashBox.id,
+    userId: userIdref.value
+  };
+  await closeCashDrawerMutation.mutateAsync(cashDrawer, {
+    onSuccess: (data) => {
+      if (data) {
+        const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Cierre_Caja_${new Date().toLocaleDateString('es-EC').replace('/', '-')}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      toast.success('Caja cerrada exitosamente');
+      store.setCashDrawer({});
+      store.setCashDrawerOpen(false);
+    },
+    onError: (error) => {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || 'Error al procesar la caja');
+    }
+  });
+};
 </script>
 
 <template>
-  <div class="d-flex align-center pb-4">
+  <v-card variant="text" class="d-flex align-center mb-2">
     <h3 class="text-h3 font-weight-bold">Cajas disponibles</h3>
-    <v-spacer />
-    <v-btn color="success" @click="router.push({ name: 'payments-admin' })" class="mr-2">
-      <Icon icon="mdi:eye" class="mr-2" />
-      Ver Pagos
-    </v-btn>
-    <v-btn color="primary" @click="showCreateCashBox = true" :disabled="disabledProperty">
-      <Icon icon="mdi:plus" class="mr-2" />
-      Nueva caja
-    </v-btn>
+    <v-spacer></v-spacer>
+    <div class="d-flex tw:flex-wrap tw:gap-2 tw:justify-end">
+      <v-btn variant="flat" color="success" @click="router.push({ name: 'payments-admin' })">
+        <Icon icon="mdi:eye" class="mr-2"></Icon>
+        <span class="">Ver pagos</span>
+      </v-btn>
+      <v-btn color="primary" @click="showCreateCashBox = true" :disabled="disabledProperty">
+        <Icon icon="mdi:plus" class="mr-2" />
+        Nueva caja
+      </v-btn>
+    </div>
     <CreateCashBox
       :model-value="showCreateCashBox"
       :is-loading="isCashBoxesLoading"
@@ -131,13 +169,14 @@ const saveStore = (store: StoreRequest) => {
       @save="handleSaveCashBox"
       :stores="storesData"
     />
-  </div>
+  </v-card>
 
   <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
     <Icon icon="cil:warning" height="48" class="mb-4" />
     <p class="text-subtitle-1">Elija un campus para ver las Cajas Disponibles</p>
   </div>
-  <div v-else>
+
+  <v-card v-else variant="text">
     <div v-if="isCashBoxesLoading" class="d-flex justify-center align-center pa-5">
       <v-progress-circular indeterminate color="primary" />
     </div>
@@ -159,9 +198,26 @@ const saveStore = (store: StoreRequest) => {
           </v-card-item>
 
           <v-card-actions class="pa-3 d-flex flex-wrap gap-2">
-            <v-btn class="flex-grow" variant="tonal" color="primary" @click="handleOpenCashDrawer(cashBox)">
+            <div v-if="store.isCashDrawerOpen && store.cashDrawer.cashBox.id === cashBox.id">
+              <v-btn class="flex-grow" variant="tonal" color="success" @click="handleOpenCashDrawer(cashBox)">
+                <Icon icon="hugeicons:save-money-dollar" class="mr-1" />
+                Crear cobros
+              </v-btn>
+              <v-btn variant="tonal" class="flex-grow ml-2" color="error" @click="handleCloseCashDrawer">
+                <Icon icon="mdi:lock" class="mr-1" />
+                Cerrar Caja
+              </v-btn>
+            </div>
+            <v-btn v-if="!store.isCashDrawerOpen" class="flex-grow" variant="tonal" color="primary" @click="handleOpenCashDrawer(cashBox)">
               <Icon icon="mdi:key" class="mr-1" />
               Abrir Caja
+            </v-btn>
+            <v-btn class="flex-grow" variant="tonal" color="info" @click="router.push({
+                name: 'cash-drawer-balances',
+                params: { id: cashBox.id }
+            })">
+              <Icon icon="mdi:eye" class="mr-1" />
+              Ver balances de caja
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -173,28 +229,35 @@ const saveStore = (store: StoreRequest) => {
       <p class="text-subtitle-1">No se encontraron cajas</p>
       <p class="text-body-2">Intenta crear una nueva</p>
     </div>
-  </div>
+  </v-card>
 
-  <div class="d-flex align-center pb-4 mt-4">
+  <v-card variant="text" class="d-flex align-center mt-4 mb-4">
     <h3 class="text-h3 font-weight-bold">Establecimientos</h3>
     <v-spacer />
-    <v-btn :loading="isSyncPosLoading" color="info" @click="syncPos" class="mr-2" :disabled="disabledProperty">
-      <Icon icon="mdi:reload" class="mr-2" />
-      Sincronizar establecimientos de Contifico
-    </v-btn>
-    <v-btn color="primary" @click="showCreateStore = true" class="mr-2" :disabled="disabledProperty">
-      <Icon icon="mdi:add" class="mr-2" />
-      Agregar establecimiento
-    </v-btn>
+    <div class="d-flex tw:flex-wrap tw:gap-2 tw:justify-end">
+      <v-btn
+        :loading="isSyncPosLoading"
+        color="info"
+        @click="syncPos"
+        :disabled="disabledProperty"
+      >
+        <Icon icon="mdi:reload" class="mr-1" />
+        <span class="d-none d-sm-flex"> Sincronizar establecimientos de Contifico </span>
+      </v-btn>
+      <v-btn color="primary" @click="showCreateStore = true" :disabled="disabledProperty">
+        <Icon icon="mdi:add" class="mr-1" />
+        <span class="d-none d-sm-flex">Agregar establecimiento</span>
+      </v-btn>
+    </div>
     <CreateStore :model-value="showCreateStore" @cancel="showCreateStore = false" @save="saveStore" />
-  </div>
+  </v-card>
 
   <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
     <Icon icon="cil:warning" height="48" class="mb-4" />
     <p class="text-subtitle-1">Elija un campus para ver los establecimientos</p>
   </div>
 
-  <div v-else>
+  <v-card variant="text" v-else>
     <div v-if="isStoresDataLoading || isSyncPosLoading" class="d-flex justify-center align-center pa-5">
       <v-progress-circular indeterminate color="primary" />
     </div>
@@ -217,14 +280,12 @@ const saveStore = (store: StoreRequest) => {
       <p class="text-subtitle-1">No se encontraron puntos de venta</p>
       <p class="text-body-2">Intenta sincronizar los datos</p>
     </div>
-  </div>
 
-  <div>
     <CreateCashDrawer
       :model-value="showCreateCashDrawer"
       :is-loading="openCashDrawerMutation.isPending.value"
       @cancel="showCreateCashDrawer = false"
       @save="openCashDrawer"
     />
-  </div>
+  </v-card>
 </template>

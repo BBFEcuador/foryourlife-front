@@ -4,7 +4,7 @@ import { adminStore } from '@/stores/adminStore';
 import { useQuery } from '@tanstack/vue-query';
 
 const fetchCashBoxes = async (): Promise<CashBox[]> => {
-    const { data } = await api.get('/cash-box/available', {
+    const { data } = await api.get('/cash-box', {
         params: {
             campusId: adminStore().selectCampusId
         }
@@ -17,7 +17,8 @@ const useCashBoxes = () => {
         queryKey: ['cash-drawers'],
         queryFn: fetchCashBoxes,
         initialData: [] as CashBox[],
-        enabled: adminStore().isCampusSelected
+        enabled: adminStore().isCampusSelected,
+        retry: false
     });
 
     return {

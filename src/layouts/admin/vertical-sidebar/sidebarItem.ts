@@ -24,7 +24,7 @@ const sidebarItem = [
   {
     title: 'Punto de Venta',
     icon: 'mdi:cash-register',
-    to: 'pos-preload',
+    to: 'pos-main',
   },
   {
     title: 'Administrativo',
@@ -51,7 +51,7 @@ const sidebarItem = [
         to: 'discounts-admin'
       },
       {
-        title: 'Pagos',
+        title: 'Cobros',
         to: 'payments-admin'
       },
       {

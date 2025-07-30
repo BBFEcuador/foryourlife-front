@@ -41,8 +41,7 @@ const createDefaultFormData = (): FormData => ({
 const formData = ref<FormData>(createDefaultFormData());
 
 const rules = {
-  openingBalance: { required },
-  details: { required }
+  openingBalance: { required }
 };
 
 const v$ = useVuelidate(rules, formData);
@@ -116,7 +115,7 @@ defineExpose({
             <v-col cols="12" class="pt-0">
               <v-text-field
                 v-model="formData.details"
-                label="Sucursal, observaciones, eventos, etc."
+                label="Sucursal, observaciones, eventos, etc. (OPCIONAL)"
                 variant="outlined"
                 density="comfortable"
                 required

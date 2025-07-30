@@ -4,15 +4,18 @@ import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAvailableProducts from '@/composables/admin/products/useAvailableProducts';
 import { router } from '@/router';
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import useVuelidate, { type Validation } from '@vuelidate/core';
+import { helpers, numeric, required } from '@vuelidate/validators';
 import Swal from 'sweetalert2';
 import { ref, computed, watch } from 'vue';
 
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: () => ({})
-  }
-});
+interface props {
+  v$: Validation<{ fullname: string; document: string; phone: string; email: string; address: string }>;
+}
+
+const { v$ } = defineProps<props>();
+
+// { fullname, document, phone, email, address }
 
 const emit = defineEmits([
   'update:modelValue',
@@ -60,7 +63,6 @@ const phone = ref('');
 const email = ref('');
 const type = ref('N');
 
-// Observamos cambios en los valores seleccionados para emitir eventos
 watch(selectedParticipant, (newVal) => {
   emit('update:selectedParticipant', newVal);
 });
@@ -72,21 +74,7 @@ watch(selectedProduct, (newVal) => {
 watch(notes, (newVal) => {
   emit('update:notes', newVal);
 });
-watch(fullname, (newVal) => {
-  emit('update:fullname', newVal);
-});
-watch(address, (newVal) => {
-  emit('update:address', newVal);
-});
-watch(document, (newVal) => {
-  emit('update:document', newVal);
-});
-watch(phone, (newVal) => {
-  emit('update:phone', newVal);
-});
-watch(email, (newVal) => {
-  emit('update:email', newVal);
-});
+
 watch(type, (newVal) => {
   emit('update:type', newVal);
 });
@@ -176,7 +164,6 @@ const resetTextFields = () => {
   phone.value = '';
   email.value = '';
   notes.value = '';
-  type.value = '';
   selectedParticipant.value = null;
   selectedProduct.value = null;
   selectedDiscount.value = null;
@@ -329,7 +316,13 @@ defineExpose({ resetTextFields });
           v-model="fullname"
           variant="outlined"
           :placeholder="type === 'N' ? 'Jhon Frederick Doe Marshall' : 'Empresa S.A.'"
-          @update:model-value="emit('update:fullname', fullname)"
+          :error-messages="v$.fullname.$errors.map((e) => e.$message.toString())"
+          @update:model-value="
+            ($event) => {
+              v$.fullname.$touch();
+              emit('update:fullname', $event);
+            }
+          "
         ></v-text-field>
       </div>
     </div>
@@ -340,9 +333,22 @@ defineExpose({ resetTextFields });
         <v-text-field
           v-model="document"
           variant="outlined"
-          placeholder="17999999990"
-          @update:model-value="emit('update:document', document)"
-        ></v-text-field>
+          placeholder="1799999999 / 001"
+          :maxlength="13"
+          inputmode="numeric"
+          pattern="\d*"
+          :error-messages="v$.document.$errors.map((e) => String(e.$message))"
+          @update:model-value="
+            ($event) => {
+              const digits = ($event ?? '').replace(/\D/g, '').slice(0, 13);
+              if (digits !== document) {
+                document = digits;
+              }
+              v$.document.$touch();
+              emit('update:document', $event);
+            }
+          "
+        />
       </div>
       <div>
         <h3 class="tw:text-lg tw:font-semibold pb-2">Teléfono</h3>
@@ -350,7 +356,20 @@ defineExpose({ resetTextFields });
           v-model="phone"
           variant="outlined"
           placeholder="099 999 9999"
-          @update:model-value="emit('update:phone', phone)"
+          :maxlength="10"
+          inputmode="numeric"
+          pattern="\d*"
+          :error-messages="v$.phone.$errors.map((e) => String(e.$message))"
+          @update:model-value="
+            ($event) => {
+              const digits = ($event ?? '').replace(/\D/g, '').slice(0, 10);
+              if (digits !== phone) {
+                phone = digits;
+              }
+              v$.phone.$touch();
+              emit('update:phone', $event);
+            }
+          "
         ></v-text-field>
       </div>
     </div>
@@ -361,7 +380,13 @@ defineExpose({ resetTextFields });
           v-model="email"
           variant="outlined"
           placeholder="jhondoe@contoso.com"
-          @update:model-value="emit('update:email', email)"
+          :error-messages="v$.email.$errors.map((e) => String(e.$message))"
+          @update:model-value="
+            ($event) => {
+              v$.email.$touch();
+              emit('update:email', $event);
+            }
+          "
         ></v-text-field>
       </div>
       <div>
@@ -370,7 +395,13 @@ defineExpose({ resetTextFields });
           v-model="address"
           variant="outlined"
           placeholder="Av. Principal 123, Quito"
-          @update:model-value="emit('update:address', address)"
+          :error-messages="v$.address.$errors.map((e) => String(e.$message))"
+          @update:model-value="
+            ($event) => {
+              v$.address.$touch();
+              emit('update:address', $event);
+            }
+          "
         ></v-text-field>
       </div>
     </div>

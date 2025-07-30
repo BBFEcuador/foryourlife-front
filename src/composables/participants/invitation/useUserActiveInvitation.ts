@@ -10,32 +10,16 @@ const fetchActiveInvitations = async (): Promise<Invitation> => {
   const { data } = await userApi.get('/invitation/user/invitation/' + userSt.user.id);
   return data;
 };
-const fetchActiveInvitationsById = async (id: string): Promise<Invitation> => {
-  const { data } = await userApi.get('/invitation/user/invitation/' + id);
-  return data;
-};
 
-const useUserActiveInvitation = (id?: string) => {
+const useUserActiveInvitation = () => {
+  const { data, error, isError, isLoading, refetch } = useQuery({
+    queryFn: fetchActiveInvitations,
+    queryKey: ['participant-active-invitation'],
+    retry: false,
+    initialData: {} as Invitation
+  });
 
-  if (id) {
-    const { data, error, isError, isLoading, refetch } = useQuery({
-      queryFn: () => fetchActiveInvitationsById(id),
-      queryKey: ['participant-active-invitation'],
-      retry: false,
-      initialData: {} as Invitation
-    });
-
-    return { data, error, isError, isLoading, refetch };
-  } else {
-    const { data, error, isError, isLoading, refetch } = useQuery({
-      queryFn: fetchActiveInvitations,
-      queryKey: ['participant-active-invitation'],
-      retry: false,
-      initialData: {} as Invitation
-    });
-
-    return { data, error, isError, isLoading, refetch };
-  }
+  return { data, error, isError, isLoading, refetch };
 };
 
 export default useUserActiveInvitation;

@@ -29,7 +29,7 @@ const headers = [
 ];
 const breadcrumbs = ref([
   {
-    title: 'Others',
+    title: 'Usuarios',
     disabled: false,
     href: '#'
   }

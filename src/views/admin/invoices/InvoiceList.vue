@@ -108,6 +108,11 @@ const sendInvoices = async () => {
     }
   });
 };
+
+function formatDate(dateStr: Date): string {
+  const [date, time] = dateStr.toString().split('T');
+  return `${date} ${time.slice(0, 5)}`;
+}
 </script>
 
 <template>
@@ -153,6 +158,9 @@ const sendInvoices = async () => {
             Enviar a Contifico
           </VBtn>
         </v-toolbar>
+      </template>
+      <template #item.invoiceDate="{ item }">
+        <span>{{ formatDate(item.invoiceDate) }}</span>
       </template>
       <template #item.sentContifico="{ item }">
         <v-icon class="ml-2" :color="item.sentContifico ? 'success' : 'error'">

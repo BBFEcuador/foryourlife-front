@@ -7,7 +7,7 @@ import QrComponent from '@/layouts/dashboard/QrComponent.vue';
 import useUserActiveInvitation from '@/composables/participants/invitation/useUserActiveInvitation';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 
-const { data, error, isError, isFetching, refetch } = useUserActiveInvitation();
+const { data, error, isError, isLoading, refetch } = useUserActiveInvitation();
 
 const getErrorMessage = () => {
   return error.value?.response?.data?.message ?? 'Error en el servidor';
@@ -26,7 +26,7 @@ const getErrorMessage = () => {
       />
     </v-col>
   </v-row>
-  <v-row class="mb-0" v-if="isFetching">
+  <v-row class="mb-0" v-if="isLoading">
     <v-col cols="12">
       <div class="tw:w-full tw:h-96 tw:grid tw:place-content-center">
         <VProgressCircular indeterminate />

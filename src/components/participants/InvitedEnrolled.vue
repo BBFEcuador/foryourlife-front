@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import useUserActiveInvitation from '@/composables/participants/invitation/useUserActiveInvitation';
-import { router } from '@/router';
+import useUserActiveInvitation from '@/composables/invitation/useActiveInvitationByUser';
 
 const props = defineProps<{
   token: string;

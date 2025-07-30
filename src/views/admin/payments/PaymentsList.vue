@@ -23,7 +23,7 @@ const breadcrumbs = ref([
   }
 ]);
 
-const { pdfArray, isPaymentPdfError, isPaymentPdfLoading, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
+const { isPaymentPdfLoading, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
 
 const { paymentsData, isPaymentsLoading, page, perPage, search } = usePayments();
 const { cancelPaymentMutation } = usePaymentRecordMutations();
@@ -77,7 +77,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 
 const router = useRouter();
 const onCreatePayment = () => {
-  router.push({ name: 'pos-preload' });
+  router.push({ name: 'payments-admin-create' });
 };
 
 const onPaymentHistoryShow = (items: Payment) => {
@@ -140,7 +140,7 @@ const handleDownloadPdf = async (item: Payment) => {
       :headers="headers"
       :search="debouncedSearch"
       :items="paymentsData.content"
-      :loading="isPaymentsLoading"
+      :loading="isPaymentsLoading || isPaymentPdfLoading"
       :items-length="paymentsData.totalElements"
       :items-per-page="10"
       @update:options="loadItems"

@@ -159,28 +159,14 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/paymentMethods/PaymentMethodsList.vue')
       },
       {
-        name: 'pos-preload',
-        path: 'pos-preload',
-        component: () => { },
-        beforeEnter: (to, from, next) => {
-          if (adminStore().isCashDrawerOpen) {
-            next({ name: 'payments-admin-create' });
-          } else {
-            next({ name: 'pos-main' });
-          }
-        }
-      },
-      {
         name: 'pos-main',
         path: 'pos',
-        component: () => import('@/views/admin/pos/Pos.vue'),
-        beforeEnter: (to, from, next) => {
-          if (adminStore().isCashDrawerOpen) {
-            next({ name: 'payments-admin-create' });
-          } else {
-            next();
-          }
-        }
+        component: () => import('@/views/admin/pos/Pos.vue')
+      },
+      {
+        name: 'cash-drawer-balances',
+        path: 'pos/balances/:id',
+        component: () => import('@/views/admin/pos/CashDrawersBalances.vue')
       }
     ]
   }

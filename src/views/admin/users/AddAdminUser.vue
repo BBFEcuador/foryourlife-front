@@ -20,7 +20,7 @@ const { isRolesLoading, roles } = useAdminRoles();
 const { saveAdminMutation } = useAdminUserMutations();
 const breadcrumbs = ref([
   {
-    title: 'Others',
+    title: 'Usuarios',
     disabled: false,
     href: '#'
   }
