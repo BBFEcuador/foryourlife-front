@@ -14,8 +14,8 @@ const headers = [
   { title: 'Cerrado por', value: 'closedByUser.name', sortable: true },
   { title: 'Fecha de apertura', value: 'startDate', sortable: true },
   { title: 'Fecha de cierre', value: 'closeDate', sortable: true },
-  { title: 'Monto de apertura', value: 'openingBalance', sortable: true },
-  { title: 'Monto de cierre', value: 'closedBalance', sortable: true },
+  { title: 'Monto inicial', value: 'openingBalance', sortable: true },
+  { title: 'Monto final', value: 'closedBalance', sortable: true },
   { title: 'Estado', value: 'status', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
@@ -95,6 +95,10 @@ const handlePrintBalance = async (item: CashDrawer) => {
 
     <template #item.closeDate="{ item }">
       <span>{{ item.closeDate ? formatDate(item.closeDate) : '' }}</span>
+    </template>
+
+    <template #item.closedBalance="{ item }">
+      <span>{{ item.closedBalance || item.actualBalance }}</span>
     </template>
 
     <template #item.status="{ item }">
