@@ -17,6 +17,7 @@ import useContificoConfigByCampus from '@/composables/admin/contifico/useContifi
 import { router } from '@/router';
 import { helpers, numeric, required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
+import useCashDrawerById from '@/composables/admin/pos/useCashDrawerById';
 
 // Tab controls
 // Datos de la factura
@@ -77,10 +78,10 @@ const showPaymentHistoryModal = ref(false);
 
 const store = adminStore();
 
-const cashDrawer = ref(store.cashDrawer);
+const { cashDrawer, isCashDrawerLoading, refetchCashDrawer } = useCashDrawerById(store.cashDrawer.id);
 
 const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = useContificoConfigByCampus(
-  cashDrawer.value.cashBox.store.campus.id
+  store.cashDrawer.cashBox.store.campus.id
 );
 
 const billedBy = {
@@ -271,8 +272,8 @@ const clearPaymentHistory = () => {
 <template>
   <BaseBreadcrumb :title="'Crear Nuevo Cobro'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
 
-  <div v-if="cashDrawer" class="mb-6">
-    <CashDrawerInfo :cash-drawer="cashDrawer" />
+  <div v-if="cashDrawer && !isCashDrawerLoading" class="mb-6">
+    <CashDrawerInfo :cash-drawer="cashDrawer" @update-refetch="refetchCashDrawer" />
   </div>
 
   <v-dialog v-model="showSuccessModal" width="400">
@@ -286,7 +287,7 @@ const clearPaymentHistory = () => {
       <v-progress-linear color="success" height="5" :model-value="progressValue" />
     </v-card>
   </v-dialog>
-  <div v-if="store.isCashDrawerLock">
+  <div v-if="cashDrawer.status === 'LOCKED'">
     <v-alert
       type="warning"
       variant="tonal"

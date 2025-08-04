@@ -7,14 +7,19 @@ import { adminStore } from '@/stores/adminStore';
 import { toast } from 'vue3-toastify';
 import type { AxiosError } from 'axios';
 import { ref } from 'vue';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import { showErrorToast } from '@/service/sweetAlert';
+import Swal from 'sweetalert2';
 
 const props = defineProps<{
   cashDrawer: CashDrawer;
 }>();
 
+const emit = defineEmits(['update-refetch']);
+
 const store = adminStore();
 const userIdref = ref(store.user.user.id);
-const { closeCashDrawerMutation } = useCashDrawerMutation();
+const { closeCashDrawerMutation, toggleLockCashDrawerMutation, forgetPinMutation } = useCashDrawerMutation();
 
 const pin = ref('');
 const enteredPin = ref('');
@@ -64,23 +69,62 @@ const handleLock = () => {
     return;
   }
 
-  store.setCashDrawerLock(true);
-  pinSet.value = true;
-  pinDialog.value = false;
-  toast.success('Caja bloqueada correctamente');
+  toggleLockCashDrawerMutation.mutate(
+    { pin: pin.value, cashDrawerId: props.cashDrawer.id },
+    {
+      onSuccess() {
+        toast.success('Caja bloqueada correctamente');
+        pinSet.value = true;
+        pinDialog.value = false;
+        emit('update-refetch');
+      },
+      onError(error) {
+        const e = error as AxiosError<ErrorApiResponse>;
+        showErrorToast(e);
+      }
+    }
+  );
 };
 
 const handleUnlock = () => {
-  if (enteredPin.value === pin.value) {
-    store.setCashDrawerLock(false);
-    unlockDialog.value = false;
-    pinSet.value = false;
-    toast.success('Caja desbloqueada');
-    enteredPin.value = '';
-    pin.value = '';
-  } else {
-    toast.error('PIN incorrecto');
+  if (enteredPin.value.trim().length < 4) {
+    toast.warning('El PIN debe tener al menos 4 caracteres');
+    return;
   }
+  toggleLockCashDrawerMutation.mutate(
+    { pin: enteredPin.value, cashDrawerId: props.cashDrawer.id },
+    {
+      onSuccess() {
+        toast.success('Caja desbloqueada correctamente');
+        pinSet.value = true;
+        pinDialog.value = false;
+        emit('update-refetch');
+      },
+      onError(error) {
+        const e = error as AxiosError<ErrorApiResponse>;
+        showErrorToast(e);
+      }
+    }
+  );
+};
+
+const handleForgetPin = () => {
+  forgetPinMutation.mutate(props.cashDrawer.id, {
+    onSuccess() {
+      unlockDialog.value = false;
+      Swal.fire({
+        text: `Se envio el PIN a tu correo registrado`,
+        title: 'Correo de Recuperación',
+        icon: 'info',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Aceptar'
+      });
+    },
+    onError(err) {
+      const e = err as AxiosError<ErrorApiResponse>;
+      showErrorToast(e);
+    }
+  });
 };
 </script>
 <template>
@@ -135,9 +179,14 @@ const handleUnlock = () => {
           Ver Pagos
         </v-btn>
         <div class="tw:flex tw:gap-2 tw:w-full">
-          <v-btn class="tw:flex-1" color="warning" variant="tonal" @click="pinSet ? (unlockDialog = true) : (pinDialog = true)">
+          <v-btn
+            class="tw:flex-1"
+            color="warning"
+            variant="tonal"
+            @click="props.cashDrawer.status === 'LOCKED' ? (unlockDialog = true) : (pinDialog = true)"
+          >
             <Icon icon="majesticons:restricted-line" class="mr-1" />
-            {{ pinSet ? 'Desbloquear Caja' : 'Bloquear Caja' }}
+            {{ props.cashDrawer.status === 'LOCKED' ? 'Desbloquear Caja' : 'Bloquear Caja' }}
           </v-btn>
 
           <v-btn variant="tonal" class="tw:flex-1" color="error" @click="handleCloseCashDrawer">
@@ -165,6 +214,7 @@ const handleUnlock = () => {
       <v-card-text class="d-flex flex-column justify-center gap-2">
         <v-otp-input v-model="enteredPin" length="4"></v-otp-input>
         <v-btn color="primary" @click="handleUnlock">Desbloquear</v-btn>
+        <v-label class="pt-2 tw:underline tw:cursor-pointer" @click="handleForgetPin">Olvide mi Pin</v-label>
       </v-card-text>
     </v-card>
   </v-dialog>

@@ -16,6 +16,7 @@ const openCashDrawer = async (idsReq: {
     })
     return data
 }
+
 const closeCashDrawer = async (idsReq: {
     cashDrawerId: string;
     userId: string;
@@ -29,6 +30,23 @@ const closeCashDrawer = async (idsReq: {
     return data
 }
 
+const toggleLockCashDrawer = async (idsReq: {
+    cashDrawerId: string;
+    pin: string;
+}): Promise<any> => {
+    const { data } = await api.put('/cash-drawer/lock/' + idsReq.cashDrawerId, null, {
+        params: {
+            pin: idsReq.pin
+        }
+    })
+    return data
+}
+
+const forgetPinCashDrawer = async (id: string): Promise<any> => {
+    const { data } = await api.put('/cash-drawer/forget-pin/' + id)
+    return data
+}
+
 const useCashDrawerMutation = () => {
     const openCashDrawerMutation = useMutation({
         mutationFn: openCashDrawer
@@ -36,7 +54,13 @@ const useCashDrawerMutation = () => {
     const closeCashDrawerMutation = useMutation({
         mutationFn: closeCashDrawer
     })
-    return { openCashDrawerMutation, closeCashDrawerMutation }
+    const toggleLockCashDrawerMutation = useMutation({
+        mutationFn: toggleLockCashDrawer
+    })
+    const forgetPinMutation = useMutation({
+        mutationFn:forgetPinCashDrawer
+    })
+    return { openCashDrawerMutation, closeCashDrawerMutation, toggleLockCashDrawerMutation, forgetPinMutation }
 }
 
 export default useCashDrawerMutation;
