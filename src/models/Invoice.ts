@@ -13,6 +13,7 @@ export interface Invoice {
     products: Product[];
     payment: Payment;
     taxAmount: number;
+    totalDiscount: number;
     contificoId: string;
     contificoError: string;
     tax: number;

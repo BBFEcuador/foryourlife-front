@@ -178,6 +178,7 @@ const processPayment = async () => {
     participant: (selectedParticipant.value as any).id,
     campus: (selectedCampus.value as any).id,
     total: grandTotal.value,
+    totalDiscount: discountAmount.value,
     invoice: {
       type: type.value,
       fullName: fullname.value,

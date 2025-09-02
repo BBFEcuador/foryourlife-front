@@ -17,6 +17,16 @@ const billedBy = computed(() => {
   };
 });
 
+const getProgramColor = (level: string): string => {
+  type LevelKeys = 'FOCUS' | 'YOUR' | 'LIFE';
+  const colors: Record<LevelKeys, string> = {
+    FOCUS: 'blue',
+    YOUR: 'green',
+    LIFE: 'purple'
+  };
+  return colors[level.toUpperCase() as LevelKeys] || 'grey';
+};
+
 const emit = defineEmits<{
   (e: 'cancel'): void;
 }>();
@@ -74,25 +84,22 @@ const formatDate = (date: string | Date) => {
           <thead>
             <tr class="tw:border-b tw:border-gray-300">
               <th class="p-2 tw:text-left">Producto</th>
+              <th class="p-2 tw:text-left">Programas</th>
               <th class="p-2 tw:text-right">Precio</th>
-              <th class="p-2 tw:text-right">Total</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item, index) in props.invoice.products" :key="index" class="tw:border-b tw:border-gray-200">
               <td class="tw:p-2">{{ item.name }}</td>
-              <td class="tw:p-2 tw:text-right">${{ invoice.invoiceContifico.detalles[index].precio }}</td>
-              <td class="tw:p-2 tw:text-right">
-                ${{
-                  (
-                    (invoice.invoiceContifico.detalles[index].precio * invoice.invoiceContifico.detalles[index].porcentaje_iva) /
-                    100
-                  ).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  })
-                }}
+              <td>
+                <div v-if="item.programs.length > 0" class="d-flex flex-wrap gap-2">
+                  <v-chip v-for="program in item.programs" :key="program.id" size="small" variant="outlined"
+                    class="text-caption mr-2" :color="getProgramColor(program.courseLevel)">
+                    {{ program.courseLevel }}
+                  </v-chip>
+                </div>
               </td>
+              <td class="tw:p-2 tw:text-right">{{ invoice.products[index].basePrice }}</td>
             </tr>
           </tbody>
         </table>
@@ -101,26 +108,31 @@ const formatDate = (date: string | Date) => {
       <div class="tw:flex tw:justify-end">
         <div class="tw:w-64">
           <div class="tw:flex tw:justify-between py-2">
+            <span>Descuento</span>
+            <span>${{
+              props.invoice.totalDiscount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            }}</span>
+          </div>
+          <div class="tw:flex tw:justify-between py-2">
             <span>Subtotal</span>
-            <span
-              >${{
-                (props.invoice.amount - props.invoice.taxAmount).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              }}</span
-            >
+            <span>${{
+              (props.invoice.amount - props.invoice.taxAmount).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            }}</span>
           </div>
           <div class="tw:flex tw:justify-between py-2">
             <span>IVA 15%</span>
-            <span
-              >${{
-                props.invoice.taxAmount.toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              }}</span
-            >
+            <span>${{
+              props.invoice.taxAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            }}</span>
           </div>
           <div class="tw:flex tw:justify-between py-2 tw:font-bold tw:border-t tw:border-gray-300">
             <span>Total</span>
