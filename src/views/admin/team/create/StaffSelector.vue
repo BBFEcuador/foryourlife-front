@@ -60,7 +60,7 @@ watch(availableStaffMutations.isSuccess, () => {
         Atrás
       </v-btn>
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="emit('next')" :disabled="team.staffs.length === 0">
+      <v-btn color="primary" @click="emit('next')">
         <Icon icon="mdi-arrow-right" />
         Siguiente
       </v-btn>

@@ -200,7 +200,7 @@ const onRemoveParticipant = async (id: string) => {
                         </div>
                     </div>
                 </div>
-                <h3 class="tw:text-xl tw:font-medium tw:text-gray-700 tw:mb-2">No se encontraron equipos</h3>
+                <h3 class="tw:text-xl tw:font-medium tw:text-gray-700 tw:mb-2">No se encontraro staff</h3>
                 <p class="tw:text-gray-500">Intenta con otros términos de búsqueda</p>
                 <VBtn variant="text" color="primary" class="tw:mt-4" :loading="isTeamLoading"
                     @click="refreshParticipantsTeams">
