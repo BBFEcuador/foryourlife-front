@@ -137,11 +137,6 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/payments/PaymentsList.vue')
       },
       {
-        name: 'invoices-admin',
-        path: 'invoices',
-        component: () => import('@/views/admin/invoices/InvoiceList.vue')
-      },
-      {
         name: 'payments-admin-create',
         path: 'payments/create',
         component: () => import('@/views/admin/payments/PaymentsCreate.vue'),

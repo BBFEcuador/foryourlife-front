@@ -6,7 +6,7 @@ import { computed } from 'vue';
 
 const props = defineProps<{ invoice: Invoice; showDialog: boolean }>();
 
-const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = useContificoConfigByCampus(props.invoice.payment.campus.id);
+const { contificoConfig } = useContificoConfigByCampus(props.invoice.payment.campus.id);
 
 const billedBy = computed(() => {
   return {
@@ -27,9 +27,7 @@ const getProgramColor = (level: string): string => {
   return colors[level.toUpperCase() as LevelKeys] || 'grey';
 };
 
-const emit = defineEmits<{
-  (e: 'cancel'): void;
-}>();
+const emit = defineEmits(['cancel']);
 
 const formatDate = (date: string | Date) => {
   return new Date(date).toLocaleDateString('en-US', {
@@ -40,14 +38,14 @@ const formatDate = (date: string | Date) => {
 };
 </script>
 <template>
-  <v-dialog max-width="600" :model-value="props.showDialog">
+  <v-dialog max-width="600" persistent :model-value="props.showDialog">
     <v-card elevation="0" class="pa-6 rounded-lg">
       <div class="tw:flex tw:justify-between mb-6">
         <div>
           <h2 class="tw:text-2xl tw:font-bold">Factura</h2>
           <p class="tw:text-gray-600">{{ props.invoice.invoiceContifico.documento }}</p>
         </div>
-        <v-btn elevation="0" variant="plain" icon @click="emit('cancel')" class="tw:rounded-md">
+        <v-btn elevation="0" variant="plain" icon class="tw:rounded-md" @click="emit('cancel')">
           <Icon icon="mdi:close" />
         </v-btn>
       </div>
@@ -92,9 +90,15 @@ const formatDate = (date: string | Date) => {
             <tr v-for="(item, index) in props.invoice.products" :key="index" class="tw:border-b tw:border-gray-200">
               <td class="tw:p-2">{{ item.name }}</td>
               <td>
-                <div v-if="item.programs.length > 0" class="d-flex flex-wrap gap-2">
-                  <v-chip v-for="program in item.programs" :key="program.id" size="small" variant="outlined"
-                    class="text-caption mr-2" :color="getProgramColor(program.courseLevel)">
+                <div v-if="item.programs.length > 0" class="d-flex flex-wrap gap-2 ma-2">
+                  <v-chip
+                    v-for="program in item.programs"
+                    :key="program.id"
+                    size="small"
+                    variant="outlined"
+                    class="text-caption"
+                    :color="getProgramColor(program.courseLevel)"
+                  >
                     {{ program.courseLevel }}
                   </v-chip>
                 </div>
@@ -109,30 +113,36 @@ const formatDate = (date: string | Date) => {
         <div class="tw:w-64">
           <div class="tw:flex tw:justify-between py-2">
             <span>Descuento</span>
-            <span>${{
-              props.invoice.totalDiscount.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })
-            }}</span>
+            <span
+              >${{
+                props.invoice.totalDiscount.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })
+              }}</span
+            >
           </div>
           <div class="tw:flex tw:justify-between py-2">
             <span>Subtotal</span>
-            <span>${{
-              (props.invoice.amount - props.invoice.taxAmount).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })
-            }}</span>
+            <span
+              >${{
+                (props.invoice.amount - props.invoice.taxAmount).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })
+              }}</span
+            >
           </div>
           <div class="tw:flex tw:justify-between py-2">
             <span>IVA 15%</span>
-            <span>${{
-              props.invoice.taxAmount.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })
-            }}</span>
+            <span
+              >${{
+                props.invoice.taxAmount.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })
+              }}</span
+            >
           </div>
           <div class="tw:flex tw:justify-between py-2 tw:font-bold tw:border-t tw:border-gray-300">
             <span>Total</span>

@@ -9,12 +9,22 @@ import { useRouter } from 'vue-router';
 import type { Payment } from '@/models/Payments';
 import Swal from 'sweetalert2';
 import usePaymentPdf from '@/composables/admin/payments/usePaymentPdf';
+import EditInvoice from '@/components/invoices/EditInvoice.vue';
+import type { EditInvoiceReq, Invoice } from '@/models/Invoice';
+import InvoiceDetail from '@/components/invoices/InvoiceDetail.vue';
+import useInvoices from '@/composables/admin/invoice/useInvoices';
+import useInvoiceMutations from '@/composables/admin/invoice/useInvoiceMutation';
+import { toast } from 'vue3-toastify';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import type { AxiosError } from 'axios';
+import UiParentCard from '@/components/shared/UiParentCard.vue';
 
 const showPaymentHistory = ref(false);
 const selectPaymentIdPdf = ref('');
 const selectPayment = ref<Payment>({
   paymentshistory: [] as any[]
 } as Payment);
+const selectedInvoice = ref<Invoice>({} as Invoice);
 const breadcrumbs = ref([
   {
     title: 'Cobros',
@@ -26,9 +36,14 @@ const breadcrumbs = ref([
 const { isPaymentPdfLoading, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
 
 const { paymentsData, isPaymentsLoading, page, perPage, search } = usePayments();
+const { invoicesData, isLoading, refetch } = useInvoices();
+const { updateInvoiceMutation, sendInvoicesToContificoMutation } = useInvoiceMutations();
+
 const { cancelPaymentMutation } = usePaymentRecordMutations();
 
 const debouncedSearch = ref('');
+const showDetails = ref(false);
+const showEdit = ref(false);
 
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -44,6 +59,7 @@ const headers = [
   { title: 'Producto', value: 'products', sortable: true },
   { title: 'Programas', value: 'programs', sortable: true },
   { title: 'Precio', value: 'total', sortable: true },
+  { title: 'Saldo Restante', value: 'remainingBalance', sortable: true },
   { title: 'Estado', value: 'status', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
@@ -81,8 +97,8 @@ const onCreatePayment = () => {
 };
 
 const onPaymentHistoryShow = (items: Payment) => {
-  showPaymentHistory.value = true;
   selectPayment.value = items;
+  showPaymentHistory.value = true;
 };
 
 const handlePaymentUpdated = (updatedPayment: Payment) => {
@@ -131,6 +147,59 @@ const handleDownloadPdf = async (item: Payment) => {
     window.open(url, '_blank');
   }
 };
+
+function getInvoiceForPayment(payment: Payment): Invoice {
+  return invoicesData.value.content.find((inv: Invoice) => inv.payment.id === payment.id)!!;
+}
+
+const handleShowDetails = (item: Invoice) => {
+  selectedInvoice.value = item;
+  showDetails.value = true;
+};
+
+const handleShowEdit = (item: Invoice) => {
+  selectedInvoice.value = item;
+  showEdit.value = true;
+};
+
+const updateInvoice = async (invoiceReq: EditInvoiceReq) => {
+  await updateInvoiceMutation.mutateAsync(invoiceReq, {
+    onSuccess: async () => {
+      toast.success('Factura actualizada correctamente');
+      await refetch();
+      selectedInvoice.value = {} as Invoice;
+      showEdit.value = false;
+    },
+    onError(error) {
+      const err = error as AxiosError<ErrorApiResponse>;
+      let message = err.response?.data?.message;
+      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
+      toast.error(message || 'Error al actualizar la factura');
+    }
+  });
+};
+
+const sendInvoices = async () => {
+  await sendInvoicesToContificoMutation.mutateAsync(undefined, {
+    onSuccess: async () => {
+      toast.success('Facturas actualizada correctamente');
+      await refetch();
+      selectedInvoice.value = {} as Invoice;
+      showEdit.value = false;
+    },
+    onError(error) {
+      const err = error as AxiosError<ErrorApiResponse>;
+      let message = err.response?.data?.message;
+      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
+      toast.error(message || 'Error al actualizar la factura');
+    }
+  });
+};
+
+function formatDate(dateStr: Date): string {
+  const [date, time] = dateStr.toString().split('T');
+  return `${date} ${time.slice(0, 5)}`;
+}
 </script>
 
 <template>
@@ -140,9 +209,10 @@ const handleDownloadPdf = async (item: Payment) => {
       :headers="headers"
       :search="debouncedSearch"
       :items="paymentsData.content"
-      :loading="isPaymentsLoading || isPaymentPdfLoading"
+      :loading="isPaymentsLoading || isPaymentPdfLoading || isLoading"
       :items-length="paymentsData.totalElements"
       :items-per-page="10"
+      show-expand
       @update:options="loadItems"
     >
       <template v-slot:top>
@@ -186,6 +256,10 @@ const handleDownloadPdf = async (item: Payment) => {
           <VBtn variant="elevated" color="primary" @click="onCreatePayment">
             <Icon class="mr-2" icon="mdi:plus" />
             Crear Cobro
+          </VBtn>
+          <VBtn variant="elevated" color="info" class="ml-2" @click="sendInvoices">
+            <Icon class="mr-2" icon="meteor-icons:paper-plane" />
+            Enviar a Contifico
           </VBtn>
         </v-toolbar>
       </template>
@@ -243,6 +317,7 @@ const handleDownloadPdf = async (item: Payment) => {
             <Icon icon="material-symbols:print-outline-rounded" />
           </v-btn>
           <v-btn
+            v-if="item.status !== 'CANCELLED'"
             v-tooltip="'Cerrar Cobro'"
             color="error"
             icon
@@ -255,7 +330,76 @@ const handleDownloadPdf = async (item: Payment) => {
           </v-btn>
         </div>
       </template>
+      <template #expanded-row="{ item }">
+        <td :colspan="headers.length">
+          <div class="pa-4">
+            <v-row>
+              <v-col cols="4">
+                <div class="tw:font-bold">Número de Factura</div>
+                <div>{{ getInvoiceForPayment(item).invoiceNumber }}</div>
+              </v-col>
+              <v-col cols="4">
+                <div class="tw:font-bold">Nombre</div>
+                <div>{{ getInvoiceForPayment(item).fullName }}</div>
+              </v-col>
+              <v-col cols="4">
+                <div class="tw:font-bold">Identificación</div>
+                <div>{{ getInvoiceForPayment(item).document }}</div>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="4">
+                <div class="tw:font-bold">Fecha</div>
+                <div>{{ formatDate(getInvoiceForPayment(item).invoiceDate) }}</div>
+              </v-col>
+              <v-col cols="4">
+                <div class="tw:font-bold">Total</div>
+                <div>{{ getInvoiceForPayment(item).amount }}</div>
+              </v-col>
+              <v-col cols="4">
+                <div class="tw:font-bold">Enviada a Contifico</div>
+                <div v-if="getInvoiceForPayment(item).sentContifico">
+                  <v-icon class="ml-2" color="success">
+                    <Icon icon="material-symbols:check-circle-outline" />
+                  </v-icon>
+                </div>
+                <div v-else>
+                  <v-tooltip location="top" :text="getInvoiceForPayment(item).contificoError">
+                    <template #activator="{ props: activatorProps }">
+                      <v-icon class="ml-2" color="error" v-bind="activatorProps">
+                        <Icon icon="weui:close2-outlined" />
+                      </v-icon>
+                    </template>
+                  </v-tooltip>
+                </div>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12" class="d-flex">
+                <div>
+                  <div class="tw:font-bold">Acciones</div>
+                  <div class="d-flex tw:gap-x-2">
+                    <v-btn color="info" variant="tonal" @click="handleShowDetails(getInvoiceForPayment(item))">
+                      <Icon icon="mdi:eye" class="mr-2" />
+                      Ver Factura
+                    </v-btn>
+                    <div v-if="!getInvoiceForPayment(item).sentContifico && item.status !== 'CANCELLED'">
+                      <v-btn color="success" variant="tonal" @click="handleShowEdit(getInvoiceForPayment(item))">
+                        <Icon icon="tabler:pencil" class="mr-2" />
+                        Editar Factura
+                      </v-btn>
+                    </div>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+          </div>
+        </td>
+      </template>
     </v-data-table-server>
+    <InvoiceDetail v-if="showDetails" :invoice="selectedInvoice" :showDialog="true" @cancel="showDetails = false" />
+    <EditInvoice v-if="showEdit" :invoice="selectedInvoice" :showDialog="showEdit" @cancel="showEdit = !showEdit" @save="updateInvoice" />
     <PaymentHistoryList v-model="showPaymentHistory" :payment="selectPayment" @payment-updated="handlePaymentUpdated" />
   </UiParentCard>
 </template>

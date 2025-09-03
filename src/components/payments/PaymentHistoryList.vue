@@ -13,6 +13,8 @@ import usePayment from '@/composables/admin/payments/usePayment';
 import usePaymentMethods from '@/composables/admin/paymentMethods/usePaymentMethods';
 import usePaymentRecordMutations from '@/composables/admin/payments/usePaymentMutations';
 import { adminStore } from '@/stores/adminStore';
+import useInvoiceMutations from '@/composables/admin/invoice/useInvoiceMutation';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -41,6 +43,7 @@ const paymentId = computed(() => props.payment?.id!!);
 const { payment, refetchPayment } = usePayment(paymentId);
 const { paymentMethodsData } = usePaymentMethods();
 const { savePaymentRecordMutations } = usePaymentRecordMutations();
+const { sendPaymentHistoryToContificoMutation } = useInvoiceMutations();
 
 const paymentMethodsList = computed(() => paymentMethodsData.value);
 const itemsPerPage = 5;
@@ -114,11 +117,29 @@ const submitForm = async () => {
 const headers = [
   { title: 'Fecha', value: 'date' },
   { title: 'Monto', value: 'amount' },
-  { title: 'Método de pago', value: 'paymentMethod' }
+  { title: 'Método de pago', value: 'paymentMethod' },
+  { title: 'Codigo de la transacción', value: 'transactionId' },
+  { title: 'Enviado a Contifico', value: 'sent' }
 ];
 
 const onUpdateOptions = (options: any) => {
   page.value = options.page;
+};
+
+const sendPaymentHistory = () => {
+  sendPaymentHistoryToContificoMutation.mutateAsync(props.payment?.id!!, {
+    onSuccess: async () => {
+      toast.success('Pagos sincronizados correctamente');
+      await refetchPayment();
+      emit('payment-updated', JSON.parse(JSON.stringify(payment.value)));
+    },
+    onError(error) {
+      const err = error as AxiosError<ErrorApiResponse>;
+      let message = err.response?.data?.message;
+      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
+      toast.error(message || 'Error al sincronizar los pagos');
+    }
+  });
 };
 </script>
 
@@ -131,7 +152,7 @@ const onUpdateOptions = (options: any) => {
           <Icon icon="mdi:close" height="18" />
         </v-btn>
       </v-toolbar>
-      <v-card-text>
+      <v-card-text v-if="props.payment?.status !== 'COMPLETED' && props.payment?.status !== 'CANCELLED'">
         <v-form ref="formRef" @submit.prevent="submitForm">
           <InputSection label="Registrar nuevo pago">
             <v-row dense>
@@ -202,7 +223,14 @@ const onUpdateOptions = (options: any) => {
               </v-col>
             </v-row>
           </InputSection>
-          <v-btn type="submit" color="primary" class="mt-2">Guardar</v-btn>
+          <div class="d-flex tw:justify-between tw:items-center">
+            <v-btn v-if="!props.originPos" variant="elevated" color="info" class="mt-2" @click="sendPaymentHistory">
+              <Icon class="mr-2" icon="meteor-icons:paper-plane" />
+              Enviar a Contifico
+            </v-btn>
+            <div v-if="!props.originPos" class="text-h3">$ {{ props.payment?.remainingBalance }} Restante</div>
+            <v-btn type="submit" color="primary" class="mt-2">Guardar</v-btn>
+          </div>
         </v-form>
       </v-card-text>
 
@@ -210,7 +238,7 @@ const onUpdateOptions = (options: any) => {
         <v-data-table-server
           :headers="headers"
           :items="paginatedHistory"
-          :loading="loading"
+          :loading="loading || sendPaymentHistoryToContificoMutation.isPending.value"
           :items-length="total"
           :items-per-page="itemsPerPage"
           class="mt-4"
@@ -219,6 +247,23 @@ const onUpdateOptions = (options: any) => {
           <template #item.date="{ item }">
             <span>{{ item.date }}</span>
           </template>
+          <template #item.sent="{ item }">
+            <div v-if="item.sent">
+              <v-icon class="ml-2" color="success">
+                <Icon icon="material-symbols:check-circle-outline" />
+              </v-icon>
+            </div>
+            <div v-else>
+              <v-tooltip location="top">
+                <template #activator="{ props: activatorProps }">
+                  <v-icon class="ml-2" color="error" v-bind="activatorProps">
+                    <Icon icon="weui:close2-outlined" />
+                  </v-icon>
+                </template>
+              </v-tooltip>
+            </div>
+          </template>
+
           <template #item.amount="{ item }">
             <span>${{ item.amount }}</span>
           </template>

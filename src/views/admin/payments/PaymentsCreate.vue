@@ -61,7 +61,7 @@ const rules = {
     required: helpers.withMessage('El documento es obligatorio', required),
     onlyDigits,
     len10or13,
-    ruc: helpers.withMessage('El ruc debe acabar en 001', (v: string) => v.length === 13 ? v.endsWith('001') : true)
+    ruc: helpers.withMessage('El ruc debe acabar en 001', (v: string) => (v.length === 13 ? v.endsWith('001') : true))
   },
   phone: {
     required: helpers.withMessage('El teléfono es obligatorio', required),
@@ -103,11 +103,13 @@ const dueDate = computed(() => {
 const invoiceItems = computed(() => {
   if (!selectedProduct.value) return [];
   const product = selectedProduct.value as any;
-  return [{
-    name: product.name || 'Producto sin nombre',
-    quantity: 1,
-    unitPrice: product.basePrice || 0
-  }];
+  return [
+    {
+      name: product.name || 'Producto sin nombre',
+      quantity: 1,
+      unitPrice: product.basePrice || 0
+    }
+  ];
 });
 
 const discountAmount = computed(() => {
@@ -132,12 +134,7 @@ const grandTotal = computed(() => {
 
 const progressValue = computed(() => ((maxCountdown - redirectCountdown.value) / maxCountdown) * 100);
 
-const isPaymentDisabled = computed(() =>
-  isLoading.value ||
-  !selectedProduct.value ||
-  !selectedParticipant.value ||
-  v$.value.$invalid
-);
+const isPaymentDisabled = computed(() => isLoading.value || !selectedProduct.value || !selectedParticipant.value || v$.value.$invalid);
 
 // --- Methods ---
 function resetAllFields() {
@@ -186,7 +183,7 @@ const processPayment = async () => {
 
   await savePaymentMutations.mutateAsync(paymentData, {
     onSuccess: async (data) => {
-      cashDrawer.value.actualBalance += paymentHistoryArr.value.reduce((sum, row) => sum + parseFloat(row.amount), 0);
+      store.cashDrawer.actualBalance += paymentHistoryArr.value.reduce((sum, row) => sum + parseFloat(row.amount), 0);
       resetAllFields();
       selectPaymentIdPdf.value = data;
       await refetchPaymentPdf();
@@ -240,10 +237,13 @@ defineExpose({ showSuccessModal, redirectCountdown });
 </script>
 
 <template>
-  <BaseBreadcrumb :title="'Crear Nuevo Cobro'" :breadcrumbs="[
-    { title: 'Pagos', disabled: false, href: '/admin/payments' },
-    { title: 'Nuevo Pago', disabled: true, href: '#' }
-  ]" />
+  <BaseBreadcrumb
+    :title="'Crear Nuevo Cobro'"
+    :breadcrumbs="[
+      { title: 'Pagos', disabled: false, href: '/admin/payments' },
+      { title: 'Nuevo Pago', disabled: true, href: '#' }
+    ]"
+  />
 
   <div v-if="cashDrawer && !isCashDrawerLoading" class="mb-6">
     <CashDrawerInfo :cash-drawer="cashDrawer" @update-refetch="refetchCashDrawer" />
@@ -356,20 +356,14 @@ defineExpose({ showSuccessModal, redirectCountdown });
                 <tr v-for="(item, index) in paymentHistoryArr" :key="index" class="tw:border-b tw:border-gray-200">
                   <td class="tw:p-2">{{ item.paymentMethod.type }}</td>
                   <td class="tw:p-2 tw:text-right">${{ item.amount }}</td>
-                  <td class="tw:p-2 tw:text-right">{{item.transactionId}}</td>
+                  <td class="tw:p-2 tw:text-right">{{ item.transactionId }}</td>
                 </tr>
               </tbody>
             </table>
           </v-card-text>
         </v-card>
 
-        <v-btn
-          :loading="isLoading"
-          :disabled="isPaymentDisabled"
-          color="primary"
-          class="tw:w-full mt-4"
-          @click="processPayment"
-        >
+        <v-btn :loading="isLoading" :disabled="isPaymentDisabled" color="primary" class="tw:w-full mt-4" @click="processPayment">
           Procesar cobro
         </v-btn>
       </v-col>
@@ -395,8 +389,14 @@ defineExpose({ showSuccessModal, redirectCountdown });
 .section-fade-in {
   animation: fadeIn 0.5s ease-in-out;
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px);}
-    to { opacity: 1; transform: translateY(0);}
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 </style>

@@ -24,7 +24,7 @@ const sidebarItem = [
   {
     title: 'Punto de Venta',
     icon: 'mdi:cash-register',
-    to: 'pos-main',
+    to: 'pos-main'
   },
   {
     title: 'Administrativo',
@@ -37,10 +37,6 @@ const sidebarItem = [
       {
         title: 'Sedes',
         to: 'sedes-admin'
-      },
-      {
-        title: 'Facturas',
-        to: 'invoices-admin'
       },
       {
         title: 'Productos',
@@ -91,14 +87,14 @@ const sidebarItem = [
       {
         title: 'Staff',
         to: 'staff-admin'
-      },
+      }
     ]
   },
   {
     title: 'Configuración',
     icon: 'material-symbols:settings',
     to: 'settings'
-  },
+  }
 ];
 
 export default sidebarItem;

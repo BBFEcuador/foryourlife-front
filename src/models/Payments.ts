@@ -8,8 +8,9 @@ export interface Payment {
   discount: any;
   participant: Participant;
   campus: Campus;
-  paymentshistory: any[];
+  paymentshistory: PaymentHistory[];
   total: number;
+  remainingBalance: number;
   status: string;
   note: any;
 }
@@ -19,7 +20,7 @@ export interface PaymentRequest {
   participant: string;
   campus: string;
   total: number;
-  totalDiscount: number
+  totalDiscount: number;
   paymentsHistory?: PaymentHistory[];
   invoice: {
     type: string;
@@ -28,7 +29,7 @@ export interface PaymentRequest {
     document: string;
     phone: string;
     email: string;
-  }
+  };
   note?: string;
   cashDrawerId: string;
 }
@@ -53,8 +54,9 @@ export interface PaymentMethod {
 export interface PaymentHistory {
   date: string;
   amount: string;
-  paymentMethod: PaymentMethod
+  paymentMethod: PaymentMethod;
   transactionId: string;
+  sent?: boolean;
   pingType?: string;
 }
 
@@ -94,4 +96,3 @@ export interface BankAccountRequest {
   number: string;
   campusId: string;
 }
-

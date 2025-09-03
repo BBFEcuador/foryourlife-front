@@ -109,7 +109,7 @@ const handlePrintBalance = async (item: CashDrawer) => {
 
     <template #item.actions="{ item }">
       <v-btn
-        v-tooltip="'Imprimir compromiso de cobro'"
+        v-tooltip="'Imprimir balance de caja'"
         icon
         color="info"
         variant="text"

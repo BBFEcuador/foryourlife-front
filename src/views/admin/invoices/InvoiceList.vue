@@ -2,6 +2,7 @@
 import EditInvoice from '@/components/invoices/EditInvoice.vue';
 import InvoiceDetail from '@/components/invoices/InvoiceDetail.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
+import UiParentCard from '@/components/shared/UiParentCard.vue';
 import useInvoiceMutations from '@/composables/admin/invoice/useInvoiceMutation';
 import useInvoices from '@/composables/admin/invoice/useInvoices';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
@@ -165,9 +166,20 @@ function formatDate(dateStr: Date): string {
         <span>{{ formatDate(item.invoiceDate) }}</span>
       </template>
       <template #item.sentContifico="{ item }">
-        <v-icon class="ml-2" :color="item.sentContifico ? 'success' : 'error'">
-          <Icon :icon="item.sentContifico ? 'material-symbols:check-circle-outline' : 'weui:close2-outlined'"></Icon>
-        </v-icon>
+        <template v-if="item.sentContifico">
+          <v-icon class="ml-2" color="success">
+            <Icon icon="material-symbols:check-circle-outline" />
+          </v-icon>
+        </template>
+        <template v-else>
+          <v-tooltip location="top" :text="item.contificoError">
+            <template #activator="{ props: activatorProps }">
+              <v-icon class="ml-2" color="error" v-bind="activatorProps">
+                <Icon icon="weui:close2-outlined" />
+              </v-icon>
+            </template>
+          </v-tooltip>
+        </template>
       </template>
       <template #item.actions="{ item }">
         <div class="d-flex align-middle">
@@ -194,14 +206,6 @@ function formatDate(dateStr: Date): string {
             >
               <Icon icon="tabler:pencil" />
             </v-btn>
-            <v-tooltip interactive>
-              <template v-slot:activator="{ props: activatorProps }">
-                <v-icon color="error" v-bind="activatorProps">
-                  <Icon icon="mdi-information-outline"></Icon>
-                </v-icon>
-              </template>
-              <span>{{ item.contificoError }}</span>
-            </v-tooltip>
           </div>
         </div>
       </template>
