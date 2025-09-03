@@ -2,10 +2,10 @@
 import useDiscounts from '@/composables/admin/discounts/useDiscounts';
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAvailableProducts from '@/composables/admin/products/useAvailableProducts';
+import type { Campus } from '@/models/Campus';
+import type { Participant } from '@/models/Participants';
 import { router } from '@/router';
-import { Icon } from '@iconify/vue/dist/iconify.js';
-import useVuelidate, { type Validation } from '@vuelidate/core';
-import { helpers, numeric, required } from '@vuelidate/validators';
+import type { Validation } from '@vuelidate/core';
 import Swal from 'sweetalert2';
 import { ref, computed, watch } from 'vue';
 
@@ -15,46 +15,29 @@ interface props {
 
 const { v$ } = defineProps<props>();
 
-// { fullname, document, phone, email, address }
-
 const emit = defineEmits([
   'update:modelValue',
-  'update:selectedParticipant',
-  'update:selectedProduct',
+  'update:selected-participant',
+  'update:selected-product',
   'update:notes',
   'update:fullname',
   'update:address',
   'update:document',
   'update:phone',
   'update:email',
-  'update:selectedDiscount',
-  'update:selectedCampus',
+  'update:selected-discount',
+  'update:selected-campus',
   'update:type'
 ]);
 
-// Definimos interfaces para los tipos
-interface CartItem {
-  id: string | number;
-  name: string;
-  code: string;
-  price: number;
-  currency: string;
-  description?: string;
-  programs?: Array<{
-    id: string;
-    name: string;
-    courseLevel: string;
-  }>;
-}
-
-// Obtenemos los participantes y productos del composable
 const { participants, participantSearch } = useParticipants();
 const { productsData, productSearch } = useAvailableProducts();
-const { discountsData, search } = useDiscounts();
-const selectedParticipant = ref(null);
+const { discountsData } = useDiscounts();
+
+const selectedParticipant = ref<Participant | null>(null);
 const selectedProduct = ref(null);
 const selectedDiscount = ref(null);
-const selectedCampus = ref(null);
+const selectedCampus = ref<Campus | null>(null);
 const notes = ref('');
 const fullname = ref('');
 const address = ref('');
@@ -63,12 +46,46 @@ const phone = ref('');
 const email = ref('');
 const type = ref('N');
 
-watch(selectedParticipant, (newVal) => {
-  emit('update:selectedParticipant', newVal);
+function formatPhone(phoneStr: string | undefined): string {
+  if (!phoneStr) return '';
+  const match = phoneStr.match(/\+593(\d+)/);
+  return match ? '0' + match[1] : phoneStr;
+}
+
+function assignParticipantFields(participant: Participant | null) {
+  fullname.value = participant?.user?.name || '';
+  address.value = participant?.profile?.address || '';
+  document.value = participant?.profile?.dni || '';
+  phone.value = formatPhone(participant?.phone);
+  email.value = participant?.email || '';
+}
+
+watch(selectedParticipant, (newVal, oldVal) => {
+  v$.$reset();
+  assignParticipantFields(newVal);
+  emit('update:selected-participant', newVal);
+  emit('update:fullname', fullname.value);
+  emit('update:address', address.value);
+  emit('update:document', document.value);
+  emit('update:phone', phone.value);
+  emit('update:email', email.value);
+  selectedCampus.value = newVal?.campus || null;
+  emit('update:selected-campus', selectedCampus.value);
+
+  if (
+    newVal !== oldVal &&
+    (fullname.value !== '' || address.value !== '' || document.value !== '' || phone.value !== '' || email.value !== '')
+  ) {
+    v$.fullname.$touch();
+    v$.address.$touch();
+    v$.document.$touch();
+    v$.phone.$touch();
+    v$.email.$touch();
+  }
 });
 
 watch(selectedProduct, (newVal) => {
-  emit('update:selectedProduct', newVal);
+  emit('update:selected-product', newVal);
 });
 
 watch(notes, (newVal) => {
@@ -80,43 +97,41 @@ watch(type, (newVal) => {
 });
 
 watch(selectedDiscount, (newVal) => {
-  emit('update:selectedDiscount', newVal);
+  emit('update:selected-discount', newVal);
 });
 
 watch(selectedCampus, (newVal) => {
-  emit('update:selectedCampus', newVal);
+  emit('update:selected-campus', newVal);
 });
 
-// Accedemos a los datos de los participantes
-const participantsList = computed(() => {
-  return participants?.value?.content || [];
-});
+const participantsList = computed(() => participants?.value?.content || []);
+const productsList = computed(() => productsData?.value?.content || []);
+const discountsList = computed(() => discountsData?.value?.content || []);
 
-// Accedemos a los datos de los productos
-const productsList = computed(() => {
-  return productsData?.value?.content || [];
-});
-
-// Accedemos a los datos de los descuentos
-const discountsList = computed(() => {
-  return discountsData?.value?.content || [];
+const selectedProductDetails = computed(() => {
+  if (!selectedProduct.value) return null;
+  const product = selectedProduct.value as any;
+  return {
+    id: product.id,
+    name: product.name,
+    code: product.code,
+    price: product.basePrice || 0,
+    currency: product.currency || 'USD',
+    description: product.description,
+    programs: product.programs
+  };
 });
 
 const searchClient = (s: string) => {
   participantSearch.value = s;
 };
 
-const searchDiscount = (s: string) => {
-  search.value = s;
-};
-
 const handleParticipantChange = (participant: any) => {
-  selectedCampus.value = participant.campus;
-  emit('update:selectedParticipant', participant);
+  selectedParticipant.value = participant;
 };
 
 const handleProductChange = (product: any) => {
-  if (product.programs.length === 0) {
+  if (product?.programs?.length === 0) {
     Swal.fire({
       text: `Este producto no cuenta con programas asignados`,
       icon: 'warning',
@@ -132,30 +147,13 @@ const handleProductChange = (product: any) => {
     });
     selectedProduct.value = null;
   } else {
-    emit('update:selectedProduct', product);
+    selectedProduct.value = product;
   }
 };
 
 const handleDiscountChange = (discount: any) => {
-  emit('update:selectedDiscount', discount);
+  selectedDiscount.value = discount;
 };
-
-// Observamos cambios en el producto seleccionado
-const selectedProductDetails = computed(() => {
-  if (!selectedProduct.value) return null;
-
-  const product = selectedProduct.value as any;
-
-  return {
-    id: product.id,
-    name: product.name,
-    code: product.code,
-    price: product.basePrice || 0,
-    currency: product.currency || 'USD',
-    description: product.description,
-    programs: product.programs
-  };
-});
 
 const resetTextFields = () => {
   fullname.value = '';
@@ -168,18 +166,17 @@ const resetTextFields = () => {
   selectedProduct.value = null;
   selectedDiscount.value = null;
   selectedCampus.value = null;
+  v$.$reset();
 };
 
 defineExpose({ resetTextFields });
 </script>
-
 <template>
   <div>
     <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
       <div>
         <h3 class="tw:text-lg tw:font-semibold pb-2">Otorgado a</h3>
         <VCombobox
-          @update:search="searchClient"
           v-model="selectedParticipant"
           :items="participantsList"
           item-title="name"
@@ -187,6 +184,7 @@ defineExpose({ resetTextFields });
           variant="outlined"
           :placeholder="participantsList.length > 0 ? 'Seleccionar cliente' : 'No hay clientes disponibles'"
           return-object
+          @update:search="searchClient"
           @update:model-value="handleParticipantChange"
         >
           <template v-slot:item="{ props, item }">
@@ -220,7 +218,6 @@ defineExpose({ resetTextFields });
       <div>
         <h3 class="tw:text-lg tw:font-semibold pb-2">Artículos/Servicios</h3>
         <VCombobox
-          @update:search="productSearch = $event"
           v-model="selectedProduct"
           :items="productsList"
           item-title="name"
@@ -228,6 +225,7 @@ defineExpose({ resetTextFields });
           variant="outlined"
           placeholder="Buscar producto"
           return-object
+          @update:search="productSearch = $event"
           @update:model-value="handleProductChange"
         >
           <template v-slot:item="{ props, item }">

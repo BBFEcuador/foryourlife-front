@@ -19,8 +19,7 @@ import { helpers, numeric, required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 import useCashDrawerById from '@/composables/admin/pos/useCashDrawerById';
 
-// Tab controls
-// Datos de la factura
+// --- State ---
 const paymentNumber = ref('PAY-000001');
 const selectedProduct = ref(null);
 const selectedParticipant = ref(null);
@@ -33,25 +32,36 @@ const document = ref('');
 const phone = ref('');
 const email = ref('');
 const type = ref('N');
+const generalPaymentRef = ref();
+const paymentHistoryArr = ref<PaymentHistory[]>([]);
+const showPaymentHistoryModal = ref(false);
+const isLoading = ref(false);
+const showSuccessModal = ref(false);
+const redirectCountdown = ref(3);
+const maxCountdown = 3;
+const selectPaymentIdPdf = ref('');
 
+// --- Store & API ---
+const store = adminStore();
+const { cashDrawer, isCashDrawerLoading, refetchCashDrawer } = useCashDrawerById(store.cashDrawer.id);
+const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = useContificoConfigByCampus(
+  store.cashDrawer.cashBox.store.campus.id
+);
+const { savePaymentMutations } = usePaymentMutations();
+const { pdfArray, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
+
+// --- Validation ---
 const onlyDigits = helpers.withMessage('Solo se permiten números', (v: string) => v === '' || /^\d+$/.test(v));
 const len10or13 = helpers.withMessage('La cédula/RUC debe tener 10 o 13 dígitos', (v: string) => v.length === 10 || v.length === 13);
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const rules = {
-  fullname: {
-    required: helpers.withMessage('El nombre completo es obligatorio', required)
-  },
+  fullname: { required: helpers.withMessage('El nombre completo es obligatorio', required) },
   document: {
     required: helpers.withMessage('El documento es obligatorio', required),
     onlyDigits,
     len10or13,
-    ruc: helpers.withMessage('El ruc debe acabar en 001', (v: string) => {
-      if (v.length == 12 + 1) {
-        return v.endsWith('001');
-      } else {
-        return true;
-      }
-    })
+    ruc: helpers.withMessage('El ruc debe acabar en 001', (v: string) => v.length === 13 ? v.endsWith('001') : true)
   },
   phone: {
     required: helpers.withMessage('El teléfono es obligatorio', required),
@@ -61,65 +71,43 @@ const rules = {
   },
   email: {
     required: helpers.withMessage('El email es obligatorio', required),
-    email: helpers.withMessage('El email no es válido', (v: string) => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return v === '' || emailRegex.test(v);
-    })
+    email: helpers.withMessage('El email no es válido', (v: string) => v === '' || emailRegex.test(v))
   },
-  address: {
-    required: helpers.withMessage('La dirección es obligatoria', required)
-  }
+  address: { required: helpers.withMessage('La dirección es obligatoria', required) }
 };
 const v$ = useVuelidate(rules, { fullname, document, phone, email, address });
 
-const generalPaymentRef = ref();
-const paymentHistoryArr = ref<PaymentHistory[]>([]);
-const showPaymentHistoryModal = ref(false);
-
-const store = adminStore();
-
-const { cashDrawer, isCashDrawerLoading, refetchCashDrawer } = useCashDrawerById(store.cashDrawer.id);
-
-const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = useContificoConfigByCampus(
-  store.cashDrawer.cashBox.store.campus.id
-);
-
-const billedBy = {
+// --- Computed ---
+const billedBy = computed(() => ({
   name: contificoConfig.value.razonSocial,
   ruc: contificoConfig.value.ruc,
   address: contificoConfig.value.address,
   phone: contificoConfig.value.phone
-};
+}));
 
-const billedTo = computed(() => {
-  return {
-    name: fullname.value ? fullname.value : 'Nombre no especificado',
-    address: address.value ? address.value : 'Dirección no especificada',
-    document: document.value ? document.value : 'Documento no especificado',
-    phone: phone.value ? phone.value : 'Teléfono no especificado',
-    email: email.value ? email.value : 'Email no especificado'
-  };
-});
+const billedTo = computed(() => ({
+  name: fullname.value || 'Nombre no especificado',
+  address: address.value || 'Dirección no especificada',
+  document: document.value || 'Documento no especificado',
+  phone: phone.value || 'Teléfono no especificado',
+  email: email.value || 'Email no especificado'
+}));
 
-// Fechas
 const dateIssued = new Date();
 const dueDate = computed(() => {
   const date = new Date(dateIssued);
-  date.setDate(date.getDate() + 14); // 2 semanas de plazo
+  date.setDate(date.getDate() + 14);
   return date;
 });
 
 const invoiceItems = computed(() => {
   if (!selectedProduct.value) return [];
-
   const product = selectedProduct.value as any;
-  return [
-    {
-      name: product.name || 'Producto sin nombre',
-      quantity: 1,
-      unitPrice: product.basePrice || 0
-    }
-  ];
+  return [{
+    name: product.name || 'Producto sin nombre',
+    quantity: 1,
+    unitPrice: product.basePrice || 0
+  }];
 });
 
 const discountAmount = computed(() => {
@@ -127,47 +115,51 @@ const discountAmount = computed(() => {
   const discount = selectedDiscount.value as any;
   const product = selectedProduct.value as any;
   const price = product.basePrice || 0;
-
   if (discount.discountType === 'P') {
-    // Descuento porcentual
     return parseFloat(((price * parseFloat(discount.discountValue)) / 100).toFixed(2));
   } else if (discount.discountType === 'E') {
-    // Descuento de monto exacto
     return parseFloat(parseFloat(discount.discountValue).toFixed(2));
   }
   return 0;
 });
 
-const breadcrumbs = [
-  {
-    title: 'Pagos',
-    disabled: false,
-    href: '/admin/payments'
-  },
-  {
-    title: 'Nuevo Pago',
-    disabled: true,
-    href: '#'
-  }
-];
-
-const selectPaymentIdPdf = ref('');
-const { savePaymentMutations } = usePaymentMutations();
-const { pdfArray, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
-const isLoading = ref(false);
-const showSuccessModal = ref(false);
-const redirectCountdown = ref(3);
-const maxCountdown = 3;
-
-const progressValue = computed(() => {
-  return ((maxCountdown - redirectCountdown.value) / maxCountdown) * 100;
+const grandTotal = computed(() => {
+  if (!selectedProduct.value) return 0;
+  const product = selectedProduct.value as any;
+  const price = product.basePrice || 0;
+  return parseFloat((price - discountAmount.value).toFixed(2));
 });
 
-defineExpose({ showSuccessModal, redirectCountdown });
+const progressValue = computed(() => ((maxCountdown - redirectCountdown.value) / maxCountdown) * 100);
+
+const isPaymentDisabled = computed(() =>
+  isLoading.value ||
+  !selectedProduct.value ||
+  !selectedParticipant.value ||
+  v$.value.$invalid
+);
+
+// --- Methods ---
+function resetAllFields() {
+  paymentNumber.value = 'PAY-000001';
+  selectedProduct.value = null;
+  selectedParticipant.value = null;
+  selectedDiscount.value = null;
+  selectedCampus.value = null;
+  notes.value = '';
+  fullname.value = '';
+  address.value = '';
+  document.value = '';
+  phone.value = '';
+  email.value = '';
+  paymentHistoryArr.value = [];
+  generalPaymentRef.value?.resetTextFields();
+  v$.value.$reset();
+}
 
 const processPayment = async () => {
   isLoading.value = true;
-  v$.value.$validate();
+  await v$.value.$validate();
   if (v$.value.$error) {
     isLoading.value = false;
     return;
@@ -195,24 +187,7 @@ const processPayment = async () => {
   await savePaymentMutations.mutateAsync(paymentData, {
     onSuccess: async (data) => {
       cashDrawer.value.actualBalance += paymentHistoryArr.value.reduce((sum, row) => sum + parseFloat(row.amount), 0);
-
-      paymentNumber.value = 'PAY-000001';
-      selectedProduct.value = null;
-      selectedParticipant.value = null;
-      selectedDiscount.value = null;
-      selectedCampus.value = null;
-      notes.value = '';
-      fullname.value = '';
-      address.value = '';
-      document.value = '';
-      phone.value = '';
-      email.value = '';
-      paymentHistoryArr.value = [];
-
-      generalPaymentRef.value?.resetTextFields();
-
-      v$.value.$reset();
-
+      resetAllFields();
       selectPaymentIdPdf.value = data;
       await refetchPaymentPdf();
       if (pdfArray.value) {
@@ -233,24 +208,14 @@ const processPayment = async () => {
     },
     onError(error) {
       const err = error as AxiosError<ErrorApiResponse>;
-      let message = err.response?.data?.message;
-      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
+      let message = err.response?.data?.message || '';
+      err.response?.data?.errors?.forEach((e) => (message += `\n ${e}`));
       toast.error(message || 'Error al procesar el cobro');
       isLoading.value = false;
     }
   });
   isLoading.value = false;
 };
-
-// Calcular el total final (subtotal - descuento)
-const grandTotal = computed(() => {
-  if (!selectedProduct.value) return 0;
-
-  const product = selectedProduct.value as any;
-  const price = product.basePrice || 0;
-
-  return parseFloat((price - discountAmount.value).toFixed(2));
-});
 
 const closePaymentHistoryModal = (val: boolean) => {
   showPaymentHistoryModal.value = val;
@@ -260,7 +225,9 @@ const addPaymentHistoryRow = (paymentHistoryRow: PaymentHistoryRequest) => {
   const paymentHistory: PaymentHistory = {
     date: paymentHistoryRow.paymentHistory.date,
     amount: paymentHistoryRow.paymentHistory.amount,
-    paymentMethod: paymentHistoryRow.paymentHistory.paymentMethod
+    paymentMethod: paymentHistoryRow.paymentHistory.paymentMethod,
+    transactionId: paymentHistoryRow.paymentHistory.transactionId,
+    pingType: paymentHistoryRow.paymentHistory.pingType
   };
   paymentHistoryArr.value.push(paymentHistory);
 };
@@ -268,10 +235,15 @@ const addPaymentHistoryRow = (paymentHistoryRow: PaymentHistoryRequest) => {
 const clearPaymentHistory = () => {
   paymentHistoryArr.value = [];
 };
+
+defineExpose({ showSuccessModal, redirectCountdown });
 </script>
 
 <template>
-  <BaseBreadcrumb :title="'Crear Nuevo Cobro'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+  <BaseBreadcrumb :title="'Crear Nuevo Cobro'" :breadcrumbs="[
+    { title: 'Pagos', disabled: false, href: '/admin/payments' },
+    { title: 'Nuevo Pago', disabled: true, href: '#' }
+  ]" />
 
   <div v-if="cashDrawer && !isCashDrawerLoading" class="mb-6">
     <CashDrawerInfo :cash-drawer="cashDrawer" @update-refetch="refetchCashDrawer" />
@@ -288,6 +260,7 @@ const clearPaymentHistory = () => {
       <v-progress-linear color="success" height="5" :model-value="progressValue" />
     </v-card>
   </v-dialog>
+
   <div v-if="cashDrawer.status === 'LOCKED'">
     <v-alert
       type="warning"
@@ -295,7 +268,7 @@ const clearPaymentHistory = () => {
       class="mb-4 d-flex justify-center"
       title="Caja bloqueada"
       text="Desbloquea la caja para realizar nuevas transacciones."
-    ></v-alert>
+    />
   </div>
 
   <div v-else class="tw:flex tw:flex-col">
@@ -383,7 +356,7 @@ const clearPaymentHistory = () => {
                 <tr v-for="(item, index) in paymentHistoryArr" :key="index" class="tw:border-b tw:border-gray-200">
                   <td class="tw:p-2">{{ item.paymentMethod.type }}</td>
                   <td class="tw:p-2 tw:text-right">${{ item.amount }}</td>
-                  <td class="tw:p-2 tw:text-right">TODO</td>
+                  <td class="tw:p-2 tw:text-right">{{item.transactionId}}</td>
                 </tr>
               </tbody>
             </table>
@@ -392,7 +365,7 @@ const clearPaymentHistory = () => {
 
         <v-btn
           :loading="isLoading"
-          :disabled="isLoading || !selectedProduct || !selectedParticipant || v$.$invalid"
+          :disabled="isPaymentDisabled"
           color="primary"
           class="tw:w-full mt-4"
           @click="processPayment"
@@ -416,24 +389,14 @@ const clearPaymentHistory = () => {
   transition: all 0.3s ease-in-out;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
-
 .payment-card:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
-
 .section-fade-in {
   animation: fadeIn 0.5s ease-in-out;
-
   @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px);}
+    to { opacity: 1; transform: translateY(0);}
   }
 }
 </style>
