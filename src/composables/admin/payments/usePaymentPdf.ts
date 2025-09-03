@@ -15,7 +15,8 @@ const usePaymentPdf = (id: MaybeRef<any>) => {
     const { data, isError, isFetching, refetch } = useQuery({
         queryKey: ['paymentPdf'],
         queryFn: () => fetchPaymentPdf(paymentId.value),
-        enabled: computed(() => !!paymentId.value)
+        enabled: computed(() => !!paymentId.value),
+        retry: 0
     });
 
     watch(data, (newval) => {

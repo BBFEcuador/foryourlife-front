@@ -19,6 +19,7 @@ export interface PaymentRequest {
   participant: string;
   campus: string;
   total: number;
+  totalDiscount: number
   paymentsHistory?: PaymentHistory[];
   invoice: {
     type: string;
@@ -53,6 +54,8 @@ export interface PaymentHistory {
   date: string;
   amount: string;
   paymentMethod: PaymentMethod
+  transactionId: string;
+  pingType?: string;
 }
 
 export interface PaymentHistoryRequest {

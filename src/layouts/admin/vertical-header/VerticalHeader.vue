@@ -1,55 +1,71 @@
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect } from 'vue';
+import { computed, ref, watch, nextTick } from 'vue';
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 import { useCustomizerStore } from '../../../stores/customizer';
 import useCampus from '@/composables/admin/useCampus';
 import { adminStore } from '@/stores/adminStore';
 import { router } from '@/router';
-
-// dropdown imports
-import NotificationDD from './NotificationDD.vue';
 import ProfileDD from './ProfileDD.vue';
-import Searchbar from './SearchBarPanel.vue';
 
 const customizer = useCustomizerStore();
 const priority = ref(customizer.setHorizontalLayout ? 0 : 0);
 const store = adminStore();
-watch(priority, (newPriority) => {
-  priority.value = newPriority;
-});
 
 const { campus } = useCampus();
 
 const selectCampus = ref(store.selectCampusId);
 
-const hasFullAccess = computed(() => store.availableCampus.length === campus.value.length);
+// Determina si el usuario tiene acceso total
+const hasFullAccess = computed(() => {
+  // Ambos deben tener longitud mayor a 0 para evitar falsos positivos
+  return (
+    Array.isArray(store.availableCampus) &&
+    Array.isArray(campus.value) &&
+    store.availableCampus.length > 0 &&
+    campus.value.length > 0 &&
+    store.availableCampus.length === campus.value.length
+  );
+});
 
+// Items del select
 const vselectItems = computed(() => {
   return hasFullAccess.value ? [{ city: 'Todas las sucursales', id: '' }, ...campus.value] : store.availableCampus;
 });
 
+// Sincroniza la selección de campus al iniciar sesión o cuando cambian los campus disponibles
 watch(
-  [() => store.availableCampus, () => campus.value],
-  ([available, allCampuses]) => {
-    if (!selectCampus.value && available.length && allCampuses.length) {
-      if (available.length === allCampuses.length) {
-        selectCampus.value = '';
-        store.setSelectedCampusId('');
-        store.setIsCampusSelected(false);
-      } else {
-        const defaultCampus = available[0];
+  [() => store.availableCampus, () => campus.value, hasFullAccess],
+  async ([available, allCampuses, fullAccess]) => {
+    await nextTick(); // Espera a que los valores estén actualizados
+    // Si no hay campus disponibles, limpia la selección
+    if (!available?.length || !allCampuses?.length) {
+      selectCampus.value = '';
+      store.setSelectedCampusId('');
+      store.setIsCampusSelected(false);
+      return;
+    }
+    // Si tiene acceso total, selecciona "Todas las sucursales"
+    if (fullAccess) {
+      selectCampus.value = '';
+      store.setSelectedCampusId('');
+      store.setIsCampusSelected(false);
+    } else {
+      // Si tiene acceso parcial, selecciona el primer campus disponible
+      const defaultCampus = available[0];
+      if (defaultCampus && defaultCampus.id !== selectCampus.value) {
         selectCampus.value = defaultCampus.id;
         store.setSelectedCampusId(defaultCampus.id);
         store.setIsCampusSelected(true);
       }
     }
   },
-  { immediate: true, flush: 'post' }
+  { immediate: true }
 );
 
+// Cambia el campus seleccionado y navega
 const storeCampusOnAdmin = (id: string) => {
   selectCampus.value = id;
-  store.setIsCampusSelected(id ? true : false);
+  store.setIsCampusSelected(!!id);
   store.setSelectedCampusId(id);
   router.push({ name: 'home-admin' });
 };
@@ -74,35 +90,12 @@ const storeCampusOnAdmin = (id: string) => {
       icon
       rounded="sm"
       variant="text"
-      @click.stop="customizer.SET_SIDEBAR_DRAWER"
       size="small"
+      @click.stop="customizer.SET_SIDEBAR_DRAWER"
     >
       <SvgSprite name="custom-menu-outline" style="width: 24px; height: 24px" />
     </v-btn>
 
-    <!-- search mobile -->
-    <!-- <v-menu :close-on-content-click="false" class="hidden-lg-and-up" offset="10, 0">
-      <template v-slot:activator="{ props }">
-        <v-btn class="hidden-lg-and-up ml-1" color="secondary" icon rounded="sm" variant="text" size="small" v-bind="props">
-          <div class="text-lightText d-flex align-center">
-            <SvgSprite name="custom-search" style="width: 16px; height: 16px" />
-          </div>
-        </v-btn>
-      </template>
-      <v-sheet class="search-sheet v-col-12 pa-0" elevation="24" width="320" rounded="md">
-        <v-text-field persistent-placeholder placeholder="Search here.." rounded="md" color="primary" variant="solo" hide-details>
-          <template v-slot:prepend-inner>
-            <div class="text-lightText d-flex align-center">
-              <SvgSprite name="custom-search" style="width: 16px; height: 16px" />
-            </div>
-          </template>
-        </v-text-field>
-      </v-sheet>
-    </v-menu> -->
-
-    <!-- ---------------------------------------------- -->
-    <!-- Search part -->
-    <!-- ---------------------------------------------- -->
     <v-spacer />
     <v-select
       class="mt-5"
@@ -113,22 +106,8 @@ const storeCampusOnAdmin = (id: string) => {
       item-value="id"
       @update:model-value="storeCampusOnAdmin"
     ></v-select>
-
-    <!---/Search part -->
-
     <v-spacer />
-    <!-- ---------------------------------------------- -->
-    <!---right part -->
-    <!-- ---------------------------------------------- -->
 
-    <!-- ---------------------------------------------- -->
-    <!-- Notification -->
-    <!-- ---------------------------------------------- -->
-    <!-- <NotificationDD /> -->
-
-    <!-- ---------------------------------------------- -->
-    <!-- User Profile -->
-    <!-- ---------------------------------------------- -->
     <v-menu :close-on-content-click="false" offset="8, 0">
       <template v-slot:activator="{ props }">
         <v-btn class="profileBtn mr-0" aria-label="profile" variant="text" rounded="circle" icon v-bind="props">

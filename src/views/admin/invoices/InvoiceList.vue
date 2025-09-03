@@ -7,7 +7,6 @@ import useInvoices from '@/composables/admin/invoice/useInvoices';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { EditInvoiceReq, Invoice } from '@/models/Invoice';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { email } from '@vuelidate/validators';
 import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
 import { toast } from 'vue3-toastify';
@@ -38,10 +37,13 @@ const headers = [
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 
+// eslint-disable-next-line no-undef
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
 watch(debouncedSearch, (val) => {
+  // eslint-disable-next-line no-undef
   if (debounceTimeout) clearTimeout(debounceTimeout);
+  // eslint-disable-next-line no-undef
   debounceTimeout = setTimeout(() => {
     search.value = val;
   }, 400);
