@@ -59,7 +59,8 @@ const headers = [
   { title: 'Producto', value: 'products', sortable: true },
   { title: 'Programas', value: 'programs', sortable: true },
   { title: 'Precio', value: 'total', sortable: true },
-  { title: 'Saldo Restante', value: 'remainingBalance', sortable: true },
+  { title: 'Saldo Restante', value: 'remainingBalance' },
+  { title: 'Enviado a contifico', value: 'sentContifico', sortable: true },
   { title: 'Estado', value: 'status', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
@@ -291,6 +292,22 @@ function formatDate(dateStr: Date): string {
           </v-chip>
         </div>
       </template>
+      <template #item.sentContifico="{ item }">
+        <div v-if="getInvoiceForPayment(item).sentContifico">
+          <v-icon class="ml-2" color="success">
+            <Icon icon="material-symbols:check-circle-outline" />
+          </v-icon>
+        </div>
+        <div v-else>
+          <v-tooltip location="top" :text="getInvoiceForPayment(item).contificoError">
+            <template #activator="{ props: activatorProps }">
+              <v-icon class="ml-2" color="error" v-bind="activatorProps">
+                <Icon icon="weui:close2-outlined" />
+              </v-icon>
+            </template>
+          </v-tooltip>
+        </div>
+      </template>
 
       <template #item.actions="{ item }">
         <div class="d-flex ga-2">
@@ -357,26 +374,7 @@ function formatDate(dateStr: Date): string {
                 <div class="tw:font-bold">Total</div>
                 <div>{{ getInvoiceForPayment(item).amount }}</div>
               </v-col>
-              <v-col cols="4">
-                <div class="tw:font-bold">Enviada a Contifico</div>
-                <div v-if="getInvoiceForPayment(item).sentContifico">
-                  <v-icon class="ml-2" color="success">
-                    <Icon icon="material-symbols:check-circle-outline" />
-                  </v-icon>
-                </div>
-                <div v-else>
-                  <v-tooltip location="top" :text="getInvoiceForPayment(item).contificoError">
-                    <template #activator="{ props: activatorProps }">
-                      <v-icon class="ml-2" color="error" v-bind="activatorProps">
-                        <Icon icon="weui:close2-outlined" />
-                      </v-icon>
-                    </template>
-                  </v-tooltip>
-                </div>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12" class="d-flex">
+              <v-col cols="4" class="d-flex">
                 <div>
                   <div class="tw:font-bold">Acciones</div>
                   <div class="d-flex tw:gap-x-2">
@@ -428,7 +426,7 @@ function formatDate(dateStr: Date): string {
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: wrap;
 }
 
 .v-data-table :deep(td) {
