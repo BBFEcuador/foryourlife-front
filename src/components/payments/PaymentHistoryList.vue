@@ -254,7 +254,7 @@ const sendPaymentHistory = () => {
               </v-icon>
             </div>
             <div v-else>
-              <v-tooltip location="top">
+              <v-tooltip location="top" :text="item.notSendError">
                 <template #activator="{ props: activatorProps }">
                   <v-icon class="ml-2" color="error" v-bind="activatorProps">
                     <Icon icon="weui:close2-outlined" />

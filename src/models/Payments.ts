@@ -58,6 +58,7 @@ export interface PaymentHistory {
   transactionId: string;
   sent?: boolean;
   pingType?: string;
+  notSendError?: string;
 }
 
 export interface PaymentHistoryRequest {
