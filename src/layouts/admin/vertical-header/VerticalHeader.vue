@@ -15,9 +15,7 @@ const { campus } = useCampus();
 
 const selectCampus = ref(store.selectCampusId);
 
-// Determina si el usuario tiene acceso total
 const hasFullAccess = computed(() => {
-  // Ambos deben tener longitud mayor a 0 para evitar falsos positivos
   return (
     Array.isArray(store.availableCampus) &&
     Array.isArray(campus.value) &&
@@ -27,34 +25,35 @@ const hasFullAccess = computed(() => {
   );
 });
 
-// Items del select
 const vselectItems = computed(() => {
   return hasFullAccess.value ? [{ city: 'Todas las sucursales', id: '' }, ...campus.value] : store.availableCampus;
 });
 
-// Sincroniza la selección de campus al iniciar sesión o cuando cambian los campus disponibles
 watch(
   [() => store.availableCampus, () => campus.value, hasFullAccess],
   async ([available, allCampuses, fullAccess]) => {
-    await nextTick(); // Espera a que los valores estén actualizados
-    // Si no hay campus disponibles, limpia la selección
+    await nextTick();
+
     if (!available?.length || !allCampuses?.length) {
       selectCampus.value = '';
       store.setSelectedCampusId('');
       store.setIsCampusSelected(false);
       return;
     }
-    // Si tiene acceso total, selecciona "Todas las sucursales"
+
     if (fullAccess) {
-      selectCampus.value = '';
-      store.setSelectedCampusId('');
-      store.setIsCampusSelected(false);
+      if (!store.selectCampusId) {
+        selectCampus.value = '';
+        store.setSelectedCampusId('');
+        store.setIsCampusSelected(false);
+      } else {
+        selectCampus.value = store.selectCampusId;
+      }
     } else {
-      // Si tiene acceso parcial, selecciona el primer campus disponible
       const defaultCampus = available[0];
       if (defaultCampus && defaultCampus.id !== selectCampus.value) {
-        selectCampus.value = defaultCampus.id;
-        store.setSelectedCampusId(defaultCampus.id);
+        selectCampus.value = store.selectCampusId || defaultCampus.id;
+        store.setSelectedCampusId(selectCampus.value);
         store.setIsCampusSelected(true);
       }
     }
@@ -62,7 +61,6 @@ watch(
   { immediate: true }
 );
 
-// Cambia el campus seleccionado y navega
 const storeCampusOnAdmin = (id: string) => {
   selectCampus.value = id;
   store.setIsCampusSelected(!!id);
