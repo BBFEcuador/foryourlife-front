@@ -61,6 +61,7 @@ const headers = [
   { title: 'Precio', value: 'total', sortable: true },
   { title: 'Saldo Restante', value: 'remainingBalance' },
   { title: 'Enviado a contifico', value: 'sentContifico', sortable: true },
+  { title: 'Error en cobro', value: 'hasSomePaymentWithError', sortable: true },
   { title: 'Estado', value: 'status', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
@@ -206,35 +207,14 @@ function formatDate(dateStr: Date): string {
 <template>
   <BaseBreadcrumb :title="'Cobros'" :breadcrumbs="breadcrumbs" />
   <UiParentCard title="Lista de Cobros">
-    <v-data-table-server
-      :headers="headers"
-      :search="debouncedSearch"
-      :items="paymentsData.content"
-      :loading="isPaymentsLoading || isPaymentPdfLoading || isLoading"
-      :items-length="paymentsData.totalElements"
-      :items-per-page="10"
-      show-expand
-      @update:options="loadItems"
-    >
+    <v-data-table-server :headers="headers" :search="debouncedSearch" :items="paymentsData.content"
+      :loading="isPaymentsLoading || isPaymentPdfLoading || isLoading" :items-length="paymentsData.totalElements"
+      :items-per-page="10" show-expand @update:options="loadItems">
       <template v-slot:top>
-        <v-toolbar
-          v-motion
-          class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-          flat
-          :initial="{ opacity: 0, y: -10 }"
-          :enter="{ opacity: 1, y: 0 }"
-          :delay="200"
-          :duration="250"
-        >
-          <VTextField
-            v-model="debouncedSearch"
-            placeholder="Buscar cobros..."
-            variant="outlined"
-            density="comfortable"
-            hide-details
-            class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
-            bg-color="white"
-          >
+        <v-toolbar v-motion class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat
+          :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+          <VTextField v-model="debouncedSearch" placeholder="Buscar cobros..." variant="outlined" density="comfortable"
+            hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm" bg-color="white">
             <template #prepend-inner>
               <div class="tw:relative">
                 <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
@@ -242,13 +222,8 @@ function formatDate(dateStr: Date): string {
               </div>
             </template>
             <template v-if="debouncedSearch" #append>
-              <VBtn
-                icon
-                variant="text"
-                size="small"
-                class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
-                @click="debouncedSearch = ''"
-              >
+              <VBtn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                @click="debouncedSearch = ''">
                 <Icon icon="mdi:close" height="18" />
               </VBtn>
             </template>
@@ -266,14 +241,8 @@ function formatDate(dateStr: Date): string {
       </template>
       <template #item.programs="{ item }">
         <div class="d-flex flex-wrap gap-2">
-          <v-chip
-            v-for="program in item.products[0].programs"
-            :key="program.id"
-            size="small"
-            variant="outlined"
-            class="text-caption mr-2"
-            :color="getProgramColor(program.courseLevel)"
-          >
+          <v-chip v-for="program in item.products[0].programs" :key="program.id" size="small" variant="outlined"
+            class="text-caption mr-2" :color="getProgramColor(program.courseLevel)">
             {{ program.courseLevel }}
           </v-chip>
         </div>
@@ -287,7 +256,8 @@ function formatDate(dateStr: Date): string {
       </template>
       <template #item.status="{ item }">
         <div class="d-flex flex-wrap gap-2">
-          <v-chip size="small" :color="item.status === 'PENDING' ? 'warning' : item.status === 'COMPLETED' ? 'success' : 'error'">
+          <v-chip size="small"
+            :color="item.status === 'PENDING' ? 'warning' : item.status === 'COMPLETED' ? 'success' : 'error'">
             {{ item.status === 'PENDING' ? 'Pendiente' : item.status === 'COMPLETED' ? 'Completado' : 'Cancelado' }}
           </v-chip>
         </div>
@@ -309,40 +279,36 @@ function formatDate(dateStr: Date): string {
         </div>
       </template>
 
+      <template #item.hasSomePaymentWithError="{ item }">
+        <div v-if="item.hasSomePaymentWithError">
+          <v-icon class="ml-2" color="success">
+            <Icon icon="material-symbols:check-circle-outline" />
+          </v-icon>
+        </div>
+        <div v-else>
+          <v-tooltip location="top" :text="'No se han registrado errores en los cobros'">
+            <template #activator="{ props: activatorProps }">
+              <v-icon class="ml-2" color="error" v-bind="activatorProps">
+                <Icon icon="weui:close2-outlined" />
+              </v-icon>
+            </template>
+          </v-tooltip>
+        </div>
+      </template>
+
       <template #item.actions="{ item }">
         <div class="d-flex ga-2">
-          <v-btn
-            v-tooltip="'Ver lista de pagos'"
-            icon
-            color="info"
-            variant="text"
-            size="32"
+          <v-btn v-tooltip="'Ver lista de pagos'" icon color="info" variant="text" size="32"
             class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-            @click="onPaymentHistoryShow(item)"
-          >
+            @click="onPaymentHistoryShow(item)">
             <Icon icon="mdi:list-box-outline" />
           </v-btn>
-          <v-btn
-            v-tooltip="'Imprimir compromiso de cobro'"
-            icon
-            color="success"
-            variant="text"
-            size="32"
-            class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-            @click="handleDownloadPdf(item)"
-          >
+          <v-btn v-tooltip="'Imprimir compromiso de cobro'" icon color="success" variant="text" size="32"
+            class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100" @click="handleDownloadPdf(item)">
             <Icon icon="material-symbols:print-outline-rounded" />
           </v-btn>
-          <v-btn
-            v-if="item.status !== 'CANCELLED'"
-            v-tooltip="'Cerrar Cobro'"
-            color="error"
-            icon
-            variant="text"
-            size="32"
-            class="tw:bg-red-300 hover:!tw:bg-red-100"
-            @click="onChangeStatus(item)"
-          >
+          <v-btn v-if="item.status !== 'CANCELLED'" v-tooltip="'Cerrar Cobro'" color="error" icon variant="text"
+            size="32" class="tw:bg-red-300 hover:!tw:bg-red-100" @click="onChangeStatus(item)">
             <Icon icon="mdi-power" height="18" />
           </v-btn>
         </div>
@@ -397,7 +363,8 @@ function formatDate(dateStr: Date): string {
       </template>
     </v-data-table-server>
     <InvoiceDetail v-if="showDetails" :invoice="selectedInvoice" :showDialog="true" @cancel="showDetails = false" />
-    <EditInvoice v-if="showEdit" :invoice="selectedInvoice" :showDialog="showEdit" @cancel="showEdit = !showEdit" @save="updateInvoice" />
+    <EditInvoice v-if="showEdit" :invoice="selectedInvoice" :showDialog="showEdit" @cancel="showEdit = !showEdit"
+      @save="updateInvoice" />
     <PaymentHistoryList v-model="showPaymentHistory" :payment="selectPayment" @payment-updated="handlePaymentUpdated" />
   </UiParentCard>
 </template>
