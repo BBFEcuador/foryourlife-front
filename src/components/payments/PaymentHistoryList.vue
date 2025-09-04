@@ -34,7 +34,7 @@ const visible = computed({
 const form = ref({
   date: new Date(),
   amount: '',
-  paymentMethod: {} as PaymentMethod,
+  paymentMethod: { id: '', type: '' } as PaymentMethod,
   transactionId: '',
   pingType: 'D'
 });
@@ -104,6 +104,7 @@ const submitForm = async () => {
   savePaymentRecordMutations.mutate(paymentHistoryReq, {
     onSuccess: async () => {
       toast.success('Pago registrado exitosamente');
+      formRef.value.reset();
       await refetchPayment();
       emit('payment-updated', JSON.parse(JSON.stringify(payment.value)));
     },
@@ -144,7 +145,7 @@ const sendPaymentHistory = () => {
 </script>
 
 <template>
-  <v-dialog v-model="visible" max-width="800">
+  <v-dialog v-model="visible" max-width="800" persistent>
     <v-card>
       <v-toolbar color="primary" title="Historial de pagos">
         <v-spacer />
@@ -164,7 +165,7 @@ const sendPaymentHistory = () => {
                   item-value="id"
                   item-title="type"
                   :rules="[(v) => !!v || 'Campo requerido']"
-                  @update:modelValue="onPaymentMethodSelected"
+                  @update:model-value="onPaymentMethodSelected"
                 />
               </v-col>
               <v-col cols="12" md="6">
