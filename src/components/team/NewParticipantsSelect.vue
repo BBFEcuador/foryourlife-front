@@ -27,6 +27,8 @@ const headers = ref([
 ]);
 
 const searchQuery = ref('');
+const page = ref(1);
+const perPage = ref(10);
 
 const getAvailableRowClass = (item: Participant) => {
   if (props.origin === 'FOCUS') {
@@ -78,13 +80,14 @@ const getDisabledRow = (item: Participant) => {
       </v-text-field>
       <VDataTable
         :items="props.team.users"
-        hide-default-footer
         :headers="headers"
         v-model="sp"
         show-select
         return-object
         :search="searchQuery"
         :item-selectable="getDisabledRow"
+        :page="page"
+        :items-per-page="perPage"
       >
         <template #item="{ item, internalItem }">
           <v-data-table-row :item="internalItem" :class="getAvailableRowClass(item)">
