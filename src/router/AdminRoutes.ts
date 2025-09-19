@@ -162,6 +162,11 @@ const AdminRoutes: RouteRecordRaw[] = [
         name: 'cash-drawer-balances',
         path: 'pos/balances/:id',
         component: () => import('@/views/admin/pos/CashDrawersBalances.vue')
+      },
+      {
+        name: 'main-attendances',
+        path: 'asistencias',
+        component: () => import('@/views/admin/attendance/SelectAttendanceWithTraining.vue')
       }
     ]
   }
