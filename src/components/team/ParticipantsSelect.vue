@@ -10,6 +10,7 @@ import { onBeforeMount, ref, watch } from 'vue';
 
 interface props {
   team: Team;
+  origin: string;
 }
 
 const props = defineProps<props>();
@@ -48,23 +49,83 @@ const headers = ref([
 ]);
 
 const searchQuery = ref('');
+
+const getAvailableRowClass = (item: Participant) => {
+  if (props.origin === 'FOCUS') {
+    if (item.modules.hasYour) {
+      return '';
+    } else {
+      return 'tw:bg-red-200';
+    }
+  }
+  if (props.origin === 'YOUR') {
+    if (item.modules.hasLife) {
+      return '';
+    } else {
+      return 'tw:bg-red-200';
+    }
+  }
+  if (props.origin === 'LIFE') {
+    return '';
+  }
+};
+
+const getDisabledRow = (item: Participant) => {
+  if (props.origin === 'FOCUS') {
+    if (item.modules.hasYour) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  if (props.origin === 'YOUR') {
+    if (item.modules.hasLife) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  if (props.origin === 'LIFE') {
+    return true;
+  }
+};
 </script>
 
 <template>
   <v-card variant="flat">
     <v-progress-circular v-if="getByLvlMutation.isPending.value" indeterminate color="primary"></v-progress-circular>
-    <v-alert v-else-if="getByLvlMutation.isError.value" type="error" class="mb-4"> Error al cargar los participantes </v-alert>
+    <v-alert v-else-if="getByLvlMutation.isError.value" type="error" class="mb-4"> Error al cargar los participantes
+    </v-alert>
     <div v-else>
       <v-text-field v-model="searchQuery" label="Buscar por Nombre" outlined dense clearable>
         <template #prepend-inner>
           <Icon icon="mdi-magnify" />
         </template>
       </v-text-field>
-      <VDataTable :items="participants" hide-default-footer :headers="headers" show-select v-model="sp" return-object :search="searchQuery">
-        <template #item.isLingerer="{item}">
-            <VChip :color="item.isLingerer ? 'error' : 'success'">
-              {{ item.isLingerer ? 'Rezagado' : 'No rezagado' }}
-            </VChip>
+      <VDataTable 
+        :items="participants" 
+        :headers="headers" show-select v-model="sp" return-object :search="searchQuery"
+        :item-selectable="getDisabledRow" :page="page" :items-per-page="perPage">
+        <template #item.isLingerer="{ item }">
+          <VChip :color="item.isLingerer ? 'error' : 'success'">
+            {{ item.isLingerer ? 'Rezagado' : 'No rezagado' }}
+          </VChip>
+        </template>
+
+        <template #item.participantLevel.courseLevel="{ item }">
+          <div class="d-flex align-center">
+            {{ item.participantLevel.courseLevel }}
+            <div v-if="!getDisabledRow(item)" class="d-flex pb-2">
+              <v-tooltip interactive>
+                <template v-slot:activator="{ props: activatorProps }">
+                  <v-icon class="ml-2" color="error" v-bind="activatorProps">
+                    <Icon icon="mdi-information-outline" />
+                  </v-icon>
+                </template>
+                <span>El participante no cuenta con el siguiente nivel</span>
+              </v-tooltip>
+            </div>
+          </div>
         </template>
       </VDataTable>
     </div>
