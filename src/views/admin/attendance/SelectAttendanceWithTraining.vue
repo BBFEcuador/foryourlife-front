@@ -127,7 +127,7 @@ const closeAttendance = () => {
   SwAlert.fire({
     title: 'Cerrar Asistencia de todo el entrenamiento',
     icon: 'warning',
-    text: 'Las asistencias vacías se colocarán como inasistencia a los participantes, esto los ELIMINARA de su equipo',
+    text: 'Las asistencias vacías se colocarán como ASISTIO a los participantes, esto seguro de continuar',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
@@ -335,7 +335,15 @@ onMounted(async () => {
                 <v-data-table-row :item="internalItem" :class="getRowClass(item)">
                   <template #item.participant.name="{ item }">
                     <div class="d-flex align-center">
-                      <v-tooltip v-if="!item.isActive" location="top">
+                      <v-tooltip
+                        v-if="
+                          !item.isActive &&
+                          item.fridayAttendance !== AttendanceStatus.ASISTIO &&
+                          item.saturdayAttendance !== AttendanceStatus.ASISTIO &&
+                          item.sundayAttendance !== AttendanceStatus.ASISTIO
+                        "
+                        location="top"
+                      >
                         <template #activator="{ props: activatorProps }">
                           <v-icon class="mr-2" color="warning" size="small" v-bind="activatorProps">
                             <Icon icon="mdi-information-outline" />

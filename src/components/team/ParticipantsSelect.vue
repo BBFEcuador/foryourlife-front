@@ -98,8 +98,7 @@ const getDisabledRow = (item: Participant) => {
 <template>
   <v-card variant="flat">
     <v-progress-circular v-if="getByLvlMutation.isPending.value" indeterminate color="primary"></v-progress-circular>
-    <v-alert v-else-if="getByLvlMutation.isError.value" type="error" class="mb-4"> Error al cargar los participantes
-    </v-alert>
+    <v-alert v-else-if="getByLvlMutation.isError.value" type="error" class="mb-4"> Error al cargar los participantes </v-alert>
     <div v-else>
       <v-text-field v-model="searchQuery" label="Buscar por Nombre" outlined dense clearable>
         <template #prepend-inner>
@@ -114,28 +113,32 @@ const getDisabledRow = (item: Participant) => {
         return-object
         :search="searchQuery"
         :page="page"
+        :item-selectable="getDisabledRow"
         :items-per-page="perPage"
       >
-        <template #item.isLingerer="{ item }">
-          <VChip :color="item.isLingerer ? 'error' : 'success'">
-            {{ item.isLingerer ? 'Rezagado' : 'No rezagado' }}
-          </VChip>
-        </template>
-
-        <template #item.participantLevel.courseLevel="{ item }">
-          <div class="d-flex align-center">
-            {{ item.participantLevel.courseLevel }}
-            <div v-if="!getDisabledRow(item)" class="d-flex pb-2">
-              <v-tooltip interactive>
-                <template v-slot:activator="{ props: activatorProps }">
-                  <v-icon class="ml-2" color="error" v-bind="activatorProps">
-                    <Icon icon="mdi-information-outline" />
-                  </v-icon>
-                </template>
-                <span>El participante no cuenta con el siguiente nivel</span>
-              </v-tooltip>
-            </div>
-          </div>
+        <template #item="{ item, internalItem }">
+          <v-data-table-row :item="internalItem" :class="getAvailableRowClass(item)">
+            <template #item.isLingerer="{ item }">
+              <VChip :color="item.isLingerer ? 'error' : 'success'">
+                {{ item.isLingerer ? 'Rezagado' : 'No rezagado' }}
+              </VChip>
+            </template>
+            <template #item.participantLevel.courseLevel="{ item }">
+              <div class="d-flex align-middle">
+                {{ item.participantLevel.courseLevel }}
+                <div v-if="!getDisabledRow(item)" class="d-flex pb-2">
+                  <v-tooltip interactive>
+                    <template v-slot:activator="{ props: activatorProps }">
+                      <v-icon class="ml-2" color="error" v-bind="activatorProps">
+                        <Icon icon="mdi-information-outline"></Icon>
+                      </v-icon>
+                    </template>
+                    <span>El participante no cuenta con el siguiente nivel</span>
+                  </v-tooltip>
+                </div>
+              </div>
+            </template>
+          </v-data-table-row>
         </template>
       </VDataTable>
     </div>
