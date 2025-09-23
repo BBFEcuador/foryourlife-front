@@ -18,6 +18,10 @@ const sp = defineModel({
   default: [] as Participant[]
 });
 
+const page = ref(1);
+const perPage = ref(10);
+const search = ref('');
+
 const { getByLvlMutation } = useParticipantMutations();
 const participants = ref<Participant[]>([]);
 
@@ -45,7 +49,7 @@ const headers = ref([
   { title: 'Cédula', value: 'profile.dni', class: 'my-header-style' },
   { title: 'Telefono', value: 'phone' },
   { title: 'Nivel', value: 'participantLevel.courseLevel' },
-  { title: 'Rezagado', value: 'isLingerer' },
+  { title: 'Rezagado', value: 'isLingerer' }
 ]);
 
 const searchQuery = ref('');
@@ -102,10 +106,16 @@ const getDisabledRow = (item: Participant) => {
           <Icon icon="mdi-magnify" />
         </template>
       </v-text-field>
-      <VDataTable 
-        :items="participants" 
-        :headers="headers" show-select v-model="sp" return-object :search="searchQuery"
-        :item-selectable="getDisabledRow" :page="page" :items-per-page="perPage">
+      <VDataTable
+        :items="participants"
+        :headers="headers"
+        show-select
+        v-model="sp"
+        return-object
+        :search="searchQuery"
+        :page="page"
+        :items-per-page="perPage"
+      >
         <template #item.isLingerer="{ item }">
           <VChip :color="item.isLingerer ? 'error' : 'success'">
             {{ item.isLingerer ? 'Rezagado' : 'No rezagado' }}

@@ -263,13 +263,13 @@ function formatDate(dateStr: Date): string {
         </div>
       </template>
       <template #item.sentContifico="{ item }">
-        <div v-if="getInvoiceForPayment(item).sentContifico">
+        <div v-if="getInvoiceForPayment(item) && getInvoiceForPayment(item).sentContifico">
           <v-icon class="ml-2" color="success">
             <Icon icon="material-symbols:check-circle-outline" />
           </v-icon>
         </div>
         <div v-else>
-          <v-tooltip location="top" :text="getInvoiceForPayment(item).contificoError">
+          <v-tooltip v-if="getInvoiceForPayment(item)" location="top" :text="getInvoiceForPayment(item).contificoError">
             <template #activator="{ props: activatorProps }">
               <v-icon class="ml-2" color="error" v-bind="activatorProps">
                 <Icon icon="weui:close2-outlined" />

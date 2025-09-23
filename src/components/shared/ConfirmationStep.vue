@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
+import type { Participant } from '@/models/Participants';
+import type { StaffWriteModel } from '@/models/Staff';
 import type { TeamWriteModel } from '@/models/Team';
+import type { Visionary } from '@/models/Visionary';
 import { showErrorToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const tab = ref('participants');
@@ -54,6 +57,63 @@ watch(saveTeamMutations.isSuccess, () => {
   if (saveTeamMutations.isSuccess.value) {
     router.push({ name: 'teams-admin' });
   }
+});
+
+const batchSize = 10;
+
+const visibleParticipants = ref<Participant[]>([]);
+const visibleStaffs = ref<StaffWriteModel[]>([]);
+const visibleVisionaries = ref<Visionary[]>([]);
+
+const loading = reactive({
+  participants: false,
+  staff: false,
+  visionaries: false
+});
+
+const scrollRefs = {
+  participants: ref(null),
+  staff: ref(null),
+  visionaries: ref(null)
+};
+
+// Función genérica para cargar más elementos
+const loadMore = (tab: any) => {
+  if (loading[tab]) return;
+  loading[tab] = true;
+
+  setTimeout(() => {
+    let source, target;
+    if (tab === 'participants') {
+      source = props.team.users;
+      target = visibleParticipants;
+    } else if (tab === 'staff') {
+      source = props.team.staffs;
+      target = visibleStaffs;
+    } else if (tab === 'visionaries') {
+      source = props.team.visionaries;
+      target = visibleVisionaries;
+    }
+
+    const nextBatch = source.slice(target.value.length, target.value.length + batchSize);
+    target.value.push(...nextBatch);
+    loading[tab] = false;
+  }, 300); // Simula carga
+};
+
+// Evento de scroll
+const onScroll = (tab, event) => {
+  const container = event.target;
+  if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) {
+    loadMore(tab);
+  }
+};
+
+// Inicializa la primera tanda
+onMounted(() => {
+  loadMore('participants');
+  loadMore('staff');
+  loadMore('visionaries');
 });
 </script>
 
@@ -123,42 +183,58 @@ watch(saveTeamMutations.isSuccess, () => {
             <v-card-text class="pt-4">
               <v-window v-model="tab">
                 <v-window-item value="participants">
-                  <v-list lines="two">
-                    <v-list-item v-for="user in team.users" :key="user.id" :subtitle="user.participantLevel?.courseLevel">
-                      <template v-slot:prepend>
-                        <v-avatar color="info" variant="tonal">
-                          <span class="text-h6">{{ user.name.charAt(0) }}</span>
-                        </v-avatar>
-                      </template>
-                      <v-list-item-title>{{ user.name }}</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
+                  <div
+                    class="overflow-y-auto"
+                    style="max-height: 400px"
+                    @scroll="onScroll('participants', $event)"
+                    ref="participantsContainer"
+                  >
+                    <v-list lines="two">
+                      <v-list-item v-for="user in visibleParticipants" :key="user.id" :subtitle="user.participantLevel?.courseLevel">
+                        <template #prepend>
+                          <v-avatar color="info" variant="tonal">
+                            <span class="text-h6">{{ user.name.charAt(0) }}</span>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title>{{ user.name }}</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </div>
                 </v-window-item>
 
                 <v-window-item value="staff">
-                  <v-list lines="two">
-                    <v-list-item v-for="staff in team.staffs" :key="staff.user.id" :subtitle="staff.rol">
-                      <template v-slot:prepend>
-                        <v-avatar :color="levelColor" variant="tonal">
-                          <span class="text-h6">{{ staff.user.name.charAt(0) }}</span>
-                        </v-avatar>
-                      </template>
-                      <v-list-item-title>{{ staff.user.name }}</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
+                  <div class="overflow-y-auto" style="max-height: 400px" @scroll="onScroll('staff', $event)" ref="staffContainer">
+                    <v-list lines="two">
+                      <v-list-item v-for="staff in visibleStaffs" :key="staff.user.id" :subtitle="staff.rol">
+                        <template #prepend>
+                          <v-avatar color="green" variant="tonal">
+                            <span class="text-h6">{{ staff.user.name.charAt(0) }}</span>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title>{{ staff.user.name }}</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </div>
                 </v-window-item>
 
                 <v-window-item value="visionaries">
-                  <v-list lines="two">
-                    <v-list-item v-for="visionary in team.visionaries" :key="visionary.user.id" :subtitle="visionary.role">
-                      <template v-slot:prepend>
-                        <v-avatar color="deep-purple" variant="tonal">
-                          <span class="text-h6">{{ visionary.user.name.charAt(0) }}</span>
-                        </v-avatar>
-                      </template>
-                      <v-list-item-title>{{ visionary.user.name }}</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
+                  <div
+                    class="overflow-y-auto"
+                    style="max-height: 400px"
+                    @scroll="onScroll('visionaries', $event)"
+                    ref="visionariesContainer"
+                  >
+                    <v-list lines="two">
+                      <v-list-item v-for="visionary in visibleVisionaries" :key="visionary.user.id" :subtitle="visionary.role">
+                        <template #prepend>
+                          <v-avatar color="deep-purple" variant="tonal">
+                            <span class="text-h6">{{ visionary.user.name.charAt(0) }}</span>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title>{{ visionary.user.name }}</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </div>
                 </v-window-item>
               </v-window>
             </v-card-text>

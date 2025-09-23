@@ -69,6 +69,10 @@ const sidebarItem = [
         to: 'programs-admin'
       },
       {
+        title: 'Asistencias',
+        to: 'main-attendances'
+      },
+      {
         title: 'Equipos',
         to: 'teams-admin'
       },
