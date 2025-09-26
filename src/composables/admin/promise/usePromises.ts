@@ -1,28 +1,30 @@
-import { api } from "@/api/axios";
-import type { PageableApiResponse } from "@/models/ApiResponse";
-import { Promises } from '../../../models/Promises';
-import TrainingList from '@/components/trainings/TrainingList.vue';
-import { useQuery } from "@tanstack/vue-query";
+import { api } from '@/api/axios';
+import type { Promises } from '../../../models/Promises';
+import { useQuery } from '@tanstack/vue-query';
+import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 
-const usePromises = (trainingIdRef: any) => {
-    const fetchPromises = async (trainingId: String) : Promise<Promises[]> => {
-        const {data} = await api.get('/promise/'+ trainingId);
-        return data;
-    };
+const fetchPromises = async (trainingId: String): Promise<Promises[]> => {
+  const { data } = await api.get('/promises/training/' + trainingId);
+  return data;
+};
 
-    const { data, isFetching, isError, refetch } = useQuery({
-        queryKey: ['promises', TrainingList.props.trainingId],
-        queryFn: () => fetchPromises(TrainingList.props.trainingId),
-        enabled: !!TrainingList.props.trainingId,
-        initialData: [] as Promises[],
-    });
+const usePromises = (id: MaybeRefOrGetter<string | undefined | null>) => {
+  const trainingId = computed(() => toValue(id));
 
-    return {
-        promisesData: data,
-        isPromisesError: isError,
-        isPromisesLoading: isFetching,
-        refetchPromises: refetch,
-    };
+  const { data, isFetching, isError, refetch } = useQuery({
+    queryKey: ['promises', trainingId],
+    queryFn: () => fetchPromises(trainingId.value!),
+    gcTime: 0,
+    initialData: [],
+    enabled: computed(() => !!trainingId.value)
+  });
+
+  return {
+    promises: data,
+    isPromisesError: isError,
+    isPromisesLoading: isFetching,
+    refetchPromises: refetch
+  };
 };
 
 export default usePromises;

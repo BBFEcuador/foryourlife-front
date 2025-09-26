@@ -1,16 +1,17 @@
-import type { T } from 'node_modules/@fullcalendar/core/internal-common';
-import { Participant } from './Participants';
-import type { TrainingData } from './Training';
+import type { Participant } from './Participants';
 export interface Promises {
-    id: string;
-    firstPromise: string;
-    secondPromise: string;
-    thirdPromise: string;
-    achievedCount: number;
-    paidCount: number;
-    startDate: Date;
-    endDate: Date;
-    isActive: boolean;
-    participant: Participant;
-    training: TrainingData;
+  id: string;
+  firstPromise: number;
+  secondPromise: number;
+  thirdPromise: number;
+  achievedCount: number | null;
+  paidCount: number | null;
+  startDate: Date;
+  endDate: Date;
+  participant: Participant;
+}
+
+export interface PromiseRequest {
+  id: string;
+  promise: number;
 }

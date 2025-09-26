@@ -69,7 +69,7 @@ const sidebarItem = [
         to: 'programs-admin'
       },
       {
-        title: 'Asistencias',
+        title: 'Asistencias / Promesas',
         to: 'main-attendances'
       },
       {

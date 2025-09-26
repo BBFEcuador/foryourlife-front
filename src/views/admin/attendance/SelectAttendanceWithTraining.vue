@@ -11,6 +11,7 @@ import type { AxiosError } from 'axios';
 import { ref, onMounted, nextTick, computed, watch, reactive } from 'vue';
 import { toast } from 'vue3-toastify';
 import SwAlert from 'sweetalert2';
+import PromiseList from '@/components/promise/PromiseList.vue';
 
 const ATTENDANCE_OPTIONS = [
   { title: 'Asistió', value: AttendanceStatus.ASISTIO },
@@ -19,11 +20,11 @@ const ATTENDANCE_OPTIONS = [
 ] as const;
 
 const TABLE_HEADERS = [
-  { title: 'Participante', value: 'participant.name', width: '25%' },
-  { title: 'Viernes', value: 'fridayAttendance', width: '25%' },
-  { title: 'Sábado', value: 'saturdayAttendance', width: '25%' },
-  { title: 'Domingo', value: 'sundayAttendance', width: '25%' }
-] as const;
+  { title: 'Participante', value: 'participant.name', width: '40%' },
+  { title: 'Viernes', value: 'fridayAttendance' },
+  { title: 'Sábado', value: 'saturdayAttendance' },
+  { title: 'Domingo', value: 'sundayAttendance' }
+];
 
 const breadcrumbs = ref([
   {
@@ -36,6 +37,7 @@ const breadcrumbs = ref([
 // eslint-disable-next-line no-undef
 const scrollContainer = ref<HTMLElement | null>(null);
 const selectedTraining = ref<TrainingData | null>(null);
+const switchPromises = ref(false);
 
 const { trainings, isTrainingError, isTrainingsLoading, debouncedSearch, loadMoreTrainings, hasMoreTrainings, isLoadingMore, retry } =
   useTrainings();
@@ -216,6 +218,10 @@ const getRowClass = (item: Attendance) => ({
   'disabled-row': !item.isActive
 });
 
+const switchViews = () => {
+  switchPromises.value = !switchPromises.value;
+};
+
 onMounted(async () => {
   await nextTick();
   if (scrollContainer.value) {
@@ -283,12 +289,16 @@ onMounted(async () => {
               </div>
 
               <div v-else-if="!isTrainingsLoading" class="text-center pa-4">
-                <v-icon size="48" color="grey-lighten-1">mdi-magnify</v-icon>
+                <v-icon size="48" color="grey-lighten-1">
+                  <Icon icon="mdi-magnify" />
+                </v-icon>
                 <p class="text-body-2 mt-2">No se encontraron entrenamientos</p>
               </div>
 
               <div v-if="isTrainingError" class="text-center pa-4">
-                <v-icon size="48" color="error">mdi-alert-circle</v-icon>
+                <v-icon size="48" color="error">
+                  <Icon icon="mdi-alert-circle" />
+                </v-icon>
                 <p class="text-body-2 mt-2 text-error">Error al cargar entrenamientos</p>
                 <v-btn size="small" color="error" variant="outlined" class="mt-2" @click="retry"> Reintentar </v-btn>
               </div>
@@ -311,25 +321,40 @@ onMounted(async () => {
         </v-alert>
 
         <v-card v-else class="d-flex flex-column tw:items-center h-100" elevation="0">
-          <v-card-title class="d-flex align-center tw:w-full">
+          <v-card-title class="d-flex align-center tw:w-full tw:flex-wrap">
+            <div class="d-flex tw:flex-col">
+              <div>{{ switchPromises ? 'Declaraciones' : 'Asistencias' }}</div>
+              <div class="d-flex tw:items-center tw:justify-center">
+                <Icon icon="mdi-account-group" class="mr-2" />
+                <div>{{ selectedTraining.name }} {{ selectedTraining.courseLevel }}</div>
+              </div>
+            </div>
             <v-spacer></v-spacer>
-            <Icon icon="mdi-account-group" class="mr-2" />
-            <div>{{ selectedTraining.name }} {{ selectedTraining.courseLevel }}</div>
-            <v-spacer></v-spacer>
-            <v-btn v-if="disableCloseAttendance" variant="flat" color="warning" @click="closeAttendance">
+            <v-btn v-if="disableCloseAttendance && !switchPromises" variant="flat" class="mr-2" color="warning" @click="closeAttendance">
               <Icon icon="mdi-close" />
               <span class="d-none d-sm-inline ml-2">Cerrar Asistencia</span>
             </v-btn>
+            <VBtn
+              v-if="selectedTraining.courseLevel !== 'FOCUS' && selectedTraining.courseLevel !== 'YOUR'"
+              variant="flat"
+              :color="switchPromises ? 'success' : 'info'"
+              @click="switchViews"
+            >
+              <Icon :icon="switchPromises ? 'material-symbols:event-available' : 'streamline-flex:link-chain-solid'" />
+              <span class="d-none d-sm-inline ml-2">{{ !switchPromises ? 'Declaraciones' : 'Asistencias' }}</span>
+            </VBtn>
           </v-card-title>
 
-          <v-card-item>
+          <v-card-item class="tw:w-full">
+            <PromiseList v-if="switchPromises" :trainingId="selectedTraining.id" />
+
             <v-data-table
+              v-else
               :items="attendances"
               :loading="isAttendancesLoading"
               :headers="TABLE_HEADERS"
               hide-default-footer
               density="comfortable"
-              class="attendance-table"
             >
               <template #item="{ internalItem, item }">
                 <v-data-table-row :item="internalItem" :class="getRowClass(item)">
@@ -398,7 +423,9 @@ onMounted(async () => {
 
               <template #no-data>
                 <div class="text-center pa-4">
-                  <v-icon size="48" color="grey-lighten-1">mdi-warning</v-icon>
+                  <v-icon size="48" color="grey-lighten-1">
+                    <Icon icon="mdi-alert-outline" />
+                  </v-icon>
                   <p class="text-body-2 mt-2">No hay participantes registrados</p>
                 </div>
               </template>
@@ -440,14 +467,6 @@ onMounted(async () => {
 
 .disabled-row .v-select {
   opacity: 0.7;
-}
-
-.attendance-table .v-data-table__td {
-  padding: 8px 12px !important;
-}
-
-.attendance-table .v-select {
-  min-width: 140px;
 }
 
 .v-list-item--active {
