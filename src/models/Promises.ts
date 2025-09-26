@@ -14,4 +14,5 @@ export interface Promises {
 export interface PromiseRequest {
   id: string;
   promise: number;
+  day:string;
 }

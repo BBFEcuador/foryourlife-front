@@ -2,6 +2,7 @@
 import usePromises from '@/composables/admin/promise/usePromises';
 import usePromisesMutations from '@/composables/admin/promise/usePromisesMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
+import { DaysEnum } from '@/models/Attendance';
 import type { PromiseRequest, Promises } from '@/models/Promises';
 import type { AxiosError } from 'axios';
 import { computed, reactive, watch } from 'vue';
@@ -60,17 +61,18 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
         ? promiseModels[promiseId].first || 0
         : day === 'second'
           ? promiseModels[promiseId].second || 0
-          : promiseModels[promiseId].third || 0
+          : promiseModels[promiseId].third || 0,
+    day: day === 'first' ? DaysEnum.FRIDAY : day === 'second' ? DaysEnum.SATURDAY : DaysEnum.SUNDAY
   };
 
   useSavePromiseMutation.mutate(req, {
     onSuccess: async () => {
       refetchPromises();
-      toast.success('Asistencia actualizada correctamente');
+      toast.success('Declaración actualizada correctamente');
     },
     onError: (error) => {
       const err = error as AxiosError<ErrorApiResponse>;
-      toast.error(err.response?.data?.message || 'Error al actualizar la asistencia');
+      toast.error(err.response?.data?.message || 'Error al actualizar la declaracion');
 
       if (promiseModels[promiseId]) {
         const promise = promises.value?.find((a) => a.id === promiseId);
@@ -125,7 +127,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             variant="outlined"
             hide-spin-buttons
             :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
-            @update:model-value="handlePromiseChange(item.id, 'first')"
+            @update:model-value="handlePromiseChange(item.id, 'second')"
           />
         </template>
 
@@ -137,7 +139,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             variant="outlined"
             hide-spin-buttons
             :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
-            @update:model-value="handlePromiseChange(item.id, 'first')"
+            @update:model-value="handlePromiseChange(item.id, 'third')"
           />
         </template>
       </v-data-table-row>
