@@ -19,7 +19,7 @@ const breadcrumbs = ref([
   {
     title: 'Equipos',
     disabled: false,
-    href: '#'
+    href: '/admin/teams'
   }
 ]);
 

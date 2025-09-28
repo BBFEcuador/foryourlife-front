@@ -12,7 +12,7 @@ const adapter = useDate()
 
 const breadcrumbs = ref([
     {
-        title: 'Administrativo',
+        title: 'Entrenamientos',
         disabled: false,
         href: '#'
     }

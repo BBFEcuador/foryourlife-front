@@ -19,7 +19,7 @@ const { saveStaffMutations, changeStatusMutations } = useStaffMutations();
 const showForm = ref(false);
 const breadcrumbs = ref([
   {
-    title: 'Entrenamiento',
+    title: 'Staff',
     disabled: false,
     href: '#'
   }

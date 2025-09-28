@@ -37,7 +37,7 @@ const headers = [
 ];
 const breadcrumbs = ref([
   {
-    title: 'Entrenamiento',
+    title: 'Master life',
     disabled: false,
     href: '#'
   }

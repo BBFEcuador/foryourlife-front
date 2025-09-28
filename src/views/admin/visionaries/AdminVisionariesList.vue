@@ -19,7 +19,7 @@ const { saveVisionaryMutations, changeStatusMutations } = useVisionarymutations(
 const showForm = ref(false);
 const breadcrumbs = ref([
   {
-    title: 'Entrenamiento',
+    title: 'Visionarios',
     disabled: false,
     href: '#'
   }

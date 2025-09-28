@@ -18,7 +18,7 @@ const { isError, isFetching, trainers, page, perPage, search, refetch } = useTra
 const { saveTrainerMutations, disableTrainerMutation } = useTrainerMutations();
 const breadcrumbs = ref([
   {
-    title: 'Entrenamiento',
+    title: 'Entrenadores',
     disabled: false,
     href: '#'
   }

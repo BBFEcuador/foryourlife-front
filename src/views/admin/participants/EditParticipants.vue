@@ -13,9 +13,9 @@ const route = useRoute();
 
 const breadcrumbs = ref([
   {
-    title: 'Entrenamiento',
+    title: 'Participantes',
     disabled: false,
-    href: '/admin'
+    href: '/admin/participants'
   }
 ]);
 const { isParticipantError, isParticipantLoading, participant } = useParticipant(route.params.id.toString());
