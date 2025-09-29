@@ -3,11 +3,15 @@ import { ref, defineProps, defineEmits, watch } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric } from '@vuelidate/validators';
+import { userStore } from '@/stores/useStore';
+import { adminStore } from '@/stores/adminStore';
 
 interface FormData {
   openingBalance: string;
   details: string;
 }
+
+const storeAdmin = adminStore();
 
 const props = withDefaults(
   defineProps<{

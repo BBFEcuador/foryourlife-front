@@ -149,7 +149,8 @@ onMounted(() => {
                 <Icon icon="mdi-calendar" class="mr-2" color="primary" />
                 <div>
                   <div class="font-weight-medium">{{ team.trainingObj?.name }}</div>
-                  <div class="text-caption text-medium-emphasis">{{ team.trainingObj?.startDate }} - {{ team.trainingObj?.endDate }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ team.trainingObj?.startDate }} - {{
+                    team.trainingObj?.endDate }}</div>
                 </div>
               </div>
 
@@ -183,14 +184,11 @@ onMounted(() => {
             <v-card-text class="pt-4">
               <v-window v-model="tab">
                 <v-window-item value="participants">
-                  <div
-                    class="overflow-y-auto"
-                    style="max-height: 400px"
-                    @scroll="onScroll('participants', $event)"
-                    ref="participantsContainer"
-                  >
+                  <div class="overflow-y-auto" style="max-height: 400px" @scroll="onScroll('participants', $event)"
+                    ref="participantsContainer">
                     <v-list lines="two">
-                      <v-list-item v-for="user in visibleParticipants" :key="user.id" :subtitle="user.participantLevel?.courseLevel">
+                      <v-list-item v-for="user in visibleParticipants" :key="user.id"
+                        :subtitle="user.participantLevel?.courseLevel">
                         <template #prepend>
                           <v-avatar color="info" variant="tonal">
                             <span class="text-h6">{{ user.name.charAt(0) }}</span>
@@ -203,7 +201,8 @@ onMounted(() => {
                 </v-window-item>
 
                 <v-window-item value="staff">
-                  <div class="overflow-y-auto" style="max-height: 400px" @scroll="onScroll('staff', $event)" ref="staffContainer">
+                  <div class="overflow-y-auto" style="max-height: 400px" @scroll="onScroll('staff', $event)"
+                    ref="staffContainer">
                     <v-list lines="two">
                       <v-list-item v-for="staff in visibleStaffs" :key="staff.user.id" :subtitle="staff.rol">
                         <template #prepend>
@@ -218,14 +217,11 @@ onMounted(() => {
                 </v-window-item>
 
                 <v-window-item value="visionaries">
-                  <div
-                    class="overflow-y-auto"
-                    style="max-height: 400px"
-                    @scroll="onScroll('visionaries', $event)"
-                    ref="visionariesContainer"
-                  >
+                  <div class="overflow-y-auto" style="max-height: 400px" @scroll="onScroll('visionaries', $event)"
+                    ref="visionariesContainer">
                     <v-list lines="two">
-                      <v-list-item v-for="visionary in visibleVisionaries" :key="visionary.user.id" :subtitle="visionary.role">
+                      <v-list-item v-for="visionary in visibleVisionaries" :key="visionary.user.id"
+                        :subtitle="visionary.role">
                         <template #prepend>
                           <v-avatar color="deep-purple" variant="tonal">
                             <span class="text-h6">{{ visionary.user.name.charAt(0) }}</span>

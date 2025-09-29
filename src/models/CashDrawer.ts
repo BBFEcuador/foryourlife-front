@@ -5,8 +5,8 @@ export interface CashBox {
   id: string;
   number: string;
   isActive: boolean;
-  createdBy: User;
-  created_at: string;
+  createdBy: string;
+  createdDate: string;
   firstNumberInvoice: number;
   store: Store;
 }

@@ -155,11 +155,11 @@ const handleForgetPin = () => {
             <div class="tw:grid tw:grid-cols-3 tw:gap-x-10 tw:gap-y-4">
               <div>
                 <span class="tw:font-medium">Creada por:</span>
-                <span class="tw:block">{{ createdBy.name ?? '-' }}</span>
+                <span class="tw:block">{{ createdBy ?? '-' }}</span>
               </div>
               <div>
                 <span class="tw:font-medium">Fecha creación:</span>
-                <span class="tw:block">{{ formatDate(cashBox.created_at) }}</span>
+                <span class="tw:block">{{ formatDate(cashBox.createdDate) }}</span>
               </div>
               <div>
                 <span class="tw:font-medium">Abierta por:</span>

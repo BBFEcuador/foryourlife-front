@@ -71,7 +71,6 @@ const handleOpenCashDrawer = async (cashBox: CashBox) => {
 const openCashDrawer = async (cashDrawerData: { openingBalance: number; details: string }) => {
   const cashDrawer = {
     cashBoxId: auxCashBox.value.id,
-    userId: auxCashBox.value.createdBy.id,
     openingBalance: cashDrawerData.openingBalance,
     detail: cashDrawerData.details
   };
@@ -193,8 +192,8 @@ const handleCloseCashDrawer = async () => {
               {{ cashBox.isActive ? 'Activa' : 'Inactiva' }}
             </v-chip>
 
-            <div>Creada por: {{ cashBox.createdBy.name }}</div>
-            <div>Fecha de creación: {{ formatDate(cashBox.created_at) }}</div>
+            <div>Creada por: {{ cashBox.createdBy }}</div>
+            <div>Fecha de creación: {{ formatDate(cashBox.createdDate) }}</div>
           </v-card-item>
 
           <v-card-actions class="pa-3 d-flex flex-wrap gap-2">
