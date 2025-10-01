@@ -43,7 +43,7 @@ const onToggleUserStatus = (user: Admin) => {
 
   Swal.fire({
     title: `¿Estás seguro de ${action} este Usuario?`,
-    text: `Estás a punto de ${action} el Usuario ${user.name}. ¿Deseas continuar?`,
+    text: `Estás a punto de ${action} el Usuario ${user.name1}. ¿Deseas continuar?`,
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: confirmColor,
@@ -157,7 +157,7 @@ watch(changeRoleMutation.isError, () => {
                 </div>
                 <div>
                   <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{
-                    item.name }}</span>
+                    item.name1 }}</span>
                 </div>
               </div>
             </template>
@@ -225,7 +225,7 @@ watch(changeRoleMutation.isError, () => {
   <VDialog v-model="showForm" max-width="500" v-if="selectedUser">
     <VCard>
       <VCardTitle>
-        <h3>Modificar Administrador: {{ selectedUser.name }}</h3>
+        <h3>Modificar Administrador: {{ selectedUser.name1 }}</h3>
       </VCardTitle>
 
       <VCardText>

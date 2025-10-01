@@ -27,7 +27,10 @@ const breadcrumbs = ref([
 ]);
 
 const rules = {
-  name: { required },
+  name1: { required },
+  name2: { required },
+  lastName1: { required },
+  lastName2: { required },
   phone: { required },
   email: { required, email },
   campus: { required },
@@ -64,86 +67,61 @@ watch(saveAdminMutation.isSuccess, () => {
   <v-row class="px-4">
     <v-col cols="12" md="6">
       <UiParentCard title="Información base" class="rounded-lg elevation-2">
+        <div class="mb-4 tw:grid tw:grid-cols-2 tw:gap-4">
           <InputSection label="Nombre" class="mb-4">
-            <VTextField
-              placeholder="Nombre del usuario"
-              v-model="admin.name"
-              :error-messages="validator.name.$errors.map((x) => x.$message.toString())"
-              variant="outlined"
-              bg-color="surface"
-              class="rounded-lg"
-            />
+            <VTextField placeholder="Nombre del usuario" v-model="admin.name1"
+              :error-messages="validator.name1.$errors.map((x) => x.$message.toString())" variant="outlined"
+              bg-color="surface" class="rounded-lg" />
           </InputSection>
-          <InputSection label="Correo electronico" class="mb-4">
-            <VTextField
-              placeholder="E-mail"
-              v-model="admin.email"
-              :error-messages="validator.email.$errors.map((x) => x.$message.toString())"
-              variant="outlined"
-              bg-color="surface"
-              class="rounded-lg"
-            />
+
+          <InputSection label="Segundo Nombre" class="mb-4">
+            <VTextField placeholder="Segundo Nombre del usuario" v-model="admin.name2"
+              :error-messages="validator.name2.$errors.map((x) => x.$message.toString())" variant="outlined"
+              bg-color="surface" class="rounded-lg" />
           </InputSection>
-          <InputSection label="Telf" class="mb-4">
-            <VTextField
-              placeholder="Telefono"
-              v-model="admin.phone"
-              :error-messages="validator.phone.$errors.map((x) => x.$message.toString())"
-              variant="outlined"
-              bg-color="surface"
-              class="rounded-lg"
-            />
+          <InputSection label="Primer Apellido" class="mb-4">
+            <VTextField placeholder="Apellido del usuario" v-model="admin.lastName1"
+              :error-messages="validator.lastName1.$errors.map((x) => x.$message.toString())" variant="outlined"
+              bg-color="surface" class="rounded-lg" />
           </InputSection>
+          <InputSection label="Segundo Apellido" class="mb-4">
+            <VTextField placeholder="Segundo Apellido del usuario" v-model="admin.lastName2"
+              :error-messages="validator.lastName2.$errors.map((x) => x.$message.toString())" variant="outlined"
+              bg-color="surface" class="rounded-lg" />
+          </InputSection>
+        </div>
+        <InputSection label="Correo electronico" class="mb-4">
+          <VTextField placeholder="E-mail" v-model="admin.email"
+            :error-messages="validator.email.$errors.map((x) => x.$message.toString())" variant="outlined"
+            bg-color="surface" class="rounded-lg" />
+        </InputSection>
+        <InputSection label="Telf" class="mb-4">
+          <VTextField placeholder="Telefono" v-model="admin.phone"
+            :error-messages="validator.phone.$errors.map((x) => x.$message.toString())" variant="outlined"
+            bg-color="surface" class="rounded-lg" />
+        </InputSection>
       </UiParentCard>
     </v-col>
     <v-col cols="12" md="6">
       <UiParentCard title="Seguridad" class="rounded-lg elevation-2">
-          <InputSection label="Sedes" class="mb-4">
-            <VSelect
-              placeholder="Seleccione las sedes del usuario"
-              :items="campus"
-              return-object
-              :loading="isFetching"
-              item-title="city"
-              multiple
-              chips
-              clearable
-              v-model="admin.campus"
-              :error-messages="validator.campus.$errors.map((x) => x.$message.toString())"
-              variant="outlined"
-              bg-color="surface"
-              class="rounded-lg"
-            />
-          </InputSection>
+        <InputSection label="Sedes" class="mb-4">
+          <VSelect placeholder="Seleccione las sedes del usuario" :items="campus" return-object :loading="isFetching"
+            item-title="city" multiple chips clearable v-model="admin.campus"
+            :error-messages="validator.campus.$errors.map((x) => x.$message.toString())" variant="outlined"
+            bg-color="surface" class="rounded-lg" />
+        </InputSection>
 
-          <InputSection label="Rol" class="mb-4">
-            <VSelect
-              placeholder="Seleccione las sedes del usuario"
-              :items="roles"
-              return-object
-              :loading="isRolesLoading"
-              item-title="name"
-              chips
-              clearable
-              :error-messages="validator.role.$errors.map((x) => x.$message.toString())"
-              v-model="admin.role"
-              variant="outlined"
-              bg-color="surface"
-              class="rounded-lg"
-            />
-          </InputSection>
+        <InputSection label="Rol" class="mb-4">
+          <VSelect placeholder="Seleccione las sedes del usuario" :items="roles" return-object :loading="isRolesLoading"
+            item-title="name" chips clearable :error-messages="validator.role.$errors.map((x) => x.$message.toString())"
+            v-model="admin.role" variant="outlined" bg-color="surface" class="rounded-lg" />
+        </InputSection>
       </UiParentCard>
     </v-col>
     <VCol cols="12">
       <div class="d-flex justify-end px-4">
-        <VBtn 
-          @click="onUserSubmit" 
-          color="primary" 
-          variant="elevated" 
-          :loading="saveAdminMutation.isPending.value"
-          size="large"
-          class="rounded-lg px-6"
-        >
+        <VBtn @click="onUserSubmit" color="primary" variant="elevated" :loading="saveAdminMutation.isPending.value"
+          size="large" class="rounded-lg px-6">
           <Icon icon="mdi:account-plus" class="mr-2" />
           Crear usuario
         </VBtn>
@@ -156,13 +134,18 @@ watch(saveAdminMutation.isSuccess, () => {
 .v-card {
   transition: transform 0.2s ease-in-out;
 }
+
 .v-card:hover {
   transform: translateY(-2px);
 }
-.v-text-field, .v-select {
+
+.v-text-field,
+.v-select {
   transition: all 0.2s ease;
 }
-.v-text-field:hover, .v-select:hover {
+
+.v-text-field:hover,
+.v-select:hover {
   transform: scale(1.01);
 }
 </style>
