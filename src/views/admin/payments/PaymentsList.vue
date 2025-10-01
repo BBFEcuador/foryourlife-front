@@ -60,7 +60,6 @@ const headers = [
   { title: 'Programas', value: 'programs', sortable: true },
   { title: 'Precio', value: 'total', sortable: true },
   { title: 'Saldo Restante', value: 'remainingBalance' },
-  { title: 'Enviado a contifico', value: 'sentContifico', sortable: true },
   { title: 'Error en cobro', value: 'hasSomePaymentWithError', sortable: true },
   { title: 'Estado', value: 'status', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
@@ -154,6 +153,10 @@ function getInvoiceForPayment(payment: Payment): Invoice {
   return invoicesData.value.content.find((inv: Invoice) => inv.payment.id === payment.id)!!;
 }
 
+function getInvoicesForPayments(payment: Payment): Invoice[] {
+  return invoicesData.value.content.filter((inv: Invoice) => inv.payment.id === payment.id);
+}
+
 const handleShowDetails = (item: Invoice) => {
   selectedInvoice.value = item;
   showDetails.value = true;
@@ -205,6 +208,7 @@ function formatDate(dateStr: Date): string {
 </script>
 
 <template>
+  {{ invoicesData.first }}
   <BaseBreadcrumb :title="'Cobros'" :breadcrumbs="breadcrumbs" />
   <UiParentCard title="Lista de Cobros">
     <v-data-table-server :headers="headers" :search="debouncedSearch" :items="paymentsData.content"
@@ -262,23 +266,6 @@ function formatDate(dateStr: Date): string {
           </v-chip>
         </div>
       </template>
-      <template #item.sentContifico="{ item }">
-        <div v-if="getInvoiceForPayment(item) && getInvoiceForPayment(item).sentContifico">
-          <v-icon class="ml-2" color="success">
-            <Icon icon="material-symbols:check-circle-outline" />
-          </v-icon>
-        </div>
-        <div v-else>
-          <v-tooltip v-if="getInvoiceForPayment(item)" location="top" :text="getInvoiceForPayment(item).contificoError">
-            <template #activator="{ props: activatorProps }">
-              <v-icon class="ml-2" color="error" v-bind="activatorProps">
-                <Icon icon="weui:close2-outlined" />
-              </v-icon>
-            </template>
-          </v-tooltip>
-        </div>
-      </template>
-
       <template #item.hasSomePaymentWithError="{ item }">
         <div v-if="item.hasSomePaymentWithError">
           <v-icon class="ml-2" color="success">
@@ -312,54 +299,6 @@ function formatDate(dateStr: Date): string {
             <Icon icon="mdi-power" height="18" />
           </v-btn>
         </div>
-      </template>
-      <template #expanded-row="{ item }">
-        <td :colspan="headers.length">
-          <div class="pa-4">
-            <v-row>
-              <v-col cols="4">
-                <div class="tw:font-bold">Número de Factura</div>
-                <div>{{ getInvoiceForPayment(item).invoiceNumber }}</div>
-              </v-col>
-              <v-col cols="4">
-                <div class="tw:font-bold">Nombre</div>
-                <div>{{ getInvoiceForPayment(item).fullName }}</div>
-              </v-col>
-              <v-col cols="4">
-                <div class="tw:font-bold">Identificación</div>
-                <div>{{ getInvoiceForPayment(item).document }}</div>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col cols="4">
-                <div class="tw:font-bold">Fecha</div>
-                <div>{{ formatDate(getInvoiceForPayment(item).invoiceDate) }}</div>
-              </v-col>
-              <v-col cols="4">
-                <div class="tw:font-bold">Total</div>
-                <div>{{ getInvoiceForPayment(item).amount }}</div>
-              </v-col>
-              <v-col cols="4" class="d-flex">
-                <div>
-                  <div class="tw:font-bold">Acciones</div>
-                  <div class="d-flex tw:gap-x-2">
-                    <v-btn color="info" variant="tonal" @click="handleShowDetails(getInvoiceForPayment(item))">
-                      <Icon icon="mdi:eye" class="mr-2" />
-                      Ver Factura
-                    </v-btn>
-                    <div v-if="!getInvoiceForPayment(item).sentContifico && item.status !== 'CANCELLED'">
-                      <v-btn color="success" variant="tonal" @click="handleShowEdit(getInvoiceForPayment(item))">
-                        <Icon icon="tabler:pencil" class="mr-2" />
-                        Editar Factura
-                      </v-btn>
-                    </div>
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-          </div>
-        </td>
       </template>
     </v-data-table-server>
     <InvoiceDetail v-if="showDetails" :invoice="selectedInvoice" :showDialog="true" @cancel="showDetails = false" />
