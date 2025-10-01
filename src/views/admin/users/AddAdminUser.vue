@@ -31,6 +31,7 @@ const rules = {
   name2: { required },
   lastName1: { required },
   lastName2: { required },
+  password: { required },
   phone: { required },
   email: { required, email },
   campus: { required },
@@ -115,6 +116,11 @@ watch(saveAdminMutation.isSuccess, () => {
           <VSelect placeholder="Seleccione las sedes del usuario" :items="roles" return-object :loading="isRolesLoading"
             item-title="name" chips clearable :error-messages="validator.role.$errors.map((x) => x.$message.toString())"
             v-model="admin.role" variant="outlined" bg-color="surface" class="rounded-lg" />
+        </InputSection>
+        <InputSection label="Contraseña" class="mb-4">
+          <VTextField placeholder="Contraseña del usuario" v-model="admin.password"
+              :error-messages="validator.password.$errors.map((x) => x.$message.toString())" variant="outlined"
+              bg-color="surface" class="rounded-lg" />
         </InputSection>
       </UiParentCard>
     </v-col>
