@@ -56,7 +56,7 @@ watch(saveAdminMutation.isError, () => {
 watch(saveAdminMutation.isSuccess, () => {
   if (saveAdminMutation.isSuccess.value) {
     admin.value = {} as Admin;
-    showSuccessToast('Ingreso exitoso', 'Se enviara un email con la contraseña temporal');
+    showSuccessToast('Ingreso exitoso', 'Se a creado el usuario correctamente');
     validator.value.$reset();
     router.push({ name: 'users-admin' });
   }
