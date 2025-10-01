@@ -24,7 +24,7 @@ const { account, accountHasError, idlAccount, isAccountLoading } = useAccount();
         <v-card-title class="tw:rounded-t-lg bg-primary mb-3 tw:w-full"> Información actual </v-card-title>
         <v-card-subtitle class="mt-4 tw:w-full"> Perfil de Administrador </v-card-subtitle>
         <v-card-item class="tw:grid tw:place-content-center">
-          <h3 class="tw:font-semibold text-h3">{{ idlAccount.name }}</h3>
+          <h3 class="tw:font-semibold text-h3">{{ idlAccount.name1 }}</h3>
           <h4 class="text-lightText text-h4">{{ idlAccount.email }}</h4>
         </v-card-item>
       </v-card>

@@ -2,7 +2,10 @@ import type { Campus } from './Campus';
 
 export interface Admin {
   id: string;
-  name: string;
+  name1: string;
+  name2: string;
+  lastName1: string;
+  lastName2: string;
   email: string;
   phone: string;
   password: string;
