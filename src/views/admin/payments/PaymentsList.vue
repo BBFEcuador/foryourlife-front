@@ -1,30 +1,21 @@
 <script setup lang="ts">
+import PaymentInvoicesList from '@/components/payments/PaymentInvoicesList.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import usePayments from '@/composables/admin/payments/usePayments';
-import usePaymentRecordMutations from '@/composables/admin/payments/usePaymentMutations';
-import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref, watch } from 'vue';
-import PaymentHistoryList from '@/components/payments/PaymentHistoryList.vue';
-import { useRouter } from 'vue-router';
-import type { Payment } from '@/models/Payments';
-import Swal from 'sweetalert2';
-import usePaymentPdf from '@/composables/admin/payments/usePaymentPdf';
-import EditInvoice from '@/components/invoices/EditInvoice.vue';
-import type { EditInvoiceReq, Invoice } from '@/models/Invoice';
-import InvoiceDetail from '@/components/invoices/InvoiceDetail.vue';
-import useInvoices from '@/composables/admin/invoice/useInvoices';
-import useInvoiceMutations from '@/composables/admin/invoice/useInvoiceMutation';
-import { toast } from 'vue3-toastify';
-import type { ErrorApiResponse } from '@/models/ApiResponse';
-import type { AxiosError } from 'axios';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
+import usePaymentRecordMutations from '@/composables/admin/payments/usePaymentMutations';
+import usePaymentPdf from '@/composables/admin/payments/usePaymentPdf';
+import usePayments from '@/composables/admin/payments/usePayments';
+import type { Payment } from '@/models/Payments';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import Swal from 'sweetalert2';
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 const showPaymentHistory = ref(false);
 const selectPaymentIdPdf = ref('');
 const selectPayment = ref<Payment>({
   paymentshistory: [] as any[]
 } as Payment);
-const selectedInvoice = ref<Invoice>({} as Invoice);
 const breadcrumbs = ref([
   {
     title: 'Cobros',
@@ -35,15 +26,11 @@ const breadcrumbs = ref([
 
 const { isPaymentPdfLoading, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
 
-const { paymentsData, isPaymentsLoading, page, perPage, search } = usePayments();
-const { invoicesData, isLoading, refetch } = useInvoices();
-const { updateInvoiceMutation, sendInvoicesToContificoMutation } = useInvoiceMutations();
+const { paymentsData, isPaymentsLoading, page, perPage, search, refetchPayments } = usePayments();
 
 const { cancelPaymentMutation } = usePaymentRecordMutations();
 
 const debouncedSearch = ref('');
-const showDetails = ref(false);
-const showEdit = ref(false);
 
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -60,7 +47,7 @@ const headers = [
   { title: 'Programas', value: 'programs', sortable: true },
   { title: 'Precio', value: 'total', sortable: true },
   { title: 'Saldo Restante', value: 'remainingBalance' },
-  { title: 'Error en cobro', value: 'hasSomePaymentWithError', sortable: true },
+  { title: 'Error en cobros', value: 'hasSomePaymentWithError', sortable: true },
   { title: 'Estado', value: 'status', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
@@ -149,57 +136,6 @@ const handleDownloadPdf = async (item: Payment) => {
   }
 };
 
-function getInvoiceForPayment(payment: Payment): Invoice {
-  return invoicesData.value.content.find((inv: Invoice) => inv.payment.id === payment.id)!!;
-}
-
-function getInvoicesForPayments(payment: Payment): Invoice[] {
-  return invoicesData.value.content.filter((inv: Invoice) => inv.payment.id === payment.id);
-}
-
-const handleShowDetails = (item: Invoice) => {
-  selectedInvoice.value = item;
-  showDetails.value = true;
-};
-
-const handleShowEdit = (item: Invoice) => {
-  selectedInvoice.value = item;
-  showEdit.value = true;
-};
-
-const updateInvoice = async (invoiceReq: EditInvoiceReq) => {
-  await updateInvoiceMutation.mutateAsync(invoiceReq, {
-    onSuccess: async () => {
-      toast.success('Factura actualizada correctamente');
-      await refetch();
-      selectedInvoice.value = {} as Invoice;
-      showEdit.value = false;
-    },
-    onError(error) {
-      const err = error as AxiosError<ErrorApiResponse>;
-      let message = err.response?.data?.message;
-      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
-      toast.error(message || 'Error al actualizar la factura');
-    }
-  });
-};
-
-const sendInvoices = async () => {
-  await sendInvoicesToContificoMutation.mutateAsync(undefined, {
-    onSuccess: async () => {
-      toast.success('Facturas actualizada correctamente');
-      await refetch();
-      selectedInvoice.value = {} as Invoice;
-      showEdit.value = false;
-    },
-    onError(error) {
-      const err = error as AxiosError<ErrorApiResponse>;
-      let message = err.response?.data?.message;
-      err.response?.data?.errors.forEach((err) => (message += `\n ${err}`));
-      toast.error(message || 'Error al actualizar la factura');
-    }
-  });
-};
 
 function formatDate(dateStr: Date): string {
   const [date, time] = dateStr.toString().split('T');
@@ -208,11 +144,10 @@ function formatDate(dateStr: Date): string {
 </script>
 
 <template>
-  {{ invoicesData.first }}
   <BaseBreadcrumb :title="'Cobros'" :breadcrumbs="breadcrumbs" />
   <UiParentCard title="Lista de Cobros">
     <v-data-table-server :headers="headers" :search="debouncedSearch" :items="paymentsData.content"
-      :loading="isPaymentsLoading || isPaymentPdfLoading || isLoading" :items-length="paymentsData.totalElements"
+      :loading="isPaymentsLoading || isPaymentPdfLoading" :items-length="paymentsData.totalElements"
       :items-per-page="10" show-expand @update:options="loadItems">
       <template v-slot:top>
         <v-toolbar v-motion class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat
@@ -300,11 +235,42 @@ function formatDate(dateStr: Date): string {
           </v-btn>
         </div>
       </template>
+      <template #expanded-row="{ item }">
+        <td :colspan="headers.length">
+          <div class="pa-4">
+            <v-row>
+              <v-col cols="4">
+                <div class="tw:font-bold">Número de Factura</div>
+                <div>{{ item.invoice[0].invoiceNumber }}</div>
+              </v-col>
+              <v-col cols="4">
+                <div class="tw:font-bold">Nombre</div>
+                <div>{{ item.invoice[0].fullName }}</div>
+              </v-col>
+              <v-col cols="4">
+                <div class="tw:font-bold">Identificación</div>
+                <div>{{ item.invoice[0].document }}</div>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="4">
+                <div class="tw:font-bold">Fecha</div>
+                <div>{{ formatDate(item.invoice[0].invoiceDate) }}</div>
+              </v-col>
+              <v-col cols="4">
+                <div class="tw:font-bold">Total</div>
+                <div>{{ item.invoice[0].amount }}</div>
+              </v-col>
+              <v-col cols="4" class="d-flex">
+                
+              </v-col>
+            </v-row>
+          </div>
+        </td>
+      </template>
     </v-data-table-server>
-    <InvoiceDetail v-if="showDetails" :invoice="selectedInvoice" :showDialog="true" @cancel="showDetails = false" />
-    <EditInvoice v-if="showEdit" :invoice="selectedInvoice" :showDialog="showEdit" @cancel="showEdit = !showEdit"
-      @save="updateInvoice" />
-    <PaymentHistoryList v-model="showPaymentHistory" :payment="selectPayment" @payment-updated="handlePaymentUpdated" />
+    <PaymentInvoicesList v-model="showPaymentHistory" :payment="selectPayment" @payment-updated="handlePaymentUpdated" />
   </UiParentCard>
 </template>
 

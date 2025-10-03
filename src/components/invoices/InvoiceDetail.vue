@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import useContificoConfigByCampus from '@/composables/admin/contifico/useContificoConfig';
+import type { Campus } from '@/models/Campus';
 import type { Invoice } from '@/models/Invoice';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed } from 'vue';
 
-const props = defineProps<{ invoice: Invoice; showDialog: boolean }>();
+const props = defineProps<{ invoice: Invoice; showDialog: boolean, campus: Campus }>();
 
-const { contificoConfig } = useContificoConfigByCampus(props.invoice.payment.campus.id);
+const { contificoConfig } = useContificoConfigByCampus(props.campus.id);
 
 const billedBy = computed(() => {
   return {
@@ -43,7 +44,7 @@ const formatDate = (date: string | Date) => {
       <div class="tw:flex tw:justify-between mb-6">
         <div>
           <h2 class="tw:text-2xl tw:font-bold">Factura</h2>
-          <p class="tw:text-gray-600">{{ props.invoice.invoiceContifico.documento }}</p>
+          <p class="tw:text-gray-600">{{ props.invoice.invoiceNumber }}</p>
         </div>
         <v-btn elevation="0" variant="plain" icon class="tw:rounded-md" @click="emit('cancel')">
           <Icon icon="mdi:close" />
@@ -60,12 +61,12 @@ const formatDate = (date: string | Date) => {
         </div>
         <div>
           <p class="tw:text-gray-600 mb-2">Facturado a:</p>
-          <p class="tw:font-semibold">{{ props.invoice.invoiceContifico.cliente.cedula }}</p>
-          <p class="tw:font-semibold">{{ props.invoice.invoiceContifico.cliente.ruc }}</p>
-          <p class="tw:font-semibold">{{ props.invoice.invoiceContifico.cliente.razon_social }}</p>
-          <p>{{ props.invoice.invoiceContifico.cliente.direccion }}</p>
-          <p>{{ props.invoice.invoiceContifico.cliente.telefonos }}</p>
-          <p>{{ props.invoice.invoiceContifico.cliente.email }}</p>
+          <p class="tw:font-semibold">{{ props.invoice.document }}</p>
+          <p class="tw:font-semibold">{{ props.invoice.document }}</p>
+          <p class="tw:font-semibold">{{ props.invoice.fullName }}</p>
+          <p>{{ props.invoice.address }}</p>
+          <p>{{ props.invoice.phone }}</p>
+          <p>{{ props.invoice.email }}</p>
         </div>
       </div>
 
@@ -91,14 +92,8 @@ const formatDate = (date: string | Date) => {
               <td class="tw:p-2">{{ item.name }}</td>
               <td>
                 <div v-if="item.programs.length > 0" class="d-flex flex-wrap gap-2 ma-2">
-                  <v-chip
-                    v-for="program in item.programs"
-                    :key="program.id"
-                    size="small"
-                    variant="outlined"
-                    class="text-caption"
-                    :color="getProgramColor(program.courseLevel)"
-                  >
+                  <v-chip v-for="program in item.programs" :key="program.id" size="small" variant="outlined"
+                    class="text-caption" :color="getProgramColor(program.courseLevel)">
                     {{ program.courseLevel }}
                   </v-chip>
                 </div>
@@ -113,36 +108,30 @@ const formatDate = (date: string | Date) => {
         <div class="tw:w-64">
           <div class="tw:flex tw:justify-between py-2">
             <span>Descuento</span>
-            <span
-              >${{
-                props.invoice.totalDiscount.toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              }}</span
-            >
+            <span>${{
+              props.invoice.totalDiscount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            }}</span>
           </div>
           <div class="tw:flex tw:justify-between py-2">
             <span>Subtotal</span>
-            <span
-              >${{
-                (props.invoice.amount - props.invoice.taxAmount).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              }}</span
-            >
+            <span>${{
+              (props.invoice.amount - props.invoice.taxAmount).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            }}</span>
           </div>
           <div class="tw:flex tw:justify-between py-2">
             <span>IVA 15%</span>
-            <span
-              >${{
-                props.invoice.taxAmount.toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })
-              }}</span
-            >
+            <span>${{
+              props.invoice.taxAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+            }}</span>
           </div>
           <div class="tw:flex tw:justify-between py-2 tw:font-bold tw:border-t tw:border-gray-300">
             <span>Total</span>

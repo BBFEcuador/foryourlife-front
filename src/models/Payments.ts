@@ -1,6 +1,7 @@
 import type { Product } from './Products';
 import type { Participant } from './Participants';
 import type { Campus } from './Campus';
+import type { Invoice } from './Invoice';
 
 export interface Payment {
   id: string;
@@ -13,6 +14,7 @@ export interface Payment {
   remainingBalance: number;
   status: string;
   note: any;
+  invoice: Invoice[];
 }
 
 export interface PaymentRequest {
