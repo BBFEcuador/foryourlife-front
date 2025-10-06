@@ -20,25 +20,25 @@ import InvoiceDetail from '../invoices/InvoiceDetail.vue';
 const props = defineProps<{
   modelValue: boolean;
   originPos?: boolean;
-  payment?: Payment;
+  payment: Payment;
+  isRefetching: boolean;
 }>();
+
 
 const itemsPerPage = 5;
 const page = ref(1);
 const showDetails = ref(false);
 const selectedInvoice = ref<Invoice>({} as Invoice);
 
+const emit = defineEmits(['update:modelValue', 'update:payment-posOrigin', 'payment-updated', 'save']);
 
-const emit = defineEmits(['update:modelValue', 'update:payment-posOrigin', 'payment-updated']);
-
-const { payment, refetchPayment } = usePayment(props.payment!!.id);
 const { paymentMethodsData } = usePaymentMethods();
 const { sendInvoicesToContificoMutation, updateInvoiceMutation } = useInvoiceMutations();
 const { savePaymentRecordMutations } = usePaymentRecordMutations();
 
 const paymentMethodsList = computed(() => paymentMethodsData.value);
 
-const total = computed(() => props.payment?.paymentshistory.length ?? 0);
+const total = computed(() => props.payment.invoice.length ?? 0);
 
 const form = ref({
   date: new Date(),
@@ -88,7 +88,6 @@ const updateInvoice = async (invoiceReq: EditInvoiceReq) => {
   await updateInvoiceMutation.mutateAsync(invoiceReq, {
     onSuccess: async () => {
       toast.success('Factura actualizada correctamente');
-      await refetchPayment();
       selectedInvoice.value = {} as Invoice;
       showEdit.value = false;
     },
@@ -105,7 +104,6 @@ const sendInvoices = async () => {
   await sendInvoicesToContificoMutation.mutateAsync(undefined, {
     onSuccess: async () => {
       toast.success('Facturas actualizada correctamente');
-      await refetchPayment();
       selectedInvoice.value = {} as Invoice;
       showEdit.value = false;
     },
@@ -159,8 +157,8 @@ const submitForm = async () => {
     onSuccess: async () => {
       toast.success('Pago registrado exitosamente');
       formRef.value.reset();
-      await refetchPayment();
-      emit('payment-updated', JSON.parse(JSON.stringify(payment.value)));
+
+      emit('payment-updated');
     },
     onError: (error) => {
       const err = error as AxiosError<{ message: string }>;
@@ -170,14 +168,14 @@ const submitForm = async () => {
 };
 
 const handleShowDetails = (item: Invoice) => {
-    selectedInvoice.value = item;
-    showDetails.value = true;
-  };
+  selectedInvoice.value = item;
+  showDetails.value = true;
+};
 
-  const handleShowEdit = (item: Invoice) => {
-    selectedInvoice.value = item;
-    showEdit.value = true;
-  };
+const handleShowEdit = (item: Invoice) => {
+  selectedInvoice.value = item;
+  showEdit.value = true;
+};
 const formatDate = (
   isoDate: string | Date,
   pretty: boolean = false
@@ -263,14 +261,15 @@ const formatDate = (
               Enviar a Contifico
             </v-btn>
             <div v-if="!props.originPos" class="text-h3">$ {{ props.payment?.remainingBalance }} Restante</div>
-            <v-btn type="submit" color="primary" class="mt-2">Guardar</v-btn>
+            <v-btn type="submit" color="primary" class="mt-2"
+              :loading="savePaymentRecordMutations.isPending.value">Guardar</v-btn>
           </div>
         </v-form>
       </v-card-text>
 
       <v-card-text v-if="!originPos">
         <v-data-table-server :headers="headers" :items="paginatedHistory"
-          :loading="loading || sendInvoicesToContificoMutation.isPending.value" :items-length="total"
+          :loading="isRefetching || sendInvoicesToContificoMutation.isPending.value || savePaymentRecordMutations.isPending.value" :items-length="total"
           :items-per-page="itemsPerPage" class="mt-4" @update:options="onUpdateOptions">
           <template #item.date="{ item }">
             <span>{{ formatDate(item.invoiceDate) }}</span>
@@ -297,8 +296,7 @@ const formatDate = (
           <template #item.actions="{ item }">
             <div>
               <div class="d-flex tw:gap-x-2">
-                <div v-if="!item.hasSomePaymentWithError">
-                  {{ item.hasSomePaymentWithError }}
+                <div v-if="!item.sentContifico">
                   <v-btn color="success" variant="tonal" @click="handleShowEdit(item)">
                     <Icon icon="tabler:pencil" class="mr-2" />
                   </v-btn>
@@ -309,8 +307,8 @@ const formatDate = (
                 <InvoiceDetail v-if="showDetails" :invoice="selectedInvoice" :showDialog="true"
                   @cancel="showDetails = false" :campus="props.payment!!.campus" />
 
-                <EditInvoice v-if="showEdit" :invoice="selectedInvoice" :showDialog="true"
-                  @cancel="showEdit = false" :campus="props.payment!!.campus" />
+                <EditInvoice v-if="showEdit" :invoice="selectedInvoice" :showDialog="true" @cancel="showEdit = false"
+                  :campus="props.payment!!.campus" />
               </div>
             </div>
 

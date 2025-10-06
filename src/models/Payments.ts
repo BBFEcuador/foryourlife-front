@@ -15,6 +15,7 @@ export interface Payment {
   status: string;
   note: any;
   invoice: Invoice[];
+  hasSomePaymentWithError: boolean;
 }
 
 export interface PaymentRequest {

@@ -2,6 +2,7 @@
 import PaymentInvoicesList from '@/components/payments/PaymentInvoicesList.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
+import usePayment from '@/composables/admin/payments/usePayment';
 import usePaymentRecordMutations from '@/composables/admin/payments/usePaymentMutations';
 import usePaymentPdf from '@/composables/admin/payments/usePaymentPdf';
 import usePayments from '@/composables/admin/payments/usePayments';
@@ -13,9 +14,7 @@ import { useRouter } from 'vue-router';
 
 const showPaymentHistory = ref(false);
 const selectPaymentIdPdf = ref('');
-const selectPayment = ref<Payment>({
-  paymentshistory: [] as any[]
-} as Payment);
+const selectedPaymentId = ref('');
 const breadcrumbs = ref([
   {
     title: 'Cobros',
@@ -26,11 +25,13 @@ const breadcrumbs = ref([
 
 const { isPaymentPdfLoading, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
 
-const { paymentsData, isPaymentsLoading, page, perPage, search, refetchPayments } = usePayments();
+const { paymentsData, isPaymentsLoading, page, perPage, search } = usePayments();
 
 const { cancelPaymentMutation } = usePaymentRecordMutations();
 
 const debouncedSearch = ref('');
+
+const { payment, refetchPayment, isPaymentLoading } = usePayment(selectedPaymentId);
 
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -47,7 +48,7 @@ const headers = [
   { title: 'Programas', value: 'programs', sortable: true },
   { title: 'Precio', value: 'total', sortable: true },
   { title: 'Saldo Restante', value: 'remainingBalance' },
-  { title: 'Error en cobros', value: 'hasSomePaymentWithError', sortable: true },
+  { title: 'Todas las facturas enviadas', value: 'hasSomePaymentWithError', sortable: true },
   { title: 'Estado', value: 'status', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
@@ -85,17 +86,9 @@ const onCreatePayment = () => {
 };
 
 const onPaymentHistoryShow = (items: Payment) => {
-  selectPayment.value = items;
+  selectedPaymentId.value = items.id;
+  payment.value = items;
   showPaymentHistory.value = true;
-};
-
-const handlePaymentUpdated = (updatedPayment: Payment) => {
-  selectPayment.value = updatedPayment;
-
-  const index = paymentsData.value.content.findIndex((p) => p.id === updatedPayment.id);
-  if (index !== -1) {
-    paymentsData.value.content[index] = updatedPayment;
-  }
 };
 
 const onChangeStatus = (item: Payment) => {
@@ -136,7 +129,6 @@ const handleDownloadPdf = async (item: Payment) => {
   }
 };
 
-
 function formatDate(dateStr: Date): string {
   const [date, time] = dateStr.toString().split('T');
   return `${date} ${time.slice(0, 5)}`;
@@ -172,10 +164,6 @@ function formatDate(dateStr: Date): string {
             <Icon class="mr-2" icon="mdi:plus" />
             Crear Cobro
           </VBtn>
-          <VBtn variant="elevated" color="info" class="ml-2" @click="sendInvoices">
-            <Icon class="mr-2" icon="meteor-icons:paper-plane" />
-            Enviar a Contifico
-          </VBtn>
         </v-toolbar>
       </template>
       <template #item.programs="{ item }">
@@ -202,19 +190,19 @@ function formatDate(dateStr: Date): string {
         </div>
       </template>
       <template #item.hasSomePaymentWithError="{ item }">
-        <div v-if="item.hasSomePaymentWithError">
-          <v-icon class="ml-2" color="success">
-            <Icon icon="material-symbols:check-circle-outline" />
-          </v-icon>
-        </div>
-        <div v-else>
-          <v-tooltip location="top" :text="'No se han registrado errores en los cobros'">
+        <div v-if="!item.hasSomePaymentWithError">
+           <v-tooltip location="top" :text="'No se han registrado errores en los cobros'">
             <template #activator="{ props: activatorProps }">
-              <v-icon class="ml-2" color="error" v-bind="activatorProps">
-                <Icon icon="weui:close2-outlined" />
+              <v-icon class="ml-2" color="success" v-bind="activatorProps">
+                <Icon icon="material-symbols:check-circle-outline" />
               </v-icon>
             </template>
           </v-tooltip>
+        </div>
+        <div v-else>
+         <v-icon class="ml-2" color="error">
+            <Icon icon="weui:close2-outlined" />
+          </v-icon>
         </div>
       </template>
 
@@ -236,7 +224,7 @@ function formatDate(dateStr: Date): string {
         </div>
       </template>
       <template #expanded-row="{ item }">
-        <td :colspan="headers.length">
+        <td :colspan="10">
           <div class="pa-4">
             <v-row>
               <v-col cols="4">
@@ -251,26 +239,17 @@ function formatDate(dateStr: Date): string {
                 <div class="tw:font-bold">Identificación</div>
                 <div>{{ item.invoice[0].document }}</div>
               </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col cols="4">
+               <v-col cols="4">
                 <div class="tw:font-bold">Fecha</div>
                 <div>{{ formatDate(item.invoice[0].invoiceDate) }}</div>
-              </v-col>
-              <v-col cols="4">
-                <div class="tw:font-bold">Total</div>
-                <div>{{ item.invoice[0].amount }}</div>
-              </v-col>
-              <v-col cols="4" class="d-flex">
-                
               </v-col>
             </v-row>
           </div>
         </td>
       </template>
     </v-data-table-server>
-    <PaymentInvoicesList v-model="showPaymentHistory" :payment="selectPayment" @payment-updated="handlePaymentUpdated" />
+    <PaymentInvoicesList v-model="showPaymentHistory" :payment="payment" @payment-updated="refetchPayment"
+      :isRefetching="isPaymentLoading" />
   </UiParentCard>
 </template>
 
