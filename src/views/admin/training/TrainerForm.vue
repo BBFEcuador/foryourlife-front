@@ -82,10 +82,10 @@ const onTrainerSubmit = () => {
     </VCol>
     <VCol cols="12">
       <div class="w-full justify-end tw:flex tw:gap-2">
-        <VBtn color="error" variant="elevated" @click="emits('cancel')"> 
+        <VBtn color="error" variant="elevated" @click="emits('cancel')">
           <Icon icon="mdi:close" class="mr-1" />
           Cancelar </VBtn>
-        <VBtn color="primary" variant="elevated" @click="onTrainerSubmit" :loading="isLoading"> 
+        <VBtn color="primary" variant="elevated" @click="onTrainerSubmit" :loading="isLoading">
           <Icon icon="material-symbols:save" class="mr-1" />
           Guardar </VBtn>
       </div>

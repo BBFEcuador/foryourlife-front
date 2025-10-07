@@ -4,6 +4,7 @@ import { PublicRoutes, RegisterRoutes } from './AuthRoutes';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
 import AdminRoutes from './AdminRoutes';
+import TrainerRoutes from './TrainerRoutes';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -14,6 +15,7 @@ const routes: RouteRecordRaw[] = [
   PublicRoutes,
   RegisterRoutes,
   ...AdminRoutes,
+  ...TrainerRoutes
 ];
 
 export const router = createRouter({
