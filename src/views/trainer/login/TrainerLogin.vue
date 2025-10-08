@@ -15,6 +15,9 @@ import AuthTrainerLogin from '@/views/trainer/login/AuthTrainerLogin.vue';
             <v-col cols="12" md="12">
               <v-card elevation="0" variant="outlined" rounded="lg" class="loginBox bg-surface">
                 <v-card-text class="pa-sm-10 pa-6">
+                  <div class="tw:grid tw:place-content-center">
+                    <Logo class="mb-5" />
+                  </div>
                   <AuthTrainerLogin />
                 </v-card-text>
               </v-card>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { RouterView } from 'vue-router';
+import LoaderWrapper from '../dashboard/LoaderWrapper.vue';
 </script>
-
 <template>
-  <RouterView>
-  </RouterView>
+  <v-app>
+    <LoaderWrapper />
+    <RouterView />
+  </v-app>
 </template>
-
-<style scoped></style>

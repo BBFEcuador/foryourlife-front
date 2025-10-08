@@ -14,6 +14,20 @@ const TrainerRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/trainer/login/TrainerLogin.vue')
       }
     ]
+  },
+  {
+    path: '/trainer',
+    component: () => import('@/layouts/trainer/TrainerFullLayout.vue'),
+    meta: {
+      requiresAuth: false
+    },
+    children: [
+      {
+        name: 'Trainer Home',
+        path: '',
+        component: () => import('@/views/trainer/dashboard/Dashboard.vue')
+      }
+    ]
   }
 ];
 export default TrainerRoutes
