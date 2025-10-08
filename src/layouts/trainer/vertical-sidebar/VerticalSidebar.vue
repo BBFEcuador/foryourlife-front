@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { shallowRef } from 'vue';
 import { useCustomizerStore } from '../../../stores/customizer';
-import sidebarItems from './sidebarItem';
+import sidebarItems from './TrainerSidebarItem.ts';
 
 import NavGroup from './NavGroup/NavGroup.vue';
 import NavItem from './NavItem/NavItem.vue';

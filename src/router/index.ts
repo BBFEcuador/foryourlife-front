@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
 import AdminRoutes from './AdminRoutes';
 import TrainerRoutes from './TrainerRoutes';
+import { trainerStore } from '@/stores/trainerStore.ts';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -64,12 +65,16 @@ router.beforeEach(async (to, from, next) => {
   }
 });
 
-router.beforeEach(() => {
-  const uiStore = useUIStore();
-  uiStore.isLoading = true;
-});
-
-router.afterEach(() => {
-  const uiStore = useUIStore();
-  uiStore.isLoading = false;
+router.beforeEach((to, from, next) => {
+  if (to.fullPath.startsWith('/trainer')) {
+    const store = trainerStore()
+    if (store.trainer && store.token){
+      console.log("Trainer authenticated");
+      next()
+    }else{
+      console.log("Trainer señor toa .. guano toa");
+      next({name: 'trainer-login' })
+    }
+  }
+  next();
 });

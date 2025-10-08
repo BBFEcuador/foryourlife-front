@@ -5,13 +5,13 @@ export const trainerStore = defineStore(
   'trainer-store',    
   () => {
     const token = ref('');
-    const user = ref<any>({} as any);
+    const trainer = ref<any>({} as any);
     const selectCampusId = ref('')
     const isCampusSelected = ref(false)
     const availableCampus = ref([{} as any])
 
     const logout = () => {
-      user.value = {} as any;
+      trainer.value = {} as any;
       token.value = '';
       selectCampusId.value = ''
       isCampusSelected.value = false
@@ -20,8 +20,8 @@ export const trainerStore = defineStore(
     const setToken = (newToken: string) => {
       token.value = newToken;
     };
-    const setAdmin = (newUser: any) => {
-      user.value = newUser;
+    const setTrainer = (newTrainer: any) => {
+      trainer.value = newTrainer;
     };
     const setSelectedCampusId = (id: string) => {
       selectCampusId.value = id
@@ -35,13 +35,13 @@ export const trainerStore = defineStore(
     }
     return {
       token,
-      user,
+      trainer,
       selectCampusId,
       isCampusSelected,
       availableCampus,
       logout,
       setToken,
-      setAdmin,
+      setAdmin: setTrainer,
       setIsCampusSelected,
       setSelectedCampusId,
       setAvailableCampus,

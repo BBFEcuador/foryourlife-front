@@ -6,8 +6,9 @@ import { showErrorToast } from '@/service/sweetAlert';
 import { trainerStore } from '@/stores/trainerStore';
 import useVuelidate from '@vuelidate/core';
 import type { AxiosError } from 'axios';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { Icon } from '@iconify/vue';
 
 const trainerLoginRequest = ref<TrainerLoginRequest>({} as TrainerLoginRequest);
 const store = trainerStore();
@@ -16,51 +17,43 @@ const router = useRouter();
 const rules = () => ({
   email: {
     required: (value: string) => !!value || 'El correo electrónico es requerido',
-    email: (value: string) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value) || 'El correo electrónico no es válido',
+    email: (value: string) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value) || 'El correo electrónico no es válido'
   },
   password: {
-    required: (value: string) => !!value || 'La contraseña es requerida',
-  },
+    required: (value: string) => !!value || 'La contraseña es requerida'
+  }
 });
 
 const validator = useVuelidate(rules, trainerLoginRequest);
 const showPassword = ref(false);
 
-const { postLoginMutation } = useTrainerLogin();
+const { trainerLoginMutation } = useTrainerLogin();
 const onLoginSubmit = () => {
   validator.value.$validate();
   if (!validator.value.$error) {
-    postLoginMutation.mutate(trainerLoginRequest.value);
+    trainerLoginMutation.mutate(trainerLoginRequest.value, {
+      onSuccess(data) {
+        let response = data;
+        if (data) {
+          store.setToken(response.token);
+          store.setAdmin(response.trainer);
+          router.push({ name: 'trainer-home' });
+        }
+      },
+      onError(error) {
+        showErrorToast(error as AxiosError<ErrorApiResponse>);
+      }
+    });
   }
 };
-
-watch(postLoginMutation.isError, () => {
-  if (postLoginMutation.isError) {
-    let error = postLoginMutation.error.value as AxiosError<ErrorApiResponse>;
-    showErrorToast(error);
-  }
-});
-
-watch(postLoginMutation.isSuccess, () => {
-  if (postLoginMutation.isSuccess.value) {
-    let response = postLoginMutation.data.value;
-    if (response) {
-      store.setToken(response.token);
-      store.setAdmin(response.admin);
-      store.setAvailableCampus(response.admin.campus);
-      router.push({ name: 'Trainer Home' });
-    }
-  }
-});
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value;
 };
 </script>
 
-
 <template>
-    <div class="d-flex justify-space-between align-center mt-4">
+  <div class="d-flex justify-space-between align-center mt-4">
     <h3 class="text-h3 text-center mb-0">Iniciar Sesión Como <strong>Entrenador</strong></h3>
   </div>
   <Form class="mt-7 loginForm" @submit.prevent="onLoginSubmit">
@@ -88,9 +81,9 @@ const togglePasswordVisibility = () => {
         <template #append-inner>
           <Icon
             :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'"
+            @click="togglePasswordVisibility"
             height="18"
             class="cursor-pointer"
-            @click="togglePasswordVisibility"
           />
         </template>
       </v-text-field>
@@ -103,7 +96,7 @@ const togglePasswordVisibility = () => {
       size="large"
       rounded="md"
       type="submit"
-      :loading="postLoginMutation.isPending.value"
+      :loading="trainerLoginMutation.isPending.value"
     >
       Login
     </v-btn>

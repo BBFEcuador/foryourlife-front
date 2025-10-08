@@ -1,8 +1,6 @@
 <script setup lang="ts">
 // imported components
 import WelcomeBanner from '../dashboards/default/components/WelcomeBanner.vue';
-import ProjectCard from '../dashboards/default/components/ProjectCard.vue';
-import TransactionCard from '../widgets/data/components/TransactionCard.vue';
 import QrComponent from '@/layouts/dashboard/QrComponent.vue';
 import useUserActiveInvitation from '@/composables/participants/invitation/useUserActiveInvitation';
 import { Icon } from '@iconify/vue/dist/iconify.js';

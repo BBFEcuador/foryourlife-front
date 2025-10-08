@@ -16,7 +16,7 @@ const usePayment = (id: MaybeRef<string>) => {
   const { data, isError, isFetching, refetch } = useQuery({
     queryKey: ['payment', paymentId.value],
     queryFn: () => fetchPayment(paymentId.value),
-    enabled: computed(() => !!paymentId.value), // solo activa si hay id válido
+    enabled: computed(() => !!paymentId.value),
   });
 
   watch(data, (newVal) => {
