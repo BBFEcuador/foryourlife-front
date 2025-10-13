@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { ref } from 'vue';
-import type { Team } from '@/models/Participants.ts';
-import { trainerStore } from '@/stores/trainerStore.ts';
 import { useRoute } from 'vue-router';
+import ViewTrainerTeam from '@/views/trainer/team/ViewTrainerTeam.vue';
+import useTrainerTeam from '@/composables/trainer/team/useTrainerTeam.ts';
 
-const store = trainerStore();
 const route = useRoute();
-
 const teamId = route.params.id as string;
-
-const team = store.trainer.teams.find((t: Team) => t.id === teamId);
-
+const { team } = useTrainerTeam(teamId);
 const breadcrumbs = ref();
+
 </script>
 
 <template>
   <BaseBreadcrumb :title="'Equipo'" :breadcrumbs="breadcrumbs" />
-  {{ team }}
+  <vRow>
+    <v-col cols="12">
+      <ViewTrainerTeam :team="team!"/>
+    </v-col>
+  </vRow>
 </template>
-
 <style scoped></style>

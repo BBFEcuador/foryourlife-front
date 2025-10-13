@@ -14,6 +14,7 @@ const teamView = (teamId: string) => {
 };
 </script>
 <template>
+<!--  {{ store }}-->
   <div>
     <UiParentCard title="Mis Entrenamientos">
       <v-row>

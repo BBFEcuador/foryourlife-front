@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import AuthTrainerLogin from '@/views/trainer/login/AuthTrainerLogin.vue';
+import Logo from '@/layouts/trainer/logo/Logo.vue';
 </script>
 
 <template>
@@ -12,11 +13,11 @@ import AuthTrainerLogin from '@/views/trainer/login/AuthTrainerLogin.vue';
       <v-container>
         <div class="d-flex align-center justify-center" style="min-height: calc(100vh - 148px)">
           <v-row justify="center">
-            <v-col cols="12" md="12">
+            <v-col cols="12" md="5">
               <v-card elevation="0" variant="outlined" rounded="lg" class="loginBox bg-surface">
                 <v-card-text class="pa-sm-10 pa-6">
                   <div class="tw:grid tw:place-content-center">
-                    <Logo class="mb-5" />
+                    <Logo disabled class="mb-5" />
                   </div>
                   <AuthTrainerLogin />
                 </v-card-text>
