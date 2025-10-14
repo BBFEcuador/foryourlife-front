@@ -7,8 +7,8 @@ import { getInitialsAvatarUrl } from '@/service/getAvatar';
 interface props {
     team: Team;
 };
-
 const props = defineProps<props>();
+
 </script>
 
 <template>
@@ -26,7 +26,7 @@ const props = defineProps<props>();
                             </v-col>
                             <v-col cols="6" class="d-flex flex-column align-center">
                                 <Icon icon="token:lvl" height="20"></Icon>
-                                <h4 class="text-h4" >{{ team.trainer.name }}</h4>
+                                <h4 class="text-h4" >{{ team?.trainer.name }}</h4>
                                 <h6 class="text-h6 font-weight-regular">Entrenador</h6>
                             </v-col>
                         </v-row>
@@ -40,7 +40,7 @@ const props = defineProps<props>();
                             </v-avatar>
                         </div>
                         <span class="textSecondary text-h4">
-                            {{ team.trainingData?.curseLevel }}
+                            {{ team?.trainingData?.curseLevel }}
                         </span>
                     </div>
                 </v-col>
@@ -54,7 +54,7 @@ const props = defineProps<props>();
                             </v-col>
                             <v-col cols="6" class="d-flex flex-column align-center">
                                 <Icon icon="token:lvl" height="20"></Icon>
-                                <h4 class="text-h4" >{{ team.trainingData?.name }}</h4>
+                                <h4 class="text-h4" >{{ team?.trainingData?.name }}</h4>
                                 <h6 class="text-h6 font-weight-regular">Entrenamiento</h6>
                             </v-col>
                         </v-row>

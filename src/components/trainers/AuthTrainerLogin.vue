@@ -81,9 +81,9 @@ const togglePasswordVisibility = () => {
         <template #append-inner>
           <Icon
             :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'"
-            @click="togglePasswordVisibility"
             height="18"
             class="cursor-pointer"
+            @click="togglePasswordVisibility"
           />
         </template>
       </v-text-field>

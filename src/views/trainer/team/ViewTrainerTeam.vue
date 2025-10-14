@@ -9,11 +9,7 @@ const props = defineProps<TrainerTeamProps>();
 </script>
 
 <template>
-<!--  {{team}}-->
   <TeamBanner :team />
-  <VDataTable>
-
-  </VDataTable>
 </template>
 <style scoped>
 

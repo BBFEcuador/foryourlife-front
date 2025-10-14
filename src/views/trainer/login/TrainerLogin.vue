@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import AuthTrainerLogin from '@/views/trainer/login/AuthTrainerLogin.vue';
+import AuthTrainerLogin from '@/components/trainers/AuthTrainerLogin.vue';
 import Logo from '@/layouts/trainer/logo/Logo.vue';
 </script>
 
