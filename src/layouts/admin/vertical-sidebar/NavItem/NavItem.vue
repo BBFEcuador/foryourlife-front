@@ -1,4 +1,6 @@
 <script setup>
+import { showSideBarItem } from '@/service/ability.ts';
+
 const props = defineProps({ item: Object, level: Number });
 import { Icon } from '@iconify/vue';
 
@@ -8,7 +10,7 @@ import { Icon } from '@iconify/vue';
 <template>
   <!---Single Item-->
   <v-list-item
-    v-if="props.item.getURL === true"
+    v-if="showSideBarItem(props.item.permissions)"
     :to="item.type === 'external' ? '' : { name: item.to }"
     rounded
     color="primary"

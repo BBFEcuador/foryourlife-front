@@ -7,6 +7,7 @@ import NavGroup from './NavGroup/NavGroup.vue';
 import NavItem from './NavItem/NavItem.vue';
 import NavCollapse from './NavCollapse/NavCollapse.vue';
 import Logo from '../logo/Logo.vue';
+import { showSideBarItem } from '@/service/ability.ts';
 
 const customizer = useCustomizerStore();
 const sidebarMenu = shallowRef(sidebarItems);
@@ -42,7 +43,7 @@ const sidebarMenu = shallowRef(sidebarItems);
           <!---Item Divider -->
           <v-divider class="my-3" v-else-if="item.divider" />
           <!---If Has Child -->
-          <NavCollapse class="leftPadding" :item="item" :level="0" v-else-if="item.children" />
+          <NavCollapse class="leftPadding" :item="item" :level="0" v-else-if="item.children" v-if="showSideBarItem(item.permissions)"/>
           <!---Single Item-->
           <NavItem :item="item" v-else />
           <!---End Single Item-->

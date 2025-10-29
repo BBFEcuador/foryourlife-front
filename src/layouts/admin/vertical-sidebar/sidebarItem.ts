@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/utils/locales/PermissionEnum.ts';
+
 export interface menu {
   header?: string;
   title?: string;
@@ -29,10 +31,12 @@ const sidebarItem = [
   {
     title: 'Administrativo',
     icon: 'solar:users-group-two-rounded-bold',
+    permissions: [PermissionEnum.SEE_USERS],
     children: [
       {
         title: 'Usuarios',
-        to: 'users-admin'
+        to: 'users-admin',
+        permissions: [PermissionEnum.SEE_USERS],
       },
       {
         title: 'Sedes',
@@ -97,7 +101,8 @@ const sidebarItem = [
   {
     title: 'Configuración',
     icon: 'material-symbols:settings',
-    to: 'settings'
+    to: 'settings',
+    permissions: [PermissionEnum.SEE_CONFIGURATIONS]
   }
 ];
 

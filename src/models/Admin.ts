@@ -1,11 +1,9 @@
 import type { Campus } from './Campus';
+import type { User } from './User';
 
 export interface Admin {
   id: string;
-  name1: string;
-  name2: string;
-  lastName1: string;
-  lastName2: string;
+  user: User;
   email: string;
   phone: string;
   password: string;

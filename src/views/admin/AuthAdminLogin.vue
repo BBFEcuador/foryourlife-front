@@ -10,6 +10,7 @@ import { showErrorToast } from '@/service/sweetAlert';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { adminStore } from '@/stores/adminStore';
+import { updateAbilitiesWithToken } from '@/service/ability.ts';
 
 const AdminLoginRequest = ref<LoginAdminRequest>({} as LoginAdminRequest);
 
@@ -43,6 +44,7 @@ watch(postLoginMutation.isSuccess, () => {
     let response = postLoginMutation.data.value;
     if (response) {
       store.setToken(response.token);
+      updateAbilitiesWithToken(response.token);
       store.setAdmin(response.admin);
       store.setAvailableCampus(response.admin.campus);
       if (response.cashDrawer.length > 0) {
@@ -66,7 +68,7 @@ const togglePasswordVisibility = () => {
   <div class="d-flex justify-space-between align-center mt-4">
     <h3 class="text-h3 text-center mb-0">Iniciar Sesión Admin</h3>
   </div>
-  <Form class="mt-7 loginForm" @submit.prevent="onLoginSubmit">
+  <form class="mt-7 loginForm" @submit.prevent="onLoginSubmit">
     <div class="mb-6">
       <v-label>Correo electrónico</v-label>
       <v-text-field
@@ -110,5 +112,5 @@ const togglePasswordVisibility = () => {
     >
       Login
     </v-btn>
-  </Form>
+  </form>
 </template>

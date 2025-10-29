@@ -15,6 +15,7 @@ import { MotionPlugin } from '@vueuse/motion';
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 import 'vue3-toastify/dist/index.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
+import { abilitiesPlugin } from '@casl/vue';
 
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 
@@ -35,6 +36,7 @@ import '@fontsource/public-sans/600.css';
 import '@fontsource/public-sans/700.css';
 
 import { fakeBackend } from '@/utils/helpers/fake-backend';
+import { ability } from './service/ability';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -50,3 +52,6 @@ app.use(VueTablerIcons);
 app.use(VueApexCharts);
 app.use(VueQueryPlugin);
 app.use(vuetify).mount('#app');
+app.use(abilitiesPlugin, ability, {
+  useGlobalProperties: true
+});

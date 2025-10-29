@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router';
 import { adminStore } from '@/stores/adminStore';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum.ts';
 
 const AdminRoutes: RouteRecordRaw[] = [
   {
@@ -34,16 +35,26 @@ const AdminRoutes: RouteRecordRaw[] = [
       {
         name: 'settings',
         path: 'settings',
+        meta: {
+          permissions:[PermissionEnum.SEE_CONFIGURATIONS]
+        },
         component: () => import('@/views/admin/AdminSettings.vue')
       },
       {
         name: 'users-admin',
         path: 'users',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_USERS]
+        },
         component: () => import('@/views/admin/users/AdminUsers.vue')
       },
       {
         name: 'users-admin-add',
         path: 'users/add',
+        meta: {
+          permissions:[PermissionEnum.CREATE_USERS]
+        },
         component: () => import('@/views/admin/users/AddAdminUser.vue')
       },
       {
