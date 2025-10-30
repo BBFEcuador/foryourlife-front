@@ -35,7 +35,7 @@ export const updateAbilitiesWithToken = (token: string) => {
 
 export const updateAbilities = () => {
   ability.update([]);
-  let rol = localStorage.getItem('admin-role-store');
+  let rol = localStorage.getItem('admin-store');
   const { can, rules } = new AbilityBuilder(Ability);
   if (rol) {
     const st = JSON.parse(rol);

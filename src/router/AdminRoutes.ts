@@ -36,6 +36,7 @@ const AdminRoutes: RouteRecordRaw[] = [
         name: 'settings',
         path: 'settings',
         meta: {
+          requiresAuth: true,
           permissions:[PermissionEnum.SEE_CONFIGURATIONS]
         },
         component: () => import('@/views/admin/AdminSettings.vue')
@@ -53,6 +54,7 @@ const AdminRoutes: RouteRecordRaw[] = [
         name: 'users-admin-add',
         path: 'users/add',
         meta: {
+          requiresAuth: true,
           permissions:[PermissionEnum.CREATE_USERS]
         },
         component: () => import('@/views/admin/users/AddAdminUser.vue')
@@ -60,56 +62,100 @@ const AdminRoutes: RouteRecordRaw[] = [
       {
         name: 'sedes-admin',
         path: 'sedes',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_CAMPUS]
+        },
         component: () => import('@/views/admin/sedes/AdminSedes.vue')
       },
       {
         name: 'training-admin',
         path: 'trainers',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_TRAINERS]
+        },
         component: () => import('@/views/admin/training/AdminTraining.vue')
       },
       {
         name: 'programs-admin',
         path: 'program',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_PRODUCTS]
+        },
         component: () => import('@/views/admin/programs/AdminPrograms.vue')
       },
       {
         name: 'teams-admin',
         path: 'teams',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_TEAMS]
+        },
         component: () => import('@/views/admin/team/AdminTeams.vue')
       },
       {
         name: 'teams-admin-add',
         path: 'teams/add',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.CREATE_TEAMS]
+        },
         component: () => import('@/views/admin/team/AdminCreateTeamv2.vue')
       },
       {
         name: 'teams-admin-update',
         path: 'teams/edit/:id',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_USERS]
+        },
         component: () => import('@/views/admin/team/AdminTeamsUpdate.vue')
       },
       {
         name: 'participants-admin',
         path: 'participants',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_PARTICIPANTS]
+        },
         component: () => import('@/views/admin/participants/AdminParticipants.vue')
       },
       {
         name: 'participants-admin-edit',
         path: 'participants/edit/:id',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.UPDATE_PARTICIPANTS]
+        },
         component: () => import('@/views/admin/participants/EditParticipants.vue')
       },
       {
         name: 'calendar-admin',
         path: 'calendar',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_TRAININGS]
+        },
         component: () => import('@/views/admin/programs/AdminPrograms.vue')
       },
       {
         name: 'master-life-admin',
         path: 'master-life',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_MASTER_LIFES]
+        },
         component: () => import('@/views/admin/masterLife/AdminMasterLife.vue')
       },
       {
         name: 'staff-admin',
         path: 'staff',
+        meta:{
+          requiresAuth: true,
+          permissions:[PermissionEnum.SEE_STAFF]
+        },
         component: () => import('@/views/admin/staff/AdminStaffList.vue')
       },
       {

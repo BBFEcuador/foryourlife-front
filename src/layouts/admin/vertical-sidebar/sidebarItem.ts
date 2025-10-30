@@ -26,12 +26,20 @@ const sidebarItem = [
   {
     title: 'Punto de Venta',
     icon: 'mdi:cash-register',
-    to: 'pos-main'
+    to: 'pos-main',
+    permissions: [PermissionEnum.SEE_EMISSION_POINTS]
   },
   {
     title: 'Administrativo',
     icon: 'solar:users-group-two-rounded-bold',
-    permissions: [PermissionEnum.SEE_USERS],
+    permissions: [
+      PermissionEnum.SEE_USERS,
+      PermissionEnum.SEE_CAMPUS,
+      PermissionEnum.SEE_PRODUCTS,
+      PermissionEnum.SEE_DISCOUNTS,
+      PermissionEnum.SEE_PAYMENTS,
+      PermissionEnum.SEE_PAYMENT_METHODS
+    ],
     children: [
       {
         title: 'Usuarios',
@@ -40,61 +48,84 @@ const sidebarItem = [
       },
       {
         title: 'Sedes',
-        to: 'sedes-admin'
+        to: 'sedes-admin',
+        permissions: [PermissionEnum.SEE_CAMPUS]
       },
       {
         title: 'Productos',
-        to: 'products-admin'
+        to: 'products-admin',
+        permissions: [PermissionEnum.SEE_PRODUCTS]
       },
       {
         title: 'Descuentos',
-        to: 'discounts-admin'
+        to: 'discounts-admin',
+        permissions: [PermissionEnum.SEE_DISCOUNTS]
       },
       {
         title: 'Cobros',
-        to: 'payments-admin'
+        to: 'payments-admin',
+        permissions: [PermissionEnum.SEE_PAYMENTS]
       },
       {
         title: 'Métodos de Pago',
-        to: 'payment-methods'
+        to: 'payment-methods',
+        permissions: [PermissionEnum.SEE_PAYMENT_METHODS]
       }
     ]
   },
   {
     title: 'Entrenamiento',
     icon: 'material-symbols-light:model-training',
+    permissions: [
+      PermissionEnum.SEE_TRAINERS,
+      PermissionEnum.SEE_TRAININGS,
+      PermissionEnum.SEE_ATTENDANCES_DECLARATIONS,
+      PermissionEnum.SEE_TEAMS,
+      PermissionEnum.SEE_PARTICIPANTS,
+      PermissionEnum.SEE_MASTER_LIFES,
+      PermissionEnum.SEE_VISIONARIES,
+      PermissionEnum.SEE_STAFF
+    ],
     children: [
       {
         title: 'Entrenadores',
-        to: 'training-admin'
+        to: 'training-admin',
+        permissions: [PermissionEnum.SEE_TRAINERS]
       },
       {
         title: 'Entrenamientos',
-        to: 'programs-admin'
+        to: 'programs-admin',
+        permissions: [PermissionEnum.SEE_TRAININGS]
       },
       {
-        title: 'Asistencias / Promesas',
-        to: 'main-attendances'
+        title: 'Asistencias / Declaraciones',
+        to: 'main-attendances',
+        permissions: [PermissionEnum.SEE_ATTENDANCES_DECLARATIONS]
       },
       {
         title: 'Equipos',
-        to: 'teams-admin'
+        to: 'teams-admin',
+        permissions: [PermissionEnum.SEE_TEAMS]
       },
       {
         title: 'Participantes',
-        to: 'participants-admin'
+        to: 'participants-admin',
+        permissions: [PermissionEnum.SEE_PARTICIPANTS]
       },
       {
         title: 'Master life',
-        to: 'master-life-admin'
+        to: 'master-life-admin',
+        permissions: [PermissionEnum.SEE_MASTER_LIFES]
       },
       {
         title: 'Visionarios',
-        to: 'visionary-admin'
+        to: 'visionary-admin',
+        permissions: [PermissionEnum.SEE_VISIONARIES]
       },
       {
         title: 'Staff',
-        to: 'staff-admin'
+        to: 'staff-admin',
+        permissions: [PermissionEnum.SEE_STAFF]
       }
     ]
   },
@@ -102,7 +133,7 @@ const sidebarItem = [
     title: 'Configuración',
     icon: 'material-symbols:settings',
     to: 'settings',
-    permissions: [PermissionEnum.SEE_CONFIGURATIONS]
+    permissions: [PermissionEnum.SEE_CONFIGURATIONS, PermissionEnum.UPDATE_CONFIGURATIONS],
   }
 ];
 
