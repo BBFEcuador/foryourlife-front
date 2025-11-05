@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import UiParentCard from '@/components/shared/UiParentCard.vue';
 import useAdminRoles from '@/composables/admin/rol/useAdminRoles';
 import useAdminUserMutations from '@/composables/admin/user/useAdminUserMutations';
 import useAdminUsers from '@/composables/admin/user/useAdminUsers';
-import type { Admin, UserActive } from '@/models/Admin';
+import type { Admin } from '@/models/Admin';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
+import { checkPermission } from '@/service/ability';
 import { showErrorToast } from '@/service/sweetAlert';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import useVuelidate from '@vuelidate/core';
 import type { AxiosError } from 'axios';
 import Swal from 'sweetalert2';
 import { ref, watch } from 'vue';
@@ -143,7 +143,7 @@ watch(changeRoleMutation.isError, () => {
                   </template>
                 </VTextField>
                 <v-spacer></v-spacer>
-                <VBtn :to="{ name: 'users-admin-add' }" color="primary" variant="elevated">
+                <VBtn :to="{ name: 'users-admin-add' }" color="primary" variant="elevated" v-if="checkPermission(PermissionEnum.CREATE_USERS)">
                   <Icon icon="mdi:plus" height="18" class="mr-2" />
                   Crear Usuario
                 </VBtn>

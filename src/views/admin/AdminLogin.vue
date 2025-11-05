@@ -6,6 +6,7 @@ import AuthAdminLogin from './AuthAdminLogin.vue';
 <template>
   <v-row class="bg-containerBg position-relative" no-gutters>
     <div class="bg-blur">
+
       <div class="round-1"></div>
       <div class="round-2"></div>
     </div>

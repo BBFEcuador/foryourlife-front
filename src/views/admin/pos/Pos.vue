@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { Icon } from '@iconify/vue';
-import useCashDrawerMutation from '@/composables/admin/pos/useCashDrawerMutation';
-import useCashBoxMutation from '@/composables/admin/pos/useCashBoxMutation';
 import CreateCashBox from '@/components/cashDrawer/CreateCashBox.vue';
-import { adminStore } from '@/stores/adminStore';
-import type { CashBox, CashBoxRequest, StoreRequest } from '@/models/CashDrawer';
-import type { AxiosError } from 'axios';
-import { toast } from 'vue3-toastify';
-import useCashBoxes from '@/composables/admin/pos/useCashBoxes';
-import { router } from '@/router';
 import CreateCashDrawer from '@/components/cashDrawer/CreateCashDrawer.vue';
-import useContificoPosMutation from '@/composables/admin/contifico/useContificoPos';
-import useStores from '@/composables/admin/pos/useStores';
 import CreateStore from '@/components/cashDrawer/CreateStore.vue';
+import useContificoPosMutation from '@/composables/admin/contifico/useContificoPos';
+import useCashBoxes from '@/composables/admin/pos/useCashBoxes';
+import useCashBoxMutation from '@/composables/admin/pos/useCashBoxMutation';
+import useCashDrawerMutation from '@/composables/admin/pos/useCashDrawerMutation';
 import useStoreMutations from '@/composables/admin/pos/useStoreMutations';
+import useStores from '@/composables/admin/pos/useStores';
+import type { CashBox, CashBoxRequest, StoreRequest } from '@/models/CashDrawer';
+import { router } from '@/router';
+import { adminStore } from '@/stores/adminStore';
+import { hasPermission, PermissionEnum } from '@/utils/locales/PermissionEnum.ts';
+import { Icon } from '@iconify/vue';
+import type { AxiosError } from 'axios';
+import { computed, ref } from 'vue';
+import { toast } from 'vue3-toastify';
 
 const { cashBoxes, isCashBoxesLoading, refetchCashBoxes } = useCashBoxes();
 const { storesData, isStoresDataLoading, refetchStoresData } = useStores();
@@ -211,10 +212,17 @@ const handleCloseCashDrawer = async () => {
               <Icon icon="mdi:key" class="mr-1" />
               Abrir Caja
             </v-btn>
-            <v-btn class="flex-grow" variant="tonal" color="info" @click="router.push({
-                name: 'cash-drawer-balances',
-                params: { id: cashBox.id }
-            })">
+            <v-btn
+              class="flex-grow"
+              variant="tonal"
+              color="info"
+              @click="
+                router.push({
+                  name: 'cash-drawer-balances',
+                  params: { id: cashBox.id }
+                })
+              "
+            >
               <Icon icon="mdi:eye" class="mr-1" />
               Ver balances de caja
             </v-btn>
@@ -234,16 +242,11 @@ const handleCloseCashDrawer = async () => {
     <h3 class="text-h3 font-weight-bold">Establecimientos</h3>
     <v-spacer />
     <div class="d-flex tw:flex-wrap tw:gap-2 tw:justify-end">
-      <v-btn
-        :loading="isSyncPosLoading"
-        color="info"
-        @click="syncPos"
-        :disabled="disabledProperty"
-      >
+      <v-btn :loading="isSyncPosLoading" color="info" @click="syncPos" :disabled="disabledProperty">
         <Icon icon="mdi:reload" class="mr-1" />
         <span class="d-none d-sm-flex"> Sincronizar establecimientos de Contifico </span>
       </v-btn>
-      <v-btn color="primary" @click="showCreateStore = true" :disabled="disabledProperty">
+      <v-btn v-if="hasPermission(PermissionEnum.CREATE_EMISSION_POINTS)" color="primary" @click="showCreateStore = true" :disabled="disabledProperty">
         <Icon icon="mdi:add" class="mr-1" />
         <span class="d-none d-sm-flex">Agregar establecimiento</span>
       </v-btn>

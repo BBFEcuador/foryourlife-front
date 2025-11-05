@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
+import BankAccounts from '@/components/paymentMethods/BankAccounts.vue';
 import CreatePaymentMethod from '@/components/paymentMethods/CreatePaymentMethod.vue';
 import EditPaymentMethod from '@/components/paymentMethods/EditPaymentMethod.vue';
-import UiParentCard from '@/components/shared/UiParentCard.vue';
-import usePaymentMethods from '@/composables/admin/paymentMethods/usePaymentMethods';
+import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import usePaymentMethodMutations from '@/composables/admin/paymentMethods/usePaymentMethodMutation';
+import usePaymentMethods from '@/composables/admin/paymentMethods/usePaymentMethods';
 import type { PaymentMethod, PaymentMethodRequest } from '@/models/Payments';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import Swal from 'sweetalert2';
-import { computed, ref, watch } from 'vue';
-import { toast } from 'vue3-toastify';
 import type { AxiosError } from 'axios';
-import BankAccounts from '@/components/paymentMethods/BankAccounts.vue';
+import Swal from 'sweetalert2';
+import { ref, watch } from 'vue';
+import { toast } from 'vue3-toastify';
 const breadcrumbs = ref([
   {
     title: 'Métodos de pago',

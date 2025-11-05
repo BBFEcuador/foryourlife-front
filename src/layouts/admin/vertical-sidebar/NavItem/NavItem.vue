@@ -4,23 +4,19 @@ import { showSideBarItem } from '@/service/ability.ts';
 const props = defineProps({ item: Object, level: Number });
 import { Icon } from '@iconify/vue';
 
+const canShow = showSideBarItem(props.item.permissions);
 
 </script>
 
 <template>
-  <!---Single Item-->
-  <v-list-item
-    v-if="showSideBarItem(props.item.permissions)"
-    :to="item.type === 'external' ? '' : { name: item.to }"
-    rounded
-    color="primary"
-    exact
-    :disabled="item.disabled"
-    :target="item.type === 'external' ? '_blank' : ''"
-  >
+  <div class="">
+
+  </div>
+  <v-list-item v-if="canShow" :to="item.type === 'external' ? '' : { name: item.to }" rounded color="primary" exact
+    :disabled="item.disabled" :target="item.type === 'external' ? '_blank' : ''">
     <!---If icon-->
     <template v-slot:prepend>
-      <Icon :icon="props.item.icon || ''" :level="props.level" height="24"/>
+      <Icon :icon="props.item.icon || ''" :level="props.level" height="24" />
     </template>
     <v-list-item-title>{{ item.title }}</v-list-item-title>
     <!---If Caption-->
@@ -29,32 +25,8 @@ import { Icon } from '@iconify/vue';
     </v-list-item-subtitle>
     <!---If any chip or label-->
     <template v-slot:append v-if="item.chip">
-      <v-chip :color="item.chipColor" class="sidebarchip hide-menu" size="small" :variant="item.chipVariant" :prepend-icon="item.chipIcon">
-        {{ item.chip }}
-      </v-chip>
-    </template>
-  </v-list-item>
-  <v-list-item
-    v-else
-    :to="item.type === 'external' ? '' : { name: item.to }"
-    rounded
-    color="primary"
-    :disabled="item.disabled"
-    exact
-    :target="item.type === 'external' ? '_blank' : ''"
-  >
-    <!---If icon-->
-    <template v-slot:prepend>
-      <Icon :icon="props.item.icon || ''" :level="props.level" height="24"/>
-    </template>
-    <v-list-item-title>{{ item.title }}</v-list-item-title>
-    <!---If Caption-->
-    <v-list-item-subtitle v-if="item.subCaption" class="text-caption mt-0 hide-menu">
-      {{ item.subCaption }}
-    </v-list-item-subtitle>
-    <!---If any chip or label-->
-    <template v-slot:append v-if="item.chip">
-      <v-chip :color="item.chipColor" class="sidebarchip hide-menu" size="small" :variant="item.chipVariant" :prepend-icon="item.chipIcon">
+      <v-chip :color="item.chipColor" class="sidebarchip hide-menu" size="small" :variant="item.chipVariant"
+        :prepend-icon="item.chipIcon">
         {{ item.chip }}
       </v-chip>
     </template>

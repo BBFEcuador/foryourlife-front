@@ -44,7 +44,7 @@ const sidebarItem = [
       {
         title: 'Usuarios',
         to: 'users-admin',
-        permissions: [PermissionEnum.SEE_USERS],
+        permissions: [PermissionEnum.SEE_USERS]
       },
       {
         title: 'Sedes',
@@ -76,16 +76,6 @@ const sidebarItem = [
   {
     title: 'Entrenamiento',
     icon: 'material-symbols-light:model-training',
-    permissions: [
-      PermissionEnum.SEE_TRAINERS,
-      PermissionEnum.SEE_TRAININGS,
-      PermissionEnum.SEE_ATTENDANCES_DECLARATIONS,
-      PermissionEnum.SEE_TEAMS,
-      PermissionEnum.SEE_PARTICIPANTS,
-      PermissionEnum.SEE_MASTER_LIFES,
-      PermissionEnum.SEE_VISIONARIES,
-      PermissionEnum.SEE_STAFF
-    ],
     children: [
       {
         title: 'Entrenadores',
@@ -133,7 +123,7 @@ const sidebarItem = [
     title: 'Configuración',
     icon: 'material-symbols:settings',
     to: 'settings',
-    permissions: [PermissionEnum.SEE_CONFIGURATIONS, PermissionEnum.UPDATE_CONFIGURATIONS],
+    permissions: [PermissionEnum.SEE_CONFIGURATIONS, PermissionEnum.UPDATE_CONFIGURATIONS]
   }
 ];
 

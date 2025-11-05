@@ -1,7 +1,6 @@
 <script setup>
-import SvgSprite from '@/components/shared/SvgSprite.vue';
-import NavItem from '../NavItem/NavItem.vue';
 import { Icon } from '@iconify/vue';
+import NavItem from '../NavItem/NavItem.vue';
 
 const props = defineProps({ item: Object, level: Number });
 </script>

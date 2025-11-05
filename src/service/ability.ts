@@ -18,7 +18,6 @@ export const ability = defineAbility((can) => {
   }
 });
 
-
 export const updateAbilitiesWithToken = (token: string) => {
   ability.update([]);
   const { can, rules } = new AbilityBuilder(Ability);
@@ -55,7 +54,6 @@ export const updateAbilities = () => {
 
 export const showSideBarItem = (p: PermissionEnum[] | undefined) => {
   const { rules } = useAbility();
-  console.log(p);
   if (!p || p.length === 0) {
     return true; // Si no hay permisos definidos, mostrar por defecto
   }
@@ -71,3 +69,6 @@ export const showSideBarItem = (p: PermissionEnum[] | undefined) => {
   return permissions.some((requiredPermission) => userActions.includes(requiredPermission));
 };
 
+export const checkPermission = (permission: string) => {
+  return ability.can(permission, 'all');
+};

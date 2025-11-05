@@ -1,11 +1,8 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-import MainRoutes from './MainRoutes';
-import { PublicRoutes, RegisterRoutes } from './AuthRoutes';
-import { useAuthStore } from '@/stores/auth';
-import { useUIStore } from '@/stores/ui';
 import AdminRoutes from './AdminRoutes';
+import { PublicRoutes, RegisterRoutes } from './AuthRoutes';
+import MainRoutes from './MainRoutes';
 import TrainerRoutes from './TrainerRoutes';
-import { trainerStore } from '@/stores/trainerStore.ts';
 
 const routes: RouteRecordRaw[] = [
   {
