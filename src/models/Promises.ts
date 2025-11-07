@@ -1,4 +1,5 @@
 import type { Participant } from './Participants';
+import type { User } from '@/models/User.ts';
 export interface Promises {
   id: string;
   firstPromise: number;
@@ -8,7 +9,7 @@ export interface Promises {
   paidCount: number | null;
   startDate: Date;
   endDate: Date;
-  participant: Participant;
+  user: User;
 }
 
 export interface PromiseRequest {

@@ -17,7 +17,7 @@ const copied = ref(false);
 const emit = defineEmits(['link-create'])
 const toggleReferralCard = () => {
   // showReferralCard.value = !showReferralCard.value;
-  const userId = stores.user.id;
+  const userId = stores.user.user.id;
   generateInvitationWithQuantityUserMutation.mutate(
     { id: userId, quantity: "100000" },
     {
