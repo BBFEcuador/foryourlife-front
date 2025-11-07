@@ -242,17 +242,9 @@ onMounted(async () => {
           </v-card-title>
 
           <v-card-item>
-            <v-text-field
-              v-model="debouncedSearch"
-              class="pt-2"
-              placeholder="Quito-101, Guayaquil-87, Cuenca-002 ..."
-              label="Buscar entrenamiento"
-              :loading="isTrainingsLoading"
-              clearable
-              variant="outlined"
-              density="compact"
-              hide-details="auto"
-            >
+            <v-text-field v-model="debouncedSearch" class="pt-2" placeholder="Quito-101, Guayaquil-87, Cuenca-002 ..."
+              label="Buscar entrenamiento" :loading="isTrainingsLoading" clearable variant="outlined" density="compact"
+              hide-details="auto">
               <template #prepend-inner>
                 <Icon icon="mdi:magnify" />
               </template>
@@ -267,13 +259,9 @@ onMounted(async () => {
 
               <div v-else-if="trainings.length > 0">
                 <v-list density="compact">
-                  <v-list-item
-                    v-for="training in trainings"
-                    :key="training.id"
-                    class="mb-1"
+                  <v-list-item v-for="training in trainings" :key="training.id" class="mb-1"
                     :class="{ 'v-list-item--active': selectedTraining?.id === training.id }"
-                    @click="selectedTraining = training"
-                  >
+                    @click="selectedTraining = training">
                     <v-list-item-title> {{ training.name }} {{ training.courseLevel }} </v-list-item-title>
                   </v-list-item>
                 </v-list>
@@ -308,13 +296,8 @@ onMounted(async () => {
       </v-col>
 
       <v-col cols="12" md="8">
-        <v-alert
-          v-if="!selectedTraining"
-          class="d-flex justify-center"
-          variant="tonal"
-          type="warning"
-          title="Seleccione un entrenamiento para ver las asistencias"
-        >
+        <v-alert v-if="!selectedTraining" class="d-flex justify-center" variant="tonal" type="warning"
+          title="Seleccione un entrenamiento para ver las asistencias">
           <template #prepend>
             <Icon icon="mdi-alert-outline" height="40" />
           </template>
@@ -330,16 +313,13 @@ onMounted(async () => {
               </div>
             </div>
             <v-spacer></v-spacer>
-            <v-btn v-if="disableCloseAttendance && !switchPromises" variant="flat" class="mr-2" color="warning" @click="closeAttendance">
+            <v-btn v-if="disableCloseAttendance && !switchPromises" variant="flat" class="mr-2" color="warning"
+              @click="closeAttendance">
               <Icon icon="mdi-close" />
               <span class="d-none d-sm-inline ml-2">Cerrar Asistencia</span>
             </v-btn>
-            <VBtn
-              v-if="selectedTraining.courseLevel !== 'FOCUS' && selectedTraining.courseLevel !== 'YOUR'"
-              variant="flat"
-              :color="switchPromises ? 'success' : 'info'"
-              @click="switchViews"
-            >
+            <VBtn v-if="selectedTraining.courseLevel !== 'FOCUS' && selectedTraining.courseLevel !== 'YOUR'"
+              variant="flat" :color="switchPromises ? 'success' : 'info'" @click="switchViews">
               <Icon :icon="switchPromises ? 'material-symbols:event-available' : 'streamline-flex:link-chain-solid'" />
               <span class="d-none d-sm-inline ml-2">{{ !switchPromises ? 'Declaraciones' : 'Asistencias' }}</span>
             </VBtn>
@@ -348,27 +328,18 @@ onMounted(async () => {
           <v-card-item class="tw:w-full">
             <PromiseList v-if="switchPromises" :trainingId="selectedTraining.id" />
 
-            <v-data-table
-              v-else
-              :items="attendances"
-              :loading="isAttendancesLoading"
-              :headers="TABLE_HEADERS"
-              hide-default-footer
-              density="comfortable"
-            >
+            <v-data-table v-else :items="attendances" :loading="isAttendancesLoading" :headers="TABLE_HEADERS"
+              hide-default-footer density="comfortable">
               <template #item="{ internalItem, item }">
                 <v-data-table-row :item="internalItem" :class="getRowClass(item)">
                   <template #item.participant.name="{ item }">
                     <div class="d-flex align-center">
-                      <v-tooltip
-                        v-if="
-                          !item.isActive &&
-                          item.fridayAttendance !== AttendanceStatus.ASISTIO &&
-                          item.saturdayAttendance !== AttendanceStatus.ASISTIO &&
-                          item.sundayAttendance !== AttendanceStatus.ASISTIO
-                        "
-                        location="top"
-                      >
+                      <v-tooltip v-if="
+                        !item.isActive &&
+                        item.fridayAttendance !== AttendanceStatus.ASISTIO &&
+                        item.saturdayAttendance !== AttendanceStatus.ASISTIO &&
+                        item.sundayAttendance !== AttendanceStatus.ASISTIO
+                      " location="top">
                         <template #activator="{ props: activatorProps }">
                           <v-icon class="mr-2" color="warning" size="small" v-bind="activatorProps">
                             <Icon icon="mdi-information-outline" />
@@ -378,45 +349,27 @@ onMounted(async () => {
                       </v-tooltip>
 
                       <span :class="{ 'text-medium-emphasis': !item.isActive }">
-                        {{ item.participant.name }}
+                        {{ item.user.name }}
                       </span>
                     </div>
                   </template>
 
                   <template #item.fridayAttendance="{ item }">
-                    <v-select
-                      v-model="attendanceModels[item.id].friday"
-                      :items="ATTENDANCE_OPTIONS"
-                      :disabled="!item.isActive"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      @update:model-value="handleFridayChange($event, item.id)"
-                    />
+                    <v-select v-model="attendanceModels[item.id].friday" :items="ATTENDANCE_OPTIONS"
+                      :disabled="!item.isActive" density="compact" variant="outlined" hide-details
+                      @update:model-value="handleFridayChange($event, item.id)" />
                   </template>
 
                   <template #item.saturdayAttendance="{ item }">
-                    <v-select
-                      v-model="attendanceModels[item.id].saturday"
-                      :items="ATTENDANCE_OPTIONS"
-                      :disabled="!item.isActive"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      @update:model-value="handleSaturdayChange($event, item.id)"
-                    />
+                    <v-select v-model="attendanceModels[item.id].saturday" :items="ATTENDANCE_OPTIONS"
+                      :disabled="!item.isActive" density="compact" variant="outlined" hide-details
+                      @update:model-value="handleSaturdayChange($event, item.id)" />
                   </template>
 
                   <template #item.sundayAttendance="{ item }">
-                    <v-select
-                      v-model="attendanceModels[item.id].sunday"
-                      :items="ATTENDANCE_OPTIONS"
-                      :disabled="!item.isActive"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      @update:model-value="handleSundayChange($event, item.id)"
-                    />
+                    <v-select v-model="attendanceModels[item.id].sunday" :items="ATTENDANCE_OPTIONS"
+                      :disabled="!item.isActive" density="compact" variant="outlined" hide-details
+                      @update:model-value="handleSundayChange($event, item.id)" />
                   </template>
                 </v-data-table-row>
               </template>

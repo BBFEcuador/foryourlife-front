@@ -1,5 +1,6 @@
 import type { Participant } from './Participants';
 import type { TrainingData } from './Training';
+import type { User } from './User';
 
 export interface Attendance {
   id: string;
@@ -7,7 +8,7 @@ export interface Attendance {
   saturdayAttendance: AttendanceStatus;
   sundayAttendance: AttendanceStatus;
   stage: string;
-  participant: Participant;
+  user: User;
   training: TrainingData;
   isActive: boolean;
 }
