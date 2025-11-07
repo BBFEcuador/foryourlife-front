@@ -13,7 +13,7 @@ const props = defineProps<{
 }>();
 
 const TABLE_HEADERS = [
-  { title: 'Participante', value: 'participant.name' },
+  { title: 'Participante', value: 'user.name' },
   { title: 'Viernes', value: 'fridayPromise' },
   { title: 'Sábado', value: 'saturdayPromise' },
   { title: 'Domingo', value: 'sundayPromise' },
@@ -122,7 +122,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
     >
       <template #item="{ internalItem, item }">
         <v-data-table-row :item="internalItem">
-          <template #item.participant.name="{ item }">
+          <template>
             <div class="d-flex align-center">
               <span>{{ item.user.name }}</span>
             </div>
@@ -132,7 +132,6 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             <v-text-field
               v-model="promiseModels[item.id].first"
               density="compact"
-              type="number"
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
@@ -144,7 +143,6 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             <v-text-field
               v-model="promiseModels[item.id].second"
               density="compact"
-              type="number"
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
@@ -156,7 +154,6 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             <v-text-field
               v-model="promiseModels[item.id].third"
               density="compact"
-              type="number"
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
@@ -189,7 +186,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
     >
       <template #item="{ internalItem, item }">
         <v-data-table-row :item="internalItem">
-          <template #item.participant.name="{ item }">
+          <template>
             <div class="d-flex align-center">
               <span>{{ item.user.name }}</span>
             </div>
@@ -199,7 +196,6 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             <v-text-field
               v-model="promiseModels[item.id].first"
               density="compact"
-              type="number"
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
@@ -207,11 +203,10 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             />
           </template>
 
-          <template #item.saturdayPromise="{ item }">
+          <template>
             <v-text-field
               v-model="promiseModels[item.id].second"
               density="compact"
-              type="number"
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
@@ -219,11 +214,10 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             />
           </template>
 
-          <template #item.sundayPromise="{ item }">
+          <template>
             <v-text-field
               v-model="promiseModels[item.id].third"
               density="compact"
-              type="number"
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
