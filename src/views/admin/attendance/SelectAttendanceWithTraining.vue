@@ -12,6 +12,8 @@ import { ref, onMounted, nextTick, computed, watch, reactive } from 'vue';
 import { toast } from 'vue3-toastify';
 import SwAlert from 'sweetalert2';
 import PromiseList from '@/components/promise/PromiseList.vue';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const ATTENDANCE_OPTIONS = [
   { title: 'Asistió', value: AttendanceStatus.ASISTIO },
@@ -233,206 +235,215 @@ onMounted(async () => {
 <template>
   <div>
     <BaseBreadcrumb title="Asistencias" :breadcrumbs="breadcrumbs" />
+    <div v-if="checkPermission(PermissionEnum.SEE_ATTENDANCES_DECLARATIONS)">
+      <div class="d-flex tw:flex-col tw:md:flex-row">
+        <v-col cols="12" md="4">
+          <v-card elevation="0" class="h-100">
+            <v-card-title>
+              <div class="tw:text-wrap">Seleccione un entrenamiento para continuar</div>
+            </v-card-title>
 
-    <div class="d-flex tw:flex-col tw:md:flex-row">
-      <v-col cols="12" md="4">
-        <v-card elevation="0" class="h-100">
-          <v-card-title>
-            <div class="tw:text-wrap">Seleccione un entrenamiento para continuar</div>
-          </v-card-title>
+            <v-card-item>
+              <v-text-field
+                v-model="debouncedSearch"
+                class="pt-2"
+                placeholder="Quito-101, Guayaquil-87, Cuenca-002 ..."
+                label="Buscar entrenamiento"
+                :loading="isTrainingsLoading"
+                clearable
+                variant="outlined"
+                density="compact"
+                hide-details="auto"
+              >
+                <template #prepend-inner>
+                  <Icon icon="mdi:magnify" />
+                </template>
+              </v-text-field>
+            </v-card-item>
 
-          <v-card-item>
-            <v-text-field
-              v-model="debouncedSearch"
-              class="pt-2"
-              placeholder="Quito-101, Guayaquil-87, Cuenca-002 ..."
-              label="Buscar entrenamiento"
-              :loading="isTrainingsLoading"
-              clearable
-              variant="outlined"
-              density="compact"
-              hide-details="auto"
-            >
-              <template #prepend-inner>
-                <Icon icon="mdi:magnify" />
-              </template>
-            </v-text-field>
-          </v-card-item>
-
-          <v-card-item>
-            <div ref="scrollContainer" class="training-list-container" style="max-height: 275px; overflow-y: auto">
-              <div v-if="isTrainingsLoading && trainings.length === 0" class="pa-4">
-                <v-skeleton-loader v-for="n in 5" :key="n" type="list-item-two-line" class="mb-2" />
-              </div>
-
-              <div v-else-if="trainings.length > 0">
-                <v-list density="compact">
-                  <v-list-item
-                    v-for="training in trainings"
-                    :key="training.id"
-                    class="mb-1"
-                    :class="{ 'v-list-item--active': selectedTraining?.id === training.id }"
-                    @click="selectedTraining = training"
-                  >
-                    <v-list-item-title> {{ training.name }} {{ training.courseLevel }} </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-
-                <div v-if="isLoadingMore" class="text-center pa-4">
-                  <v-progress-circular indeterminate size="24" />
-                  <p class="text-caption mt-2">Cargando más entrenamientos...</p>
+            <v-card-item>
+              <div ref="scrollContainer" class="training-list-container" style="max-height: 275px; overflow-y: auto">
+                <div v-if="isTrainingsLoading && trainings.length === 0" class="pa-4">
+                  <v-skeleton-loader v-for="n in 5" :key="n" type="list-item-two-line" class="mb-2" />
                 </div>
 
-                <div v-else-if="!hasMoreTrainings && trainings.length > 0" class="text-center pa-4">
-                  <p class="text-caption text-medium-emphasis">No hay más entrenamientos</p>
+                <div v-else-if="trainings.length > 0">
+                  <v-list density="compact">
+                    <v-list-item
+                      v-for="training in trainings"
+                      :key="training.id"
+                      class="mb-1"
+                      :class="{ 'v-list-item--active': selectedTraining?.id === training.id }"
+                      @click="selectedTraining = training"
+                    >
+                      <v-list-item-title> {{ training.name }} {{ training.courseLevel }} </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+
+                  <div v-if="isLoadingMore" class="text-center pa-4">
+                    <v-progress-circular indeterminate size="24" />
+                    <p class="text-caption mt-2">Cargando más entrenamientos...</p>
+                  </div>
+
+                  <div v-else-if="!hasMoreTrainings && trainings.length > 0" class="text-center pa-4">
+                    <p class="text-caption text-medium-emphasis">No hay más entrenamientos</p>
+                  </div>
                 </div>
-              </div>
 
-              <div v-else-if="!isTrainingsLoading" class="text-center pa-4">
-                <v-icon size="48" color="grey-lighten-1">
-                  <Icon icon="mdi-magnify" />
-                </v-icon>
-                <p class="text-body-2 mt-2">No se encontraron entrenamientos</p>
-              </div>
-
-              <div v-if="isTrainingError" class="text-center pa-4">
-                <v-icon size="48" color="error">
-                  <Icon icon="mdi-alert-circle" />
-                </v-icon>
-                <p class="text-body-2 mt-2 text-error">Error al cargar entrenamientos</p>
-                <v-btn size="small" color="error" variant="outlined" class="mt-2" @click="retry"> Reintentar </v-btn>
-              </div>
-            </div>
-          </v-card-item>
-        </v-card>
-      </v-col>
-
-      <v-col cols="12" md="8">
-        <v-alert
-          v-if="!selectedTraining"
-          class="d-flex justify-center"
-          variant="tonal"
-          type="warning"
-          title="Seleccione un entrenamiento para ver las asistencias"
-        >
-          <template #prepend>
-            <Icon icon="mdi-alert-outline" height="40" />
-          </template>
-        </v-alert>
-
-        <v-card v-else class="d-flex flex-column tw:items-center h-100" elevation="0">
-          <v-card-title class="d-flex align-center tw:w-full tw:flex-wrap">
-            <div class="d-flex tw:flex-col">
-              <div>{{ switchPromises ? 'Declaraciones' : 'Asistencias' }}</div>
-              <div class="d-flex tw:items-center tw:justify-center">
-                <Icon icon="mdi-account-group" class="mr-2" />
-                <div>{{ selectedTraining.name }} {{ selectedTraining.courseLevel }}</div>
-              </div>
-            </div>
-            <v-spacer></v-spacer>
-            <v-btn v-if="disableCloseAttendance && !switchPromises" variant="flat" class="mr-2" color="warning" @click="closeAttendance">
-              <Icon icon="mdi-close" />
-              <span class="d-none d-sm-inline ml-2">Cerrar Asistencia</span>
-            </v-btn>
-            <VBtn
-              v-if="selectedTraining.courseLevel !== 'FOCUS' && selectedTraining.courseLevel !== 'YOUR'"
-              variant="flat"
-              :color="switchPromises ? 'success' : 'info'"
-              @click="switchViews"
-            >
-              <Icon :icon="switchPromises ? 'material-symbols:event-available' : 'streamline-flex:link-chain-solid'" />
-              <span class="d-none d-sm-inline ml-2">{{ !switchPromises ? 'Declaraciones' : 'Asistencias' }}</span>
-            </VBtn>
-          </v-card-title>
-
-          <v-card-item class="tw:w-full">
-            <PromiseList v-if="switchPromises" :trainingId="selectedTraining.id" />
-
-            <v-data-table
-              v-else
-              :items="attendances"
-              :loading="isAttendancesLoading"
-              :headers="TABLE_HEADERS"
-              hide-default-footer
-              density="comfortable"
-            >
-              <template #item="{ internalItem, item }">
-                <v-data-table-row :item="internalItem" :class="getRowClass(item)">
-                  <template #item.participant.name="{ item }">
-                    <div class="d-flex align-center">
-                      <v-tooltip
-                        v-if="
-                          !item.isActive &&
-                          item.fridayAttendance !== AttendanceStatus.ASISTIO &&
-                          item.saturdayAttendance !== AttendanceStatus.ASISTIO &&
-                          item.sundayAttendance !== AttendanceStatus.ASISTIO
-                        "
-                        location="top"
-                      >
-                        <template #activator="{ props: activatorProps }">
-                          <v-icon class="mr-2" color="warning" size="small" v-bind="activatorProps">
-                            <Icon icon="mdi-information-outline" />
-                          </v-icon>
-                        </template>
-                        <span>El participante no asistió un día y fue eliminado del equipo</span>
-                      </v-tooltip>
-
-                      <span :class="{ 'text-medium-emphasis': !item.isActive }">
-                        {{ item.participant.name }}
-                      </span>
-                    </div>
-                  </template>
-
-                  <template #item.fridayAttendance="{ item }">
-                    <v-select
-                      v-model="attendanceModels[item.id].friday"
-                      :items="ATTENDANCE_OPTIONS"
-                      :disabled="!item.isActive"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      @update:model-value="handleFridayChange($event, item.id)"
-                    />
-                  </template>
-
-                  <template #item.saturdayAttendance="{ item }">
-                    <v-select
-                      v-model="attendanceModels[item.id].saturday"
-                      :items="ATTENDANCE_OPTIONS"
-                      :disabled="!item.isActive"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      @update:model-value="handleSaturdayChange($event, item.id)"
-                    />
-                  </template>
-
-                  <template #item.sundayAttendance="{ item }">
-                    <v-select
-                      v-model="attendanceModels[item.id].sunday"
-                      :items="ATTENDANCE_OPTIONS"
-                      :disabled="!item.isActive"
-                      density="compact"
-                      variant="outlined"
-                      hide-details
-                      @update:model-value="handleSundayChange($event, item.id)"
-                    />
-                  </template>
-                </v-data-table-row>
-              </template>
-
-              <template #no-data>
-                <div class="text-center pa-4">
+                <div v-else-if="!isTrainingsLoading" class="text-center pa-4">
                   <v-icon size="48" color="grey-lighten-1">
-                    <Icon icon="mdi-alert-outline" />
+                    <Icon icon="mdi-magnify" />
                   </v-icon>
-                  <p class="text-body-2 mt-2">No hay participantes registrados</p>
+                  <p class="text-body-2 mt-2">No se encontraron entrenamientos</p>
                 </div>
-              </template>
-            </v-data-table>
-          </v-card-item>
-        </v-card>
-      </v-col>
+
+                <div v-if="isTrainingError" class="text-center pa-4">
+                  <v-icon size="48" color="error">
+                    <Icon icon="mdi-alert-circle" />
+                  </v-icon>
+                  <p class="text-body-2 mt-2 text-error">Error al cargar entrenamientos</p>
+                  <v-btn size="small" color="error" variant="outlined" class="mt-2" @click="retry"> Reintentar </v-btn>
+                </div>
+              </div>
+            </v-card-item>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="8">
+          <v-alert
+            v-if="!selectedTraining"
+            class="d-flex justify-center"
+            variant="tonal"
+            type="warning"
+            title="Seleccione un entrenamiento para ver las asistencias"
+          >
+            <template #prepend>
+              <Icon icon="mdi-alert-outline" height="40" />
+            </template>
+          </v-alert>
+
+          <v-card v-else class="d-flex flex-column tw:items-center h-100" elevation="0">
+            <v-card-title class="d-flex align-center tw:w-full tw:flex-wrap">
+              <div class="d-flex tw:flex-col">
+                <div>{{ switchPromises ? 'Declaraciones' : 'Asistencias' }}</div>
+                <div class="d-flex tw:items-center tw:justify-center">
+                  <Icon icon="mdi-account-group" class="mr-2" />
+                  <div>{{ selectedTraining.name }} {{ selectedTraining.courseLevel }}</div>
+                </div>
+              </div>
+              <v-spacer></v-spacer>
+              <v-btn v-if="disableCloseAttendance && !switchPromises" variant="flat" class="mr-2" color="warning" @click="closeAttendance">
+                <Icon icon="mdi-close" />
+                <span class="d-none d-sm-inline ml-2">Cerrar Asistencia</span>
+              </v-btn>
+              <VBtn
+                v-if="selectedTraining.courseLevel !== 'FOCUS' && selectedTraining.courseLevel !== 'YOUR'"
+                variant="flat"
+                :color="switchPromises ? 'success' : 'info'"
+                @click="switchViews"
+              >
+                <Icon :icon="switchPromises ? 'material-symbols:event-available' : 'streamline-flex:link-chain-solid'" />
+                <span class="d-none d-sm-inline ml-2">{{ !switchPromises ? 'Declaraciones' : 'Asistencias' }}</span>
+              </VBtn>
+            </v-card-title>
+
+            <v-card-item class="tw:w-full">
+              <PromiseList v-if="switchPromises" :trainingId="selectedTraining.id" />
+
+              <v-data-table
+                v-else
+                :items="attendances"
+                :loading="isAttendancesLoading"
+                :headers="TABLE_HEADERS"
+                hide-default-footer
+                density="comfortable"
+              >
+                <template #item="{ internalItem, item }">
+                  <v-data-table-row :item="internalItem" :class="getRowClass(item)">
+                    <template #item.participant.name="{ item }">
+                      <div class="d-flex align-center">
+                        <v-tooltip
+                          v-if="
+                            !item.isActive &&
+                            item.fridayAttendance !== AttendanceStatus.ASISTIO &&
+                            item.saturdayAttendance !== AttendanceStatus.ASISTIO &&
+                            item.sundayAttendance !== AttendanceStatus.ASISTIO
+                          "
+                          location="top"
+                        >
+                          <template #activator="{ props: activatorProps }">
+                            <v-icon class="mr-2" color="warning" size="small" v-bind="activatorProps">
+                              <Icon icon="mdi-information-outline" />
+                            </v-icon>
+                          </template>
+                          <span>El participante no asistió un día y fue eliminado del equipo</span>
+                        </v-tooltip>
+
+                        <span :class="{ 'text-medium-emphasis': !item.isActive }">
+                          {{ item.participant.name }}
+                        </span>
+                      </div>
+                    </template>
+
+                    <template #item.fridayAttendance="{ item }">
+                      <v-select
+                        v-model="attendanceModels[item.id].friday"
+                        :items="ATTENDANCE_OPTIONS"
+                        :disabled="!item.isActive"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        @update:model-value="handleFridayChange($event, item.id)"
+                      />
+                    </template>
+
+                    <template #item.saturdayAttendance="{ item }">
+                      <v-select
+                        v-model="attendanceModels[item.id].saturday"
+                        :items="ATTENDANCE_OPTIONS"
+                        :disabled="!item.isActive"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        @update:model-value="handleSaturdayChange($event, item.id)"
+                      />
+                    </template>
+
+                    <template #item.sundayAttendance="{ item }">
+                      <v-select
+                        v-model="attendanceModels[item.id].sunday"
+                        :items="ATTENDANCE_OPTIONS"
+                        :disabled="!item.isActive"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        @update:model-value="handleSundayChange($event, item.id)"
+                      />
+                    </template>
+                  </v-data-table-row>
+                </template>
+
+                <template #no-data>
+                  <div class="text-center pa-4">
+                    <v-icon size="48" color="grey-lighten-1">
+                      <Icon icon="mdi-alert-outline" />
+                    </v-icon>
+                    <p class="text-body-2 mt-2">No hay participantes registrados</p>
+                  </div>
+                </template>
+              </v-data-table>
+            </v-card-item>
+          </v-card>
+        </v-col>
+      </div>
+    </div>
+    <div v-else>
+      <v-alert title="Acceso denegado" variant="outlined" border="top" elevation="2" type="warning">
+        <template #prepend>
+          <Icon color="warning" icon="mdi-alert" height="30" />
+        </template>
+        No tienes permiso para ver esta sección.
+      </v-alert>
     </div>
   </div>
 </template>

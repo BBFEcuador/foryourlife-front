@@ -4,6 +4,8 @@ import SvgSprite from '@/components/shared/SvgSprite.vue';
 import { Icon } from '@iconify/vue';
 import { useRouter } from 'vue-router';
 import { adminStore } from '@/stores/adminStore';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const store = adminStore();
 const router = useRouter();
@@ -35,7 +37,7 @@ const userEmail = computed(() => store.user?.email || '');
       </div>
     </div>
     <v-divider></v-divider>
-    <perfect-scrollbar>
+    <perfect-scrollbar v-if="checkPermission(PermissionEnum.SEE_CONFIGURATIONS)">
       <v-list class="py-0 mt-3 theme-list" lines="one">
         <v-list-item class="px-2 py-0 rounded-md custom-text-primary" color="primary" :to="{ name: 'settings' }">
           <div class="gap-4 d-flex justify-center align-center">

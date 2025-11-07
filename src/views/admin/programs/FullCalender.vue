@@ -23,6 +23,8 @@ import InputSection from '@/components/forms/InputSection.vue';
 import type { TrainingData } from '@/models/Training';
 import type { Team } from '@/models/Participants';
 import ViewTeam from '../team/ViewTeam.vue';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const { updateEventMutation, addEventMutation } = useCalendarMutations();
 
@@ -60,12 +62,13 @@ const formatDate = (date: string | Date) => {
 };
 
 const handleEventClick = (clickInfo: any) => {
+  const hasPermissionUpdate = checkPermission(PermissionEnum.UPDATE_TRAININGS);
   const isUpdateOrView = trainingsData.value.content.find((x) => x.id == clickInfo.event.id);
   if (isUpdateOrView?.embedded.originalTeam) {
     team.value = isUpdateOrView.embedded.originalTeam;
     dialog.value = true;
   } else {
-    viewModalShow.value = true;
+    viewModalShow.value = hasPermissionUpdate ? true : false;
     currentEvent.value = clickInfo.event;
     selectedDate.value = new Date(clickInfo.event.start);
   }
@@ -85,14 +88,22 @@ const handleDatesSet = async (arg: { start: Date; end: Date }) => {
 };
 
 const calendarOption = computed(() => {
+  const hasPermissionCreate = checkPermission(PermissionEnum.CREATE_TRAININGS);
+  const headerToolbar = hasPermissionCreate
+    ? {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'customButton'
+      }
+    : {
+        left: 'prev,next today',
+        center: 'title',
+        right: ''
+      };
   return {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'customButton'
-    },
+    headerToolbar,
     locale: LocaleEs,
     editable: true,
     selectable: true,
@@ -102,14 +113,16 @@ const calendarOption = computed(() => {
     datesSet: handleDatesSet,
     eventStartEditable: false,
     eventDurationEditable: false,
-    customButtons: {
-      customButton: {
-        text: 'Agregar nuevos entrenamienos',
-        click: () => {
-          isModalOpen.value = true;
+    ...(hasPermissionCreate && {
+      customButtons: {
+        customButton: {
+          text: 'Agregar nuevos entrenamientos',
+          click: () => {
+            isModalOpen.value = true;
+          }
         }
       }
-    }
+    })
   };
 });
 

@@ -10,6 +10,8 @@ import { toast } from 'vue3-toastify';
 import type { AxiosError } from 'axios';
 import useContificoBankAccountsMutation from '@/composables/admin/contifico/useContificoBankAccounts';
 import { adminStore } from '@/stores/adminStore';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const { bankAccounts, isBankAccountsLoading, refetchBankAccounts } = useBankAccounts();
 const { saveBankAccountMutation } = useBankAccountMutations();
@@ -119,7 +121,13 @@ const handleEditBankAccount = (item: BankAccount) => {
           <Icon class="mr-2" icon="mdi:refresh" />
           Sincronizar Cuentas Bancarias de Contifico
         </VBtn>
-        <VBtn variant="elevated" color="primary" class="ml-2" @click="showCreateDialog = true">
+        <VBtn
+          v-if="checkPermission(PermissionEnum.CREATE_PAYMENT_METHODS)"
+          variant="elevated"
+          color="primary"
+          class="ml-2"
+          @click="showCreateDialog = true"
+        >
           <Icon class="mr-2" icon="mdi:plus" />
           Agregar Cuenta Bancaria
         </VBtn>
@@ -129,6 +137,7 @@ const handleEditBankAccount = (item: BankAccount) => {
     <template v-slot:item.actions="{ item }">
       <div class="d-flex ga-2">
         <v-btn
+          v-if="checkPermission(PermissionEnum.UPDATE_PAYMENT_METHODS)"
           icon
           color="info"
           variant="text"

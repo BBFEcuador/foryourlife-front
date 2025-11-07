@@ -14,6 +14,8 @@ import TeamLevelSelector from './create/TeamLevelSelector.vue';
 import TrainerSelector from './create/TrainerSelector.vue';
 import TrainingSelector from './create/TrainingSelector.vue';
 import VisionariesSelector from './create/VisionariesSelector.vue';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const breadcrumbs = ref([
   {
@@ -23,160 +25,230 @@ const breadcrumbs = ref([
   }
 ]);
 
-
-const lasStep = ref(6)
-const staffStepNumber = ref(5)
-const visStepNumber = ref(4)
-const masterLifeStepNumber = ref(4)
-
+const lasStep = ref(6);
+const staffStepNumber = ref(5);
+const visStepNumber = ref(4);
+const masterLifeStepNumber = ref(4);
 
 const team = ref({
   users: [] as Participant[],
-  visionaries:[] as Visionary[],
-  masterLife:[] as Participant[],
-  staffs:[] as StaffWriteModel[],
-  lvl:"FOCUS"
+  visionaries: [] as Visionary[],
+  masterLife: [] as Participant[],
+  staffs: [] as StaffWriteModel[],
+  lvl: 'FOCUS'
 } as TeamWriteModel);
 
-const nameFieldStatus = computed(() => team.value.lvl  != 'LIFE')
+const nameFieldStatus = computed(() => team.value.lvl != 'LIFE');
 
+watch(
+  () => team.value.lvl,
+  () => {
+    switch (team.value.lvl) {
+      case 'FOCUS':
+        lasStep.value = 7;
+        staffStepNumber.value = 6;
+        visStepNumber.value = 5;
+        masterLifeStepNumber.value = 5;
+        break;
 
-watch(()=>team.value.lvl,() => {
-  switch (team.value.lvl) {
-    case 'FOCUS':
-      lasStep.value = 7
-      staffStepNumber.value = 6
-      visStepNumber.value = 5
-      masterLifeStepNumber.value = 5
-      break;
+      case 'YOUR':
+        lasStep.value = 6;
+        staffStepNumber.value = 5;
+        visStepNumber.value = 5;
+        masterLifeStepNumber.value = 5;
+        break;
+      case 'LIFE':
+        lasStep.value = 6;
+        staffStepNumber.value = 5;
+        visStepNumber.value = 5;
+        masterLifeStepNumber.value = 5;
+        break;
 
-    case 'YOUR':
-      lasStep.value = 6
-      staffStepNumber.value = 5
-      visStepNumber.value = 5
-      masterLifeStepNumber.value = 5
-      break;
-    case 'LIFE':
-      lasStep.value = 6
-      staffStepNumber.value = 5
-      visStepNumber.value = 5
-      masterLifeStepNumber.value = 5
-      break;
-
-    default:
-      break;
+      default:
+        break;
+    }
   }
-})
+);
 
-const step = ref(1)
-
-
+const step = ref(1);
 </script>
 
 <template>
   <BaseBreadcrumb :title="'Equipo'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+  <div v-if="checkPermission(PermissionEnum.CREATE_TEAMS)">
+    <v-container class="pa-4" v-auto-animate>
+      <v-card class="mb-4" elevation="1" v-if="!nameFieldStatus">
+        <v-card-item>
+          <v-card-title class="d-flex align-center">
+            <Icon icon="mdi-account-group" size="32" class="mr-2" color="primary" />
+            Crear Nuevo Equipo
+          </v-card-title>
+          <v-card-subtitle class="mt-2">Ingresa el nombre del equipo para comenzar</v-card-subtitle>
+          <v-card-text>
+            <v-text-field
+              v-model="team.name"
+              label="Nombre del equipo"
+              placeholder="Ingresa el nombre del equipo"
+              hide-details="auto"
+              variant="outlined"
+              density="comfortable"
+              class="mt-2"
+              :readonly="nameFieldStatus"
+            ></v-text-field>
+          </v-card-text>
+          {{ nameFieldStatus }}
+        </v-card-item>
+      </v-card>
 
-  <v-container class="pa-4" v-auto-animate>
-    <v-card class="mb-4" elevation="1" v-if="!nameFieldStatus">
-      <v-card-item>
-        <v-card-title class="d-flex align-center">
-          <Icon icon="mdi-account-group" size="32" class="mr-2" color="primary" />
-          Crear Nuevo Equipo
-        </v-card-title>
-        <v-card-subtitle class="mt-2">Ingresa el nombre del equipo para comenzar</v-card-subtitle>
-        <v-card-text>
-          <v-text-field v-model="team.name" label="Nombre del equipo" placeholder="Ingresa el nombre del equipo"
-            hide-details="auto" variant="outlined" density="comfortable" class="mt-2" :readonly="nameFieldStatus"></v-text-field>
-        </v-card-text>
-        {{ nameFieldStatus }}
-      </v-card-item>
-    </v-card>
-
-    <VStepperVertical v-model="step" elevation="1">
-      <!-- <VStepperVerticalItem hide-actions :complete="step > 1" subtitle="Paso 1" title="Selecciona el tipo de equipo"
+      <VStepperVertical v-model="step" elevation="1">
+        <!-- <VStepperVerticalItem hide-actions :complete="step > 1" subtitle="Paso 1" title="Selecciona el tipo de equipo"
         :value="1">
         <TeamLevelSelector :team="team" @level-selected="() => {
           step++
         }"/>
       </VStepperVerticalItem> -->
 
-      <VStepperVerticalItem hide-actions :complete="step > 1" subtitle="Paso 1" title="Selecciona el entrenamiento"
-        :value="1">
-        <TrainingSelector :team="team" @back="() => {
-          step--
-        }" @next="() => {
-          step++
-        }"/>
-      </VStepperVerticalItem>
+        <VStepperVerticalItem hide-actions :complete="step > 1" subtitle="Paso 1" title="Selecciona el entrenamiento" :value="1">
+          <TrainingSelector
+            :team="team"
+            @back="
+              () => {
+                step--;
+              }
+            "
+            @next="
+              () => {
+                step++;
+              }
+            "
+          />
+        </VStepperVerticalItem>
 
-      <VStepperVerticalItem hide-actions :complete="step > 2" subtitle="Paso 2" title="Selecciona el entrenador"
-        :value="2">
-       <TrainerSelector :team="team" @back="() => {
-          step--
-        }" @next="() => {
-          step++
-        }"/>
-      </VStepperVerticalItem>
+        <VStepperVerticalItem hide-actions :complete="step > 2" subtitle="Paso 2" title="Selecciona el entrenador" :value="2">
+          <TrainerSelector
+            :team="team"
+            @back="
+              () => {
+                step--;
+              }
+            "
+            @next="
+              () => {
+                step++;
+              }
+            "
+          />
+        </VStepperVerticalItem>
 
-      <VStepperVerticalItem hide-actions :complete="step > 3" subtitle="Paso 3" title="Selecciona los participantes"
-        :value="3">
-        <ParticipantTeamSelector :team="team"  @back="() => {
-          step--
-        }" @next="() => {
-          step++
-        }"/>
-      </VStepperVerticalItem>
+        <VStepperVerticalItem hide-actions :complete="step > 3" subtitle="Paso 3" title="Selecciona los participantes" :value="3">
+          <ParticipantTeamSelector
+            :team="team"
+            @back="
+              () => {
+                step--;
+              }
+            "
+            @next="
+              () => {
+                step++;
+              }
+            "
+          />
+        </VStepperVerticalItem>
 
-      <VStepperVerticalItem v-if="team.lvl === 'FOCUS'" hide-actions :complete="step > visStepNumber"
-        :subtitle="`Paso ${visStepNumber}`" title="Selecciona los Visionarios" :value="visStepNumber">
-       <VisionariesSelector :team="team" @back="() => {
-          step--
-        }" @next="() => {
-          step++
-        }"/>
-      </VStepperVerticalItem>
+        <VStepperVerticalItem
+          v-if="team.lvl === 'FOCUS'"
+          hide-actions
+          :complete="step > visStepNumber"
+          :subtitle="`Paso ${visStepNumber}`"
+          title="Selecciona los Visionarios"
+          :value="visStepNumber"
+        >
+          <VisionariesSelector
+            :team="team"
+            @back="
+              () => {
+                step--;
+              }
+            "
+            @next="
+              () => {
+                step++;
+              }
+            "
+          />
+        </VStepperVerticalItem>
 
-      <VStepperVerticalItem v-if="team.lvl === 'FOCUS' || team.lvl === 'YOUR'" hide-actions :complete="step > staffStepNumber"
-        :subtitle="`Paso ${staffStepNumber}`" title="Selecciona el Staff" :value="staffStepNumber">
-        <StaffSelector :team="team" @back="() => {
-          step--
-        }" @next="() => {
-          step++
-        }"/> 
-      </VStepperVerticalItem>
+        <VStepperVerticalItem
+          v-if="team.lvl === 'FOCUS' || team.lvl === 'YOUR'"
+          hide-actions
+          :complete="step > staffStepNumber"
+          :subtitle="`Paso ${staffStepNumber}`"
+          title="Selecciona el Staff"
+          :value="staffStepNumber"
+        >
+          <StaffSelector
+            :team="team"
+            @back="
+              () => {
+                step--;
+              }
+            "
+            @next="
+              () => {
+                step++;
+              }
+            "
+          />
+        </VStepperVerticalItem>
 
-      <VStepperVerticalItem v-if="team.lvl === 'LIFE'" hide-actions :complete="step > masterLifeStepNumber"
-        :subtitle="`Paso ${masterLifeStepNumber}`" title="Selecciona los masterlife" :value="masterLifeStepNumber">
-        <v-card variant="flat" class="pa-4">
-          <div class="d-flex align-center mb-4">
-            <Icon icon="mdi-star" size="28" class="mr-2" color="primary" />
-            <h4 class="text-h4">Master Life</h4>
-          </div>
-          <v-divider class="mb-4"></v-divider>
+        <VStepperVerticalItem
+          v-if="team.lvl === 'LIFE'"
+          hide-actions
+          :complete="step > masterLifeStepNumber"
+          :subtitle="`Paso ${masterLifeStepNumber}`"
+          title="Selecciona los masterlife"
+          :value="masterLifeStepNumber"
+        >
+          <v-card variant="flat" class="pa-4">
+            <div class="d-flex align-center mb-4">
+              <Icon icon="mdi-star" size="28" class="mr-2" color="primary" />
+              <h4 class="text-h4">Master Life</h4>
+            </div>
+            <v-divider class="mb-4"></v-divider>
 
-          <v-card-actions class="mt-6">
-            <v-btn variant="outlined" @click="step--">
-              <Icon icon="mdi-arrow-left" />
-              Atrás
-            </v-btn>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" @click="step++">
-              <Icon icon="mdi-arrow-right" />
-              Siguiente
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </VStepperVerticalItem>
+            <v-card-actions class="mt-6">
+              <v-btn variant="outlined" @click="step--">
+                <Icon icon="mdi-arrow-left" />
+                Atrás
+              </v-btn>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" @click="step++">
+                <Icon icon="mdi-arrow-right" />
+                Siguiente
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </VStepperVerticalItem>
 
-      <VStepperVerticalItem hide-actions :subtitle="`Paso ${lasStep}`" title="Confirmación" :value="lasStep">
-        <ConfirmationStep 
-          :team="team"
-          :disabled="!team.name || !team.trainerObj || !team.trainerObj || team.users.length === 0"
-          @back="step--"
-        />
-      </VStepperVerticalItem>
-    </VStepperVertical>
-  </v-container>
+        <VStepperVerticalItem hide-actions :subtitle="`Paso ${lasStep}`" title="Confirmación" :value="lasStep">
+          <ConfirmationStep
+            :team="team"
+            :disabled="!team.name || !team.trainerObj || !team.trainerObj || team.users.length === 0"
+            @back="step--"
+          />
+        </VStepperVerticalItem>
+      </VStepperVertical>
+    </v-container>
+  </div>
+  <div v-else>
+    <v-alert title="Acceso denegado" variant="outlined" border="top" elevation="2" type="warning">
+      <template #prepend>
+        <Icon color="warning" icon="mdi-alert" height="30" />
+      </template>
+      No tienes permiso para ver esta sección.
+    </v-alert>
+  </div>
 </template>
 
 <style scoped>

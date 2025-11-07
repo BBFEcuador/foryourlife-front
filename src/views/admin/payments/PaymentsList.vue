@@ -11,6 +11,9 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import Swal from 'sweetalert2';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
+
 
 const showPaymentHistory = ref(false);
 const selectPaymentIdPdf = ref('');
@@ -137,120 +140,186 @@ function formatDate(dateStr: Date): string {
 
 <template>
   <BaseBreadcrumb :title="'Cobros'" :breadcrumbs="breadcrumbs" />
-  <UiParentCard title="Lista de Cobros">
-    <v-data-table-server :headers="headers" :search="debouncedSearch" :items="paymentsData.content"
-      :loading="isPaymentsLoading || isPaymentPdfLoading" :items-length="paymentsData.totalElements"
-      :items-per-page="10" show-expand @update:options="loadItems">
-      <template v-slot:top>
-        <v-toolbar v-motion class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat
-          :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
-          <VTextField v-model="debouncedSearch" placeholder="Buscar cobros..." variant="outlined" density="comfortable"
-            hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm" bg-color="white">
-            <template #prepend-inner>
-              <div class="tw:relative">
-                <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-              </div>
-            </template>
-            <template v-if="debouncedSearch" #append>
-              <VBtn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
-                @click="debouncedSearch = ''">
-                <Icon icon="mdi:close" height="18" />
-              </VBtn>
-            </template>
-          </VTextField>
-          <v-spacer></v-spacer>
-          <VBtn variant="elevated" color="primary" @click="onCreatePayment">
-            <Icon class="mr-2" icon="mdi:plus" />
-            Crear Cobro
-          </VBtn>
-        </v-toolbar>
-      </template>
-      <template #item.programs="{ item }">
-        <div class="d-flex flex-wrap gap-2">
-          <v-chip v-for="program in item.products[0].programs" :key="program.id" size="small" variant="outlined"
-            class="text-caption mr-2" :color="getProgramColor(program.courseLevel)">
-            {{ program.courseLevel }}
-          </v-chip>
-        </div>
-      </template>
-      <template #item.products="{ item }">
-        <div class="d-flex flex-wrap gap-2">
-          <v-chip size="small" color="primary">
-            {{ item.products[0].name }}
-          </v-chip>
-        </div>
-      </template>
-      <template #item.status="{ item }">
-        <div class="d-flex flex-wrap gap-2">
-          <v-chip size="small"
-            :color="item.status === 'PENDING' ? 'warning' : item.status === 'COMPLETED' ? 'success' : 'error'">
-            {{ item.status === 'PENDING' ? 'Pendiente' : item.status === 'COMPLETED' ? 'Completado' : 'Cancelado' }}
-          </v-chip>
-        </div>
-      </template>
-      <template #item.hasSomePaymentWithError="{ item }">
-        <div v-if="!item.hasSomePaymentWithError">
-           <v-tooltip location="top" :text="'No se han registrado errores en los cobros'">
-            <template #activator="{ props: activatorProps }">
-              <v-icon class="ml-2" color="success" v-bind="activatorProps">
-                <Icon icon="material-symbols:check-circle-outline" />
-              </v-icon>
-            </template>
-          </v-tooltip>
-        </div>
-        <div v-else>
-         <v-icon class="ml-2" color="error">
-            <Icon icon="weui:close2-outlined" />
-          </v-icon>
-        </div>
-      </template>
-
-      <template #item.actions="{ item }">
-        <div class="d-flex ga-2">
-          <v-btn v-tooltip="'Ver lista de pagos'" icon color="info" variant="text" size="32"
-            class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-            @click="onPaymentHistoryShow(item)">
-            <Icon icon="mdi:list-box-outline" />
-          </v-btn>
-          <v-btn v-tooltip="'Imprimir compromiso de cobro'" icon color="success" variant="text" size="32"
-            class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100" @click="handleDownloadPdf(item)">
-            <Icon icon="material-symbols:print-outline-rounded" />
-          </v-btn>
-          <v-btn v-if="item.status !== 'CANCELLED'" v-tooltip="'Cerrar Cobro'" color="error" icon variant="text"
-            size="32" class="tw:bg-red-300 hover:!tw:bg-red-100" @click="onChangeStatus(item)">
-            <Icon icon="mdi-power" height="18" />
-          </v-btn>
-        </div>
-      </template>
-      <template #expanded-row="{ item }">
-        <td :colspan="10">
-          <div class="pa-4">
-            <v-row>
-              <v-col cols="4">
-                <div class="tw:font-bold">Número de Factura</div>
-                <div>{{ item.invoice[0].invoiceNumber }}</div>
-              </v-col>
-              <v-col cols="4">
-                <div class="tw:font-bold">Nombre</div>
-                <div>{{ item.invoice[0].fullName }}</div>
-              </v-col>
-              <v-col cols="4">
-                <div class="tw:font-bold">Identificación</div>
-                <div>{{ item.invoice[0].document }}</div>
-              </v-col>
-               <v-col cols="4">
-                <div class="tw:font-bold">Fecha</div>
-                <div>{{ formatDate(item.invoice[0].invoiceDate) }}</div>
-              </v-col>
-            </v-row>
+  <div v-if="checkPermission(PermissionEnum.SEE_PAYMENTS)">
+    <UiParentCard title="Lista de Cobros">
+      <v-data-table-server
+        :headers="headers"
+        :search="debouncedSearch"
+        :items="paymentsData.content"
+        :loading="isPaymentsLoading || isPaymentPdfLoading"
+        :items-length="paymentsData.totalElements"
+        :items-per-page="10"
+        show-expand
+        @update:options="loadItems"
+      >
+        <template v-slot:top>
+          <v-toolbar
+            v-motion
+            class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+            flat
+            :initial="{ opacity: 0, y: -10 }"
+            :enter="{ opacity: 1, y: 0 }"
+            :delay="200"
+            :duration="250"
+          >
+            <VTextField
+              v-model="debouncedSearch"
+              placeholder="Buscar cobros..."
+              variant="outlined"
+              density="comfortable"
+              hide-details
+              class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+              bg-color="white"
+            >
+              <template #prepend-inner>
+                <div class="tw:relative">
+                  <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                  <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                </div>
+              </template>
+              <template v-if="debouncedSearch" #append>
+                <VBtn
+                  icon
+                  variant="text"
+                  size="small"
+                  class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                  @click="debouncedSearch = ''"
+                >
+                  <Icon icon="mdi:close" height="18" />
+                </VBtn>
+              </template>
+            </VTextField>
+            <v-spacer></v-spacer>
+            <VBtn v-if="checkPermission(PermissionEnum.CREATE_PAYMENTS)" variant="elevated" color="primary" @click="onCreatePayment">
+              <Icon class="mr-2" icon="mdi:plus" />
+              Crear Cobro
+            </VBtn>
+          </v-toolbar>
+        </template>
+        <template #item.programs="{ item }">
+          <div class="d-flex flex-wrap gap-2">
+            <v-chip
+              v-for="program in item.products[0].programs"
+              :key="program.id"
+              size="small"
+              variant="outlined"
+              class="text-caption mr-2"
+              :color="getProgramColor(program.courseLevel)"
+            >
+              {{ program.courseLevel }}
+            </v-chip>
           </div>
-        </td>
+        </template>
+        <template #item.products="{ item }">
+          <div class="d-flex flex-wrap gap-2">
+            <v-chip size="small" color="primary">
+              {{ item.products[0].name }}
+            </v-chip>
+          </div>
+        </template>
+        <template #item.status="{ item }">
+          <div class="d-flex flex-wrap gap-2">
+            <v-chip size="small" :color="item.status === 'PENDING' ? 'warning' : item.status === 'COMPLETED' ? 'success' : 'error'">
+              {{ item.status === 'PENDING' ? 'Pendiente' : item.status === 'COMPLETED' ? 'Completado' : 'Cancelado' }}
+            </v-chip>
+          </div>
+        </template>
+        <template #item.hasSomePaymentWithError="{ item }">
+          <div v-if="!item.hasSomePaymentWithError">
+            <v-tooltip location="top" :text="'No se han registrado errores en los cobros'">
+              <template #activator="{ props: activatorProps }">
+                <v-icon class="ml-2" color="success" v-bind="activatorProps">
+                  <Icon icon="material-symbols:check-circle-outline" />
+                </v-icon>
+              </template>
+            </v-tooltip>
+          </div>
+          <div v-else>
+            <v-icon class="ml-2" color="error">
+              <Icon icon="weui:close2-outlined" />
+            </v-icon>
+          </div>
+        </template>
+
+        <template #item.actions="{ item }">
+          <div class="d-flex ga-2">
+            <v-btn
+              v-tooltip="'Ver lista de pagos'"
+              icon
+              color="info"
+              variant="text"
+              size="32"
+              class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+              @click="onPaymentHistoryShow(item)"
+            >
+              <Icon icon="mdi:list-box-outline" />
+            </v-btn>
+            <v-btn
+              v-tooltip="'Imprimir compromiso de cobro'"
+              icon
+              color="success"
+              variant="text"
+              size="32"
+              class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+              @click="handleDownloadPdf(item)"
+            >
+              <Icon icon="material-symbols:print-outline-rounded" />
+            </v-btn>
+            <v-btn
+              v-if="item.status !== 'CANCELLED' && checkPermission(PermissionEnum.DELETE_PAYMENTS)"
+              v-tooltip="'Cerrar Cobro'"
+              color="error"
+              icon
+              variant="text"
+              size="32"
+              class="tw:bg-red-300 hover:!tw:bg-red-100"
+              @click="onChangeStatus(item)"
+            >
+              <Icon icon="mdi-power" height="18" />
+            </v-btn>
+          </div>
+        </template>
+        <template #expanded-row="{ item }">
+          <td :colspan="10">
+            <div class="pa-4">
+              <v-row>
+                <v-col cols="4">
+                  <div class="tw:font-bold">Número de Factura</div>
+                  <div>{{ item.invoice[0].invoiceNumber }}</div>
+                </v-col>
+                <v-col cols="4">
+                  <div class="tw:font-bold">Nombre</div>
+                  <div>{{ item.invoice[0].fullName }}</div>
+                </v-col>
+                <v-col cols="4">
+                  <div class="tw:font-bold">Identificación</div>
+                  <div>{{ item.invoice[0].document }}</div>
+                </v-col>
+                <v-col cols="4">
+                  <div class="tw:font-bold">Fecha</div>
+                  <div>{{ formatDate(item.invoice[0].invoiceDate) }}</div>
+                </v-col>
+              </v-row>
+            </div>
+          </td>
+        </template>
+      </v-data-table-server>
+      <PaymentInvoicesList
+        v-model="showPaymentHistory"
+        :payment="payment"
+        @payment-updated="refetchPayment"
+        :isRefetching="isPaymentLoading"
+      />
+    </UiParentCard>
+  </div>
+  <div v-else>
+    <v-alert title="Acceso denegado" variant="outlined" border="top" elevation="2" type="warning">
+      <template #prepend>
+        <Icon color="warning" icon="mdi-alert" height="30" />
       </template>
-    </v-data-table-server>
-    <PaymentInvoicesList v-model="showPaymentHistory" :payment="payment" @payment-updated="refetchPayment"
-      :isRefetching="isPaymentLoading" />
-  </UiParentCard>
+      No tienes permiso para ver esta sección.
+    </v-alert>
+  </div>
 </template>
 
 <style scoped>

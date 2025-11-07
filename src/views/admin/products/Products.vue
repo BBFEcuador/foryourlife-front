@@ -15,6 +15,8 @@ import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { adminStore } from '@/stores/adminStore';
 import CreateProduct from '@/components/products/createProduct.vue';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
+import { checkPermission } from '@/service/ability';
 
 const { productsData, isProductsLoading, page, perPage, productSearch, refetchProducts } = useProducts();
 const { changeStatusMutations, updateProductMutations, saveProductMutations } = useProductMutations();
@@ -187,166 +189,195 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
 
 <template>
   <BaseBreadcrumb :title="'Productos'" :breadcrumbs="breadcrumbs" />
-
-  <v-row>
-    <v-col cols="12">
-      <UiParentCard title="Lista de Productos">
-        <VDataTableServer
-          :items="productsData.content"
-          :headers="headers"
-          :search="productSearch"
-          :loading="isProductsLoading"
-          :loading-text="'Cargando productos...'"
-          :no-data-text="'No se encontraron productos'"
-          hover
-          class="tw:rounded-xl elevation-0"
-          v-motion
-          :initial="{ opacity: 0, y: 20 }"
-          :enter="{ opacity: 1, y: 0 }"
-          :delay="200"
-          :items-length="productsData.totalElements"
-          :items-per-page="10"
-          @update:options="loadItems"
-        >
-          <template v-slot:top>
-            <v-toolbar
-              class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-              flat
-              v-motion
-              :initial="{ opacity: 0, y: -10 }"
-              :enter="{ opacity: 1, y: 0 }"
-              :delay="200"
-              :duration="250"
-            >
-              <VTextField
-                v-model="productSearch"
-                placeholder="Buscar productos..."
-                variant="outlined"
-                density="comfortable"
-                hide-details
-                class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
-                bg-color="white"
+  <div v-if="checkPermission(PermissionEnum.SEE_PRODUCTS)">
+    <v-row>
+      <v-col cols="12">
+        <UiParentCard title="Lista de Productos">
+          <VDataTableServer
+            :items="productsData.content"
+            :headers="headers"
+            :search="productSearch"
+            :loading="isProductsLoading"
+            :loading-text="'Cargando productos...'"
+            :no-data-text="'No se encontraron productos'"
+            hover
+            class="tw:rounded-xl elevation-0"
+            v-motion
+            :initial="{ opacity: 0, y: 20 }"
+            :enter="{ opacity: 1, y: 0 }"
+            :delay="200"
+            :items-length="productsData.totalElements"
+            :items-per-page="10"
+            @update:options="loadItems"
+          >
+            <template v-slot:top>
+              <v-toolbar
+                class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+                flat
+                v-motion
+                :initial="{ opacity: 0, y: -10 }"
+                :enter="{ opacity: 1, y: 0 }"
+                :delay="200"
+                :duration="250"
               >
-                <template #prepend-inner>
-                  <div class="tw:relative">
-                    <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                    <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-                  </div>
-                </template>
-                <template #append v-if="productSearch">
-                  <VBtn
-                    icon
-                    variant="text"
-                    size="small"
-                    @click="productSearch = ''"
-                    class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
-                  >
-                    <Icon icon="mdi:close" height="18" />
-                  </VBtn>
-                </template>
-              </VTextField>
-              <v-spacer></v-spacer>
-              <VBtn
-                class="ml-2"
-                variant="elevated"
-                color="info"
-                @click="syncContificoProducts"
-                :disabled="disabledProperty"
-                :loading="isSyncProductLoading"
-              >
-                <Icon class="mr-2" icon="mdi:reload" />
-                Actualizar productos de contifico
-              </VBtn>
-              <VBtn class="ml-2" variant="elevated" color="primary" @click="showCreateDialog = true" :loading="isSyncProductLoading">
-                <Icon class="mr-2" icon="mdi:add" />
-                Agregar producto
-              </VBtn>
-            </v-toolbar>
-          </template>
+                <VTextField
+                  v-model="productSearch"
+                  placeholder="Buscar productos..."
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                  class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+                  bg-color="white"
+                >
+                  <template #prepend-inner>
+                    <div class="tw:relative">
+                      <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                      <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                    </div>
+                  </template>
+                  <template #append v-if="productSearch">
+                    <VBtn
+                      icon
+                      variant="text"
+                      size="small"
+                      @click="productSearch = ''"
+                      class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                    >
+                      <Icon icon="mdi:close" height="18" />
+                    </VBtn>
+                  </template>
+                </VTextField>
+                <v-spacer></v-spacer>
+                <VBtn
+                  class="ml-2"
+                  variant="elevated"
+                  color="info"
+                  @click="syncContificoProducts"
+                  :disabled="disabledProperty"
+                  :loading="isSyncProductLoading"
+                >
+                  <Icon class="mr-2" icon="mdi:reload" />
+                  Actualizar productos de contifico
+                </VBtn>
+                <VBtn
+                  v-if="checkPermission(PermissionEnum.CREATE_PRODUCTS)"
+                  class="ml-2"
+                  variant="elevated"
+                  color="primary"
+                  @click="showCreateDialog = true"
+                  :loading="isSyncProductLoading"
+                >
+                  <Icon class="mr-2" icon="mdi:add" />
+                  Agregar producto
+                </VBtn>
+              </v-toolbar>
+            </template>
 
-          <template #item.name="{ item }">
-            <div class="tw:flex tw:items-center tw:gap-3 tw:overflow-hidden">
-              <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
-                <Icon icon="mdi:package-variant" class="tw:text-gray-600" />
+            <template #item.name="{ item }">
+              <div class="tw:flex tw:items-center tw:gap-3 tw:overflow-hidden">
+                <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
+                  <Icon icon="mdi:package-variant" class="tw:text-gray-600" />
+                </div>
+                <span class="tw:font-medium">{{ item.name }}</span>
               </div>
-              <span class="tw:font-medium">{{ item.name }}</span>
-            </div>
-          </template>
-          <template #item.programs="{ item }">
-            <div v-if="item.programs.length > 0" class="d-flex flex-wrap gap-2">
-              <v-chip
-                v-for="program in item.programs"
-                :key="program.id"
+            </template>
+            <template #item.programs="{ item }">
+              <div v-if="item.programs.length > 0" class="d-flex flex-wrap gap-2">
+                <v-chip
+                  v-for="program in item.programs"
+                  :key="program.id"
+                  size="small"
+                  variant="outlined"
+                  class="text-caption mr-2"
+                  :color="getProgramColor(program.courseLevel)"
+                >
+                  {{ program.courseLevel }}
+                </v-chip>
+              </div>
+              <div v-else class="d-flex flex-wrap text-wrap gap-2 text-red">¡Este producto no tiene programas asignados!</div>
+            </template>
+            <template #item.isActive="{ item }">
+              <VChip
+                :color="item.isActive ? 'success' : 'error'"
                 size="small"
-                variant="outlined"
-                class="text-caption mr-2"
-                :color="getProgramColor(program.courseLevel)"
+                variant="flat"
+                class="!tw:font-normal tw:text-xs !tw:min-w-[80px]"
+                :class="item.isActive ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'"
               >
-                {{ program.courseLevel }}
-              </v-chip>
-            </div>
-            <div v-else class="d-flex flex-wrap text-wrap gap-2 text-red">¡Este producto no tiene programas asignados!</div>
-          </template>
-          <template #item.isActive="{ item }">
-            <VChip
-              :color="item.isActive ? 'success' : 'error'"
-              size="small"
-              variant="flat"
-              class="!tw:font-normal tw:text-xs !tw:min-w-[80px]"
-              :class="item.isActive ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'"
-            >
-              <template #prepend>
-                <Icon :icon="item.isActive ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-2" />
-              </template>
-              {{ item.isActive ? 'Activo' : 'Inactivo' }}
-            </VChip>
-          </template>
+                <template #prepend>
+                  <Icon :icon="item.isActive ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-2" />
+                </template>
+                {{ item.isActive ? 'Activo' : 'Inactivo' }}
+              </VChip>
+            </template>
 
-          <template #item.actions="{ item }">
-            <div class="d-flex ga-2">
-              <v-btn
-                icon
-                color="info"
-                variant="text"
-                size="32"
-                class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                v-tooltip="'Editar Producto'"
-                @click="onEditProduct(item.id)"
-              >
-                <Icon icon="tabler:pencil" height="18" />
-              </v-btn>
-              <v-btn
-                color="error"
-                icon
-                variant="text"
-                size="32"
-                v-tooltip="item.isActive ? 'Desactivar' : 'Activar'"
-                :class="item.isActive ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
-                @click="onChangeStatus(item)"
-              >
-                <Icon :icon="item.isActive ? 'mdi-power' : 'mdi-power-off'" height="18" />
-              </v-btn>
-            </div>
-          </template>
+            <template #item.actions="{ item }">
+              <div class="d-flex ga-2">
+                <v-btn
+                  v-if="checkPermission(PermissionEnum.UPDATE_PRODUCTS)"
+                  icon
+                  color="info"
+                  variant="text"
+                  size="32"
+                  class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                  v-tooltip="'Editar Producto'"
+                  @click="onEditProduct(item.id)"
+                >
+                  <Icon icon="tabler:pencil" height="18" />
+                </v-btn>
+                <v-btn
+                  v-if="checkPermission(PermissionEnum.DELETE_PRODUCTS)"
+                  color="error"
+                  icon
+                  variant="text"
+                  size="32"
+                  v-tooltip="item.isActive ? 'Desactivar' : 'Activar'"
+                  :class="item.isActive ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
+                  @click="onChangeStatus(item)"
+                >
+                  <Icon :icon="item.isActive ? 'mdi-power' : 'mdi-power-off'" height="18" />
+                </v-btn>
+              </div>
+            </template>
 
-          <template #loading>
-            <v-progress-linear color="primary" indeterminate class="tw:rounded-t-xl"></v-progress-linear>
-          </template>
+            <template #loading>
+              <v-progress-linear color="primary" indeterminate class="tw:rounded-t-xl"></v-progress-linear>
+            </template>
 
-          <template #no-data>
-            <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
-              <Icon icon="mdi:package-variant-remove" height="48" class="tw:mb-4" />
-              <p class="tw:text-lg">No se encontraron productos</p>
-              <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
-            </div>
-          </template>
-        </VDataTableServer>
-      </UiParentCard>
-    </v-col>
-  </v-row>
+            <template #no-data>
+              <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
+                <Icon icon="mdi:package-variant-remove" height="48" class="tw:mb-4" />
+                <p class="tw:text-lg">No se encontraron productos</p>
+                <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
+              </div>
+            </template>
+          </VDataTableServer>
+        </UiParentCard>
+      </v-col>
+    </v-row>
 
-  <CreateProduct :model-value="showCreateDialog" @cancel="showCreateDialog = false" @save="saveProduct" />
-  <editProduct :model-value="showEditDialog" :product="selectedProduct" @save="updateProduct" @cancel="showEditDialog = false" />
+    <CreateProduct
+      v-if="checkPermission(PermissionEnum.CREATE_PRODUCTS)"
+      :model-value="showCreateDialog"
+      @cancel="showCreateDialog = false"
+      @save="saveProduct"
+    />
+    <EditProduct
+      v-if="checkPermission(PermissionEnum.UPDATE_PRODUCTS)"
+      :model-value="showEditDialog"
+      :product="selectedProduct"
+      @save="updateProduct"
+      @cancel="showEditDialog = false"
+    />
+  </div>
+  <div v-else>
+    <v-alert title="Acceso denegado" variant="outlined" border="top" elevation="2" type="warning">
+      <template #prepend>
+        <Icon color="warning" icon="mdi-alert" height="30" />
+      </template>
+      No tienes permiso para ver esta sección.
+    </v-alert>
+  </div>
 </template>
 
 <style scoped>

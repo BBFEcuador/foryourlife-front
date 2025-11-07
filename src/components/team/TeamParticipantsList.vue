@@ -8,71 +8,74 @@ import type { AxiosError } from 'axios';
 import { computed, ref } from 'vue';
 import InputSection from '../forms/InputSection.vue';
 import UiParentCard from '../shared/UiParentCard.vue';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 interface Props {
   team: Team;
   isTeamLoading: boolean;
   isTeamError: boolean;
-  isForEdit:boolean
+  isForEdit: boolean;
 }
 const props = defineProps<Props>();
 const { removeParticipantsMutations } = useAdminTeamMutations();
 const userToDelete = ref<Participant>({} as Participant);
 const showDeleteParticipant = ref(false);
 
-const headers = props.isForEdit ?[
-  {
-    title: 'Participante',
-    value: 'name',
-    width: '200',
-    class: 'tw:text-nowrap',
-    sortable: true
-  },
-  {
-    title: 'Contacto',
-    value: 'phone',
-    width: '200',
-    class: 'tw:text-nowrap',
-    sortable: true
-  },
-  {
-    title: 'Correo',
-    value: 'email',
-    width: '200',
-    class: 'tw:text-nowrap',
-    sortable: true
-  },
-  {
-    title: 'Ajustes',
-    value: 'actions',
-    width: '110',
-    align: 'center' as const,
-    sortable: false
-  }
-] : [
-  {
-    title: 'Participante',
-    value: 'name',
-    width: '200',
-    class: 'tw:text-nowrap',
-    sortable: true
-  },
-  {
-    title: 'Contacto',
-    value: 'phone',
-    width: '200',
-    class: 'tw:text-nowrap',
-    sortable: true
-  },
-  {
-    title: 'Correo',
-    value: 'email',
-    width: '200',
-    class: 'tw:text-nowrap',
-    sortable: true
-  }
-];
-
+const headers = props.isForEdit
+  ? [
+      {
+        title: 'Participante',
+        value: 'name',
+        width: '200',
+        class: 'tw:text-nowrap',
+        sortable: true
+      },
+      {
+        title: 'Contacto',
+        value: 'phone',
+        width: '200',
+        class: 'tw:text-nowrap',
+        sortable: true
+      },
+      {
+        title: 'Correo',
+        value: 'email',
+        width: '200',
+        class: 'tw:text-nowrap',
+        sortable: true
+      },
+      {
+        title: 'Ajustes',
+        value: 'actions',
+        width: '110',
+        align: 'center' as const,
+        sortable: false
+      }
+    ]
+  : [
+      {
+        title: 'Participante',
+        value: 'name',
+        width: '200',
+        class: 'tw:text-nowrap',
+        sortable: true
+      },
+      {
+        title: 'Contacto',
+        value: 'phone',
+        width: '200',
+        class: 'tw:text-nowrap',
+        sortable: true
+      },
+      {
+        title: 'Correo',
+        value: 'email',
+        width: '200',
+        class: 'tw:text-nowrap',
+        sortable: true
+      }
+    ];
 
 const handleContact = (type: 'email' | 'phone', contact: string) => {
   if (type === 'email') {
@@ -118,11 +121,25 @@ const colorSwitch = computed(() => {
 <template>
   <v-data-table :headers="headers" :show-select="isForEdit" :search="search" :items="team.users" :loading="isTeamLoading">
     <template #top>
-      <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
-        :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+      <v-toolbar
+        class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+        flat
+        v-motion
+        :initial="{ opacity: 0, y: -10 }"
+        :enter="{ opacity: 1, y: 0 }"
+        :delay="200"
+        :duration="250"
+      >
         <div class="tw:flex-1 tw:max-w-md tw:relative">
-          <VTextField v-model="search" placeholder="Buscar participantes..." variant="outlined" density="comfortable"
-            hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm" bg-color="white">
+          <VTextField
+            v-model="search"
+            placeholder="Buscar participantes..."
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+            bg-color="white"
+          >
             <template #prepend-inner>
               <div class="tw:relative">
                 <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
@@ -130,8 +147,7 @@ const colorSwitch = computed(() => {
               </div>
             </template>
             <template #append v-if="search">
-              <VBtn icon variant="text" size="small" @click="search = ''"
-                class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+              <VBtn icon variant="text" size="small" @click="search = ''" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
                 <Icon icon="mdi:close" height="18" />
               </VBtn>
             </template>
@@ -143,8 +159,7 @@ const colorSwitch = computed(() => {
       <span class="tw:text-nowrap">{{ item.name }}</span>
     </template>
     <template #item.phone="{ item }">
-      <v-btn variant="tonal" color="primary" rounded="xl" size="small" v-tooltip="'Llamar'"
-        @click="handleContact('phone', item.phone)">
+      <v-btn variant="tonal" color="primary" rounded="xl" size="small" v-tooltip="'Llamar'" @click="handleContact('phone', item.phone)">
         <Icon icon="mdi-phone" />
         <span class="tw:text-nowrap ml-2">{{ item.phone }}</span>
       </v-btn>
@@ -156,16 +171,19 @@ const colorSwitch = computed(() => {
       </v-btn>
     </template>
     <template #item.actions="{ item }" v-if="isForEdit">
-      <VBtn icon variant="text" :loading="removeParticipantsMutations.isPending.value" color="error"
+      <VBtn
+        v-if="checkPermission(PermissionEnum.UPDATE_TEAMS)"
+        icon
+        variant="text"
+        :loading="removeParticipantsMutations.isPending.value"
+        color="error"
         @click="onRemoveParticipant(item)"
         class="!tw:bg-red-50 tw:rounded-xl !tw:shadow-sm hover:!tw:bg-red-100 tw:transition-all group"
-        v-tooltip="'Quitar participante'">
+        v-tooltip="'Quitar participante'"
+      >
         <div class="tw:relative">
-          <Icon icon="ant-design:user-delete-outlined" height="22"
-            class="tw:transition-transform group-hover:tw:scale-110" />
-          <div
-            class="tw:absolute tw:inset-0 bg-error tw:blur-lg tw:rounded-full group-hover:tw:opacity-20 tw:transition-opacity">
-          </div>
+          <Icon icon="ant-design:user-delete-outlined" height="22" class="tw:transition-transform group-hover:tw:scale-110" />
+          <div class="tw:absolute tw:inset-0 bg-error tw:blur-lg tw:rounded-full group-hover:tw:opacity-20 tw:transition-opacity"></div>
         </div>
       </VBtn>
     </template>
@@ -196,11 +214,10 @@ const colorSwitch = computed(() => {
         </div>
         <h3 class="tw:text-xl tw:font-medium tw:text-gray-700 tw:mb-2">No se encontraron participantes</h3>
         <p class="tw:text-gray-500">Intenta con otros términos de búsqueda</p>
-        <VBtn variant="text" color="primary" class="tw:mt-4" :loading="isTeamLoading" @click="refreshParticipantsTeams">
+        <VBtn v-if="checkPermission(PermissionEnum.SEE_TEAMS)" variant="text" color="primary" class="tw:mt-4" :loading="isTeamLoading" @click="refreshParticipantsTeams">
           <div class="tw:relative">
             <Icon icon="mdi:refresh" class="mr-2 tw:transition-transform hover:tw:rotate-180" />
-            <div class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-20">
-            </div>
+            <div class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-20"></div>
           </div>
           Recargar Miembros
         </VBtn>
@@ -217,8 +234,7 @@ const colorSwitch = computed(() => {
             <div class="tw:absolute tw:inset-0 tw:opacity-25 tw:blur-sm tw:rounded-full"></div>
           </div>
           <div class="tw:flex-1">
-            <h4 class="tw:font-medium text-error">¿Estás seguro de expulsar a este participante del equipo {{ team.name
-              }}?</h4>
+            <h4 class="tw:font-medium text-error">¿Estás seguro de expulsar a este participante del equipo {{ team.name }}?</h4>
             <p class="text-error tw:font-bold tw:mt-1">{{ userToDelete.name }}</p>
           </div>
         </div>
@@ -227,23 +243,26 @@ const colorSwitch = computed(() => {
             <div class="tw:flex tw:items-center align-center tw:gap-4">
               <Icon icon="mdi:account-off" class="text-error" height="24" />
               <span class="tw:font-medium text-error">Desertor</span>
-              <VSwitch v-model="userToDelete.isLingerer" hide-details
-                :class="userToDelete.isLingerer ? 'text-error' : 'text-warning'" />
+              <VSwitch v-model="userToDelete.isLingerer" hide-details :class="userToDelete.isLingerer ? 'text-error' : 'text-warning'" />
 
-                <span class="tw:font-medium text-warning">Rezagado</span>
-                <Icon icon="mdi:account-clock" class="text-warning" height="24" />
+              <span class="tw:font-medium text-warning">Rezagado</span>
+              <Icon icon="mdi:account-clock" class="text-warning" height="24" />
             </div>
           </InputSection>
         </div>
       </div>
       <div class="tw:flex tw:justify-end tw:gap-3 tw:mt-6">
-        <VBtn :loading="removeParticipantsMutations.isPending.value" variant="outlined" color="gray"
-          @click="showDeleteParticipant = false" class="tw:min-w-[100px]">
+        <VBtn
+          :loading="removeParticipantsMutations.isPending.value"
+          variant="outlined"
+          color="gray"
+          @click="showDeleteParticipant = false"
+          class="tw:min-w-[100px]"
+        >
           <Icon icon="mdi:close" class="mr-2" />
           Cancelar
         </VBtn>
-        <VBtn :loading="removeParticipantsMutations.isPending.value" color="error" @click="onDelete"
-          class="tw:min-w-[100px]">
+        <VBtn :loading="removeParticipantsMutations.isPending.value" color="error" @click="onDelete" class="tw:min-w-[100px]">
           <div class="tw:relative">
             <Icon icon="mdi:account-remove" class="mr-2" />
             <div class="tw:absolute tw:inset-0 tw:bg-white tw:opacity-25 tw:blur-sm tw:rounded-full"></div>

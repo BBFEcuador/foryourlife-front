@@ -15,6 +15,8 @@ import { VNumberInput } from 'vuetify/labs/VNumberInput';
 import { useRouter } from 'vue-router';
 import { adminStore } from '@/stores/adminStore';
 import useCampus from '@/composables/admin/useCampus.ts';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
@@ -58,7 +60,6 @@ const headers = [
     sortable: false
   }
 ];
-
 
 const breadcrumbs = ref([
   {
@@ -194,183 +195,224 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 
 <template>
   <BaseBreadcrumb :title="'Participantes'" :breadcrumbs="breadcrumbs" class="tw:mb-6"> </BaseBreadcrumb>
-
-  <VRow v-auto-animate>
-    <VCol cols="12">
-      <VCard variant="outlined" elevation="0" class="bg-surface" rounded="lg">
-        <v-card-text>
-          <VDataTableServer
-            :items="participants.content"
-            :headers="headers"
-            :search="participantSearch"
-            :loading="isParticipantsLoading"
-            :loading-text="'Cargando participantes...'"
-            :no-data-text="'No se encontraron participantes'"
-            hover
-            class="tw:rounded-xl elevation-0"
-            v-motion
-            :initial="{ opacity: 0, y: 20 }"
-            :enter="{ opacity: 1, y: 0 }"
-            :delay="200"
-            :items-length="participants.totalElements"
-            :items-per-page="10"
-            @update:options="loadItems"
-          >
-            <template #top>
-              <v-toolbar
-                class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-                flat
-                v-motion
-                :initial="{ opacity: 0, y: -10 }"
-                :enter="{ opacity: 1, y: 0 }"
-                :delay="200"
-                :duration="250"
-              >
-                <div class="tw:flex-1 tw:max-w-md tw:relative">
-                  <VTextField
-                    v-model="participantSearch"
-                    placeholder="Buscar participantes..."
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details
-                    class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
-                    bg-color="white"
-                  >
-                    <template #prepend-inner>
-                      <div class="tw:relative">
-                        <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                        <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-                      </div>
-                    </template>
-                    <template #append v-if="participantSearch">
-                      <VBtn
-                        icon
-                        variant="text"
-                        size="small"
-                        @click="participantSearch = ''"
-                        class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
-                      >
-                        <Icon icon="mdi:close" height="18" />
-                      </VBtn>
-                    </template>
-                  </VTextField>
-                </div>
-                <VSpacer />
-                <VBtn
-                  variant="elevated"
-                  color="primary"
-                  class="mr-2"
-                  @click="openCreateInvitation"
-                  :loading="generateInvitationMutation.isPending.value"
+  <div v-if="checkPermission(PermissionEnum.SEE_PARTICIPANTS)">
+    <VRow v-auto-animate>
+      <VCol cols="12">
+        <VCard variant="outlined" elevation="0" class="bg-surface" rounded="lg">
+          <v-card-text>
+            <VDataTableServer
+              :items="participants.content"
+              :headers="headers"
+              :search="participantSearch"
+              :loading="isParticipantsLoading"
+              :loading-text="'Cargando participantes...'"
+              :no-data-text="'No se encontraron participantes'"
+              hover
+              class="tw:rounded-xl elevation-0"
+              v-motion
+              :initial="{ opacity: 0, y: 20 }"
+              :enter="{ opacity: 1, y: 0 }"
+              :delay="200"
+              :items-length="participants.totalElements"
+              :items-per-page="10"
+              @update:options="loadItems"
+            >
+              <template #top>
+                <v-toolbar
+                  class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+                  flat
+                  v-motion
+                  :initial="{ opacity: 0, y: -10 }"
+                  :enter="{ opacity: 1, y: 0 }"
+                  :delay="200"
+                  :duration="250"
                 >
-                  <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
-                  Invitar Participante
-                </VBtn>
-                <VBtn
-                  variant="elevated"
-                  color="primary"
-                  @click="showInvitationLot = true"
-                  :loading="generateInvitationMutation.isPending.value"
-                >
-                  <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
-                  Invitar lote
-                </VBtn>
-              </v-toolbar>
-            </template>
-            <template #item.name="{ item }">
-              <div class="tw:flex tw:items-center tw:gap-3 tw:text-nowrap">
-                <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
-                  <Icon icon="mdi:account" class="tw:text-gray-600" />
-                </div>
-                <div
-                  class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity"
-                ></div>
-                <div>
-                  <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{ item.name }}</span>
-                  <div class="tw:text-xs group-hover:tw:opacity-100">{{ item.phone }}</div>
-                </div>
-              </div>
-            </template>
-
-            <template #item.email="{ item }">
-              <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
-                <Icon icon="mdi:email" />
-                <span>{{ item.email }}</span>
-              </div>
-            </template>
-
-            <template #item.team.name="{ item }">
-              <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
-                <v-chip color="primary">
-                  <Icon icon="mdi:account-group" class="mr-2" />
-                  <span>{{ item?.team?.name ?? 'No Asignado' }}</span>
-                </v-chip>
-              </div>
-            </template>
-
-            <template #item.participantLevel.courseLevel="{ item }">
-              <div class="tw:text-nowrap">
-                <VChip
-                  :color="
-                    item.participantLevel.courseLevel === 'LIFE_GRADUATE' ? undefined : getLevelColor(item.participantLevel.courseLevel)
-                  "
-                  variant="flat"
-                  class="!tw:font-medium tw:min-w-[120px] !tw:justify-center tw:transition-all group-hover:tw:shadow-md group-hover:tw:scale-105"
-                  :class="{ 'animated-gradient': item.participantLevel.courseLevel === 'LIFE_GRADUATE' }"
-                  size="small"
-                >
-                  <div class="tw:relative">
-                    <Icon
-                      :icon="getLevelIcon(item.participantLevel.courseLevel)"
-                      height="20"
-                      class="mr-2 tw:transition-transform group-hover:tw:scale-110"
-                    />
+                  <div class="tw:flex-1 tw:max-w-md tw:relative">
+                    <VTextField
+                      v-model="participantSearch"
+                      placeholder="Buscar participantes..."
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+                      bg-color="white"
+                    >
+                      <template #prepend-inner>
+                        <div class="tw:relative">
+                          <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                        </div>
+                      </template>
+                      <template #append v-if="participantSearch">
+                        <VBtn
+                          icon
+                          variant="text"
+                          size="small"
+                          @click="participantSearch = ''"
+                          class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                        >
+                          <Icon icon="mdi:close" height="18" />
+                        </VBtn>
+                      </template>
+                    </VTextField>
                   </div>
-                  <div v-if="item.participantLevel.courseLevel === 'LIFE_GRADUATE'">GRADUADO</div>
-                  <div v-else>{{ item.participantLevel.courseLevel }}</div>
-                </VChip>
-              </div>
-            </template>
+                  <VSpacer />
+                  <VBtn
+                    v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)"
+                    variant="elevated"
+                    color="primary"
+                    class="mr-2"
+                    @click="openCreateInvitation"
+                    :loading="generateInvitationMutation.isPending.value"
+                  >
+                    <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
+                    Invitar Participante
+                  </VBtn>
+                  <VBtn
+                    v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)"
+                    variant="elevated"
+                    color="primary"
+                    @click="showInvitationLot = true"
+                    :loading="generateInvitationMutation.isPending.value"
+                  >
+                    <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
+                    Invitar lote
+                  </VBtn>
+                </v-toolbar>
+              </template>
+              <template #item.name="{ item }">
+                <div class="tw:flex tw:items-center tw:gap-3 tw:text-nowrap">
+                  <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
+                    <Icon icon="mdi:account" class="tw:text-gray-600" />
+                  </div>
+                  <div
+                    class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity"
+                  ></div>
+                  <div>
+                    <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{ item.name }}</span>
+                    <div class="tw:text-xs group-hover:tw:opacity-100">{{ item.phone }}</div>
+                  </div>
+                </div>
+              </template>
 
-            <template #item.actions="{ item }">
-              <div class="tw:flex tw:items-center tw:justify-center tw:gap-2 tw:text-nowrap">
-                <VBtn
-                  icon
-                  variant="text"
-                  color="primary"
-                  height="32"
-                  class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                  v-tooltip="'Editar participante'"
-                  @click="editParticipant(item.id)"
-                >
-                  <Icon icon="mdi:pencil" />
-                </VBtn>
-              </div>
-            </template>
+              <template #item.email="{ item }">
+                <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
+                  <Icon icon="mdi:email" />
+                  <span>{{ item.email }}</span>
+                </div>
+              </template>
 
-            <template #loading>
-              <VProgressLinear color="primary" indeterminate class="tw:rounded-t-xl" />
-            </template>
+              <template #item.team.name="{ item }">
+                <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
+                  <v-chip color="primary">
+                    <Icon icon="mdi:account-group" class="mr-2" />
+                    <span>{{ item?.team?.name ?? 'No Asignado' }}</span>
+                  </v-chip>
+                </div>
+              </template>
 
-            <template #no-data>
-              <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
-                <Icon icon="mdi:account-search" height="48" class="tw:mb-4" />
-                <p class="tw:text-lg">No se encontraron participantes</p>
-                <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
-              </div>
-            </template>
-          </VDataTableServer>
-        </v-card-text>
+              <template #item.participantLevel.courseLevel="{ item }">
+                <div class="tw:text-nowrap">
+                  <VChip
+                    :color="
+                      item.participantLevel.courseLevel === 'LIFE_GRADUATE' ? undefined : getLevelColor(item.participantLevel.courseLevel)
+                    "
+                    variant="flat"
+                    class="!tw:font-medium tw:min-w-[120px] !tw:justify-center tw:transition-all group-hover:tw:shadow-md group-hover:tw:scale-105"
+                    :class="{ 'animated-gradient': item.participantLevel.courseLevel === 'LIFE_GRADUATE' }"
+                    size="small"
+                  >
+                    <div class="tw:relative">
+                      <Icon
+                        :icon="getLevelIcon(item.participantLevel.courseLevel)"
+                        height="20"
+                        class="mr-2 tw:transition-transform group-hover:tw:scale-110"
+                      />
+                    </div>
+                    <div v-if="item.participantLevel.courseLevel === 'LIFE_GRADUATE'">GRADUADO</div>
+                    <div v-else>{{ item.participantLevel.courseLevel }}</div>
+                  </VChip>
+                </div>
+              </template>
+
+              <template #item.actions="{ item }">
+                <div class="tw:flex tw:items-center tw:justify-center tw:gap-2 tw:text-nowrap">
+                  <VBtn
+                    v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
+                    icon
+                    variant="text"
+                    color="primary"
+                    height="32"
+                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                    v-tooltip="'Editar participante'"
+                    @click="editParticipant(item.id)"
+                  >
+                    <Icon icon="mdi:pencil" />
+                  </VBtn>
+                </div>
+              </template>
+
+              <template #loading>
+                <VProgressLinear color="primary" indeterminate class="tw:rounded-t-xl" />
+              </template>
+
+              <template #no-data>
+                <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
+                  <Icon icon="mdi:account-search" height="48" class="tw:mb-4" />
+                  <p class="tw:text-lg">No se encontraron participantes</p>
+                  <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
+                </div>
+              </template>
+            </VDataTableServer>
+          </v-card-text>
+        </VCard>
+      </VCol>
+    </VRow>
+
+    <VDialog v-model="showInvitationForm" width="500">
+      <VCard class="tw:rounded-xl">
+        <VCardTitle class="tw:p-6 tw:pb-0">
+          <h3 class="tw:text-xl tw:font-medium">Invitar Participante</h3>
+        </VCardTitle>
+        <VCardText class="tw:p-6">
+          <InputSection label="Campus">
+            <VSelect
+              placeholder="Elija el campus"
+              v-model="campusId"
+              :items="adminS.availableCampus"
+              item-title="city"
+              item-value="id"
+            ></VSelect>
+          </InputSection>
+        </VCardText>
+        <VCardActions class="tw:flex tw:justify-end">
+          <VBtn color="primary" variant="elevated" @click="handleGenerateInvitation" class="!tw:font-normal"> Invitar </VBtn>
+        </VCardActions>
       </VCard>
-    </VCol>
-  </VRow>
+    </VDialog>
 
-  <VDialog v-model="showInvitationForm" width="500">
-    <VCard class="tw:rounded-xl">
-      <VCardTitle class="tw:p-6 tw:pb-0">
-        <h3 class="tw:text-xl tw:font-medium">Invitar Participante</h3>
-      </VCardTitle>
-      <VCardText class="tw:p-6">
+    <VDialog v-model="showInvitation" width="500">
+      <VCard class="tw:rounded-xl">
+        <VCardTitle class="tw:p-6 tw:pb-0">
+          <h3 class="tw:text-xl tw:font-medium">Invitar Participante</h3>
+        </VCardTitle>
+        <VCardText class="tw:p-6">
+          <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details class="tw:mb-2">
+            <template #append>
+              <VBtn color="primary" variant="elevated" @click="copyLink" class="!tw:font-normal">
+                {{ copied ? 'Copiado!' : 'Copiar enlace' }}
+              </VBtn>
+            </template>
+          </VTextField>
+        </VCardText>
+      </VCard>
+    </VDialog>
+
+    <VDialog v-model="showInvitationLot" width="500">
+      <UiParentCard title="Generar invitaciones">
+        <InputSection label="Usos">
+          <VNumberInput variant="outlined" placeholder="cantidad de usos para este token" v-model="quantity" :min="1" />
+        </InputSection>
         <InputSection label="Campus">
           <VSelect
             placeholder="Elija el campus"
@@ -380,51 +422,22 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
             item-value="id"
           ></VSelect>
         </InputSection>
-      </VCardText>
-      <VCardActions class="tw:flex tw:justify-end">
-        <VBtn color="primary" variant="elevated" @click="handleGenerateInvitation" class="!tw:font-normal"> Invitar </VBtn>
-      </VCardActions>
-    </VCard>
-  </VDialog>
-
-  <VDialog v-model="showInvitation" width="500">
-    <VCard class="tw:rounded-xl">
-      <VCardTitle class="tw:p-6 tw:pb-0">
-        <h3 class="tw:text-xl tw:font-medium">Invitar Participante</h3>
-      </VCardTitle>
-      <VCardText class="tw:p-6">
-        <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details class="tw:mb-2">
-          <template #append>
-            <VBtn color="primary" variant="elevated" @click="copyLink" class="!tw:font-normal">
-              {{ copied ? 'Copiado!' : 'Copiar enlace' }}
-            </VBtn>
-          </template>
-        </VTextField>
-      </VCardText>
-    </VCard>
-  </VDialog>
-
-  <VDialog v-model="showInvitationLot" width="500">
-    <UiParentCard title="Generar invitaciones">
-      <InputSection label="Usos">
-        <VNumberInput variant="outlined" placeholder="cantidad de usos para este token" v-model="quantity" :min="1" />
-      </InputSection>
-      <InputSection label="Campus">
-        <VSelect
-          placeholder="Elija el campus"
-          v-model="campusId"
-          :items="adminS.availableCampus"
-          item-title="city"
-          item-value="id"
-        ></VSelect>
-      </InputSection>
-      <div class="tw:flex tw:justify-end">
-        <VBtn color="primary" @click="handleGenerateInvitationLot" :loading="generateInvitationWithQuantityMutation.isPending.value"
-          >Generar
-        </VBtn>
-      </div>
-    </UiParentCard>
-  </VDialog>
+        <div class="tw:flex tw:justify-end">
+          <VBtn color="primary" @click="handleGenerateInvitationLot" :loading="generateInvitationWithQuantityMutation.isPending.value"
+            >Generar
+          </VBtn>
+        </div>
+      </UiParentCard>
+    </VDialog>
+  </div>
+  <div v-else>
+    <v-alert title="Acceso denegado" variant="outlined" border="top" elevation="2" type="warning">
+      <template #prepend>
+        <Icon color="warning" icon="mdi-alert" height="30" />
+      </template>
+      No tienes permiso para ver esta sección.
+    </v-alert>
+  </div>
 </template>
 
 <style scoped>

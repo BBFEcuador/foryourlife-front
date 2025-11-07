@@ -13,6 +13,8 @@ import { email, numeric, required } from '@vuelidate/validators';
 import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
 import Swal from 'sweetalert2';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const { isStaffError, isStaffloading, staffData, refetchStaff, page, perPage, search } = useStaffs();
 const { saveStaffMutations, changeStatusMutations } = useStaffMutations();
@@ -141,207 +143,220 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 
 <template>
   <BaseBreadcrumb :title="'Staff'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
-  <v-row>
-    <v-col cols="12">
-      <UiParentCard title="Lista de Staff">
-        <v-data-table-server
-          :headers="headers"
-          :search="debouncedSearch"
-          :items="staffData.content"
-          :loading="isStaffloading"
-          :items-length="staffData.totalElements"
-          :items-per-page="10"
-          @update:options="loadItems"
-        >
-          <template v-slot:top>
-            <v-toolbar
-              class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-              flat
-              v-motion
-              :initial="{ opacity: 0, y: -10 }"
-              :enter="{ opacity: 1, y: 0 }"
-              :delay="200"
-              :duration="250"
-            >
-              <VTextField
-                v-model="debouncedSearch"
-                placeholder="Buscar Usuarios..."
-                variant="outlined"
-                density="comfortable"
-                hide-details
-                class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
-                bg-color="white"
+  <div v-if="checkPermission(PermissionEnum.SEE_STAFF)">
+    <v-row>
+      <v-col cols="12">
+        <UiParentCard title="Lista de Staff">
+          <v-data-table-server
+            :headers="headers"
+            :search="debouncedSearch"
+            :items="staffData.content"
+            :loading="isStaffloading"
+            :items-length="staffData.totalElements"
+            :items-per-page="10"
+            @update:options="loadItems"
+          >
+            <template v-slot:top>
+              <v-toolbar
+                class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+                flat
+                v-motion
+                :initial="{ opacity: 0, y: -10 }"
+                :enter="{ opacity: 1, y: 0 }"
+                :delay="200"
+                :duration="250"
               >
-                <template #prepend-inner>
-                  <div class="tw:relative">
-                    <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                    <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-                  </div>
-                </template>
-                <template #append v-if="debouncedSearch">
-                  <VBtn
-                    icon
-                    variant="text"
-                    size="small"
-                    @click="debouncedSearch = ''"
-                    class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
-                  >
-                    <Icon icon="mdi:close" height="18" />
-                  </VBtn>
-                </template>
-              </VTextField>
-              <v-spacer></v-spacer>
-              <VBtn
-                variant="elevated"
-                color="primary"
-                @click="
-                  () => {
-                    staff = {
-                      user: {}
-                    } as StaffWriteModel;
-                    showForm = true;
-                  }
-                "
-              >
-                <Icon class="mr-2" icon="mdi:plus" />
-                Agregar
-              </VBtn>
-            </v-toolbar>
-          </template>
-          <template #item.user.name="{ item }">
-            <div class="tw:flex tw:items-center tw:gap-3 tw:overflow-hidden">
-              <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
-                <Icon icon="mdi:account" class="tw:text-gray-600" />
+                <VTextField
+                  v-model="debouncedSearch"
+                  placeholder="Buscar Usuarios..."
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                  class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+                  bg-color="white"
+                >
+                  <template #prepend-inner>
+                    <div class="tw:relative">
+                      <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                      <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                    </div>
+                  </template>
+                  <template #append v-if="debouncedSearch">
+                    <VBtn
+                      icon
+                      variant="text"
+                      size="small"
+                      @click="debouncedSearch = ''"
+                      class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                    >
+                      <Icon icon="mdi:close" height="18" />
+                    </VBtn>
+                  </template>
+                </VTextField>
+                <v-spacer></v-spacer>
+                <VBtn
+                  v-if="checkPermission(PermissionEnum.CREATE_STAFF)"
+                  variant="elevated"
+                  color="primary"
+                  @click="
+                    () => {
+                      staff = {
+                        user: {}
+                      } as StaffWriteModel;
+                      showForm = true;
+                    }
+                  "
+                >
+                  <Icon class="mr-2" icon="mdi:plus" />
+                  Agregar
+                </VBtn>
+              </v-toolbar>
+            </template>
+            <template #item.user.name="{ item }">
+              <div class="tw:flex tw:items-center tw:gap-3 tw:overflow-hidden">
+                <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
+                  <Icon icon="mdi:account" class="tw:text-gray-600" />
+                </div>
+                <span class="tw:font-medium tw:truncate tw:w-[30ch]">{{ item.user.name }}</span>
               </div>
-              <span class="tw:font-medium tw:truncate tw:w-[30ch]">{{ item.user.name }}</span>
-            </div>
-          </template>
-          <template #item.active="{ item }">
-            <VChip
-              :color="item.active ? 'success' : 'error'"
-              size="small"
-              variant="flat"
-              class="!tw:font-normal tw:text-xs !tw:min-w-[80px]"
-              :class="item.active ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'"
-            >
-              <template #prepend>
-                <Icon :icon="item.active ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-2" />
-              </template>
-              {{ item.active ? 'Activo' : 'Inactivo' }}
-            </VChip>
-          </template>
-          <template #item.actions="{ item }">
-            <div class="d-flex ga-2">
-              <v-btn
-                icon
-                color="info"
-                variant="text"
-                size="32"
-                class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                v-tooltip="'Editar Staff'"
-                @click="onVisionaryEdit(item)"
+            </template>
+            <template #item.active="{ item }">
+              <VChip
+                :color="item.active ? 'success' : 'error'"
+                size="small"
+                variant="flat"
+                class="!tw:font-normal tw:text-xs !tw:min-w-[80px]"
+                :class="item.active ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'"
               >
-                <Icon icon="tabler:pencil" height="18" />
-              </v-btn>
-              <v-btn
-                :color="item.active ? 'error' : 'success'"
-                icon
-                variant="text"
-                size="32"
-                v-tooltip="item.active ? 'Desactivar' : 'Activar'"
-                :class="item.active ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
-                @click="onChangeStatus(item)"
-              >
-                <Icon :icon="item.active ? 'mdi-power' : 'mdi-power-off'" height="18" />
-              </v-btn>
-            </div>
-          </template>
-          <template #loading>
-            <v-progress-linear color="primary" indeterminate class="tw:rounded-t-xl"></v-progress-linear>
-          </template>
+                <template #prepend>
+                  <Icon :icon="item.active ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-2" />
+                </template>
+                {{ item.active ? 'Activo' : 'Inactivo' }}
+              </VChip>
+            </template>
+            <template #item.actions="{ item }">
+              <div class="d-flex ga-2">
+                <v-btn
+                  v-if="checkPermission(PermissionEnum.UPDATE_STAFF)"
+                  icon
+                  color="info"
+                  variant="text"
+                  size="32"
+                  class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                  v-tooltip="'Editar Staff'"
+                  @click="onVisionaryEdit(item)"
+                >
+                  <Icon icon="tabler:pencil" height="18" />
+                </v-btn>
+                <v-btn
+                  v-if="checkPermission(PermissionEnum.UPDATE_STAFF)"
+                  :color="item.active ? 'error' : 'success'"
+                  icon
+                  variant="text"
+                  size="32"
+                  v-tooltip="item.active ? 'Desactivar' : 'Activar'"
+                  :class="item.active ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
+                  @click="onChangeStatus(item)"
+                >
+                  <Icon :icon="item.active ? 'mdi-power' : 'mdi-power-off'" height="18" />
+                </v-btn>
+              </div>
+            </template>
+            <template #loading>
+              <v-progress-linear color="primary" indeterminate class="tw:rounded-t-xl"></v-progress-linear>
+            </template>
 
-          <template #no-data>
-            <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
-              <Icon icon="hugeicons:customer-support" height="48" class="tw:mb-4" />
-              <p class="tw:text-lg">No se encontraron staff</p>
-              <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
-            </div>
-          </template>
-        </v-data-table-server>
-      </UiParentCard>
-    </v-col>
-    <VDialog max-width="500" v-model="showForm">
-      <UiParentCard
-        :title="staff.user.id ? 'Editar Staff' : 'Nuevo Staff'"
-        class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100"
-      >
-        <v-row>
-          <v-col cols="12" md="6">
-            <InputSection label="Nombre 1">
-              <VTextField
-                placeholder="Nombre 1"
-                v-model="staff.user.name1"
-                :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())"
-              />
-            </InputSection>
-          </v-col>
-          <v-col cols="12" md="6">
-            <InputSection label="Nombre 2">
-              <VTextField
-                placeholder="Nombre 2"
-                v-model="staff.user.name2"
-                :error-messages="validator.user.name2.$errors.map((x) => x.$message.toString())"
-              />
-            </InputSection>
-          </v-col>
-          <v-col cols="12" md="6">
-            <InputSection label="Apellido 1">
-              <VTextField
-                placeholder="Apellido 1"
-                v-model="staff.user.lastname1"
-                :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
-              />
-            </InputSection>
-          </v-col>
-          <v-col cols="12" md="6">
-            <InputSection label="Apellido 2">
-              <VTextField
-                placeholder="Apellido 2"
-                v-model="staff.user.lastname2"
-                :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
-              />
-            </InputSection>
-          </v-col>
-        </v-row>
-        <InputSection label="Correo">
-          <VTextField
-            placeholder="Correo del Staff"
-            v-model="staff.user.email"
-            :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
-          />
-        </InputSection>
-        <InputSection label="Teléfono">
-          <VTextField
-            placeholder="Teléfono del Staff"
-            v-model="staff.user.phone"
-            :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
-          />
-        </InputSection>
-        <InputSection label="Rol">
-          <VSelect
-            placeholder="Rol del Staff"
-            :items="['CAPITAN', 'STAFF']"
-            v-model="staff.rol"
-            :error-messages="validator.rol.$errors.map((x) => x.$message.toString())"
-          />
-        </InputSection>
-        <div class="tw:w-full tw:flex tw:justify-end tw:gap-2">
-          <VBtn @click="showForm = false" variant="outlined" color="error">Cancelar</VBtn>
-          <VBtn @click="onSave" color="primary">Guardar</VBtn>
-        </div>
-      </UiParentCard>
-    </VDialog>
-  </v-row>
+            <template #no-data>
+              <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
+                <Icon icon="hugeicons:customer-support" height="48" class="tw:mb-4" />
+                <p class="tw:text-lg">No se encontraron staff</p>
+                <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
+              </div>
+            </template>
+          </v-data-table-server>
+        </UiParentCard>
+      </v-col>
+      <VDialog max-width="500" v-model="showForm">
+        <UiParentCard
+          :title="staff.user.id ? 'Editar Staff' : 'Nuevo Staff'"
+          class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100"
+        >
+          <v-row>
+            <v-col cols="12" md="6">
+              <InputSection label="Nombre 1">
+                <VTextField
+                  placeholder="Nombre 1"
+                  v-model="staff.user.name1"
+                  :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())"
+                />
+              </InputSection>
+            </v-col>
+            <v-col cols="12" md="6">
+              <InputSection label="Nombre 2">
+                <VTextField
+                  placeholder="Nombre 2"
+                  v-model="staff.user.name2"
+                  :error-messages="validator.user.name2.$errors.map((x) => x.$message.toString())"
+                />
+              </InputSection>
+            </v-col>
+            <v-col cols="12" md="6">
+              <InputSection label="Apellido 1">
+                <VTextField
+                  placeholder="Apellido 1"
+                  v-model="staff.user.lastname1"
+                  :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
+                />
+              </InputSection>
+            </v-col>
+            <v-col cols="12" md="6">
+              <InputSection label="Apellido 2">
+                <VTextField
+                  placeholder="Apellido 2"
+                  v-model="staff.user.lastname2"
+                  :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
+                />
+              </InputSection>
+            </v-col>
+          </v-row>
+          <InputSection label="Correo">
+            <VTextField
+              placeholder="Correo del Staff"
+              v-model="staff.user.email"
+              :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
+            />
+          </InputSection>
+          <InputSection label="Teléfono">
+            <VTextField
+              placeholder="Teléfono del Staff"
+              v-model="staff.user.phone"
+              :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
+            />
+          </InputSection>
+          <InputSection label="Rol">
+            <VSelect
+              placeholder="Rol del Staff"
+              :items="['CAPITAN', 'STAFF']"
+              v-model="staff.rol"
+              :error-messages="validator.rol.$errors.map((x) => x.$message.toString())"
+            />
+          </InputSection>
+          <div class="tw:w-full tw:flex tw:justify-end tw:gap-2">
+            <VBtn @click="showForm = false" variant="outlined" color="error">Cancelar</VBtn>
+            <VBtn @click="onSave" color="primary">Guardar</VBtn>
+          </div>
+        </UiParentCard>
+      </VDialog>
+    </v-row>
+  </div>
+  <div v-else>
+    <v-alert title="Acceso denegado" variant="outlined" border="top" elevation="2" type="warning">
+      <template #prepend>
+        <Icon color="warning" icon="mdi-alert" height="30" />
+      </template>
+      No tienes permiso para ver esta sección.
+    </v-alert>
+  </div>
 </template>
 
 <style scoped>

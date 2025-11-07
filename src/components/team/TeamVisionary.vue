@@ -7,6 +7,8 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 interface Props {
     team: Team;
@@ -158,7 +160,7 @@ const onRemoveParticipant = async (id: string) => {
             </v-btn>
         </template>
         <template #item.actions="{ item }" v-if="isForEdit">
-            <VBtn icon variant="text" :loading="removeParticipantsMutations.isPending.value" color="error" @click="onRemoveParticipant(item.id)"
+            <VBtn v-if="checkPermission(PermissionEnum.UPDATE_TEAMS)" icon variant="text" :loading="removeParticipantsMutations.isPending.value" color="error" @click="onRemoveParticipant(item.id)"
                 class="!tw:bg-red-50 tw:rounded-xl !tw:shadow-sm hover:!tw:bg-red-100 tw:transition-all group"
                 v-tooltip="'Quitar participante'">
                 <div class="tw:relative">
@@ -202,7 +204,7 @@ const onRemoveParticipant = async (id: string) => {
                 </div>
                 <h3 class="tw:text-xl tw:font-medium tw:text-gray-700 tw:mb-2">No se encontraron visionarios</h3>
                 <p class="tw:text-gray-500">Intenta con otros términos de búsqueda</p>
-                <VBtn variant="text" color="primary" class="tw:mt-4" :loading="isTeamLoading"
+                <VBtn v-if="checkPermission(PermissionEnum.SEE_TEAMS)" variant="text" color="primary" class="tw:mt-4" :loading="isTeamLoading"
                     @click="refreshParticipantsTeams">
                     <div class="tw:relative">
                         <Icon icon="mdi:refresh" class="mr-2 tw:transition-transform hover:tw:rotate-180" />

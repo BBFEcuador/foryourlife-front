@@ -15,6 +15,8 @@ import useCampus from '@/composables/admin/useCampus';
 import InputSection from '@/components/forms/InputSection.vue';
 import type { Team } from '@/models/Participants';
 import ViewTeam from '../team/ViewTeam.vue';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const { updateEventMutation, addEventMutation } = useCalendarMutations();
 const { trainingsData, refetch, page, perPage, search, isLoading } = useCalendar(false);
@@ -142,7 +144,7 @@ const loadItems = async (data: { page: number; itemsPerPage: number; sortBy: str
     <v-card>
       <v-card-title class="d-flex justify-space-between align-center pa-4">
         <div class="text-h5">Calendario de Programas</div>
-        <v-btn color="primary" @click="handleAddEvent">
+        <v-btn v-if="checkPermission(PermissionEnum.CREATE_TRAININGS)" color="primary" @click="handleAddEvent">
           <Icon icon="mdi-plus"></Icon>
           Agregar nuevos entrenamientos
         </v-btn>
@@ -186,7 +188,7 @@ const loadItems = async (data: { page: number; itemsPerPage: number; sortBy: str
           </template>
 
           <template v-slot:item.actions="{ item }">
-            <v-btn icon variant="text" color="primary" size="small" @click="handleViewEvent(item)">
+            <v-btn v-if="checkPermission(PermissionEnum.UPDATE_TRAININGS)" icon variant="text" color="primary" size="small" @click="handleViewEvent(item)">
               <Icon icon="mdi-pencil" />
             </v-btn>
           </template>
