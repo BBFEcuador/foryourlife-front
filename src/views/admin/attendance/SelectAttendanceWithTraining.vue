@@ -315,7 +315,7 @@ onMounted(async () => {
               </div>
             </div>
             <v-spacer></v-spacer>
-            <v-btn v-if="disableCloseAttendance && !switchPromises" variant="flat" class="mr-2" color="warning"
+            <v-btn v-if="disableCloseAttendance && !switchPromises && checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)" variant="flat" class="mr-2" color="warning"
               @click="closeAttendance">
               <Icon icon="mdi-close" />
               <span class="d-none d-sm-inline ml-2">Cerrar Asistencia</span>
@@ -358,19 +358,19 @@ onMounted(async () => {
 
                   <template #item.fridayAttendance="{ item }">
                     <v-select v-model="attendanceModels[item.id].friday" :items="ATTENDANCE_OPTIONS"
-                      :disabled="!item.isActive" density="compact" variant="outlined" hide-details
+                      :disabled="!item.isActive || !checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)" density="compact" variant="outlined" hide-details
                       @update:model-value="handleFridayChange($event, item.id)" />
                   </template>
 
                   <template #item.saturdayAttendance="{ item }">
                     <v-select v-model="attendanceModels[item.id].saturday" :items="ATTENDANCE_OPTIONS"
-                      :disabled="!item.isActive" density="compact" variant="outlined" hide-details
+                      :disabled="!item.isActive || !checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)" density="compact" variant="outlined" hide-details
                       @update:model-value="handleSaturdayChange($event, item.id)" />
                   </template>
 
                   <template #item.sundayAttendance="{ item }">
                     <v-select v-model="attendanceModels[item.id].sunday" :items="ATTENDANCE_OPTIONS"
-                      :disabled="!item.isActive" density="compact" variant="outlined" hide-details
+                      :disabled="!item.isActive || !checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)" density="compact" variant="outlined" hide-details
                       @update:model-value="handleSundayChange($event, item.id)" />
                   </template>
                 </v-data-table-row>

@@ -237,6 +237,10 @@ const AdminRoutes: RouteRecordRaw[] = [
       {
         name: 'pos-main',
         path: 'pos',
+        meta: {
+          requiresAuth: true,
+          permissions: [PermissionEnum.SEE_EMISSION_POINTS]
+        },
         component: () => import('@/views/admin/pos/Pos.vue')
       },
       {

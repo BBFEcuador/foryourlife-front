@@ -7,6 +7,8 @@ import type { PromiseRequest, Promises } from '@/models/Promises';
 import type { AxiosError } from 'axios';
 import { computed, reactive, watch } from 'vue';
 import { toast } from 'vue3-toastify';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const props = defineProps<{
   trainingId: string;
@@ -53,19 +55,14 @@ watch(
   { deep: true, immediate: true }
 );
 
-const masterLifePromises = computed(() =>
-  promises.value?.filter(
-    (p) => p.user?.entityMap?.some((e) => e.entity === 'MASTER_LIFE')
-  ) || []
-)
+const masterLifePromises = computed(() => promises.value?.filter((p) => p.user?.entityMap?.some((e) => e.entity === 'MASTER_LIFE')) || []);
 
-const participantPromises = computed(() =>
-  promises.value?.filter(
-    (p) =>
-      p.user?.entityMap?.some((e) => e.entity === 'PARTICIPANT') &&
-      !p.user?.entityMap?.some((e) => e.entity === 'MASTER_LIFE')
-  ) || []
-)
+const participantPromises = computed(
+  () =>
+    promises.value?.filter(
+      (p) => p.user?.entityMap?.some((e) => e.entity === 'PARTICIPANT') && !p.user?.entityMap?.some((e) => e.entity === 'MASTER_LIFE')
+    ) || []
+);
 
 const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third') => {
   const req: PromiseRequest = {
@@ -135,6 +132,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
+              :disabled="!checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)"
               @update:model-value="handlePromiseChange(item.id, 'first')"
             />
           </template>
@@ -146,6 +144,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
+              :disabled="!checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)"
               @update:model-value="handlePromiseChange(item.id, 'second')"
             />
           </template>
@@ -157,6 +156,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
+              :disabled="!checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)"
               @update:model-value="handlePromiseChange(item.id, 'third')"
             />
           </template>
@@ -199,6 +199,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
+              :disabled="!checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)"
               @update:model-value="handlePromiseChange(item.id, 'first')"
             />
           </template>
@@ -210,6 +211,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
+              :disabled="!checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)"
               @update:model-value="handlePromiseChange(item.id, 'second')"
             />
           </template>
@@ -221,6 +223,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
               variant="outlined"
               hide-spin-buttons
               :rules="[(v) => Number(v) >= 0 || `El valor debe ser mayor o igual a 0`]"
+              :disabled="!checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)"
               @update:model-value="handlePromiseChange(item.id, 'third')"
             />
           </template>
@@ -238,6 +241,5 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
     </v-data-table>
   </div>
 </template>
-
 
 <style></style>
