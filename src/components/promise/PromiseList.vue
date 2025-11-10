@@ -109,7 +109,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
 <template>
   <div class="pa-4">
     <!-- 🔹 Tabla MASTER LIFE -->
-    <h3 class="text-h6 mb-3 text-primary">Usuarios MASTER_LIFE</h3>
+    <h3 class="text-h6 mb-3 text-primary">Usuarios MASTER LIFE</h3>
     <v-data-table
       :items="masterLifePromises"
       :loading="isPromisesLoading"
@@ -168,7 +168,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
           <v-icon size="48" color="grey-lighten-1">
             <Icon icon="mdi-alert-outline" />
           </v-icon>
-          <p class="text-body-2 mt-2">No hay usuarios MASTER_LIFE registrados</p>
+          <p class="text-body-2 mt-2">No hay usuarios MASTER LIFES registrados</p>
         </div>
       </template>
     </v-data-table>
@@ -176,7 +176,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
     <v-divider class="my-6" />
 
     <!-- 🔹 Tabla PARTICIPANT -->
-    <h3 class="text-h6 mb-3 text-success">Usuarios PARTICIPANT</h3>
+    <h3 class="text-h6 mb-3 text-success">Usuarios PARTICIPANTES</h3>
     <v-data-table
       :items="participantPromises"
       :loading="isPromisesLoading"

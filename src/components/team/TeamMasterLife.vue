@@ -23,21 +23,21 @@ const headers = props.isForEdit
   ? [
       {
         title: 'Participante',
-        value: 'name',
+        value: 'user.name',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Contacto',
-        value: 'phone',
+        value: 'user.phone',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Correo',
-        value: 'email',
+        value: 'user.email',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
@@ -53,21 +53,21 @@ const headers = props.isForEdit
   : [
       {
         title: 'Participante',
-        value: 'name',
+        value: 'user.name',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Contacto',
-        value: 'phone',
+        value: 'user.phone',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Correo',
-        value: 'email',
+        value: 'user.email',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
@@ -92,7 +92,7 @@ const refreshParticipantsTeams = async () => {
 const onRemoveParticipant = async (id: string) => {
   const result = await Swal.fire({
     title: '¿Quitar master life?',
-    text: `¿Está seguro que desea quitar a ${props.team.users.find((user) => user.id === id)?.name}?`,
+    text: `¿Está seguro que desea quitar a ${props.team.masterLife.find((user) => user.id === id)?.user.name}?`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
@@ -109,7 +109,7 @@ const onRemoveParticipant = async (id: string) => {
           const error = e as AxiosError<ErrorApiResponse>;
           showErrorToast(error);
         },
-        onSuccess(_, v, __) {
+        onSuccess(_, v) {
           props.team.masterLife = props.team.masterLife.filter((x) => x.id != v.users[0].id);
           showSuccessToast('Master life quitado correctamente');
         }
@@ -155,19 +155,19 @@ const onRemoveParticipant = async (id: string) => {
         </div>
       </v-toolbar>
     </template>
-    <template #item.name="{ item }">
-      <span class="tw:text-nowrap">{{ item.name }}</span>
+    <template #item.user.name="{ item }">
+      <span class="tw:text-nowrap">{{ item.user.name }}</span>
     </template>
-    <template #item.phone="{ item }">
-      <v-btn variant="tonal" color="primary" rounded="xl" size="small" v-tooltip="'Llamar'" @click="handleContact('phone', item.phone)">
+    <template #item.user.phone="{ item }">
+      <v-btn variant="tonal" color="primary" rounded="xl" size="small" v-tooltip="'Llamar'" @click="handleContact('phone', item.user.phone)">
         <Icon icon="mdi-phone" />
-        <span class="tw:text-nowrap ml-2">{{ item.phone }}</span>
+        <span class="tw:text-nowrap ml-2">{{ item.user.phone }}</span>
       </v-btn>
     </template>
-    <template #item.email="{ item }">
-      <v-btn variant="tonal" color="secondary" rounded="xl" size="small" @click="handleContact('email', item.email)">
+    <template #item.user.email="{ item }">
+      <v-btn variant="tonal" color="secondary" rounded="xl" size="small" @click="handleContact('email', item.user.email)">
         <Icon icon="mdi-email" />
-        <span class="tw:text-nowrap ml-2">{{ item.email }}</span>
+        <span class="tw:text-nowrap ml-2">{{ item.user.email }}</span>
       </v-btn>
     </template>
     <template #item.actions="{ item }" v-if="isForEdit">

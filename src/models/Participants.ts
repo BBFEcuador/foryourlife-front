@@ -4,6 +4,7 @@ import type { Trainers } from './Trainers';
 import type { TrainingData } from './Training';
 import type { User } from './User';
 import type { Visionary } from './Visionary';
+import type { MasterLife } from '@/models/MasterLife.ts';
 
 export interface Participant {
   id: string;
@@ -104,7 +105,7 @@ export interface Team {
   name: string;
   photo: string;
   trainingNumber: number;
-  masterLife: Participant[];
+  masterLife: MasterLife[];
   users: Participant[];
   staffs: StaffWriteModel[];
   visionaries: Visionary[];
