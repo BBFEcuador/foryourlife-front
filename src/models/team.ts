@@ -3,6 +3,7 @@ import type { StaffWriteModel } from './Staff';
 import type { Trainers } from './Trainers';
 import type { TrainingData } from './Training';
 import type { Visionary } from './Visionary';
+import type { MasterLife } from '@/models/MasterLife.ts';
 
 export interface TeamWriteModel {
   id: string;
@@ -14,7 +15,7 @@ export interface TeamWriteModel {
   lvl: string;
   trainerObj: Trainers;
   users: Participant[];
-  masterLife: Participant[];
+  masterLife: MasterLife[];
   staffs: StaffWriteModel[];
   visionaries: Visionary[];
 }

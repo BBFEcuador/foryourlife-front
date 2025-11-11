@@ -1,14 +1,13 @@
 import { useQuery } from '@tanstack/vue-query';
 import type { Team } from '@/models/Participants.ts';
-import { api } from '@/api/axios.ts';
 import { trainerApi } from '@/api/trainerAxios.ts';
 
-const fetchTeam = async (id: string): Promise<Team> => {
-  const { data } = await trainerApi.get(`/teams/` + id);
+const fetchTeam = async (id: string): Promise<Team[]> => {
+  const { data } = await trainerApi.get(`/teams/trainer/` + id);
   return data;
 };
 
-const useTrainerTeam = (id: string) => {
+const useTrainerTeams = (id: string) => {
   const { data, isError, isFetching, refetch } = useQuery({
     queryKey: ['team', id],
     queryFn: () => fetchTeam(id),
@@ -16,11 +15,11 @@ const useTrainerTeam = (id: string) => {
   });
 
   return {
-    team: data,
+    teams: data,
     isTeamError: isError,
     isTeamLoading: isFetching,
     refetchTeam: refetch
   };
 };
 
-export default useTrainerTeam;
+export default useTrainerTeams;
