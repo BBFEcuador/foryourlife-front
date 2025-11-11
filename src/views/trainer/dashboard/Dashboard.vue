@@ -4,7 +4,7 @@ import UiParentCard from '@/components/shared/UiParentCard.vue';
 import { useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { onMounted, ref } from 'vue';
-import useTrainerTeams from '@/composables/trainer/team/useTrainerTeam.ts';
+import useTrainerTeams from '@/composables/trainer/team/useTrainerTeams.ts';
 
 const store = trainerStore();
 const { teams } = useTrainerTeams(store.trainer.id);
