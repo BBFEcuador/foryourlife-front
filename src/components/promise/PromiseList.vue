@@ -204,7 +204,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             />
           </template>
 
-          <template>
+          <template #item.saturdayPromise = "{item}">
             <v-text-field
               v-model="promiseModels[item.id].second"
               density="compact"
@@ -216,7 +216,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
             />
           </template>
 
-          <template>
+          <template #item.sundayPromise = "{item}">
             <v-text-field
               v-model="promiseModels[item.id].third"
               density="compact"

@@ -29,7 +29,7 @@ onMounted(() => {
   <div>
     <UiParentCard title="Mis Entrenamientos">
       <v-row>
-        <v-col v-for="(team, idx) in store.trainer.teams" :key="team.id" cols="12" md="4">
+        <v-col v-for="(team, idx) in store.trainer.teams" :key="team.id" cols="12" md="6">
           <v-card elevation="2" class="overflow-visible">
             <v-row class="mt-md-0 mt-sm-3 mt-3">
               <v-col cols="6" sm="6">
