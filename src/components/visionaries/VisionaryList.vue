@@ -16,7 +16,6 @@ const search = ref('');
 const headers = [
     { title: 'Nombre', value: 'user.name', sortable: true },
     { title: 'E-mail', value: 'user.email', sortable: true },
-    { title: 'Rol', value: 'role', sortable: true },
     { title: 'Estado', value: 'active', sortable: true }
 ] as const;
 </script>
@@ -40,13 +39,6 @@ const headers = [
                 </v-btn>
             </v-toolbar>
         </template>
-
-        <template v-slot:item.role="{ item }">
-            <v-chip size="small" :color="item.role === 'FOCUS' ? 'deep-purple' : item.role === 'YOUR' ? 'indigo' : 'blue'" class="text-capitalize">
-                {{ item.role.toLowerCase() }}
-            </v-chip>
-        </template>
-
         <template v-slot:item.active="{ item }">
             <v-chip size="small" :color="item.active ? 'success' : 'error'" variant="tonal">
                 {{ item.active ? 'Activo' : 'Inactivo' }}

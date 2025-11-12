@@ -333,14 +333,48 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
             />
           </InputSection>
-          <InputSection label="Rol">
+          <!-- <InputSection label="Rol">
             <VSelect
               placeholder="Rol del Staff"
               :items="['CAPITAN', 'STAFF']"
               v-model="staff.rol"
               :error-messages="validator.rol.$errors.map((x) => x.$message.toString())"
             />
+          </InputSection> -->
+
+          <InputSection label="Rol" required class="mb-5">
+            <VSelect
+              placeholder="Seleccione el rol"
+              :items="[
+                { title: 'Capitán', value: 'CAPITAN', icon: 'mdi:shield-star' },
+                { title: 'Staff', value: 'STAFF', icon: 'mdi:account-tie' }
+              ]"
+              item-title="title"
+              item-value="value"
+              v-model="staff.rol"
+              :error-messages="validator.rol.$errors.map((x) => x.$message.toString())"
+              variant="outlined"
+              hide-details="auto"
+              class="tw:rounded-lg !tw:shadow-sm"
+              bg-color="white"
+            >
+              <!-- <template v-slot:prepend>
+                <Icon icon="mdi:shield-account" />
+              </template> -->
+              <template v-slot:item="{ item, props }">
+                <v-list-item v-bind="props">
+                  <template v-slot:prepend>
+                    <Icon
+                      class="mr-2"
+                      :icon="item.raw.icon"
+                      :class="item.raw.value === 'CAPITAN' ? 'tw:text-amber-500' : 'tw:text-blue-500'"
+                    />
+                  </template>
+                </v-list-item>
+              </template>
+            </VSelect>
           </InputSection>
+
           <div class="tw:w-full tw:flex tw:justify-end tw:gap-2">
             <VBtn @click="showForm = false" variant="outlined" color="error">Cancelar</VBtn>
             <VBtn @click="onSave" color="primary">Guardar</VBtn>

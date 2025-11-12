@@ -39,7 +39,6 @@ watch(debouncedSearch, (val) => {
 });
 
 const staffRules = {
-  role: { required },
   user: {
     name1: { required: { ...required, $message: 'Debe ingresar su primer nombre' } },
     name2: { required: { ...required, $message: 'Debe ingresar su segundo nombre' } },
@@ -53,7 +52,6 @@ const headers = [
   { title: 'Nombre', value: 'user.name', width: '50', sortable: true },
   { title: 'E-mail', value: 'user.email', width: '200', sortable: true },
   { title: 'Teléfono', value: 'user.phone', width: '150', sortable: true },
-  { title: 'Rol', value: 'role', width: '150', sortable: true },
   { title: 'Activo', value: 'active', width: '100', sortable: true },
   { title: 'Acciones', value: 'actions', width: '100', sortable: false, align: 'center' as const }
 ];
@@ -419,40 +417,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                   <Icon icon="mdi:phone" />
                 </template>
               </VTextField>
-            </InputSection>
-
-            <InputSection label="Rol" required>
-              <VSelect
-                placeholder="Seleccione el rol"
-                :items="[
-                  { title: 'Capitán', value: 'CAPITAN', icon: 'mdi:shield-star' },
-                  { title: 'Staff', value: 'STAFF', icon: 'mdi:account-tie' }
-                ]"
-                item-title="title"
-                item-value="value"
-                v-model="staff.role"
-                :error-messages="validator.role.$errors.map((x) => x.$message.toString())"
-                variant="outlined"
-                hide-details="auto"
-                class="tw:rounded-lg !tw:shadow-sm"
-                bg-color="white"
-              >
-                <template v-slot:prepend>
-                  <Icon icon="mdi:shield-account" />
-                </template>
-                <template v-slot:item="{ item, props }">
-                  <v-list-item v-bind="props">
-                    <template v-slot:prepend>
-                      <Icon
-                        class="mr-2"
-                        :icon="item.raw.icon"
-                        :class="item.raw.value === 'CAPITAN' ? 'tw:text-amber-500' : 'tw:text-blue-500'"
-                      />
-                    </template>
-                  </v-list-item>
-                </template>
-              </VSelect>
-            </InputSection>
+            </InputSection>            
           </div>
 
           <div class="tw:flex tw:justify-end tw:gap-3 tw:mt-6">
