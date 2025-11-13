@@ -279,17 +279,21 @@ const filteredParticipantAttendanceList = computed(() => {
   <div>
     <BaseBreadcrumb title="Asistencias" :breadcrumbs="breadcrumbs" />
     <div v-if="checkPermission(PermissionEnum.SEE_ATTENDANCES_DECLARATIONS)">
-      <div class="d-flex tw:flex-col tw:md:flex-row">
-        <v-col cols="12" md="4">
+      <div class="d-flex tw:flex-col tw:md:flex-row tw:gap-4">
+        <div class="tw:w-full tw:lg:w-1/3 tw:p-4">
           <v-card elevation="0" class="h-100">
             <v-card-title>
-              <div class="tw:text-wrap">Seleccione un entrenamiento para continuar</div>
+              <div class="d-flex tw:items-center">
+                <Icon icon="mdi-teach" class="mr-2" />
+                <div>Entrenamientos</div>
+              </div>
+              <v-divider></v-divider>
             </v-card-title>
-
-            <v-card-item>
+            <v-card-item class="mt-0 pt-2 pb-2">
+              <label class="tw-whitespace-normal tw-block">Seleccione un entrenamiento para continuar</label>
               <v-text-field
                 v-model="debouncedSearch"
-                class="pt-2"
+                class="pt-3"
                 placeholder="Quito-101, Guayaquil-87, Cuenca-002 ..."
                 label="Buscar entrenamiento"
                 :loading="isTrainingsLoading"
@@ -350,9 +354,8 @@ const filteredParticipantAttendanceList = computed(() => {
               </div>
             </v-card-item>
           </v-card>
-        </v-col>
-
-        <v-col cols="12" md="8">
+        </div>
+        <div class="tw:w-full tw:lg:w-2/3 tw:p-4">
           <v-alert
             v-if="!selectedTraining"
             class="d-flex justify-center"
@@ -394,6 +397,7 @@ const filteredParticipantAttendanceList = computed(() => {
                 <Icon :icon="switchPromises ? 'material-symbols:event-available' : 'streamline-flex:link-chain-solid'" />
                 <span class="d-none d-sm-inline ml-2">{{ !switchPromises ? 'Declaraciones' : 'Asistencias' }}</span>
               </VBtn>
+              <v-divider></v-divider>
             </v-card-title>
 
             <v-card-item class="tw:w-full">
@@ -634,7 +638,7 @@ const filteredParticipantAttendanceList = computed(() => {
               </div>
             </v-card-item>
           </v-card>
-        </v-col>
+        </div>
       </div>
     </div>
     <div v-else>
