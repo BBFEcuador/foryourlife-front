@@ -90,6 +90,10 @@ const removeParticipantSelected = (item: string) => {
   router.push({ name: 'teams-admin-update', params: { id: item } });
 };
 
+const organigram = (item: string) => {
+  router.push({ name: 'teams-admin-organigram', params: { id: item } });
+};
+
 const getLevelColor = (level: string) => {
   const colors = {
     FOCUS: 'primary',
@@ -314,6 +318,23 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                         <Icon icon="material-symbols:edit-outline-rounded" class="tw:transition-transform group-hover:tw:scale-110" />
                         <div
                           class="tw:absolute tw:inset-0 tw:bg-red-500 tw:blur-lg tw:rounded-full group-hover:tw:opacity-20 tw:transition-opacity"
+                        ></div>
+                      </div>
+                    </VBtn>
+                    <VBtn
+                      v-if="checkPermission(PermissionEnum.UPDATE_TEAMS)"
+                      icon
+                      variant="text"
+                      color="success"
+                      height="38"
+                      class="!tw:bg-green-50 tw:rounded-xl !tw:shadow-sm hover:!tw:bg-green-100 tw:transition-all group"
+                      v-tooltip="'Organigrama'"
+                      @click="organigram(item.id)"
+                    >
+                      <div class="tw:relative">
+                        <Icon icon="mdi:sitemap" class="tw:transition-transform group-hover:tw:scale-110" />
+                        <div
+                          class="tw:absolute tw:inset-0 tw:bg-green-400 tw:blur-lg tw:rounded-full group-hover:tw:opacity-20 tw:transition-opacity"
                         ></div>
                       </div>
                     </VBtn>

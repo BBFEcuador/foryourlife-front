@@ -114,6 +114,15 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/team/AdminTeamsUpdate.vue')
       },
       {
+        name: 'teams-admin-organigram',
+        path: 'teams/organigram/:id',
+        meta: {
+          requiresAuth: true,
+          permissions: [PermissionEnum.UPDATE_TEAMS]
+        },
+        component: () => import('@/views/admin/team/AdminTeamsOrganigram.vue')
+      },
+      {
         name: 'participants-admin',
         path: 'participants',
         meta: {

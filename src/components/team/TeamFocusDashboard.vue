@@ -8,7 +8,7 @@ import { computed, ref, reactive } from 'vue';
 interface props {
   team: Team;
 }
-const search = ref<string>('');
+const search = ref();
 const props = defineProps<props>();
 const { data, isLoading } = useMasterLifeDashboard(props.team.training?.id);
 
@@ -46,20 +46,6 @@ function setPanel(index: number, val: unknown) {
   }
   panel[index] = Array.isArray(v) ? v : [v];
 }
-
-const calculateValue = (item: TrainingMasterLifeDashboard) => {
-  const attendanceSum = (item.attendanceDashboard?.masterSundayCount ?? 0) + (item.attendanceDashboard?.sundayCount ?? 0);
-  const promiseSum = (item.promiseDashboard?.totalMasterLifePaid ?? 0) + (item.promiseDashboard?.totalPaid ?? 0);
-  if (promiseSum === 0) return 0;
-  return attendanceSum / promiseSum;
-};
-
-const getColor = (item: TrainingMasterLifeDashboard) => {
-  const value = calculateValue(item);
-  if (value > 1.22) return 'tw:text-green-600';
-  if (value >= 1 && value <= 1.22) return 'tw:text-yellow-500';
-  return 'tw:text-red-600';
-};
 </script>
 
 <template>
@@ -104,19 +90,6 @@ const getColor = (item: TrainingMasterLifeDashboard) => {
                       <Icon icon="mdi:calendar-check" height="20" class="tw:text-amber-600" />
                     </div>
                     <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Registro por Días</h4>
-                    <v-spacer></v-spacer>
-                    <div
-                      v-if="
-                        item.attendanceDashboard?.masterSundayCount != null &&
-                        item.attendanceDashboard?.sundayCount != null &&
-                        item.promiseDashboard?.totalMasterLifePaid != null &&
-                        item.promiseDashboard?.totalPaid != null
-                      "
-                      :class="getColor(item)"
-                      class="tw:ml-auto tw:text-lg"
-                    >
-                      {{ calculateValue(item).toFixed(2) }}
-                    </div>
                   </div>
 
                   <div class="tw:rounded-xl tw:border tw:border-gray-200 tw:overflow-hidden tw:shadow-sm">
@@ -174,32 +147,32 @@ const getColor = (item: TrainingMasterLifeDashboard) => {
                         <tbody class="tw:divide-y tw:divide-gray-100">
                           <tr class="tw:transition-colors tw:border-b-gray-300">
                             <td class="tw:text-sm tw:font-medium tw:text-gray-700 tw:sticky tw:left-0 tw:bg-white tw:z-10">Asistencia</td>
-                            <td class="text-center tw:text-lg tw:text-gray-600 tw:border-l tw:border-gray-300">
+                            <td class="text-center tw:text-sm tw:text-gray-600 tw:border-l tw:border-gray-300">
                               {{ item.attendanceDashboard?.masterFridayCount ?? 0 }}
                             </td>
-                            <td class="text-center tw:text-lg tw:text-gray-600">{{ item.attendanceDashboard?.fridayCount ?? 0 }}</td>
+                            <td class="text-center tw:text-sm tw:text-gray-600">{{ item.attendanceDashboard?.fridayCount ?? 0 }}</td>
                             <td
-                              class="text-center tw:text-lg tw:font-semibold tw:text-blue-700 tw:bg-blue-50 tw:border-l tw:border-blue-200"
+                              class="text-center tw:text-sm tw:font-semibold tw:text-blue-700 tw:bg-blue-50 tw:border-l tw:border-blue-200"
                             >
                               {{ (item.attendanceDashboard?.masterFridayCount ?? 0) + (item.attendanceDashboard?.fridayCount ?? 0) }}
                             </td>
-                            <td class="text-center tw:text-lg tw:text-gray-600 tw:border-l tw:border-gray-300">
+                            <td class="text-center tw:text-sm tw:text-gray-600 tw:border-l tw:border-gray-300">
                               {{ item.attendanceDashboard?.masterSaturdayCount ?? 0 }}
                             </td>
-                            <td class="text-center tw:text-lg tw:text-gray-600">{{ item.attendanceDashboard?.saturdayCount ?? 0 }}</td>
+                            <td class="text-center tw:text-sm tw:text-gray-600">{{ item.attendanceDashboard?.saturdayCount ?? 0 }}</td>
                             <td
-                              class="text-center tw:text-lg tw:font-semibold tw:text-emerald-700 tw:bg-emerald-50 tw:border-l tw:border-emerald-200"
+                              class="text-center tw:text-sm tw:font-semibold tw:text-emerald-700 tw:bg-emerald-50 tw:border-l tw:border-emerald-200"
                             >
                               {{ (item.attendanceDashboard?.masterSaturdayCount ?? 0) + (item.attendanceDashboard?.saturdayCount ?? 0) }}
                             </td>
-                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:text-gray-600 tw:border-l tw:border-gray-300">
+                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:text-gray-600 tw:border-l tw:border-gray-300">
                               {{ item.attendanceDashboard?.masterSundayCount ?? 0 }}
                             </td>
-                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:text-gray-600">
+                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:text-gray-600">
                               {{ item.attendanceDashboard?.sundayCount ?? 0 }}
                             </td>
                             <td
-                              class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:font-semibold tw:text-orange-700 tw:bg-orange-50 tw:border-l tw:border-orange-200"
+                              class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:font-semibold tw:text-orange-700 tw:bg-orange-50 tw:border-l tw:border-orange-200"
                             >
                               {{ (item.attendanceDashboard?.masterSundayCount ?? 0) + (item.attendanceDashboard?.sundayCount ?? 0) }}
                             </td>
@@ -208,41 +181,41 @@ const getColor = (item: TrainingMasterLifeDashboard) => {
                             <td class="tw:px-4 tw:py-3 tw:text-sm tw:font-medium tw:text-gray-700 tw:sticky tw:left-0 tw:bg-white tw:z-10">
                               Declaración
                             </td>
-                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:text-gray-600 tw:border-l tw:border-gray-300">
+                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:text-gray-600 tw:border-l tw:border-gray-300">
                               {{ item.promiseDashboard?.totalFirstMasterLifePromise ?? 0 }}
                             </td>
-                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:text-gray-600">
+                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:text-gray-600">
                               {{ item.promiseDashboard?.totalFirstPromise ?? 0 }}
                             </td>
                             <td
-                              class="tw:px-3 tw:py-3 tw:text-center tw:text- tw:font-semibold tw:text-blue-700 tw:bg-blue-50 tw:border-l tw:border-blue-200"
+                              class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:font-semibold tw:text-blue-700 tw:bg-blue-50 tw:border-l tw:border-blue-200"
                             >
                               {{
                                 (item.promiseDashboard?.totalFirstMasterLifePromise ?? 0) + (item.promiseDashboard?.totalFirstPromise ?? 0)
                               }}
                             </td>
-                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:text-gray-600 tw:border-l tw:border-gray-300">
+                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:text-gray-600 tw:border-l tw:border-gray-300">
                               {{ item.promiseDashboard?.totalSecondMasterLifePromise ?? 0 }}
                             </td>
-                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:text-gray-600">
+                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:text-gray-600">
                               {{ item.promiseDashboard?.totalSecondPromise ?? 0 }}
                             </td>
                             <td
-                              class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:font-semibold tw:text-emerald-700 tw:bg-emerald-50 tw:border-l tw:border-emerald-200"
+                              class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:font-semibold tw:text-emerald-700 tw:bg-emerald-50 tw:border-l tw:border-emerald-200"
                             >
                               {{
                                 (item.promiseDashboard?.totalSecondMasterLifePromise ?? 0) +
                                 (item.promiseDashboard?.totalSecondPromise ?? 0)
                               }}
                             </td>
-                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:text-gray-600 tw:border-l tw:border-gray-300">
+                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:text-gray-600 tw:border-l tw:border-gray-300">
                               {{ item.promiseDashboard?.totalThirdMasterLifePromise ?? 0 }}
                             </td>
-                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:text-gray-600">
+                            <td class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:text-gray-600">
                               {{ item.promiseDashboard?.totalThirdPromise ?? 0 }}
                             </td>
                             <td
-                              class="tw:px-3 tw:py-3 tw:text-center tw:text-lg tw:font-semibold tw:text-orange-700 tw:bg-orange-50 tw:border-l tw:border-orange-200"
+                              class="tw:px-3 tw:py-3 tw:text-center tw:text-sm tw:font-semibold tw:text-orange-700 tw:bg-orange-50 tw:border-l tw:border-orange-200"
                             >
                               {{
                                 (item.promiseDashboard?.totalThirdMasterLifePromise ?? 0) + (item.promiseDashboard?.totalThirdPromise ?? 0)
@@ -291,39 +264,39 @@ const getColor = (item: TrainingMasterLifeDashboard) => {
                       <tbody class="tw:divide-y tw:divide-gray-100 tw:bg-white">
                         <tr class="hover:tw:bg-gray-50 tw:transition-colors">
                           <td class="tw:text-sm tw:font-medium tw:text-gray-700 tw:border-r tw:border-gray-300">Declaración</td>
-                          <td class="tw:text-center tw:text-lg tw:text-gray-600 tw:border-r tw:border-gray-300">
+                          <td class="tw:text-center tw:text-sm tw:text-gray-600 tw:border-r tw:border-gray-300">
                             {{ item.promiseDashboard?.totalMasterLifePromise ?? 0 }}
                           </td>
-                          <td class="tw:text-center tw:text-lg tw:text-gray-600 tw:border-r tw:border-gray-300">
+                          <td class="tw:text-center tw:text-sm tw:text-gray-600 tw:border-r tw:border-gray-300">
                             {{ item.promiseDashboard?.totalThirdPromise ?? 0 }}
                           </td>
                           <td
-                            class="tw:text-center tw:text-lg tw:font-semibold tw:text-green-700 tw:bg-green-50 tw:border-l tw:border-green-300"
+                            class="tw:text-center tw:text-sm tw:font-semibold tw:text-green-700 tw:bg-green-50 tw:border-l tw:border-green-300"
                           >
                             {{ (item.promiseDashboard?.totalMasterLifePromise ?? 0) + (item.promiseDashboard?.totalThirdPromise ?? 0) }}
                           </td>
                         </tr>
                         <tr class="hover:tw:bg-gray-50 tw:transition-colors">
                           <td class="tw:text-sm tw:font-medium tw:text-gray-700 tw:border-r tw:border-gray-300">Fichas</td>
-                          <td class="tw:text-center tw:text-lg tw:text-gray-600 tw:border-r tw:border-gray-300">
+                          <td class="tw:text-center tw:text-sm tw:text-gray-600 tw:border-r tw:border-gray-300">
                             {{ item.promiseDashboard?.totalMasterLifeAchieved ?? 0 }}
                           </td>
-                          <td class="tw:text-center tw:text-lg tw:text-gray-600 tw:border-r tw:border-gray-300">
+                          <td class="tw:text-center tw:text-sm tw:text-gray-600 tw:border-r tw:border-gray-300">
                             {{ item.promiseDashboard?.totalAchieved ?? 0 }}
                           </td>
-                          <td class="tw:text-center tw:text-lg tw:font-semibold tw:text-green-700 tw:bg-green-50">
+                          <td class="tw:text-center tw:text-sm tw:font-semibold tw:text-green-700 tw:bg-green-50">
                             {{ (item.promiseDashboard?.totalMasterLifeAchieved ?? 0) + (item.promiseDashboard?.totalAchieved ?? 0) }}
                           </td>
                         </tr>
                         <tr class="hover:tw:bg-gray-50 tw:transition-colors">
                           <td class="tw:text-sm tw:font-medium tw:text-gray-700 tw:border-r tw:border-gray-300">Pagos</td>
-                          <td class="tw:text-center tw:text-lg tw:text-gray-600 tw:border-r tw:border-gray-300">
+                          <td class="tw:text-center tw:text-sm tw:text-gray-600 tw:border-r tw:border-gray-300">
                             {{ item.promiseDashboard?.totalMasterLifePaid ?? 0 }}
                           </td>
-                          <td class="tw:text-center tw:text-lg tw:text-gray-600 tw:border-r tw:border-gray-300">
+                          <td class="tw:text-center tw:text-sm tw:text-gray-600 tw:border-r tw:border-gray-300">
                             {{ item.promiseDashboard?.totalPaid ?? 0 }}
                           </td>
-                          <td class="tw:text-center tw:text-lg tw:font-semibold tw:text-green-700 tw:bg-green-50">
+                          <td class="tw:text-center tw:text-sm tw:font-semibold tw:text-green-700 tw:bg-green-50">
                             {{ (item.promiseDashboard?.totalMasterLifePaid ?? 0) + (item.promiseDashboard?.totalPaid ?? 0) }}
                           </td>
                         </tr>
@@ -406,17 +379,17 @@ const getColor = (item: TrainingMasterLifeDashboard) => {
                           </v-chip>
                         </template>
                         <template v-slot:item.thirdPromise="{ item }">
-                          <div class="tw:text-center tw:w-full tw:text-lg">
+                          <div class="tw:text-center tw:w-full">
                             <span class="tw:text-gray-700">{{ item.thirdPromise ?? '-' }}</span>
                           </div>
                         </template>
                         <template v-slot:item.achievedCount="{ item }">
-                          <div class="tw:text-center tw:w-full tw:text-lg">
+                          <div class="tw:text-center tw:w-full">
                             <span class="tw:text-gray-700">{{ item.achievedCount ?? '-' }}</span>
                           </div>
                         </template>
                         <template v-slot:item.paidCount="{ item }">
-                          <div class="tw:text-center tw:w-full tw:text-lg">
+                          <div class="tw:text-center tw:w-full">
                             <span class="tw:text-gray-700">{{ item.paidCount ?? '-' }}</span>
                           </div>
                         </template>

@@ -16,7 +16,7 @@ const props = defineProps<{
 }>();
 
 const searchPromise = ref('');
-const searchPromiseParticipant = ref('');
+const searchPromiseParticipant = ref(''); 
 
 const TABLE_HEADERS = [
   { title: 'Participante', value: 'user.name', sortable: true },
@@ -46,7 +46,7 @@ watch(
   promises,
   (newPromises) => {
     if (newPromises) {
-      newPromises.forEach((promise: Promises) => {
+        newPromises.forEach((promise: Promises) => {
         if (!promiseModels[promise.id]) {
           promiseModels[promise.id] = {};
         }
