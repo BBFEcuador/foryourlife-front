@@ -8,6 +8,7 @@ import useOrganizationalChartByTraining from '@/composables/admin/organizational
 import useOrganizationalChartMutations from '@/composables/admin/organizational/useOrganizationalChartMutations';
 import { toast } from 'vue3-toastify';
 import type { AxiosError } from 'axios';
+import { unref } from 'vue';
 
 interface Props {
   team: Team;
@@ -37,12 +38,21 @@ const selectedParentForParticipant = ref<string | null>(null);
 const selectedVisionaries = ref<string[]>([]);
 const selectedStaffs = ref<string[]>([]);
 const selectedParticipants = ref<string[]>([]);
+// Masterlife support
+const masterLifeDialog = ref(false);
+const selectedMasterLifes = ref<string[]>([]);
+
+// Check state for "select all" checkboxes
+const checkVisionary = ref(false);
+const checkStaff = ref(false);
+const checkParticipant = ref(false);
+const checkMasterLife = ref(false);
 
 // JSON payload que se enviará al backend
 const orgChartPayload = ref<OrgChartPayload>({
-  id: '',
+  id: null,
   teamId: '',
-  masterLives: [],
+  masterLifes: [],
   visionaries: [],
   staff: []
 });
@@ -60,7 +70,7 @@ const initializePayload = () => {
 
   // Siempre inicializamos al menos la estructura vacía con teamId
   orgChartPayload.value.teamId = props.team.id;
-  orgChartPayload.value.masterLives = [];
+  orgChartPayload.value.masterLifes = [];
   orgChartPayload.value.visionaries = [];
   orgChartPayload.value.staff = [];
   // Si no hay nodos en el organizationalChart, dejamos el payload vacío
@@ -92,18 +102,20 @@ const initializePayload = () => {
       // Soporte para staff independientes que estén en el nivel raíz
       const participantsIds = node.children?.filter((p) => p.level === 'PARTICIPANT').map((p) => p.members.id) || [];
       orgChartPayload.value.staff.push({ userId: node.members.id, participantsIds });
+    } else if (node.level === 'MASTERLIFE' || node.level === 'MASTER_LIFE') {
+      // Soporte para MasterLives en el nivel raíz
+      const participantsIds = node.children?.filter((p) => p.level === 'PARTICIPANT').map((p) => p.members.id) || [];
+      orgChartPayload.value.masterLifes.push({ userId: node.members.id, participantsIds });
     }
   });
 
-  console.log('Payload inicializado desde organigrama existente:', orgChartPayload.value);
+  // console.log('Payload inicializado desde organigrama existente:', orgChartPayload.value);
 };
 
 // Watch para inicializar cuando carguen los datos
 watch(
   () => organizationalChart.data?.value,
   (newData) => {
-    console.log('OrganizationalChart change detected:', newData);
-    // Inicializar payload ya sea que haya nodos o no (si no hay nodos se prepara estructura vacía)
     initializePayload();
   },
   { immediate: true }
@@ -157,6 +169,12 @@ const getMembersInChart = computed(() => {
   orgChartPayload.value.staff.forEach((s) => {
     ids.add(s.userId);
     s.participantsIds.forEach((p) => ids.add(p));
+  });
+
+  // Agregar masterLifes
+  orgChartPayload.value.masterLifes.forEach((m) => {
+    ids.add(m.userId);
+    m.participantsIds.forEach((p: string) => ids.add(p));
   });
 
   return ids;
@@ -308,6 +326,14 @@ const openParticipantDialog = (staffId: string) => {
     }
   }
 
+  // Si no se encontró aún, buscar en masterLifes
+  if (participants.length === 0) {
+    const master = orgChartPayload.value.masterLifes.find((m) => m.userId === staffId);
+    if (master) {
+      participants = master.participantsIds;
+    }
+  }
+
   // IMPORTANT: copy the array so modifications to `selectedParticipants`
   // do not mutate the original `orgChartPayload` structure immediately.
   selectedParticipants.value = participants ? participants.slice() : [];
@@ -322,6 +348,9 @@ const toggleVisionarySelection = (visionaryId: string) => {
   } else {
     selectedVisionaries.value.push(visionaryId);
   }
+  //todos estan seleccionados del listado general?
+  const allSelected = availableVisionaries.value.every((v) => selectedVisionaries.value.includes(v.user.id));
+  checkVisionary.value = allSelected;
 };
 
 // Helpers para hallar el owner de un miembro en el payload
@@ -343,6 +372,10 @@ const getParticipantOwnerStaff = (participantUserId: string): string | null => {
   for (const s of orgChartPayload.value.staff) {
     if (s.participantsIds.includes(participantUserId)) return s.userId;
   }
+  // Buscar en masterLifes
+  for (const m of orgChartPayload.value.masterLifes) {
+    if (m.participantsIds.includes(participantUserId)) return m.userId;
+  }
   return null;
 };
 
@@ -353,6 +386,20 @@ const toggleStaffSelection = (staffId: string) => {
   } else {
     selectedStaffs.value.push(staffId);
   }
+
+  // Recompute checkStaff: true only if all available (non-disabled) staff are selected
+  const normalizeId = (item: any) => item?.user?.id ?? item?.id;
+  const list = availableStaffs.value || [];
+  const candidates = list
+    .filter((s: any) => {
+      const id = normalizeId(s);
+      const disabled = !!(s.isInChart && getStaffOwnerVisionary(id) !== selectedParentForStaff.value);
+      return !disabled;
+    })
+    .map(normalizeId)
+    .filter(Boolean) as string[];
+
+  checkStaff.value = candidates.length > 0 && candidates.every((id) => selectedStaffs.value.includes(id));
 };
 
 const toggleParticipantSelection = (participantUserId: string) => {
@@ -362,8 +409,19 @@ const toggleParticipantSelection = (participantUserId: string) => {
   } else {
     selectedParticipants.value.push(participantUserId);
   }
-  console.log('Participante seleccionado/desseleccionado:', participantUserId);
-  console.log('actual:', JSON.stringify(orgChartPayload.value, null, 2));
+
+  // Recompute checkParticipant: true only if all available (non-disabled) participants are selected
+  const normalizeId = (item: any) => item?.user?.id ?? item?.id;
+  const list = availableParticipants.value || [];
+  const candidates = list
+    .filter((p: any) => {
+      const id = normalizeId(p);
+      const disabled = !!(p.isInChart && getParticipantOwnerStaff(id) !== selectedParentForParticipant.value);
+      return !disabled;
+    })
+    .map(normalizeId)
+    .filter(Boolean) as string[];
+  checkParticipant.value = candidates.length > 0 && candidates.every((id) => selectedParticipants.value.includes(id));
 };
 
 // Accept functions
@@ -383,8 +441,6 @@ const acceptVisionaries = () => {
   toAdd.forEach((visionaryId) => {
     orgChartPayload.value.visionaries.push({ userId: visionaryId, staff: [] });
   });
-
-  console.log('Visionarios actualizados:', orgChartPayload.value);
   visionaryDialog.value = false;
 
   // Recargar el organigrama con el nuevo payload
@@ -393,26 +449,42 @@ const acceptVisionaries = () => {
 
 const acceptStaffs = () => {
   if (!selectedParentForStaff.value) return;
-  const visionary = orgChartPayload.value.visionaries.find((v) => v.userId === selectedParentForStaff.value);
-  if (!visionary) return;
 
-  const currentStaffIds = visionary.staff.map((s) => s.userId);
+  // Caso 1: staffs asignados a un visionary existente
+  if (selectedParentForStaff.value !== 'INDEPENDENT') {
+    const visionary = orgChartPayload.value.visionaries.find((v) => v.userId === selectedParentForStaff.value);
+    if (!visionary) return;
 
-  // Staffs a remover (desmarcados)
-  const toRemove = currentStaffIds.filter((id) => !selectedStaffs.value.includes(id));
-  if (toRemove.length > 0) {
-    visionary.staff = visionary.staff.filter((s) => !toRemove.includes(s.userId));
+    const currentStaffIds = visionary.staff.map((s) => s.userId);
+
+    // Staffs a remover (desmarcados)
+    const toRemove = currentStaffIds.filter((id) => !selectedStaffs.value.includes(id));
+    if (toRemove.length > 0) {
+      visionary.staff = visionary.staff.filter((s) => !toRemove.includes(s.userId));
+    }
+
+    // Staffs a agregar
+    const toAdd = selectedStaffs.value.filter((id) => !currentStaffIds.includes(id));
+    toAdd.forEach((staffId) => {
+      visionary.staff.push({ userId: staffId, participantsIds: [] });
+    });
+  } else {
+    // Caso 2: staff independientes a nivel raíz (modo STAFF_ONLY o selección de root)
+    const currentStaffIds = orgChartPayload.value.staff.map((s) => s.userId);
+
+    // Staffs a remover
+    const toRemove = currentStaffIds.filter((id) => !selectedStaffs.value.includes(id));
+    if (toRemove.length > 0) {
+      orgChartPayload.value.staff = orgChartPayload.value.staff.filter((s) => !toRemove.includes(s.userId));
+    }
+
+    // Staffs a agregar
+    const toAdd = selectedStaffs.value.filter((id) => !currentStaffIds.includes(id));
+    toAdd.forEach((staffId) => {
+      orgChartPayload.value.staff.push({ userId: staffId, participantsIds: [] });
+    });
   }
-
-  // Staffs a agregar
-  const toAdd = selectedStaffs.value.filter((id) => !currentStaffIds.includes(id));
-  toAdd.forEach((staffId) => {
-    visionary.staff.push({ userId: staffId, participantsIds: [] });
-  });
-
-  console.log('Staffs actualizados:', orgChartPayload.value);
   staffDialog.value = false;
-
   // Recargar el organigrama con el nuevo payload
   refreshOrgChart();
 };
@@ -434,83 +506,206 @@ const acceptParticipants = () => {
     staffRef = orgChartPayload.value.staff.find((s) => s.userId === selectedParentForParticipant.value);
   }
 
-  if (!staffRef) return;
+  if (staffRef) {
+    const currentParticipants = staffRef.participantsIds.slice();
 
-  const currentParticipants = staffRef.participantsIds.slice();
+    // Participants to remove
+    const toRemove = currentParticipants.filter((id) => !selectedParticipants.value.includes(id));
+    if (toRemove.length > 0) {
+      staffRef.participantsIds = staffRef.participantsIds.filter((p) => !toRemove.includes(p));
+    }
 
-  // Participants to remove
-  const toRemove = currentParticipants.filter((id) => !selectedParticipants.value.includes(id));
-  if (toRemove.length > 0) {
-    staffRef.participantsIds = staffRef.participantsIds.filter((p) => !toRemove.includes(p));
+    // Participants to add
+    const toAdd = selectedParticipants.value.filter((id) => !currentParticipants.includes(id));
+    toAdd.forEach((pid) => staffRef!.participantsIds.push(pid));
+  } else {
+    // Si no es un staff, revisar si es un masterLifes
+    const masterRef = orgChartPayload.value.masterLifes.find((m) => m.userId === selectedParentForParticipant.value);
+    if (masterRef) {
+      const currentParticipants = masterRef.participantsIds.slice();
+
+      const toRemove = currentParticipants.filter((id: string) => !selectedParticipants.value.includes(id));
+      if (toRemove.length > 0) {
+        masterRef.participantsIds = masterRef.participantsIds.filter((p: string) => !toRemove.includes(p));
+      }
+
+      const toAdd = selectedParticipants.value.filter((id) => !currentParticipants.includes(id));
+      toAdd.forEach((pid) => masterRef.participantsIds.push(pid));
+    }
   }
 
-  // Participants to add
-  const toAdd = selectedParticipants.value.filter((id) => !currentParticipants.includes(id));
-  toAdd.forEach((pid) => staffRef!.participantsIds.push(pid));
-
-  console.log('Participantes actualizados:', orgChartPayload.value);
   participantDialog.value = false;
 
   // Recargar el organigrama con el nuevo payload
   refreshOrgChart();
 };
 // Helper para obtener datos de miembro
-const getMemberData = (memberId: string, type: 'visionary' | 'staff' | 'participant') => {
+const getMemberData = (memberId: string, type: 'visionary' | 'staff' | 'participant' | 'masterlife') => {
   if (type === 'visionary') {
     return props.team.visionaries?.find((v) => v.user.id === memberId);
   } else if (type === 'staff') {
     return props.team.staffs?.find((s) => s.user.id === memberId);
+  } else if (type === 'masterlife') {
+    // team.masterLifes may hold members similar to staffs/visionaries
+    return props.team.masterLife?.find((m) => m.user.id === memberId);
   } else {
     return props.team.users?.find((u) => u.user.id === memberId);
   }
 };
 
+// Determine which hierarchy to show based on team arrays
+const hierarchyMode = computed(() => {
+  if (props.team?.visionaries && props.team.visionaries.length > 0) return 'VISIONARY';
+  if (props.team?.staffs && props.team.staffs.length > 0) return 'STAFF_ONLY';
+  if (props.team?.masterLife && props.team.masterLife.length > 0) return 'MASTERLIFE';
+  return '';
+});
+
+const addButtonLabel = computed(() => {
+  if (hierarchyMode.value === 'VISIONARY') return 'Agregar Visionario';
+  if (hierarchyMode.value === 'STAFF_ONLY') return 'Agregar Staff';
+  if (hierarchyMode.value === 'MASTERLIFE') return 'Agregar Masterlife';
+  return '';
+});
+
+const addButtonIcon = computed(() => {
+  if (hierarchyMode.value === 'VISIONARY') return 'mdi:crown';
+  if (hierarchyMode.value === 'STAFF_ONLY') return 'mdi:account-tie';
+  if (hierarchyMode.value === 'MASTERLIFE') return 'mdi:star';
+  return 'mdi:crown';
+});
+
+const openStaffRootDialog = () => {
+  // mark selection as independent root-level staff
+  selectedParentForStaff.value = 'INDEPENDENT';
+  selectedStaffs.value = orgChartPayload.value.staff.map((s) => s.userId);
+  staffDialog.value = true;
+};
+
+const toggleMasterLifeSelection = (id: string) => {
+  const index = selectedMasterLifes.value.indexOf(id);
+  if (index > -1) selectedMasterLifes.value.splice(index, 1);
+  else selectedMasterLifes.value.push(id);
+  checkMasterLife.value = false;
+};
+
+const availableMasterLives = computed(() => {
+  const list = props.team.masterLife?.map((m) => ({ ...m, isInChart: getMembersInChart.value.has(m.user.id) })) || [];
+  // we can reuse searchStaff field or add a dedicated search; keep simple and reuse searchStaff
+  const q = String(searchStaff.value || '')
+    .trim()
+    .toLowerCase();
+  if (!q) return list;
+  return list.filter((m) => {
+    const name = String(m.user?.name || '').toLowerCase();
+    const email = String(m.user?.email || '').toLowerCase();
+    return name.includes(q) || email.includes(q);
+  });
+});
+
+const openMasterLifeDialog = () => {
+  selectedMasterLifes.value = orgChartPayload.value.masterLifes.map((m) => m.userId);
+  masterLifeDialog.value = true;
+};
+
+const addRootHandler = () => {
+  if (hierarchyMode.value === 'VISIONARY') return openVisionaryDialog();
+  if (hierarchyMode.value === 'STAFF_ONLY') return openStaffRootDialog();
+  if (hierarchyMode.value === 'MASTERLIFE') return openMasterLifeDialog();
+  return openVisionaryDialog();
+};
+
+const acceptMasterLives = () => {
+  // Update masterLifes list in payload
+  const currentIds = orgChartPayload.value.masterLifes.map((m) => m.userId);
+  const toRemove = currentIds.filter((id) => !selectedMasterLifes.value.includes(id));
+  if (toRemove.length > 0) {
+    orgChartPayload.value.masterLifes = orgChartPayload.value.masterLifes.filter((m) => !toRemove.includes(m.userId));
+  }
+  const toAdd = selectedMasterLifes.value.filter((id) => !currentIds.includes(id));
+  toAdd.forEach((id) => orgChartPayload.value.masterLifes.push({ userId: id, participantsIds: [] }));
+  masterLifeDialog.value = false;
+  refreshOrgChart();
+};
+
 // Computed para generar los árboles visuales (uno por cada visionario) desde el payload
 const visualRoots = computed(() => {
-  if (!orgChartPayload.value.visionaries.length) return [];
+  // VISIONARY mode: each visionary is root
+  if (hierarchyMode.value === 'VISIONARY') {
+    return orgChartPayload.value.visionaries
+      .map((v) => {
+        const visionaryMember = getMemberData(v.userId, 'visionary');
+        if (!visionaryMember) return null;
+        return {
+          id: v.userId,
+          members: visionaryMember,
+          level: 'VISIONARY',
+          children: v.staff.map((staffData) => {
+            const staffMember = getMemberData(staffData.userId, 'staff');
+            return {
+              id: staffData.userId,
+              members: staffMember,
+              level: 'STAFF',
+              children: staffData.participantsIds.map((participantId: string) => {
+                const participantMember = getMemberData(participantId, 'participant');
+                return {
+                  id: participantId,
+                  members: participantMember,
+                  level: 'PARTICIPANT',
+                  children: []
+                };
+              })
+            };
+          })
+        };
+      })
+      .filter(Boolean) as any[];
+  }
 
-  return orgChartPayload.value.visionaries
-    .map((v) => {
-      const visionaryMember = getMemberData(v.userId, 'visionary');
-
-      if (!visionaryMember) return null;
-
+  // STAFF_ONLY mode: top-level nodes are staff
+  if (hierarchyMode.value === 'STAFF_ONLY') {
+    return orgChartPayload.value.staff.map((s) => {
+      const staffMember = getMemberData(s.userId, 'staff');
       return {
-        id: v.userId,
-        members: visionaryMember,
-        level: 'VISIONARY',
-        children: v.staff.map((staffData) => {
-          const staffMember = getMemberData(staffData.userId, 'staff');
-          return {
-            id: staffData.userId,
-            members: staffMember,
-            level: 'STAFF',
-            children: staffData.participantsIds.map((participantId) => {
-              const participantMember = getMemberData(participantId, 'participant');
-              return {
-                id: participantId,
-                members: participantMember,
-                level: 'PARTICIPANT',
-                children: []
-              };
-            })
-          };
+        id: s.userId,
+        members: staffMember,
+        level: 'STAFF',
+        children: s.participantsIds.map((pId: string) => {
+          const participantMember = getMemberData(pId, 'participant');
+          return { id: pId, members: participantMember, level: 'PARTICIPANT', children: [] };
         })
       };
-    })
-    .filter(Boolean) as any[];
+    });
+  }
+
+  // MASTERLIFE mode: top-level nodes are masterLifes
+  if (hierarchyMode.value === 'MASTERLIFE') {
+    return orgChartPayload.value.masterLifes.map((m) => {
+      const masterMember = getMemberData(m.userId, 'masterlife');
+      return {
+        id: m.userId,
+        members: masterMember,
+        level: 'MASTERLIFE',
+        children: m.participantsIds.map((pId: string) => {
+          const participantMember = getMemberData(pId, 'participant');
+          return { id: pId, members: participantMember, level: 'PARTICIPANT', children: [] };
+        })
+      };
+    });
+  }
+
+  return [];
 });
 
 // Función para refrescar el organigrama visual basado en el payload
 const refreshOrgChart = () => {
-  console.log('Payload actual para enviar al backend:', JSON.stringify(orgChartPayload.value, null, 2));
-
+  // console.log('Payload actual para enviar al backend:', JSON.stringify(orgChartPayload.value, null, 2));
   // Forzar nuevas referencias para que Vue detecte los cambios profundamente
   orgChartPayload.value = {
     ...orgChartPayload.value,
     visionaries: orgChartPayload.value.visionaries ? orgChartPayload.value.visionaries.slice() : [],
     staff: orgChartPayload.value.staff ? orgChartPayload.value.staff.slice() : [],
-    masterLives: orgChartPayload.value.masterLives ? orgChartPayload.value.masterLives.slice() : []
+    masterLifes: orgChartPayload.value.masterLifes ? orgChartPayload.value.masterLifes.slice() : []
   };
 };
 
@@ -522,30 +717,28 @@ const saveOrgChart = async (payload: OrgChartPayload) => {
     }
 
     if (organizationalChart.data.value['OrganizationChart']?.id) {
-      payload.id = organizationalChart.data.value['OrganizationChart']?.id; 
+      payload.id = organizationalChart.data.value['OrganizationChart']?.id;
       await updateOrganizationalChartMutations.mutateAsync(payload, {
         onSuccess: () => {
           toast.success('El organigrama se ha actualizado correctamente');
-          // refetchProducts();
+          // organizationalChart.refetchOrgChart();
         },
         onError(error) {
           const err = error as AxiosError<{ message: string }>;
           toast.error(err.response?.data?.message || 'Error al actualizar el organigrama');
         }
       });
-      console.log('Organigrama actualizado con éxito');
     } else {
       await saveOrganizationalChartMutations.mutateAsync(payload, {
         onSuccess: () => {
           toast.success('El organigrama se ha creado correctamente');
-          // refetchProducts();
+          organizationalChart.refetchOrgChart();
         },
         onError(error) {
           const err = error as AxiosError<{ message: string }>;
           toast.error(err.response?.data?.message || 'Error al crear el organigrama');
         }
       });
-      console.log('Organigrama guardado con éxito');
     }
   } catch (error) {
     console.error('Error al guardar/actualizar el organigrama:', error);
@@ -556,7 +749,8 @@ const getLevelColor = (level: string): string => {
   const colors: Record<string, string> = {
     VISIONARY: '#1E3A8A',
     STAFF: '#0D9488',
-    PARTICIPANT: '#e29f2c'
+    PARTICIPANT: '#e29f2c',
+    MASTERLIFE: '#7C3AED'
   };
   return colors[level] || '#64748B';
 };
@@ -565,9 +759,94 @@ const getLevelIcon = (level: string): string => {
   const icons: Record<string, string> = {
     VISIONARY: 'mdi:crown',
     STAFF: 'mdi:account-tie',
-    PARTICIPANT: 'mdi:account'
+    PARTICIPANT: 'mdi:account',
+    MASTERLIFE: 'mdi:star'
   };
   return icons[level] || 'mdi:account';
+};
+
+const checkAll = (type: 'visionary' | 'staff' | 'participant' | 'masterlife') => {
+  const normalizeId = (item: any) => item?.user?.id ?? item?.id;
+
+  if (type === 'visionary') {
+    // Visionarios: togglear todos sin excepciones (ignorar disabled)
+
+    const ids = (availableVisionaries.value || []).map(normalizeId).filter(Boolean) as string[];
+    const allSelected = ids.length > 0 && ids.every((id) => selectedVisionaries.value.includes(id));
+    selectedVisionaries.value = allSelected ? [] : ids.slice();
+    return;
+  }
+
+  if (type === 'staff') {
+    // Staff: no tocar los items que estén "disabled" (misma lógica que template)
+    const list = availableStaffs.value || [];
+    const candidates = list
+      .filter((s: any) => {
+        const id = normalizeId(s);
+        const disabled = !!(s.isInChart && getStaffOwnerVisionary(id) !== selectedParentForStaff.value);
+        return !disabled;
+      })
+      .map(normalizeId)
+      .filter(Boolean) as string[];
+
+    const allSelected = candidates.length > 0 && candidates.every((id) => selectedStaffs.value.includes(id));
+    if (allSelected) {
+      // desmarcar sólo los candidatos (no tocar los que estaban disabled)
+      selectedStaffs.value = selectedStaffs.value.filter((id) => !candidates.includes(id));
+    } else {
+      // marcar todos los candidatos (sin duplicados)
+      candidates.forEach((id) => {
+        if (!selectedStaffs.value.includes(id)) selectedStaffs.value.push(id);
+      });
+    }
+    return;
+  }
+
+  if (type === 'participant') {
+    // Participantes: no tocar los items que estén "disabled" (misma lógica que template)
+    const list = availableParticipants.value || [];
+    const candidates = list
+      .filter((p: any) => {
+        const id = normalizeId(p);
+        const disabled = !!(p.isInChart && getParticipantOwnerStaff(id) !== selectedParentForParticipant.value);
+        return !disabled;
+      })
+      .map(normalizeId)
+      .filter(Boolean) as string[];
+
+    const allSelected = candidates.length > 0 && candidates.every((id) => selectedParticipants.value.includes(id));
+    if (allSelected) {
+      selectedParticipants.value = selectedParticipants.value.filter((id) => !candidates.includes(id));
+    } else {
+      candidates.forEach((id) => {
+        if (!selectedParticipants.value.includes(id)) selectedParticipants.value.push(id);
+      });
+    }
+    return;
+  }
+
+  if (type === 'masterlife') {
+    // Masterlife: no tocar items disabled (isInChart === true)
+    const list = availableMasterLives.value || [];
+    const candidates = list
+      .filter((m: any) => {
+        const id = normalizeId(m);
+        const disabled = !!m.isInChart;
+        return !disabled;
+      })
+      .map(normalizeId)
+      .filter(Boolean) as string[];
+
+    const allSelected = candidates.length > 0 && candidates.every((id) => selectedMasterLifes.value.includes(id));
+    if (allSelected) {
+      selectedMasterLifes.value = selectedMasterLifes.value.filter((id) => !candidates.includes(id));
+    } else {
+      candidates.forEach((id) => {
+        if (!selectedMasterLifes.value.includes(id)) selectedMasterLifes.value.push(id);
+      });
+    }
+    return;
+  }
 };
 </script>
 
@@ -582,12 +861,20 @@ const getLevelIcon = (level: string): string => {
           <!-- Acciones principales: en una fila, hacen wrap en pantallas pequeñas -->
           <v-col cols="12" md="12">
             <div class="d-flex align-center gap-3 flex-wrap">
-              <v-btn class="ma-1" @click="openVisionaryDialog" color="secondary" variant="elevated">
-                <Icon icon="mdi:crown" width="20" class="mr-2" />
-                Agregar Visionario
+              <v-btn class="ma-1" @click="addRootHandler" color="secondary" variant="elevated" v-if="addButtonLabel !== ''">
+                <Icon :icon="addButtonIcon" width="20" class="mr-2" />
+                {{ addButtonLabel }}
               </v-btn>
               <v-spacer />
-              <v-btn class="ma-1" @click="saveOrgChart(orgChartPayload)" color="primary" variant="elevated">
+              <v-btn
+                v-if="
+                  orgChartPayload?.staff?.length > 0 || orgChartPayload?.visionaries?.length > 0 || orgChartPayload?.masterLifes?.length > 0
+                "
+                class="ma-1"
+                @click="saveOrgChart(orgChartPayload)"
+                color="primary"
+                variant="elevated"
+              >
                 <Icon icon="mdi:content-save" width="20" class="mr-2" />
                 Guardar Cambios
               </v-btn>
@@ -638,9 +925,21 @@ const getLevelIcon = (level: string): string => {
                       <Icon :icon="getLevelIcon(root.level)" width="24" />
                       <span class="node-role">{{ root.level }}</span>
                     </div>
-                    <v-btn @click="openStaffDialog(root.id)" icon size="x-small" variant="text" color="white">
-                      <Icon icon="mdi:account-plus" width="18" />
-                    </v-btn>
+                    <div>
+                      <v-btn
+                        v-if="root.level === 'VISIONARY'"
+                        @click="openStaffDialog(root.id)"
+                        icon
+                        size="x-small"
+                        variant="text"
+                        color="white"
+                      >
+                        <Icon icon="mdi:account-plus" width="18" />
+                      </v-btn>
+                      <v-btn v-else @click="openParticipantDialog(root.id)" icon size="x-small" variant="text" color="white">
+                        <Icon icon="mdi:account-plus" width="18" />
+                      </v-btn>
+                    </div>
                   </div>
                   <div class="node-content">
                     <h3 class="node-name">{{ root.members.user.name }}</h3>
@@ -676,12 +975,24 @@ const getLevelIcon = (level: string): string => {
                           <Icon :icon="getLevelIcon(staffNode.level)" width="20" />
                           <span class="node-role">{{ staffNode.level }}</span>
                         </div>
-                        <v-btn @click="openParticipantDialog(staffNode.id)" icon size="x-small" variant="text" color="white">
+                        <v-btn
+                          v-if="staffNode.level === 'STAFF'"
+                          @click="openParticipantDialog(staffNode.id)"
+                          icon
+                          size="x-small"
+                          variant="text"
+                          color="white"
+                        >
                           <Icon icon="mdi:account-plus" width="18" />
                         </v-btn>
                       </div>
                       <div class="node-content">
-                        <h3 class="node-name">{{ staffNode.members?.user?.name }}</h3>
+                        <h3 class="node-name">
+                          <div class="d-flex align-center gap-2">
+                            <Icon v-if="staffNode?.captain" icon="mdi:shield-star" class="tw:text-orange-500 mr-1" width="20" />
+                            <span>{{ staffNode.members?.user?.name }}</span>
+                          </div>
+                        </h3>
                         <p class="node-email">{{ staffNode.members?.user?.email }}</p>
                       </div>
                     </div>
@@ -734,19 +1045,12 @@ const getLevelIcon = (level: string): string => {
             <Icon icon="mdi:alert-circle" height="80" color="secondary" class="mb-1 icon-gray" />
             <p class="mb-3">Error al cargar el organigrama</p>
           </div>
-
-          <!-- <Icon icon="mdi:alert-circle" class="text-error" width="64" />
-          <p class="mt-4 text-error">Error al cargar el organigrama</p> -->
         </div>
         <div v-else class="text-center py-12">
           <div class="d-flex flex-column align-center py-5">
             <Icon icon="mdi:file-tree" height="80" color="secondary" class="mb-1 icon-gray" />
             <p class="mb-3">No existen organigramas creados</p>
           </div>
-
-          <!-- <Icon icon="mdi:file-tree" class="text-medium-emphasis" width="64" />
-          <p class="mt-4 text-medium-emphasis">Sin organigrama</p>
-          <p class="mt-4 text-medium-emphasis">Empiece creando un organigrama</p> -->
         </div>
       </v-card-text>
     </v-card>
@@ -764,24 +1068,6 @@ const getLevelIcon = (level: string): string => {
         </v-card-title>
 
         <v-card-text class="pa-0">
-          <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion>
-            <VTextField
-              v-model="searchVisionary"
-              placeholder="Buscar Participantes..."
-              variant="outlined"
-              density="compact"
-              class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
-              clearable
-              hide-details
-            >
-              <template #prepend-inner>
-                <div class="tw:relative">
-                  <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                  <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-                </div>
-              </template>
-            </VTextField>
-          </v-toolbar>
           <div v-if="availableVisionaries.length === 0">
             <div class="d-flex flex-column align-center py-5">
               <Icon icon="mdi:user-remove" height="80" color="secondary" class="mb-1 icon-gray" />
@@ -789,21 +1075,36 @@ const getLevelIcon = (level: string): string => {
             </div>
           </div>
           <div v-else>
+            <v-toolbar class="px-3 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion>
+              <template v-slot:prepend>
+                <v-checkbox hide-details v-model="checkVisionary" @click="checkAll('visionary')" />
+              </template>
+              <VTextField
+                v-model="searchVisionary"
+                placeholder="Buscar..."
+                variant="outlined"
+                density="compact"
+                class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
+                clearable
+                hide-details
+              >
+                <template #prepend-inner>
+                  <div class="tw:relative">
+                    <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                    <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                  </div>
+                </template>
+              </VTextField>
+            </v-toolbar>
             <v-list>
               <v-list-item
                 v-for="visionary in availableVisionaries"
                 :key="visionary.id"
                 @click="toggleVisionarySelection(visionary.user.id)"
-                :disabled="visionary.isInChart"
                 :class="{ 'bg-grey-lighten-4': visionary.isInChart }"
               >
                 <template v-slot:prepend>
-                  <v-checkbox
-                    :model-value="selectedVisionaries.includes(visionary.user.id)"
-                    :disabled="visionary.isInChart"
-                    readonly
-                    hide-details
-                  />
+                  <v-checkbox :model-value="selectedVisionaries.includes(visionary.user.id)" readonly hide-details />
                 </template>
                 <v-list-item-title>{{ visionary.user?.name }}</v-list-item-title>
                 <v-list-item-subtitle>{{ visionary.user?.email }}</v-list-item-subtitle>
@@ -823,6 +1124,75 @@ const getLevelIcon = (level: string): string => {
       </v-card>
     </v-dialog>
 
+    <!-- Dialog para agregar Masterlife -->
+    <v-dialog v-model="masterLifeDialog" max-width="600">
+      <v-card class="rounded-xl">
+        <VCardTitle class="d-flex flex-shrink-0 align-center text-white bg-primary">
+          <Icon icon="mdi:star" class="mr-2" />
+          <span class="text-h6 text-white">Agregar Masterlife</span>
+          <v-spacer />
+          <v-btn icon variant="text" @click="masterLifeDialog = false">
+            <Icon icon="mdi:close" class="" width="24" />
+          </v-btn>
+        </VCardTitle>
+        <v-card-text class="pa-0 flex-grow-1 tw:overflow-y-auto">
+          <div v-if="availableMasterLives.length === 0">
+            <div class="d-flex flex-column align-center py-5">
+              <Icon icon="mdi:user-remove" height="80" color="secondary" class="mb-1 icon-gray" />
+              <p class="mb-3">No se encontraron MasterLifes</p>
+            </div>
+          </div>
+          <div v-else>
+            <v-toolbar class="px-3 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion>
+              <template v-slot:prepend>
+                <v-checkbox hide-details v-model="checkMasterLife" @click="checkAll('masterlife')" />
+              </template>
+              <VTextField
+                v-model="searchStaff"
+                placeholder="Buscar..."
+                variant="outlined"
+                density="compact"
+                class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
+                clearable
+                hide-details
+              >
+                <template #prepend-inner>
+                  <div class="tw:relative">
+                    <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                    <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                  </div>
+                </template>
+              </VTextField>
+            </v-toolbar>
+            <v-list>
+              <v-list-item
+                v-for="m in availableMasterLives"
+                :key="m.id"
+                @click="toggleMasterLifeSelection(m.user.id)"
+                :disabled="m.isInChart"
+                :class="{ 'bg-grey-lighten-4': m.isInChart }"
+              >
+                <template v-slot:prepend>
+                  <v-checkbox :model-value="selectedMasterLifes.includes(m.user.id)" :disabled="m.isInChart" readonly hide-details />
+                </template>
+                <v-list-item-title>{{ m.user?.name }}</v-list-item-title>
+                <v-list-item-subtitle>{{ m.user?.email }}</v-list-item-subtitle>
+                <template v-slot:append v-if="m.isInChart">
+                  <v-chip color="secondary">En diagrama</v-chip>
+                </template>
+              </v-list-item>
+            </v-list>
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="tw:border-t tw:border-gray-300 tw:sticky">
+          <v-spacer />
+          <v-btn color="error" variant="flat" @click="masterLifeDialog = false"> Cancelar </v-btn>
+          <v-btn color="primary" class="text-white" variant="flat" @click="acceptMasterLives"> Aceptar </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Dialog para agregar Staff -->
     <v-dialog v-model="staffDialog" max-width="600">
       <v-card class="rounded-xl">
@@ -835,47 +1205,58 @@ const getLevelIcon = (level: string): string => {
           </v-btn>
         </VCardTitle>
         <v-card-text class="pa-0 flex-grow-1 tw:overflow-y-auto">
-          <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion>
-            <VTextField
-              v-model="searchStaff"
-              placeholder="Buscar Staff..."
-              variant="outlined"
-              density="compact"
-              class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
-              clearable
-              hide-details
-            >
-              <template #prepend-inner>
-                <div class="tw:relative">
-                  <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                  <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-                </div>
-              </template>
-            </VTextField>
-          </v-toolbar>
-          <v-list>
-            <v-list-item
-              v-for="staff in availableStaffs"
-              :key="staff.id"
-              @click="toggleStaffSelection(staff.user.id)"
-              :disabled="staff.isInChart && getStaffOwnerVisionary(staff.user.id) !== selectedParentForStaff"
-              :class="{ 'bg-grey-lighten-4': staff.isInChart }"
-            >
+          <div v-if="availableStaffs.length === 0">
+            <div class="d-flex flex-column align-center py-5">
+              <Icon icon="mdi:user-remove" height="80" color="secondary" class="mb-1 icon-gray" />
+              <p class="mb-3">No se encontraron Staffs</p>
+            </div>
+          </div>
+          <div v-else>
+            <v-toolbar class="px-3 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion>
               <template v-slot:prepend>
-                <v-checkbox
-                  :model-value="selectedStaffs.includes(staff.user.id)"
-                  :disabled="staff.isInChart && getStaffOwnerVisionary(staff.user.id) !== selectedParentForStaff"
-                  readonly
-                  hide-details
-                />
+                <v-checkbox hide-details v-model="checkStaff" @click="checkAll('staff')" />
               </template>
-              <v-list-item-title>{{ staff.user?.name }}</v-list-item-title>
-              <v-list-item-subtitle>{{ staff.user?.email }}</v-list-item-subtitle>
-              <template v-slot:append v-if="staff.isInChart">
-                <v-chip color="secondary">En diagrama</v-chip>
-              </template>
-            </v-list-item>
-          </v-list>
+              <VTextField
+                v-model="searchStaff"
+                placeholder="Buscar..."
+                variant="outlined"
+                density="compact"
+                class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
+                clearable
+                hide-details
+              >
+                <template #prepend-inner>
+                  <div class="tw:relative">
+                    <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                    <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                  </div>
+                </template>
+              </VTextField>
+            </v-toolbar>
+            <v-list>
+              <v-list-item
+                v-for="staff in availableStaffs"
+                :key="staff.id"
+                @click="toggleStaffSelection(staff.user.id)"
+                :disabled="staff.isInChart && getStaffOwnerVisionary(staff.user.id) !== selectedParentForStaff"
+                :class="{ 'bg-grey-lighten-4': staff.isInChart }"
+              >
+                <template v-slot:prepend>
+                  <v-checkbox
+                    :model-value="selectedStaffs.includes(staff.user.id)"
+                    :disabled="staff.isInChart && getStaffOwnerVisionary(staff.user.id) !== selectedParentForStaff"
+                    readonly
+                    hide-details
+                  />
+                </template>
+                <v-list-item-title>{{ staff.user?.name }}</v-list-item-title>
+                <v-list-item-subtitle>{{ staff.user?.email }}</v-list-item-subtitle>
+                <template v-slot:append v-if="staff.isInChart">
+                  <v-chip color="secondary">En diagrama</v-chip>
+                </template>
+              </v-list-item>
+            </v-list>
+          </div>
         </v-card-text>
 
         <v-card-actions class="tw:border-t tw:border-gray-300 tw:sticky">
@@ -898,31 +1279,34 @@ const getLevelIcon = (level: string): string => {
           </v-btn>
         </VCardTitle>
         <v-card-text class="pa-0 flex-grow-1 tw:overflow-y-auto">
-          <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion>
-            <VTextField
-              v-model="searchParticipant"
-              placeholder="Buscar Participantes..."
-              variant="outlined"
-              density="compact"
-              class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
-              clearable
-              hide-details
-            >
-              <template #prepend-inner>
-                <div class="tw:relative">
-                  <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                  <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-                </div>
-              </template>
-            </VTextField>
-          </v-toolbar>
-          <div v-if="availableVisionaries.length === 0">
+          <div v-if="availableParticipants.length === 0">
             <div class="d-flex flex-column align-center py-5">
               <Icon icon="mdi:user-remove" height="80" color="secondary" class="mb-1 icon-gray" />
               <p class="mb-3">No se encontraron participantes</p>
             </div>
           </div>
           <div v-else>
+            <v-toolbar class="px-3 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion>
+              <template v-slot:prepend>
+                <v-checkbox hide-details v-model="checkParticipant" @click="checkAll('participant')" />
+              </template>
+              <VTextField
+                v-model="searchParticipant"
+                placeholder="Buscar..."
+                variant="outlined"
+                density="compact"
+                class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
+                clearable
+                hide-details
+              >
+                <template #prepend-inner>
+                  <div class="tw:relative">
+                    <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                    <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                  </div>
+                </template>
+              </VTextField>
+            </v-toolbar>
             <v-list>
               <v-list-item
                 v-for="participant in availableParticipants"

@@ -16,9 +16,9 @@ export interface OrgNode {
 }
 
 export interface OrgChartPayload {
-    id: string;
+    id: null | string;
     teamId: string;
-    masterLives: any[];
+    masterLifes: any[];
     visionaries: {
         userId: string;
         staff: {
