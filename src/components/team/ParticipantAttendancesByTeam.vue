@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import type { Attendance } from '@/models/DashboardYour';
 import type { FocusAttendanceDashboard } from '@/models/DashboardFocus';
 import { computed, ref, onMounted } from 'vue';
 
 interface Props {
-  data: FocusAttendanceDashboard;
+  data?: Attendance | FocusAttendanceDashboard;
 }
 const props = defineProps<Props>();
 const attendances = computed(() => props.data?.attendances ?? []);
+
+console.log('Attendances:', props.data?.attendances);
+
 const emit = defineEmits(['loaded']);
 const ready = ref(false);
 onMounted(async () => {
@@ -107,7 +111,7 @@ const headers = [
                   ? 'mdi-check-circle-outline'
                   : item.fridayAttendance === 'NO_ASISTIO'
                     ? 'mdi-close-circle-outline'
-                    : 'mdi-dash-circle-outline'
+                    : 'mdi-minus-circle-outline'
               "
               height="20"
             />
@@ -126,7 +130,7 @@ const headers = [
                   ? 'mdi-check-circle-outline'
                   : item.saturdayAttendance === 'NO_ASISTIO'
                     ? 'mdi-close-circle-outline'
-                    : 'mdi-dash-circle-outline'
+                    : 'mdi-minus-circle-outline'
               "
               height="20"
             />
@@ -145,7 +149,7 @@ const headers = [
                   ? 'mdi-check-circle-outline'
                   : item.sundayAttendance === 'NO_ASISTIO'
                     ? 'mdi-close-circle-outline'
-                    : 'mdi-dash-circle-outline'
+                    : 'mdi-minus-circle-outline'
               "
               height="20"
             />

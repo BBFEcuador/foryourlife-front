@@ -362,7 +362,7 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
       @cancel="showCreateDialog = false"
       @save="saveProduct"
     />
-    <EditProduct
+    <editProduct
       v-if="checkPermission(PermissionEnum.UPDATE_PRODUCTS)"
       :model-value="showEditDialog"
       :product="selectedProduct"

@@ -70,6 +70,11 @@ const sidebarItem = [
         title: 'Métodos de Pago',
         to: 'payment-methods',
         permissions: [PermissionEnum.SEE_PAYMENT_METHODS]
+      },
+      {
+        title: 'CRM',
+        to: 'crm-admin',
+        // permissions: [PermissionEnum.SEE_PAYMENT_METHODS]
       }
     ]
   },

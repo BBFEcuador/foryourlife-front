@@ -13,7 +13,6 @@ const ready = ref(false);
 onMounted(async () => {
   await new Promise((resolve) => setTimeout(resolve, 200));
   ready.value = true;
-  console.log('Emitiendo loaded desde AgeChartByTeam');
   emit('loaded');
 });
 

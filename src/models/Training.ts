@@ -12,6 +12,7 @@ export interface TrainingData {
   campus: Campus;
   state: boolean;
   originalTeam?: Team;
+  courseLevelDisplay?: string;
 }
 
 export interface AttendanceDashboard {
