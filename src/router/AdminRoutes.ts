@@ -244,6 +244,15 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/paymentMethods/PaymentMethodsList.vue')
       },
       {
+        name: 'crm-admin',
+        path: 'crm-admin',
+        // meta: {
+        //   requiresAuth: true,
+        //   permissions: [PermissionEnum.SEE_PAYMENT_METHODS]
+        // },
+        component: () => import('@/views/admin/crm/AdminCRM.vue')
+      },
+      {
         name: 'pos-main',
         path: 'pos',
         meta: {

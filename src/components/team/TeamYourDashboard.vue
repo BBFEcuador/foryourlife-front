@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import useFocusDashboard from '@/composables/trainer/dashboard/useFocusDashboard';
+import useYourDashboard from '@/composables/trainer/dashboard/useYourDashboard';
 import type { Team } from '@/models/Participants';
 import { computed, ref, reactive } from 'vue';
 import AgeChartByTeam from './AgeChartByTeam.vue';
@@ -12,8 +12,10 @@ interface props {
   team: Team;
 }
 
-const props = defineProps<props>();
-const { data, isLoading, isError } = useFocusDashboard(props.team.training?.id);
+const props = defineProps<props>(); 
+const { data, isLoading, isError } = useYourDashboard(props.team.training?.id);
+
+console.log('DATA YOUR DASHBOARD', data);
 
 // Number of components pending to load
 const componentsPending = ref(4);
@@ -42,7 +44,7 @@ function onComponentLoaded() {
       <v-card-text>
         <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
           <Icon icon="mdi-alert-circle-outline" height="48" class="tw:mb-4" />
-          <p class="tw:text-lg text-center">Error al cargar los datos del dashboard de Focus</p>
+          <p class="tw:text-lg text-center">Error al cargar los datos del dashboard de Your</p>
         </div>
       </v-card-text>
     </v-card>
@@ -57,7 +59,7 @@ function onComponentLoaded() {
       <!-- Columna derecha -->
       <VCol cols="12" md="8">
         <PaymentsStaffsByTeam :data="data.paymentDashboard" @loaded="onComponentLoaded" />
-        <ParticipantAttendancesByTeam :data="data.focusAttendanceDashboard" class="mt-4" @loaded="onComponentLoaded" />
+        <ParticipantAttendancesByTeam :data="data.attendance" class="mt-4" @loaded="onComponentLoaded" />
       </VCol>
     </VRow>
   </div>

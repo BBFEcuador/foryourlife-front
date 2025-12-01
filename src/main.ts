@@ -16,7 +16,7 @@ import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 import 'vue3-toastify/dist/index.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import { abilitiesPlugin } from '@casl/vue';
-
+import '@mdi/font/css/materialdesignicons.css';
 import SvgSprite from '@/components/shared/SvgSprite.vue';
 
 // google-fonts
@@ -50,7 +50,15 @@ app.component('SvgSprite', SvgSprite);
 app.use(pinia);
 app.use(VueTablerIcons);
 app.use(VueApexCharts);
-app.use(VueQueryPlugin);
+VueQueryPlugin.install(app, {
+  queryClientConfig: {
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  },
+});
 app.use(vuetify).mount('#app');
 app.use(abilitiesPlugin, ability, {
   useGlobalProperties: true
