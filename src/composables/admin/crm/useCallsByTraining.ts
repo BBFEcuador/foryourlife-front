@@ -9,23 +9,23 @@ const fetchCallsByTraining = async (id: string): Promise<CallTraining[]> => {
 };
 
 const useCallsByTraining = (trainingId: Ref<string>) => {
-  const callsByTraining = ref<CallTraining[]>([]);
+  const selectedCallTraining = ref<CallTraining | null>(null);
 
   const query = useQuery({
-    queryKey: ['calls-by-training', trainingId],
+    queryKey: ['calls-by-training', trainingId], 
     queryFn: () => fetchCallsByTraining(trainingId.value),
-    enabled: false, // ❗ No dispares hasta que yo lo diga
+    enabled: () => !!trainingId.value,
+    refetchOnWindowFocus: false,
   });
 
-  watch(query.data, () => {
-    if (query.data.value) {
-      callsByTraining.value = query.data.value;
-    }
+  watch(query.data, (data) => {
+    selectedCallTraining.value = data?.[0] ?? null;
   });
 
   return {
-    callsByTraining,
-    fetchCallsByTraining: query.refetch, // ✔ AHORA ES UNA FUNCIÓN
+    selectedCallTraining,
+    calls: query.data,
+    refetchCalls: query.refetch,
     isLoading: query.isFetching,
     isError: query.isError,
   };

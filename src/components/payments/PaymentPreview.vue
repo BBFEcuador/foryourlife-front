@@ -32,13 +32,22 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+console.log(props);
 
-const subtotal = computed(() => {
-  return props.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+const total = computed(() => {
+  return props.items.reduce((sum, item) => (sum + item.quantity * item.unitPrice), 0);
 });
 
 const grandTotal = computed(() => {
-  return parseFloat((subtotal.value - props.discountAmount).toFixed(2));
+  return parseFloat((total.value - props.discountAmount).toFixed(2));
+});
+
+const taxes = computed(() => {
+  return parseFloat((total.value - subtotal.value).toFixed(2));
+});
+
+const subtotal  = computed(() => {
+  return parseFloat((total.value / 1.15).toFixed(2));
 });
 
 // Función para formatear números con 2 decimales
@@ -108,8 +117,10 @@ const formatDate = (date: string | Date) => {
         <tbody>
           <tr v-for="(item, index) in items" :key="index" class="tw:border-b tw:border-gray-200">
             <td class="tw:p-2">{{ item.name }}</td>
-            <td class="tw:p-2 tw:text-right">${{ formatNumber(item.unitPrice) }}</td>
-            <td class="tw:p-2 tw:text-right">${{ formatNumber(item.quantity * item.unitPrice) }}</td>
+            <!-- <td class="tw:p-2 tw:text-right">${{ formatNumber(item.unitPrice) }}</td> -->
+            <!-- <td class="tw:p-2 tw:text-right">${{ formatNumber(item.quantity * item.unitPrice) }}</td> -->
+            <td class="tw:p-2 tw:text-right">${{ formatNumber(subtotal) }}</td>
+            <td class="tw:p-2 tw:text-right">${{ formatNumber(subtotal) }}</td>
           </tr>
           <tr v-if="items.length === 0" class="tw:border-b tw:border-gray-200">
             <td colspan="4" class="tw:p-2 tw:text-center tw:text-gray-500">No hay productos seleccionados</td>
@@ -127,6 +138,10 @@ const formatDate = (date: string | Date) => {
         <div class="tw:flex tw:justify-between tw:py-2">
           <span>Descuento</span>
           <span>-${{ formatNumber(discountAmount) }}</span>
+        </div>
+        <div class="tw:flex tw:justify-between tw:py-2">
+          <span>IVA (15%)</span>
+          <span>${{ formatNumber(taxes) }}</span>
         </div>
         <div class="tw:flex tw:justify-between tw:py-2 tw:font-bold tw:border-t tw:border-gray-300">
           <span>Total</span>

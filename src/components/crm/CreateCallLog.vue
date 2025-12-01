@@ -99,8 +99,6 @@ const handleSubmit = async () => {
       autoClose: 3000,
       closeButton: true
     });
-
-    // emit('update:is-open', false);
     emit('call-log-created');
 
     // Reset form
@@ -119,7 +117,6 @@ const handleSubmit = async () => {
       autoClose: 3000,
       closeButton: true
     });
-    console.error('Error al crear el equipo:', error);
   }
 };
 
@@ -151,7 +148,7 @@ const handleSubmit = async () => {
           <template #prepend>
             <Icon icon="mdi:user" height="21" class="align-center mr-2 text-primary" />
           </template>
-          <v-alert-title class="tw:text-xs text-gray-800 mb-2 text-primary" style="font-size: 18px"> Información </v-alert-title>
+          <v-alert-title class="tw:text-xs text-gray-800 mb-2 text-primary" style="font-size: 18px"> Participante </v-alert-title>
           <v-row>
             <v-col cols="6" class="tw:text-sm">
               <span class="tw:font-semibold">Nombre:</span> {{ props.callTraining?.calledUser?.name || '-' }}
