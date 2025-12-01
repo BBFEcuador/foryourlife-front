@@ -2,47 +2,15 @@
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref, watch } from 'vue';
-
 import useTrainings from '@/composables/admin/training/useTrainings';
 import useCallsByTraining from '@/composables/admin/crm/useCallsByTraining';
 import type { TrainingData } from '@/models/Training';
-import type { CallTraining, CallsLogRequest } from '@/models/CallsTraining';
+import type { CallTraining } from '@/models/CallsTraining';
+
 import CreateCallLog from '@/components/crm/CreateCallLog.vue';
 import SeeCallsLog from '@/components/crm/SeeCallsLog.vue';
 
-const breadcrumbs = ref([
-  {
-    title: 'CRM',
-    disabled: false,
-    href: '#'
-  }
-]);
-const selectedTraining = ref<TrainingData | null>(null);
-const trainingId = ref('');
-const calls = ref<CallTraining[]>([]);
-const showCreateCallLog = ref(false);
-
-const { trainings, isTrainingError, isTrainingsLoading, debouncedSearch, loadMoreTrainings, hasMoreTrainings, isLoadingMore, retry } =
-  useTrainings();
-
-const { callsByTraining, isLoading, isError, fetchCallsByTraining } = useCallsByTraining(trainingId);
-
-watch(trainingId, async (newVal) => {
-  console.log('Selected Training changed:', newVal);
-  if (newVal) {
-    try {
-      const result = await fetchCallsByTraining();
-      calls.value = result?.data ?? [];
-    } catch (err) {
-      console.error('Error fetching calls by training:', err);
-      calls.value = [];
-    }
-  } else {
-    calls.value = [];
-  }
-});
-
-const search = ref('');
+const breadcrumbs = ref([{ title: 'CRM', disabled: false, href: '#' }]);
 
 const headers = [
   { title: 'Participante', value: 'calledUser.name', sortable: true },
@@ -52,28 +20,46 @@ const headers = [
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 
+// Entrenamiento seleccionado
+const selectedTraining = ref<TrainingData | null>(null);
+const trainingId = ref('');
+
+// Cargar entrenamientos
+const { trainings, debouncedSearch, loadMoreTrainings, hasMoreTrainings, isLoadingMore } = useTrainings();
+
+// Cargar llamadas según entrenamiento
+const {
+  calls, // <-- lista reactiva
+  selectedCallTraining, // <-- mantenido
+  refetchCalls
+} = useCallsByTraining(trainingId);
+
+// Cuando cambia el training, automáticamente hace fetch (por enabled)
+const handleParticipantChange = (training: TrainingData) => {
+  selectedTraining.value = training;
+  trainingId.value = training?.id ?? '';
+};
+
+// Buscador
+const search = ref('');
 const searchClient = (s: string) => {
   debouncedSearch.value = s;
 };
 
-const handleParticipantChange = (training: any) => {
-  selectedTraining.value = training;
-  if (training?.id) {
-    trainingId.value = training.id;
-  }
-};
+const showCreateCallLog = ref(false);
+const showSeeCallLog = ref(false);
 
-const selectedCallTraining = ref<CallTraining | null>(null);
-const createCallLog = (callLog: CallTraining) => {
-  selectedCallTraining.value = { ...callLog };
+// Crear log
+const createCallLog = (call: CallTraining) => {
+  selectedCallTraining.value = { ...call };
   showCreateCallLog.value = true;
 };
-const showSeeCallLog = ref(false);
-const seeCallLog = (callLog: CallTraining) => {
-  selectedCallTraining.value = { ...callLog };
+
+// Ver logs
+const seeCallLog = (call: CallTraining) => {
+  selectedCallTraining.value = { ...call };
   showSeeCallLog.value = true;
 };
-
 </script>
 
 <template>
@@ -123,7 +109,10 @@ const seeCallLog = (callLog: CallTraining) => {
           <div class="d-sm-flex align-center justify-space-between">
             <v-card-title class="text-h5" style="line-height: 1.57">
               <div class="d-flex tw:items-center">
-                <Icon icon="mdi-table" class="mr-2" />
+                <Icon
+                  icon="mdi-account-group"
+                  class="mr-2"
+                />
                 <div>Participantes</div>
               </div>
             </v-card-title>
@@ -175,7 +164,7 @@ const seeCallLog = (callLog: CallTraining) => {
             </template>
             <template #item.calledUser.email="{ item }">
               <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
-                <Icon icon="mdi:email" class="text-primary" />
+                <Icon icon="mdi:email" class="tw:text-gray-600" />
                 <span>{{ item.calledUser.email }}</span>
               </div>
             </template>
@@ -230,13 +219,9 @@ const seeCallLog = (callLog: CallTraining) => {
     :model-value="showCreateCallLog"
     :call-training="selectedCallTraining"
     @cancel="showCreateCallLog = false"
-    @call-log-created="fetchCallsByTraining()"
+    @call-log-created="refetchCalls()"
   />
-  <SeeCallsLog
-    :model-value="showSeeCallLog"
-    :call-training="selectedCallTraining"
-    @cancel="showSeeCallLog = false"
-  />
+  <SeeCallsLog :model-value="showSeeCallLog" :call-training="selectedCallTraining" @cancel="showSeeCallLog = false" />
 </template>
 
 <style scoped>

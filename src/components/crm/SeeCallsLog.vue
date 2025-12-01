@@ -14,10 +14,10 @@ const props = defineProps<props>();
 
 const headers = [
   { title: '', key: 'data-table-expand' },
-  { title: 'Creado por', value: 'calledBy.name', sortable: true },
-  { title: 'Fecha', value: 'date', sortable: true },
-  { title: 'Tipo', value: 'type', sortable: true },
-  { title: 'Estado', value: 'status', sortable: true }
+  { title: 'CREADO POR', value: 'calledBy.name', sortable: true },
+  { title: 'FECHA', value: 'date', sortable: true },
+  { title: 'TIPO', value: 'type', sortable: true },
+  { title: 'ESTADO', value: 'status', sortable: true }
 ];
 
 const callTypes = Object.values(CallType).map((type) => ({
@@ -71,12 +71,12 @@ const expanded = ref<any[]>([]);
             <Icon icon="mdi:close" class="" width="24" />
           </v-btn>
         </VCardTitle>
-        <v-card-text class="pa-4 flex-grow-1 tw:overflow-y-auto">
+        <v-card-text class="pa-4 tw:overflow-y-auto tw:flex-grow">
           <v-alert color="default" density="compact" class="pa-4">
             <template #prepend>
               <Icon icon="mdi:user" height="21" class="align-center mr-2 text-primary" />
             </template>
-            <v-alert-title class="tw:text-xs text-gray-800 mb-2 text-primary" style="font-size: 18px"> Información </v-alert-title>
+            <v-alert-title class="tw:text-xs text-gray-800 mb-2 text-primary" style="font-size: 18px"> Participante </v-alert-title>
             <v-row>
               <v-col cols="6" class="tw:text-sm">
                 <span class="tw:font-semibold">Nombre:</span> {{ props.callTraining?.calledUser?.name || '-' }}
@@ -88,12 +88,11 @@ const expanded = ref<any[]>([]);
             </v-row>
           </v-alert>
           <v-divider class="my-2"></v-divider>
-          <v-data-table 
-            :headers="headers" 
-            :items="props.callTraining?.callLogs" 
+          <v-data-table
+            :headers="headers"
+            :items="props.callTraining?.callLogs || []"
             v-model:expanded="expanded"
             show-expand
-            hide-default-footer
             show-footer="false"
             class="striped-table hover-table"
           >
@@ -122,7 +121,7 @@ const expanded = ref<any[]>([]);
                 variant="flat"
                 class="!tw:font-normal tw:text-xs !tw:min-w-[80px] tw:bg-green-50 !tw:text-green-700"
               >
-              {{ callTypes.find((ct) => ct.value === item.type)?.label || item.type }}
+                {{ callTypes.find((ct) => ct.value === item.type)?.label || item.type }}
               </VChip>
             </template>
             <template #item.status="{ item }">
@@ -132,7 +131,7 @@ const expanded = ref<any[]>([]);
                 variant="flat"
                 class="!tw:font-normal tw:text-xs !tw:min-w-[80px] tw:bg-green-50 !tw:text-green-700"
               >
-              {{ callStatuses.find((cs) => cs.value === item.status)?.label || item.status }}
+                {{ callStatuses.find((cs) => cs.value === item.status)?.label || item.status }}
               </VChip>
             </template>
             <template #expanded-row="{ item }">
@@ -154,31 +153,48 @@ const expanded = ref<any[]>([]);
   </v-dialog>
 </template>
 
-<style >
+<style>
 /* Contenedor fullscreen para mantener el panel a la derecha */
 .fullscreen-container {
   width: 100vw;
-  height: 100vh;
+  /* height: 100vh; */
   display: flex;
   justify-content: flex-end; /* Mueve el panel al lado derecho */
 }
 
-/* Hover effect: cuando haces hover en una fila normal, también se resalta su expandible */
-:deep(.v-data-table tbody tr:not(.v-data-table__expanded__content):hover),
-:deep(.v-data-table tbody tr:not(.v-data-table__expanded__content):hover + tr.v-data-table__expanded__content) {
-  background-color: #e3f2fd !important;
+/* Hover en filas normales */
+.striped-table tbody tr:not(.v-data-table__expanded__content):hover,
+.striped-table tbody tr:not(.v-data-table__expanded__content):hover + tr.v-data-table__expanded__content {
+    background-color: #f7f8f8 !important; 
 }
 
-/* Hover en la fila expandible también resalta la fila normal anterior */
-:deep(.v-data-table tbody tr.v-data-table__expanded__content:hover) {
-  background-color: #e3f2fd !important;
+/* Hover sobre la fila expandida resalta la fila normal anterior */
+.striped-table tbody tr.v-data-table__expanded__content:hover,
+.striped-table tbody tr.v-data-table__expanded__content:hover ~ tr:not(.v-data-table__expanded__content) {
+    background-color: #f7f8f8 !important;
 }
 
-:deep(.v-data-table tbody tr.v-data-table__expanded__content:has(~ tr:hover)) {
-  background-color: #e3f2fd !important;
+thead tr {
+  background-color: #f8fafc !important;
+} 
+
+th {
+  font-weight: 600 !important;
+  color: #374151 !important;
+  font-size: 0.75rem;
 }
 
-:deep(.v-data-table thead tr) {
-  background-color: #f8fafc;
+.panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.tw\:overflow-y-auto {
+  overflow-y: auto !important;
+}
+
+.tw\:flex-grow {
+  flex-grow: 1 !important;
+  min-height: 0; 
 }
 </style>
