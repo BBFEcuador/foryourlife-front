@@ -123,27 +123,34 @@ const handleCloseCashDrawer = async () => {
     cashDrawerId: store.cashDrawer.cashBox.id,
     userId: userIdref.value
   };
+
   await closeCashDrawerMutation.mutateAsync(cashDrawer, {
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data) {
-        const blob = new Blob([new Uint8Array(data)], {type: 'application/pdf'});
+        const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Cierre_Caja_${new Date().toLocaleDateString('es-EC').replace('/', '-')}.pdf`;
+        a.download = `Cierre_Caja_${new Date()
+            .toLocaleDateString('es-EC')
+            .replace('/', '-')}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       }
+
       toast.success('Caja cerrada exitosamente');
+
       store.setCashDrawer({});
       store.setCashDrawerOpen(false);
+
+      await refetchCashBoxes();
     },
     onError: (error) => {
       const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || 'Error al procesar la caja');
+      toast.error(err.response?.data?.message || "Error al procesar la caja");
     }
   });
 };
