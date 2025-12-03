@@ -164,4 +164,49 @@ const headers = [
 .tw\:bg-indigo-50 {
   background-color: var(--tw-color-indigo-50) !important /* oklch(0.962 0.018 272.314) */;
 }
+.v-data-table :deep(th) {
+  background-color: #f8fafc !important;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.v-data-table :deep(td) {
+  font-size: 0.875rem;
+  color: #334155;
+  padding: 16px;
+}
+
+.v-data-table :deep(.v-data-table-footer) {
+  border-top: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.v-data-table :deep(.v-data-table__wrapper) {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.v-data-table :deep(.v-data-table-header__wrapper) {
+  background-color: #f8fafc;
+}
+
+.v-data-table :deep(.v-data-table__wrapper table) {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr:hover) {
+  background-color: #f8fafc;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr) {
+  transition: background-color 0.2s ease;
+}
 </style>

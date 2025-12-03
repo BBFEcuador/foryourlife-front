@@ -75,6 +75,11 @@ const sidebarItem = [
         title: 'CRM',
         to: 'crm-admin',
         // permissions: [PermissionEnum.SEE_PAYMENT_METHODS]
+      },
+      {
+        title: 'Reportes',
+        to: 'reports',
+        // permissions: [PermissionEnum.SEE_PAYMENT_METHODS]
       }
     ]
   },

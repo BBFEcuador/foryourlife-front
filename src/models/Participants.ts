@@ -110,7 +110,7 @@ export interface Team {
   staffs: StaffWriteModel[];
   visionaries: Visionary[];
   trainer: Trainers;
-  training: TrainingData;
+  training?: TrainingData;
   trainingData?: {
     endDate: string;
     name: string;

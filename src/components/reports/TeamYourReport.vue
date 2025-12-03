@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import useYourDashboard from '@/composables/trainer/dashboard/useYourDashboard';
+import useYourReport from '@/composables/admin/reports/useYourReport';
 import type { Team } from '@/models/Participants';
 import { computed, ref, reactive } from 'vue';
-import AgeChartByTeam from './AgeChartByTeam.vue';
-import GenderChartByTeam from './GenderChartByTeam.vue';
-import PaymentsStaffsByTeam from './PaymentsStaffsByTeam.vue';
-import ParticipantAttendancesByTeam from './ParticipantAttendancesByTeam.vue';
+import AgeChartByTeam from '../team/AgeChartByTeam.vue';
+import GenderChartByTeam from '../team/GenderChartByTeam.vue';
+import PaymentsStaffsByTeam from '../team/PaymentsStaffsByTeam.vue';
+import ParticipantAttendancesByTeam from '../team/ParticipantAttendancesByTeam.vue';
 
 interface props {
-  team: Team;
+  trainingId: string;
 }
 
-const props = defineProps<props>(); 
-const { data, isLoading, isError } = useYourDashboard(props.team.training!.id);
-
-console.log('DATA YOUR DASHBOARD', data);
+const props = defineProps<props>();
+const { data, isLoading, isError } = useYourReport(props.trainingId);
 
 // Number of components pending to load
 const componentsPending = ref(4);

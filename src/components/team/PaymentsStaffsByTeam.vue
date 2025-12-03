@@ -98,7 +98,7 @@ const totalRow = computed(() => ({
           </v-toolbar>
         </template>
         <template #item.staffName="{ item }">
-           <div class="tw:flex tw:items-center tw:gap-3 tw:py-1">
+          <div class="tw:flex tw:items-center tw:gap-3 tw:py-1">
             <div
               class="tw:w-8 tw:h-8 tw:rounded-full tw:bg-gradient-to-br tw:from-green-100 tw:to-green-100 tw:flex tw:items-center tw:justify-center"
             >
@@ -147,5 +147,50 @@ const totalRow = computed(() => ({
     </v-card-text>
   </v-card>
 </template>
+<style scoped>
+.v-data-table :deep(th) {
+  background-color: #f8fafc !important;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
-<style lang="scss" scoped></style>
+.v-data-table :deep(td) {
+  font-size: 0.875rem;
+  color: #334155;
+  padding: 16px;
+}
+
+.v-data-table :deep(.v-data-table-footer) {
+  border-top: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.v-data-table :deep(.v-data-table__wrapper) {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.v-data-table :deep(.v-data-table-header__wrapper) {
+  background-color: #f8fafc;
+}
+
+.v-data-table :deep(.v-data-table__wrapper table) {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr:hover) {
+  background-color: #f8fafc;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr) {
+  transition: background-color 0.2s ease;
+}
+</style>

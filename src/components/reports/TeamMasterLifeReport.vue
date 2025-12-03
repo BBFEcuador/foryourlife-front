@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import useMasterLifeDashboard from '@/composables/masterlife/useMasterlifeDashboard';
+import useMasterLifeReport from '@/composables/admin/reports/useMasterlifeReport';
 import type { Team } from '@/models/Participants';
 import type { TrainingMasterLifeDashboard } from '@/models/Training';
 import { computed, ref, reactive } from 'vue';
 
 interface props {
-  team: Team;
+  trainingId: string;
+  trainingDataName: string;
 }
 const search = ref<string>('');
 const props = defineProps<props>();
-const { data, isLoading } = useMasterLifeDashboard(props.team.training!.id);
-
+const { data, isLoading } = useMasterLifeReport(props.trainingId);
 const trainingsByFilter = computed(() => {
   const trainings: TrainingMasterLifeDashboard[] = data.value || [];
-  const matchName = props.team?.trainingData?.name;
+  const matchName = props.trainingDataName;
   return trainings.sort((a, b) => {
     if (a.trainingName === matchName && b.trainingName !== matchName) return -1;
     if (a.trainingName !== matchName && b.trainingName === matchName) return 1;

@@ -305,7 +305,7 @@ const formatDate = (
                   <Icon icon="mdi:eye" class="mr-2" />
                 </v-btn>
                 <InvoiceDetail v-if="showDetails" :invoice="selectedInvoice" :showDialog="true"
-                  @cancel="showDetails = false" :campus="props.payment!!.campus" />
+                  @cancel="showDetails = false" :campus="props.payment!!.campus" :remainingBalance="props.payment?.remainingBalance || 0" />
 
                 <EditInvoice v-if="showEdit" :invoice="selectedInvoice" :showDialog="true" @cancel="showEdit = false"
                   :campus="props.payment!!.campus" />

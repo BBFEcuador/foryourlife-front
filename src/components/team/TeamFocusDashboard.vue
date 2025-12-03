@@ -13,7 +13,7 @@ interface props {
 }
 
 const props = defineProps<props>();
-const { data, isLoading, isError } = useFocusDashboard(props.team.training?.id);
+const { data, isLoading, isError } = useFocusDashboard(props.team.training!.id);
 
 // Number of components pending to load
 const componentsPending = ref(4);
