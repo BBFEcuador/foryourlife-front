@@ -9,6 +9,7 @@ export interface CashBox {
   createdDate: string;
   firstNumberInvoice: number;
   store: Store;
+  opened: boolean
 }
 
 export interface CashBoxRequest {
