@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, watch, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric, helpers } from '@vuelidate/validators';
@@ -231,7 +231,7 @@ const handleSubmit = async () => {
       <v-card-actions class="tw:border-t tw:border-gray-300 tw:sticky">
         <v-spacer></v-spacer>
         <v-btn variant="text" color="grey-darken-1" @click="closeDialog"> Cancelar </v-btn>
-        <v-btn color="primary" variant="elevated" :loading="saveCallsLogMutations.isPending.value" @click="handleSubmit"> Guardar </v-btn>
+        <v-btn color="primary" variant="elevated" :loading="saveCallsLogMutations.isPending.value" :disabled="saveCallsLogMutations.isPending.value" @click="handleSubmit"> Guardar </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

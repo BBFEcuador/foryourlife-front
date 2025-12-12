@@ -26,10 +26,7 @@ const onTrainerSelected = (trainer: Trainers) => {
 };
 
 onBeforeMount(() => {
-  availableTrainerMutation.mutate({
-    endDate: props.team.trainingObj.endDate,
-    startDate: props.team.trainingObj.startDate
-  });
+  availableTrainerMutation.mutate(props.team.trainingObj.id);
 });
 watch(availableTrainerMutation.isError, () => {
   if (availableTrainerMutation.isError.value) {

@@ -51,7 +51,7 @@ const loadAvailableTrainers = async () => {
     endDate: team.value?.training?.nextLevel.endDate || ''
   };
 
-  availableTrainerMutation.mutate(params, {
+  availableTrainerMutation.mutate(team?.value?.training?.id || '', {
     onSuccess(data) {
       trainers.value = data;
       showTrainerSelect.value = true;
@@ -308,7 +308,7 @@ watch(promoteToYourMutation.isSuccess, () => {
       <v-card-actions class="tw:p-4 tw:bg-gray-50">
         <v-spacer></v-spacer>
         <v-btn color="grey" variant="text" @click="showConfirmDialog = false" class="tw:mr-2"> Cancelar </v-btn>
-        <v-btn color="primary" variant="flat" @click="onPromoteTeam"> Confirmar promoción </v-btn>
+        <v-btn color="primary" variant="flat" :loading="promoteToYourMutation.isPending.value" @click="onPromoteTeam" > Confirmar promoción </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

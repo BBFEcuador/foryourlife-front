@@ -4,10 +4,13 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref, watch } from 'vue';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import type { TrainingData } from '@/models/Training';
-import type { Team } from '@/models/Participants';
 import TeamMasterLifeReport from '@/components/reports/TeamMasterLifeReport.vue';
 import TeamFocusReport from '@/components/reports/TeamFocusReport.vue';
 import TeamYourReport from '@/components/reports/TeamYourReport.vue';
+import useReportsMutations from '@/composables/admin/reports/useReportsMutations';
+import { toast } from 'vue3-toastify';
+import type { AxiosError } from 'axios';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 
@@ -15,7 +18,8 @@ const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 const selectedTraining = ref<TrainingData | null>(null);
 const trainingId = ref('');
 const nameTraining = ref('');
-const team = ref<Team | null>(null);
+
+const { excelMutation } = useReportsMutations();
 
 // Cargar entrenamientos
 const { trainings, debouncedSearch, loadMoreTrainings, hasMoreTrainings, isLoadingMore } = useTrainings();
@@ -24,10 +28,7 @@ const { trainings, debouncedSearch, loadMoreTrainings, hasMoreTrainings, isLoadi
 const handleTrainingChange = (training: TrainingData) => {
   selectedTraining.value = training;
   trainingId.value = training?.id ?? '';
-  nameTraining.value =
-    training?.name && training?.courseLevelDisplay
-      ? `${training.name} - ${training.courseLevelDisplay}`
-      : '';
+  nameTraining.value = training?.name && training?.courseLevelDisplay ? `${training.name} - ${training.courseLevelDisplay}` : '';
 };
 
 // Buscador
@@ -35,10 +36,30 @@ const search = ref('');
 const searchTraining = (s: string) => {
   debouncedSearch.value = s;
 };
+
+const onExcelDownload = (training_id: string) => {
+  excelMutation.mutate(training_id, {
+    onSuccess(data, variables, context) {
+      const blob = data;
+      if (!blob) return;
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `reporte.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toast.success('Reporte generado correctamente');
+    },
+    onError(error, variables, context) {
+      let e = error as AxiosError<ErrorApiResponse>;
+      toast.error(e.response?.data.message ?? 'No se pudo generar el excel');
+    }
+  });
+};
 </script>
 
 <template>
-  <BaseBreadcrumb :title="'Reportes'" :breadcrumbs="breadcrumbs" />
+  <BaseBreadcrumb :title="'Por Entrenamiento'" :breadcrumbs="breadcrumbs" />
   <v-row>
     <v-col cols="12">
       <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
@@ -88,14 +109,16 @@ const searchTraining = (s: string) => {
     <v-row>
       <v-col>
         <v-card-item class="pa-5 text-primary" style="background-color: #f0eff4">
-          <div class="d-sm-flex align-center justify-space-between">
-            <v-card-title class="text-h5" style="line-height: 1.57">
-              <div class="d-flex tw:items-center">
-                <Icon icon="mdi-account-group" class="mr-2" />
-                <div>{{ nameTraining }}</div>
-              </div>
-            </v-card-title>
-          </div>
+          <v-card-title class="text-h5 d-flex align-center justify-space-between" style="line-height: 1.57">
+            <div class="d-flex align-center">
+              <Icon icon="mdi-account-group" class="mr-2" />
+              <div>{{ nameTraining }}</div>
+            </div>
+            <v-btn @click="onExcelDownload(trainingId)" color="primary" variant="outlined">
+              <Icon icon="mdi-file-excel" height="20" class="mr-2" />
+              Reporte
+            </v-btn>
+          </v-card-title>
         </v-card-item>
       </v-col>
     </v-row>
@@ -107,17 +130,9 @@ const searchTraining = (s: string) => {
       class="mb-2"
     />
     <!-- YOUR DASHBOARD -->
-    <TeamYourReport
-      v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId"
-      :trainingId="trainingId"
-      class="mb-2"
-    />
+    <TeamYourReport v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId" class="mb-2" />
     <!-- FOCUS DASHBOARD -->
-    <TeamFocusReport
-      v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId"
-      :trainingId="trainingId"
-      class="mb-2"
-    />
+    <TeamFocusReport v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2" />
   </div>
 </template>
 

@@ -10,8 +10,6 @@ interface Props {
 const props = defineProps<Props>();
 const attendances = computed(() => props.data?.attendances ?? []);
 
-console.log('Attendances:', props.data?.attendances);
-
 const emit = defineEmits(['loaded']);
 const ready = ref(false);
 onMounted(async () => {

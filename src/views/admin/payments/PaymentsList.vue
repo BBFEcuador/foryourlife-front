@@ -14,7 +14,6 @@ import { useRouter } from 'vue-router';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
-
 const showPaymentHistory = ref(false);
 const selectPaymentIdPdf = ref('');
 const selectedPaymentId = ref('');
@@ -132,10 +131,13 @@ const handleDownloadPdf = async (item: Payment) => {
   }
 };
 
-function formatDate(dateStr: Date): string {
-  const [date, time] = dateStr.toString().split('T');
-  return `${date} ${time.slice(0, 5)}`;
-}
+const formatDate = (date: string | Date) => {
+  return new Date(date).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
 </script>
 
 <template>
@@ -224,6 +226,9 @@ function formatDate(dateStr: Date): string {
             </v-chip>
           </div>
         </template>
+        <template #item.total="{ item }"> $ {{ item.total?.toFixed(2) || '0.00' }} </template>
+        <template #item.remainingBalance="{ item }"> $ {{ item.remainingBalance?.toFixed(2) || '0.00' }} </template>
+
         <template #item.hasSomePaymentWithError="{ item }">
           <div v-if="!item.hasSomePaymentWithError">
             <v-tooltip location="top" :text="'No se han registrado errores en los cobros'">
@@ -280,24 +285,42 @@ function formatDate(dateStr: Date): string {
           </div>
         </template>
         <template #expanded-row="{ item }">
-          <td :colspan="10">
-            <div class="pa-4">
-              <v-row>
-                <v-col cols="4">
-                  <div class="tw:font-bold">Número de Factura</div>
-                  <div>{{ item.invoice[0].invoiceNumber }}</div>
+          <td :colspan="10" class="tw:bg-gray-50 tw:py-0 tw:p-4">
+            <h4 class="tw:font-semibold tw:mb-4 text-primary">Detalles de la Factura:</h4>
+            <div class="tw:p-6 tw:m-4">
+              <v-divider class="mb-3"></v-divider>
+              <v-row dense>
+                <v-col cols="12" sm="6" md="6">
+                  <div class="detail-group">
+                    <p class="label">Número de Factura</p>
+                    <div class="value tw:text-gray-700 d-flex tw:gap-1 mb-1 align-center">
+                      <Icon icon="mdi:file-document-outline" class="tw:text-gray-700" height="16" />
+                      {{ item.invoice[0].invoiceNumber }}
+                    </div>
+                  </div>
+                  <div class="detail-group">
+                    <p class="label">Fecha de Emisión</p>
+                    <div class="value tw:text-gray-700 d-flex tw:gap-1 mb-1 align-center">
+                      <Icon icon="mdi:calendar" class="tw:text-gray-700" height="16" />
+                      {{ formatDate(item.invoice[0].invoiceDate) }}
+                    </div>
+                  </div>
                 </v-col>
-                <v-col cols="4">
-                  <div class="tw:font-bold">Nombre</div>
-                  <div>{{ item.invoice[0].fullName }}</div>
-                </v-col>
-                <v-col cols="4">
-                  <div class="tw:font-bold">Identificación</div>
-                  <div>{{ item.invoice[0].document }}</div>
-                </v-col>
-                <v-col cols="4">
-                  <div class="tw:font-bold">Fecha</div>
-                  <div>{{ formatDate(item.invoice[0].invoiceDate) }}</div>
+                <v-col cols="12" sm="6" md="6">
+                  <div class="detail-group">
+                    <p class="label">Nombre del cliente</p>
+                    <div class="value tw:text-gray-700 d-flex tw:gap-1 mb-1 align-center">
+                      <Icon icon="mdi:user" class="tw:text-gray-700" height="16" />
+                      {{ item.invoice[0].fullName }}
+                    </div>
+                  </div>
+                  <div class="detail-group">
+                    <p class="label">Identificación</p>
+                    <div class="value tw:text-gray-700 d-flex tw:gap-1 mb-1 align-center">
+                      <Icon icon="mdi:card-account-details" class="tw:text-gray-700" height="16" />
+                      {{ item.invoice[0].document }}
+                    </div>
+                  </div>
                 </v-col>
               </v-row>
             </div>
@@ -383,5 +406,37 @@ function formatDate(dateStr: Date): string {
 
 .v-data-table :deep(.v-data-table__wrapper tbody tr) {
   transition: background-color 0.2s ease;
+}
+
+/* Estilos CSS para complementar el diseño minimalista */
+
+/* Agrupa el Label y el Valor con espacio */
+.detail-group {
+  margin-bottom: 1rem; /* Espacio entre cada par de datos */
+}
+
+/* Estilo para la Etiqueta (Minimalista y Suave) */
+.detail-group .label {
+  /* color: #6b7280; 
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px; */
+
+  /* background-color: #f8fafc !important; */
+  /* color: #64748b; */
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: wrap;
+}
+
+/* Estilo para el Valor (Prominente) */
+.detail-group .value {
+  /* color: #1f2937;  */
+  font-size: 0.875rem;
+  font-weight: 500; /* Hace que el dato sea el foco visual */
+  /* margin-left: 8px; */
 }
 </style>

@@ -72,30 +72,22 @@ const totalServiceAmount = computed(() => {
               <v-text-alert-title class="text-primary">Facturado por:</v-text-alert-title>
               <v-divider class="mb-4"></v-divider>
               <v-text-alert-content class="mt-4">
-                <!-- <p class="tw:font-semibold"> -->
                 <div class="d-flex tw:gap-3 mb-1 tw:font-semibold align-center">
                   <Icon icon="mdi:card-account-details" class="tw:text-gray-700" height="16" />
                   {{ billedBy.ruc }}
                 </div>
-                <!-- </p> -->
-                <!-- <p class="tw:font-semibold"> -->
                 <div class="d-flex tw:gap-3 mb-1 tw:font-semibold align-center">
                   <Icon icon="mdi:user" class="tw:text-gray-700" height="16" />
                   {{ billedBy.name }}
                 </div>
-                <!-- </p> -->
-                <!-- <p> -->
                 <div class="d-flex tw:gap-3 mb-1 align-center">
                   <Icon icon="mdi:map-marker" class="tw:text-gray-700" height="16" />
                   {{ billedBy.address }}
                 </div>
-                <!-- </p> -->
-                <!-- <p> -->
                 <div class="d-flex tw:gap-3 mb-1 align-center">
                   <Icon icon="mdi:phone" class="tw:text-gray-700" height="16" />
                   {{ billedBy.phone }}
                 </div>
-                <!-- </p> -->
               </v-text-alert-content>
             </v-alert>
           </div>
@@ -129,7 +121,7 @@ const totalServiceAmount = computed(() => {
           </div>
         </div>
         <div>
-          <h3 class="tw:text-lg tw:font-semibold text-primary">Detalle</h3>
+          <h5 class="tw:text-lg tw:font-semibold text-primary text-h5">Detalle</h5>
           <v-divider class="mb-2 text-primary"></v-divider>
           <div class="ml-4">
             <table class="tw:w-full l-4">
@@ -174,13 +166,13 @@ const totalServiceAmount = computed(() => {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })
-                }}
+                }}  
               </span>
             </div>
           </div>
         </div>
         <v-divider class="tw:my-4" />
-        <h4 class="tw:text-lg tw:font-semibold text-primary">Resumen del Pago Actual</h4>
+        <h5 class="tw:text-lg tw:font-semibold text-primary text-h5">Resumen del Pago Actual</h5>
         <v-divider class="tw:my-4" />
         <div class="tw:flex tw:justify-end">
           <div class="tw:w-64">
@@ -242,11 +234,4 @@ const totalServiceAmount = computed(() => {
     </v-card>
   </v-dialog>
 </template>
-<style scoped>
-.animated-gradient {
-  background: linear-gradient(-45deg, #ffa63d, #ff3d77, #338aff, #3cf0c5);
-  background-size: 600%;
-  animation: anime 12s linear infinite;
-  color: rgba(255, 255, 255, 90%) !important;
-}
-</style>
+<style scoped></style>

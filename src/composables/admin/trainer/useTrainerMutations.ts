@@ -12,8 +12,8 @@ const disableTrainer = async (trainer: Partial<TrainerActive>): Promise<any> => 
   return data;
 };
 
-const availableTrainer = async (trainer: { startDate: string; endDate: string }): Promise<Trainers[]> => {
-  const { data } = await api.post('/trainer/available', trainer);
+const availableTrainer = async (id: string): Promise<Trainers[]> => {
+  const { data } = await api.post('/trainer/available/'+ id );
   return data;
 };
 const useTrainerMutations = () => {

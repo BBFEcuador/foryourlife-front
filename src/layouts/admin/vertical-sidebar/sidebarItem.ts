@@ -75,11 +75,6 @@ const sidebarItem = [
         title: 'CRM',
         to: 'crm-admin',
         // permissions: [PermissionEnum.SEE_PAYMENT_METHODS]
-      },
-      {
-        title: 'Reportes',
-        to: 'reports',
-        // permissions: [PermissionEnum.SEE_PAYMENT_METHODS]
       }
     ]
   },
@@ -126,6 +121,22 @@ const sidebarItem = [
         title: 'Staff',
         to: 'staff-admin',
         permissions: [PermissionEnum.SEE_STAFF]
+      }
+    ]
+  },
+  {
+    title: 'Reportes',
+    icon: 'mdi:chart-box-outline',
+    children: [
+      {
+        title: 'Por Entrenamiento',
+        to: 'reports',
+        // permissions: [PermissionEnum.SEE_TRAINERS]
+      },
+      {
+        title: 'Asistente Operativo ',
+        to: 'operational-assistant-report',
+        // permissions: [PermissionEnum.SEE_TRAINERS]
       }
     ]
   },

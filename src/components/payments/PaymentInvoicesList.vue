@@ -275,7 +275,7 @@ const formatDate = (
             <span>{{ formatDate(item.invoiceDate) }}</span>
           </template>
           <template #item.amount="{ item }">
-            <span>${{ item.amount }}</span>
+            <span>$ {{ item.amount.toFixed(2) }}</span>
           </template>
           <template #item.sentContifico="{ item }">
             <div v-if="item.sentContifico">

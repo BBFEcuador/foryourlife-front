@@ -60,141 +60,157 @@ const onSaveCampus = () => {
     });
   }
 };
+const closeDialog = () => {
+  showEditDialog.value = false;
+  $v.value.$reset();
+  campusReq.value = {} as Campus;
+};
 </script>
 <template>
   <BaseBreadcrumb :title="'Sedes'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
   <div v-if="checkPermission(PermissionEnum.SEE_CAMPUS)">
     <v-row>
       <v-col cols="12">
-        <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg" hover>
-          <v-card-text>
-            <v-data-table
-              :headers="headers"
-              :search="search"
-              :items="campus"
-              :loading="isFetching"
-              hover
-              class="tw:rounded-xl elevation-0 !tw:border-gray-100"
-            >
-              <template v-slot:top>
-                <v-toolbar
-                  class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-                  flat
-                  v-motion
-                  :initial="{ opacity: 0, y: -10 }"
-                  :enter="{ opacity: 1, y: 0 }"
-                  :delay="200"
-                  :duration="250"
+        <UiParentCard title="Lista de Sedes">
+          <v-data-table
+            :headers="headers"
+            :search="search"
+            :items="campus"
+            :loading="isFetching"
+            hover
+            class="tw:rounded-xl elevation-0 !tw:border-gray-100"
+          >
+            <template v-slot:top>
+              <v-toolbar
+                class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+                flat
+                v-motion
+                :initial="{ opacity: 0, y: -10 }"
+                :enter="{ opacity: 1, y: 0 }"
+                :delay="200"
+                :duration="250"
+              >
+                <VTextField
+                  v-model="search"
+                  placeholder="Buscar Sedes..."
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                  class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+                  bg-color="white"
                 >
-                  <VTextField
-                    v-model="search"
-                    placeholder="Buscar Sedes..."
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details
-                    class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
-                    bg-color="white"
-                  >
-                    <template #prepend-inner>
-                      <div class="tw:relative">
-                        <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                        <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-                      </div>
-                    </template>
-                    <template #append v-if="search">
-                      <VBtn
-                        icon
-                        variant="text"
-                        size="small"
-                        @click="search = ''"
-                        class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
-                      >
-                        <Icon icon="mdi:close" height="18" />
-                      </VBtn>
-                    </template>
-                  </VTextField>
-                  <v-spacer></v-spacer>
-                  <VBtn
-                    v-if="checkPermission(PermissionEnum.CREATE_CAMPUS)"
-                    variant="elevated"
-                    color="primary"
-                    @click="
-                      () => {
-                        campusReq = {} as Campus;
-                        showEditDialog = true;
-                      }
-                    "
-                  >
-                    Agregar
-                  </VBtn>
-                </v-toolbar>
-              </template>
-              <template #loading>
-                <v-progress-linear color="primary" indeterminate class="tw:rounded-t-xl"></v-progress-linear>
-              </template>
-
-              <template #no-data>
-                <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
-                  <Icon icon="mdi:map-marker" height="48" class="tw:mb-4" />
-                  <p class="tw:text-lg">No se encontraron sedes</p>
-                  <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
-                </div>
-              </template>
-              <template #item.actions="{ item }">
+                  <template #prepend-inner>
+                    <div class="tw:relative">
+                      <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
+                      <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                    </div>
+                  </template>
+                  <template #append v-if="search">
+                    <VBtn
+                      icon
+                      variant="text"
+                      size="small"
+                      @click="search = ''"
+                      class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                    >
+                      <Icon icon="mdi:close" height="18" />
+                    </VBtn>
+                  </template>
+                </VTextField>
+                <v-spacer></v-spacer>
                 <VBtn
-                  v-if="checkPermission(PermissionEnum.UPDATE_CAMPUS)"
-                  icon
-                  variant="text"
-                  color="success"
+                  v-if="checkPermission(PermissionEnum.CREATE_CAMPUS)"
+                  variant="elevated"
+                  color="primary"
                   @click="
                     () => {
-                      campusReq = { ...item };
+                      campusReq = {} as Campus;
                       showEditDialog = true;
                     }
                   "
                 >
-                  <Icon icon="line-md:pencil-twotone" />
+                  <Icon class="mr-2" icon="mdi:add" />
+                  Agregar Sede
                 </VBtn>
-              </template>
-            </v-data-table>
-          </v-card-text>
-        </v-card>
+              </v-toolbar>
+            </template>
+            <template #loading>
+              <v-progress-linear color="primary" indeterminate class="tw:rounded-t-xl"></v-progress-linear>
+            </template>
+
+            <template #no-data>
+              <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
+                <Icon icon="mdi:map-marker" height="48" class="tw:mb-4" />
+                <p class="tw:text-lg">No se encontraron sedes</p>
+                <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
+              </div>
+            </template>
+            <template #item.actions="{ item }">
+              <VBtn
+                v-if="checkPermission(PermissionEnum.UPDATE_CAMPUS)"
+                icon
+                variant="text"
+                color="success"
+                @click="
+                  () => {
+                    campusReq = { ...item };
+                    showEditDialog = true;
+                  }
+                "
+              >
+                <Icon icon="line-md:pencil-twotone" />
+              </VBtn>
+            </template>
+          </v-data-table>
+        </UiParentCard>
       </v-col>
       <VDialog v-model="showEditDialog" max-width="500">
-        <UiParentCard title="Guardar campus">
-          <InputSection label="Pais">
-            <VSelect
-              placeholder="Seleccione un pais"
-              :items="['Ecuador', 'Colombia']"
-              :error-messages="$v.country.$errors.map((x) => x.$message.toString())"
-              v-model="campusReq.country"
-            />
-          </InputSection>
-          <InputSection label="Ciudad">
-            <VTextField
-              placeholder="Ingrese una ciudad"
-              :error-messages="$v.city.$errors.map((x) => x.$message.toString())"
-              v-model="campusReq.city"
-            />
-          </InputSection>
-          <InputSection label="Telf">
-            <VTextField
-              placeholder="Ingrese un telefono"
-              :error-messages="$v.phone.$errors.map((x) => x.$message.toString())"
-              v-model="campusReq.phone"
-            />
-          </InputSection>
-          <InputSection label="Direccion">
-            <VTextarea
-              placeholder="Direccion...."
-              :error-messages="$v.address.$errors.map((x) => x.$message.toString())"
-              v-model="campusReq.address"
-            />
-          </InputSection>
-          <div class="tw:mt-1 tw:w-full tw:flex tw:justify-end">
-            <VBtn @click="onSaveCampus" variant="elevated" color="primary">guardar</VBtn>
-          </div>
-        </UiParentCard>
+        <v-card class="rounded-xl">
+          <v-card-title class="d-flex align-center bg-primary">
+            <Icon icon="mdi-office-building" class="mr-2" />
+            <span class="text-h6 text-white">Guardar sede</span>
+            <v-spacer />
+            <v-btn icon variant="text" @click="closeDialog">
+              <Icon icon="mdi-close" />
+            </v-btn>
+          </v-card-title>
+          <v-card-text class="pa-6">
+            <InputSection label="País">
+              <VSelect
+                placeholder="Seleccione un país"
+                :items="['Ecuador', 'Colombia']"
+                :error-messages="$v.country.$errors.map((x) => x.$message.toString())"
+                v-model="campusReq.country"
+              />
+            </InputSection>
+            <InputSection label="Ciudad">
+              <VTextField
+                placeholder="Ingrese una ciudad"
+                :error-messages="$v.city.$errors.map((x) => x.$message.toString())"
+                v-model="campusReq.city"
+              />
+            </InputSection>
+            <InputSection label="Teléfono">
+              <VTextField
+                placeholder="Ingrese un teléfono"
+                :error-messages="$v.phone.$errors.map((x) => x.$message.toString())"
+                v-model="campusReq.phone"
+              />
+            </InputSection>
+            <InputSection label="Dirección">
+              <VTextarea
+                placeholder="Dirección...."
+                :error-messages="$v.address.$errors.map((x) => x.$message.toString())"
+                v-model="campusReq.address"
+              />
+            </InputSection>
+          </v-card-text>
+          <v-card-actions class="pa-6 tw:justify-end tw:sticky">
+            <v-spacer />
+            <v-btn color="error" variant="flat" @click="closeDialog"> Cancelar </v-btn>
+            <v-btn color="primary" variant="flat" @click="onSaveCampus">Guardar</v-btn>
+          </v-card-actions>
+        </v-card>
       </VDialog>
     </v-row>
   </div>
