@@ -409,7 +409,6 @@ const filteredParticipantAttendanceList = computed(() => {
                     :items="filteredMasterLifeAttendanceList"
                     :loading="isAttendancesLoading"
                     :headers="TABLE_HEADERS"
-                    hide-default-footer
                     density="comfortable"
                     class="modern-table"
                   >
@@ -526,7 +525,6 @@ const filteredParticipantAttendanceList = computed(() => {
                   :items="filteredParticipantAttendanceList"
                   :loading="isAttendancesLoading"
                   :headers="TABLE_HEADERS"
-                  hide-default-footer
                   density="comfortable"
                   class="modern-table"
                 >
