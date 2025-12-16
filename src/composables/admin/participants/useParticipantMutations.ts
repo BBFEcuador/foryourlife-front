@@ -12,8 +12,8 @@ const setFocus = async (participants: Partial<ParticipantLevelUpdate>): Promise<
   return data;
 };
 
-const getByLvl = async (lvl: string): Promise<Participant[]> => {
-  const { data } = await api.post(`/users/participants-available/${lvl}`);
+const getByLvl = async (req:{lvl: string, campusId?: string }): Promise<Participant[]> => {
+  const { data } = await api.post(`/users/participants-available/${req.lvl}`, req.campusId?{ campusId: req.campusId } : undefined);
   return data;
 };
 

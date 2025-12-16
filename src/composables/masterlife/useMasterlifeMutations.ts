@@ -1,4 +1,5 @@
 import { api } from '@/api/axios';
+import type { MasterLife } from '@/models/MasterLife';
 import type { Team } from '@/models/Participants';
 import { useMutation } from '@tanstack/vue-query';
 
@@ -17,13 +18,20 @@ const availableMasterlife = async (masterLife: { startDate: string; endDate: str
   return data;
 };
 
+const availableMasterlifeMembers = async (masterLife: { startDate: string; endDate: string }): Promise<MasterLife[]> => {
+  const { data } = await api.post('/master-life/available', masterLife);
+  return data;
+};
+
 const useMasterlifeMutations = () => {
   const saveMasterlifeMutations = useMutation({ mutationFn: saveMasterlife });
   const availableMasterlifeMutations = useMutation({ mutationFn: availableMasterlife });
+  const availableMasterlifeMembersMutations = useMutation({ mutationFn: availableMasterlifeMembers });
   const changeStatusMutations = useMutation({ mutationFn: changeStatus });
   return {
     saveMasterlifeMutations,
     availableMasterlifeMutations,
+    availableMasterlifeMembersMutations,
     changeStatusMutations
   };
 };

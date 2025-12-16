@@ -68,6 +68,31 @@ const getDisabledRow = (item: Participant) => {
     return true;
   }
 };
+
+const users = ref<Participant[]>([]);
+watch(
+  () => props.team.users,
+  (newUsers) => {
+    if (newUsers?.length) {
+      users.value = newUsers;
+    } else {
+      users.value = [];
+    }
+  },
+  { immediate: true }
+);
+watch(
+  users,
+  (newUsers) => {
+    if (!newUsers.length) {
+      sp.value = [];
+      return;
+    }
+
+    sp.value = newUsers.filter(getDisabledRow);
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -79,7 +104,7 @@ const getDisabledRow = (item: Participant) => {
         </template>
       </v-text-field>
       <VDataTable
-        :items="props.team.users"
+        :items="users"
         :headers="headers"
         v-model="sp"
         show-select

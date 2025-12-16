@@ -122,8 +122,7 @@ watch(promoteToYourMutation.isSuccess, () => {
                 <Icon icon="mdi-account-group" size="32" class="text-primary" />
               </div>
               <span class="tw:flex-1">
-                Promover al equipo "<strong class="text-primary">{{ team.name }}</strong
-                >" al nivel
+                Promover al equipo "<strong class="text-primary">{{ team.name }}</strong>" al nivel
                 <v-chip color="info" variant="tonal" class="tw:ml-2">
                   {{ team?.training?.nextLevel?.courseLevel }}
                 </v-chip>

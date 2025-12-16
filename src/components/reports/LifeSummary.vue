@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed, ref, reactive, onMounted, watch } from 'vue';
-import type { TrainingInfo, WeeklyPaymentStats,DailyPaymentStats  } from '@/models/DashboardOperativeAssistant';
+import type { TrainingInfo, WeeklyPaymentStats, DailyPaymentStats } from '@/models/DashboardOperativeAssistant';
 import { CallStatusLabels, DayOfWeek, CallTypeLabels, DayOfWeekLabels } from '@/models/DashboardOperativeAssistant';
 
 interface props {
   trainingInfo: TrainingInfo | null;
 }
 const props = defineProps<props>();
+console.log('LifeSummary - trainingInfo:', props.trainingInfo);
 
 const participantRealPercentage = computed(() => {
   if (props.trainingInfo) {
@@ -207,7 +208,7 @@ const headers = computed(() => {
 
   return [
     { title: 'Métrica', key: 'metric' },
-    ...days.map(d => ({
+    ...days.map((d) => ({
       title: DayOfWeekLabels[d],
       key: d
     }))
@@ -222,28 +223,32 @@ const tableRows = computed(() => {
 
   // declaramos los posibles nombres de métricas como keyof DailyPaymentStats
   const metrics: (keyof DailyPaymentStats)[] = [
-    "participantsFinal",
-    "yourCount",
-    "yourLifeCount",
-    "totalPayments",
-    "partialPayments",
-    "passPercent",
-    "projectedPercent"
+    'participantsFinal',
+    'yourCount',
+    'yourLifeCount',
+    'totalPayments',
+    'partialPayments',
+    'passPercent',
+    'projectedPercent'
   ];
 
-  return metrics.map(metric => {
+  return metrics.map((metric) => {
     const row: Record<string, any> = { metric };
 
-    days.forEach(day => {
-      // TypeScript ahora sabe que day es key de statsPerDay y metric es key de DailyPaymentStats
-      row[day] = week.statsPerDay[day][metric] ?? '-';
+    days.forEach((day) => {
+      const value = week.statsPerDay[day][metric];
+
+      if (metric === 'passPercent' || metric === 'projectedPercent') {
+        // Si es porcentaje, formateamos con 2 decimales y agregamos '%'
+        row[day] = value !== undefined && value !== null ? value.toFixed(2) + ' %' : '-';
+      } else {
+        // Para otros valores, mostramos el número o '-' si no existe
+        row[day] = value ?? '-';
+      }
     });
-    console.log('Generated row:', row);
     return row;
   });
 });
-
-console.log('LifeSummary - trainingInfo:',tableRows.value);
 </script>
 
 <template>
@@ -492,7 +497,7 @@ console.log('LifeSummary - trainingInfo:',tableRows.value);
           </v-list>
           <!-- tabla de pagos -->
           <div class="d-flex flex-row">
-            <v-tabs v-model="tab" color="primary" direction="vertical">
+            <v-tabs v-model="tab" color="primary" direction="vertical" style="background-color: #ece7f0">
               <v-tab
                 v-for="(item, index) in weeklyPaymentList"
                 :key="item.weekNumber"
@@ -505,7 +510,32 @@ console.log('LifeSummary - trainingInfo:',tableRows.value);
               <v-tabs-window-item v-for="(item, index) in weeklyPaymentList" :key="item.weekNumber" :value="item.weekNumber">
                 <v-card flat>
                   <v-card-text>
-                    <VDataTable :headers="headers" :items="tableRows" class="mt-4"></VDataTable>
+                    <VDataTable :headers="headers" :items="tableRows" class="mt-4" hide-default-footer>
+                      <!-- Primera columna personalizada -->
+                      <template #item.metric="{ item }">
+                        <div class="metric-cell">
+                          <span class="nowrap tw:font-semibold">
+                            {{
+                              item.metric === 'participantsFinal'
+                                ? 'Participantes Finales'
+                                : item.metric === 'yourCount'
+                                  ? 'Tu Conteo'
+                                  : item.metric === 'yourLifeCount'
+                                    ? 'Tu Conteo Life'
+                                    : item.metric === 'totalPayments'
+                                      ? 'Pagos Totales'
+                                      : item.metric === 'partialPayments'
+                                        ? 'Pagos Parciales'
+                                        : item.metric === 'passPercent'
+                                          ? '% Pase'
+                                          : item.metric === 'projectedPercent'
+                                            ? '% Proyectado'
+                                            : item.metric
+                            }}
+                          </span>
+                        </div>
+                      </template>
+                    </VDataTable>
                   </v-card-text>
                 </v-card>
               </v-tabs-window-item>
@@ -517,4 +547,113 @@ console.log('LifeSummary - trainingInfo:',tableRows.value);
   </VRow>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.nowrap {
+  white-space: nowrap;
+}
+
+:deep(.v-data-table td:has(.metric-cell)) {
+  background-color: #f8fafc;
+  color: #64748b !important;
+}
+
+/* 🔹 PRIMERA COLUMNA STICKY (HEADER + CELDAS) */
+:deep(.v-data-table th:first-child),
+:deep(.v-data-table td:first-child) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: #f8fafc;
+  text-align: start !important;
+}
+
+/* Header por encima de las celdas */
+:deep(.v-data-table th:first-child) {
+  z-index: 3;
+}
+
+/* Headers */
+.v-data-table :deep(th) {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 1rem 1.5rem !important;
+}
+
+/* Celdas */
+.v-data-table :deep(td) {
+  color: #334155 !important;
+  font-size: 0.875rem !important;
+  padding: 1rem 1.5rem !important;
+  text-align: center !important;
+}
+
+/* Hover sin romper sticky */
+.v-data-table :deep(.v-data-table__wrapper tbody tr:hover td) {
+  background-color: #f1f5f9 !important;
+}
+
+/* Wrapper */
+.v-data-table :deep(.v-data-table__wrapper) {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  overflow: auto !important;
+}
+
+//v-slide-group__content
+.v-slide-group__content {
+  gap: 1rem !important;
+  background-color: #ece7f0 !important;
+}
+
+.v-data-table :deep(th) {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(td) {
+  color: #334155 !important;
+  font-size: 0.875rem !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(.v-data-table-footer) {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper) {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+}
+
+.v-data-table :deep(.v-data-table-header__wrapper) {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper table) {
+  border-spacing: 0 0.25rem !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr:hover) {
+  background-color: #f8fafc !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr) {
+  transition: all 0.2s ease-in-out !important;
+}
+
+// .tw\:content-center {
+//     align-content: center !important;
+// }
+</style>

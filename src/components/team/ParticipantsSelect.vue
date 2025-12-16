@@ -26,7 +26,9 @@ const { getByLvlMutation } = useParticipantMutations();
 const participants = ref<Participant[]>([]);
 
 onBeforeMount(() => {
-  getByLvlMutation.mutate(props.team.training.courseLevel);
+  const training = props.team?.training;
+  if (!training) return;
+  getByLvlMutation.mutate({ lvl: training.courseLevel, ...(training.campus?.id && { campusId: training.campus.id }) });
 });
 watch(getByLvlMutation.isError, () => {
   if (getByLvlMutation.isError.value) {
