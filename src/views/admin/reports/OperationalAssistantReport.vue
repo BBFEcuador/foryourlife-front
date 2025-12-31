@@ -5,6 +5,10 @@ import { ref, watch } from 'vue';
 import useAdminTeams from '@/composables/admin/team/useAdminTeams';
 import type { Team } from '@/models/Participants';
 import OperativeAssistantDashboard from '@/components/reports/OperativeAssistantDashboard.vue';
+import useOperativeAssistantReportMutations from '@/composables/admin/reports/useOperativeAssistantReportMutations';
+import { toast } from 'vue3-toastify';
+import type { AxiosError } from 'axios';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 
@@ -30,12 +34,32 @@ watch(debouncedSearch, (val) => {
     search.value = val;
   }, 400);
 });
+
+const { excelMutation } = useOperativeAssistantReportMutations();
+const onExcelDownload = () => {
+  excelMutation.mutate(selectedTeam.value?.id ?? '', {
+    onSuccess(data, variables, context) {
+      const blob = data;
+      if (!blob) return;
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `reporte_asistente_operativo.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toast.success('Reporte generado correctamente');
+    },
+    onError(error, variables, context) {
+      let e = error as AxiosError<ErrorApiResponse>;
+      toast.error(e.response?.data.message ?? 'No se pudo generar el excel');
+    }
+  });
+};
 </script>
 
 <template>
-  <!-- <div class=""> -->
   <BaseBreadcrumb :title="'Asistente Operativo'" :breadcrumbs="breadcrumbs" />
-  <div class="mb-4 ">
+  <div class="mb-4">
     <div class="d-flex tw:items-center text-primary">
       <Icon icon="mdi-account-group" height="24" class="mr-2" />
       <div class="tw:font-bold">Equipo</div>
@@ -52,7 +76,7 @@ watch(debouncedSearch, (val) => {
         :search="debouncedSearch"
         @update:model-value="handleTeamChange"
         hide-details
-        class="tw:bg-white"
+        class="tw:bg-white mb-4"
       >
         <template v-slot:item="{ props, item }">
           <v-list-item v-bind="props">
@@ -66,8 +90,8 @@ watch(debouncedSearch, (val) => {
         </template>
       </VCombobox>
       <v-spacer></v-spacer>
-      <div class="align-center tw:align-middle ml-5">
-        <VBtn class="" color="success" variant="flat" @click="refetchTeams()">
+      <div class="align-center tw:align-middle ml-5 text-end">
+        <VBtn v-if="selectedTeam?.id" class="" color="success" variant="flat" @click="onExcelDownload()">
           <Icon icon="mdi-microsoft-excel" class="mr-2" height="20" />
           Exportar
         </VBtn>
@@ -75,9 +99,7 @@ watch(debouncedSearch, (val) => {
     </div>
   </div>
 
-  
-    <OperativeAssistantDashboard :teamId="teamId" :teamName="nameTeam" />
-  <!-- </div> -->
+  <OperativeAssistantDashboard :teamId="teamId" :teamName="nameTeam" />
 </template>
 
 <style scoped>

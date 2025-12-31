@@ -122,8 +122,7 @@ watch(promoteToYourMutation.isSuccess, () => {
                 <Icon icon="mdi-account-group" size="32" class="text-primary" />
               </div>
               <span class="tw:flex-1">
-                Promover al equipo "<strong class="text-primary">{{ team.name }}</strong
-                >" al nivel
+                Promover al equipo "<strong class="text-primary">{{ team.name }}</strong>" al nivel
                 <v-chip color="info" variant="tonal" class="tw:ml-2">
                   {{ team?.training?.nextLevel?.courseLevel }}
                 </v-chip>
@@ -238,7 +237,7 @@ watch(promoteToYourMutation.isSuccess, () => {
             <v-card-text class="tw:p-0">
               <v-window v-model="tab" class="tw:mt-4">
                 <v-window-item value="newParticipants">
-                  <ParticipantsSelect :team="team" v-model="promotionYourRequest.users" />
+                  <ParticipantsSelect :team="team" v-model="promotionYourRequest.users" :origin="'FOCUS'" />
                 </v-window-item>
                 <v-window-item value="actualParticipants">
                   <NewParticipantsSelect :team="team" v-model="promotionYourRequest.users" :origin="'FOCUS'" />

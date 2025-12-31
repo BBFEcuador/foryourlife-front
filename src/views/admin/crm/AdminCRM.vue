@@ -164,7 +164,7 @@ const seeCallLog = (call: CallTraining) => {
             </template>
             <template #item.calledUser.email="{ item }">
               <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
-                <Icon icon="mdi:email" class="tw:text-gray-600" />
+                <Icon icon="mdi:email" class="tw:text-cyan-500" />
                 <span>{{ item.calledUser.email }}</span>
               </div>
             </template>

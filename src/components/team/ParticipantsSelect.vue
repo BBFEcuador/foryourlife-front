@@ -26,7 +26,9 @@ const { getByLvlMutation } = useParticipantMutations();
 const participants = ref<Participant[]>([]);
 
 onBeforeMount(() => {
-  getByLvlMutation.mutate(props.team.training.courseLevel);
+  const training = props.team?.training;
+  if (!training) return;
+  getByLvlMutation.mutate({ lvl: training.courseLevel, ...(training.campus?.id && { campusId: training.campus.id }) });
 });
 watch(getByLvlMutation.isError, () => {
   if (getByLvlMutation.isError.value) {
@@ -76,14 +78,14 @@ const getAvailableRowClass = (item: Participant) => {
 
 const getDisabledRow = (item: Participant) => {
   if (props.origin === 'FOCUS') {
-    if (item.modules.hasYour) {
+    if (item?.modules?.hasYour) {
       return true;
     } else {
       return false;
     }
   }
   if (props.origin === 'YOUR') {
-    if (item.modules.hasLife) {
+    if (item?.modules?.hasLife) {
       return true;
     } else {
       return false;

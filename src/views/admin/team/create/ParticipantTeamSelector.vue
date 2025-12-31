@@ -14,13 +14,17 @@ interface props {
 }
 
 const props = defineProps<props>();
+  console.log('Props en ParticipantTeamSelector:', props.team.trainingObj);
 
 const emit = defineEmits(['back', 'next']);
 const { getByLvlMutation } = useParticipantMutations();
 const participant = ref<Participant[]>([]);
 
 onBeforeMount(() => {
-  getByLvlMutation.mutate(props.team.lvl);
+  const training = props.team?.trainingObj;
+  if (!training) return;
+  console.log('Nivel del equipo:', props.team);
+  getByLvlMutation.mutate({ lvl: training.courseLevel, ...(training.campus?.id && { campusId: training.campus.id }) });
 });
 watch(getByLvlMutation.isError, () => {
   if (getByLvlMutation.isError.value) {

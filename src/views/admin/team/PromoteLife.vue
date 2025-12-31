@@ -343,7 +343,7 @@ const isPromoting = computed(() => {
                   <MasterlifeSelect :team="team" v-model="promotionLifeRequest.masterLife" />
                 </v-window-item>
                 <v-window-item value="newMasterlife">
-                  <NewMasterlifeSelect :team="team" v-model="promotionLifeRequest.masterLife" />
+                  <NewMasterlifeSelect :team="team" v-model="promotionLifeRequest.masterLife" :origin="'LIFE'" />
                 </v-window-item>
               </v-window>
             </v-card-text>

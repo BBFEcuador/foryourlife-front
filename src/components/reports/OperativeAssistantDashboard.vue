@@ -2,8 +2,8 @@
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useOperativeAssistantReport from '@/composables/admin/reports/useOperativeAssistantReport.ts';
 import type { Team } from '@/models/Participants';
-import { computed, ref, reactive } from 'vue';
-import LifeSummary from './LifeSummary.vue';
+import { computed, ref, reactive, watch } from 'vue';
+import OperativeAssistantSummary from './OperativeAssistantSummary.vue';
 import type { TrainingInfo } from '@/models/DashboardOperativeAssistant';
 
 interface props {
@@ -14,10 +14,18 @@ interface props {
 const props = defineProps<props>();
 const { data, isLoading, isError } = useOperativeAssistantReport(computed(() => props.teamId));
 
-console.log('OperativeAssistantDashboard - teamId:', data.value);
-
 const selectedTraining = ref<TrainingInfo | null>(null);
 const trainingItems = computed(() => data.value?.trainingInfo ?? []);
+
+watch(
+  trainingItems,
+  (newItems) => {
+    if (!newItems || newItems.length === 0) {
+      selectedTraining.value = null;
+    }
+  },
+  { immediate: true }
+);
 
 // Number of components pending to load
 const componentsPending = ref(4);
@@ -54,17 +62,23 @@ function onComponentLoaded() {
           <Icon icon="mdi-filter-variant" height="24" class="mr-2" />
           <div class="tw:font-bold">Filtrar por entrenamiento:</div>
         </div>
-        <v-chip-group selected-class="text-primary" mandatory column v-model="selectedTraining">
-          <v-chip v-for="(item, index) in trainingItems" :key="index" :text="item?.teamName" :value="item">
-            <template #prepend>
-              <Icon icon="mdi-information-outline" class="mr-1"></Icon>
-            </template>
-          </v-chip>
-        </v-chip-group>
+        <div class="text-center tw:justify-center tw:block">
+          <v-slide-group show-arrows class="tw:justify-center" v-model="selectedTraining">
+            <v-slide-group-item v-for="(item, index) in trainingItems" :key="index" :value="item" v-slot="{ isSelected, toggle }">
+              <v-btn :color="isSelected ? 'primary' : 'default'" class="ma-2" rounded @click="toggle">
+                {{ item?.teamName }}
+              </v-btn>
+            </v-slide-group-item>
+          </v-slide-group>
+        </div>
       </VCol>
     </VRow>
-    <LifeSummary v-if="selectedTraining?.courseLevel?.toUpperCase().includes('LIFE')" :trainingInfo="selectedTraining" />
+    <OperativeAssistantSummary v-if="selectedTraining" :trainingInfo="selectedTraining" />
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+ç .tw\:block {
+  display: block !important;
+}
+</style>

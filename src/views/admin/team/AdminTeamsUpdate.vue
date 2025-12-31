@@ -74,7 +74,7 @@ const tab = ref('1');
         </div>
       </v-col>
       <v-col cols="12" v-else>
-        <ViewTeam :team="team" :is-team-error="isTeamError" :is-team-loading="isTeamLoading" :is-for-edit="true" />
+        <ViewTeam :team="team" :is-team-error="isTeamError" :is-team-loading="isTeamLoading" @fetch-team="fetchTeamData" :is-for-edit="true" />
       </v-col>
     </vRow>
   </div>

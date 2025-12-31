@@ -10,6 +10,12 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import AddMembersTeam from '@/components/team/AddMembersTeam.vue';
+import type { AddUsers } from '@/models/AddUsers';
+import useMembersMutations from '@/composables/admin/team/useAdminTeamAddUserMutations';
+import { toast } from 'vue3-toastify';
+import type { AxiosError } from 'axios';
 
 interface props {
   team: Team;
@@ -25,7 +31,7 @@ const fetchTeamData = async () => {
 };
 const router = useRouter();
 const onPromoteTeam = () => {
-  const courseLevel = props.team.training.courseLevel;
+  const courseLevel = props.team?.training?.courseLevel;
   const teamId = props.team.id;
   switch (courseLevel) {
     case 'FOCUS':
@@ -50,6 +56,26 @@ const onPromoteTeam = () => {
       console.error(`Nivel desconocido: ${courseLevel}`);
   }
 };
+
+const showAddMembersDialog = ref(false);
+const { saveAddMembersMutations } = useMembersMutations();
+const saveAddedMembers = (members: AddUsers) => {
+  saveAddMembersMutations.mutate(
+    { teamId: props.team.id, members },
+    {
+      onSuccess: async () => {
+        showAddMembersDialog.value = false;
+        toast.success('Miembros agregados exitosamente');
+        await fetchTeamData();
+      },
+      onError(error) {
+        console.error('Error al agregar miembros:', error);
+        const err = error as AxiosError<{ message: string }>;
+        toast.error(err.response?.data?.message || 'Error al agregar miembros');
+      }
+    }
+  );
+};
 </script>
 <template>
   <div>
@@ -58,7 +84,12 @@ const onPromoteTeam = () => {
       <VCol cols="12" md="3" sm="12" class="tw:flex tw:flex-col tw:items-center">
         <TeamDetails :team />
       </VCol>
-      <VCol cols="12" md="9" sm="12" class="tw:grid tw:gap-4">
+      <VCol cols="12" md="9" sm="12" class="tw:gap-4">
+        <div cols="12" md="3" sm="12" class="text-end mb-4">
+          <v-btn class="" color="secondary" @click="showAddMembersDialog = true">
+            <Icon class="mr-2" icon="mdi:account-plus" height="24" /> Agregar miembros</v-btn
+          >
+        </div>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-tabs v-model="tab">
             <v-tab value="1">Participantes</v-tab>
@@ -132,6 +163,7 @@ const onPromoteTeam = () => {
       </VCol>
     </v-row>
   </div>
+  <AddMembersTeam :model-value="showAddMembersDialog" @cancel="showAddMembersDialog = false" @save="saveAddedMembers" :team="team" />
 </template>
 
 <style scoped></style>
