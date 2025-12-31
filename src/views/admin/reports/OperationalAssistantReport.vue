@@ -76,7 +76,7 @@ const onExcelDownload = () => {
         :search="debouncedSearch"
         @update:model-value="handleTeamChange"
         hide-details
-        class="tw:bg-white"
+        class="tw:bg-white mb-4"
       >
         <template v-slot:item="{ props, item }">
           <v-list-item v-bind="props">
@@ -90,7 +90,7 @@ const onExcelDownload = () => {
         </template>
       </VCombobox>
       <v-spacer></v-spacer>
-      <div class="align-center tw:align-middle ml-5">
+      <div class="align-center tw:align-middle ml-5 text-end">
         <VBtn v-if="selectedTeam?.id" class="" color="success" variant="flat" @click="onExcelDownload()">
           <Icon icon="mdi-microsoft-excel" class="mr-2" height="20" />
           Exportar

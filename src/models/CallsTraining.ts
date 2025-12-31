@@ -36,18 +36,28 @@ export enum CallType {
 }
 
 export const CallTypeLabels = {
-  [CallType.WELCOME]: 'Bienvenida',
-  [CallType.LOGISTIC]: 'Logística'
+    [CallType.WELCOME]: 'Bienvenida',
+    [CallType.LOGISTIC]: 'Logística'
 };
 
 export enum CallStatus {
     DONE = 'DONE',
     NOT_ANSWERED = 'NOT_ANSWERED',
     RE_SCHEDULED = 'RE_SCHEDULED',
+    NEXT_DATE = 'NEXT_DATE',
+    NOT_INTERESTED = 'NOT_INTERESTED',
+    ANOTHER_CAMPUS = 'ANOTHER_CAMPUS',
+    FOR_CONFIRMATION = 'FOR_CONFIRMATION',
+    CONFIRMED = 'CONFIRMED',
 }
 
 export const CallStatusLabels = {
-  [CallStatus.DONE]: 'Realizada',
-  [CallStatus.NOT_ANSWERED]: 'No contestada',
-  [CallStatus.RE_SCHEDULED]: 'Reprogramada'
+    [CallStatus.DONE]: 'Realizada',
+    [CallStatus.NOT_ANSWERED]: 'No contesta',
+    [CallStatus.RE_SCHEDULED]: 'Reprogramada',
+    [CallStatus.NEXT_DATE]: 'Próxima fecha',
+    [CallStatus.NOT_INTERESTED]: 'No interesa',
+    [CallStatus.ANOTHER_CAMPUS]: 'Otra sede',
+    [CallStatus.FOR_CONFIRMATION]: 'Por confirmar',
+    [CallStatus.CONFIRMED]: 'Confirmada',
 };

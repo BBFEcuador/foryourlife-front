@@ -19,6 +19,10 @@ export interface TrainingInfo {
     callsInfoList: {
         totalCalls: number;
         status: CallStatus;
+        callType: CallType;
+        cuadre?: number;
+        effectivenessPercentage?: number;
+        projectedCallsPercentage?: number;
     }[];
     weeklyPaymentStatsList: WeeklyPaymentStats[];
 }
@@ -38,6 +42,8 @@ export interface DailyPaymentStats {
     partialPayments: number;
     passPercent: number;
     projectedPercent: number;
+
+    finalPayments?: number;
 }
 export enum DayOfWeek {
     MONDAY = 'MONDAY',
@@ -63,6 +69,12 @@ export enum CallStatus {
     DONE = 'DONE',
     NOT_ANSWERED = 'NOT_ANSWERED',
     RE_SCHEDULED = 'RE_SCHEDULED',
+    NEXT_DATE = 'NEXT_DATE',
+    NOT_INTERESTED = 'NOT_INTERESTED',
+    ANOTHER_CAMPUS = 'ANOTHER_CAMPUS',
+    FOR_CONFIRMATION = 'FOR_CONFIRMATION',
+    CONFIRMED = 'CONFIRMED',
+    NO_CALLED = 'NO_CALLED',
 }
 
 export enum CallType {
@@ -73,8 +85,14 @@ export enum CallType {
 
 export const CallStatusLabels = {
     [CallStatus.DONE]: 'Realizada',
-    [CallStatus.NOT_ANSWERED]: 'No contestada',
-    [CallStatus.RE_SCHEDULED]: 'Reprogramada'
+    [CallStatus.NOT_ANSWERED]: 'No contesta',
+    [CallStatus.RE_SCHEDULED]: 'Reprogramada',
+    [CallStatus.NEXT_DATE]: 'Próxima fecha',
+    [CallStatus.NOT_INTERESTED]: 'No interesa',
+    [CallStatus.ANOTHER_CAMPUS]: 'Otra sede',
+    [CallStatus.FOR_CONFIRMATION]: 'Por confirmar',
+    [CallStatus.CONFIRMED]: 'Confirmada',
+    [CallStatus.NO_CALLED]: 'Sin llamar',
 };
 
 export const CallTypeLabels = {

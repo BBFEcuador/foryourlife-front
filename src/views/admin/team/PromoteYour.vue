@@ -233,7 +233,7 @@ const isPromoting = ref(false);
                         <v-card-text class="tw:p-0">
                             <v-window v-model="tab" class="tw:mt-4">
                                 <v-window-item value="newParticipants">
-                                    <ParticipantsSelect :team="team" v-model="promotionLifeRequest.users" origin="YOUR"/>
+                                    <ParticipantsSelect :team="team" v-model="promotionLifeRequest.users" :origin="'YOUR'"/>
                                 </v-window-item>
                                 <v-window-item value="actualParticipants">
                                     <NewParticipantsSelect :origin="'YOUR'" :team="team" v-model="promotionLifeRequest.users"/>

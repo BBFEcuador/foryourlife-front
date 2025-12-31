@@ -15,11 +15,21 @@ import PromiseList from '@/components/promise/PromiseList.vue';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
+const ATTENDANCE_OPTIONS_FRIDAY = [
+  { title: 'Asistió', value: AttendanceStatus.ASISTIO },
+  { title: 'No asistió', value: AttendanceStatus.NO_ASISTIO }
+] as const;
+
 const ATTENDANCE_OPTIONS = [
   { title: 'Asistió', value: AttendanceStatus.ASISTIO },
-  { title: 'No asistió', value: AttendanceStatus.NO_ASISTIO },
   { title: 'Desertó', value: AttendanceStatus.DESERTO }
 ] as const;
+
+// const ATTENDANCE_OPTIONS = [
+//   { title: 'Asistió', value: AttendanceStatus.ASISTIO },
+//   { title: 'No asistió', value: AttendanceStatus.NO_ASISTIO },
+//   { title: 'Desertó', value: AttendanceStatus.DESERTO }
+// ] as const;
 
 const TABLE_HEADERS = [
   { title: 'Participante', value: 'participant.name', width: '40%', sortable: true },
@@ -273,6 +283,70 @@ const filteredParticipantAttendanceList = computed(() => {
 
   return participantAttendanceList.value.filter((a) => a?.user?.name?.toLowerCase().includes(term));
 });
+
+const tooltipText = (item: Attendance) => {
+  const model = attendanceModels[item.id];
+  if (!model) return 'Pendiente';
+
+  if (!item.isActive && model.friday === AttendanceStatus.NO_ASISTIO) return 'No asistió';
+  if (
+    (!item.isActive && model.friday === AttendanceStatus.DESERTO) ||
+    model.saturday === AttendanceStatus.DESERTO ||
+    model.sunday === AttendanceStatus.DESERTO
+  )
+    return 'Desertó';
+  if (
+    item.isActive &&
+    model.friday === AttendanceStatus.ASISTIO &&
+    model.saturday === AttendanceStatus.ASISTIO &&
+    model.sunday === AttendanceStatus.ASISTIO
+  )
+    return 'Asistió';
+
+  return 'Pendiente';
+};
+
+const chipColor = (item: Attendance) => {
+  const model = attendanceModels[item.id];
+  if (!model) return 'default';
+  if (!item.isActive && model.friday === AttendanceStatus.NO_ASISTIO) return 'warning';
+  if (
+    (!item.isActive && model.friday === AttendanceStatus.DESERTO) ||
+    model.saturday === AttendanceStatus.DESERTO ||
+    model.sunday === AttendanceStatus.DESERTO
+  )
+    return 'error';
+  if (
+    item.isActive &&
+    model.friday === AttendanceStatus.ASISTIO &&
+    model.saturday === AttendanceStatus.ASISTIO &&
+    model.sunday === AttendanceStatus.ASISTIO
+  )
+    return 'success';
+  return 'default';
+};
+
+const badgeColor = (item: Attendance): string | undefined => {
+  const model = attendanceModels[item.id];
+  if (!model) return undefined;
+
+  if (!item.isActive && model.friday === AttendanceStatus.NO_ASISTIO) return 'warning';
+  if (
+    (!item.isActive && model.friday === AttendanceStatus.DESERTO) ||
+    model.saturday === AttendanceStatus.DESERTO ||
+    model.sunday === AttendanceStatus.DESERTO
+  )
+    return 'error';
+  if (
+    item.isActive &&
+    model.friday === AttendanceStatus.ASISTIO &&
+    model.saturday === AttendanceStatus.ASISTIO &&
+    model.sunday === AttendanceStatus.ASISTIO
+  )
+    return 'success';
+
+  return undefined; // <-- aquí ya no es null
+};
 </script>
 
 <template>
@@ -291,6 +365,7 @@ const filteredParticipantAttendanceList = computed(() => {
             </v-card-title>
             <v-card-item class="mt-0 pt-2 pb-2">
               <label class="tw-whitespace-normal tw-block">Seleccione un entrenamiento para continuar</label>
+
               <v-text-field
                 v-model="debouncedSearch"
                 class="pt-3"
@@ -409,7 +484,6 @@ const filteredParticipantAttendanceList = computed(() => {
                     :items="filteredMasterLifeAttendanceList"
                     :loading="isAttendancesLoading"
                     :headers="TABLE_HEADERS"
-                    hide-default-footer
                     density="comfortable"
                     class="modern-table"
                   >
@@ -470,7 +544,7 @@ const filteredParticipantAttendanceList = computed(() => {
                     <template #item.fridayAttendance="{ item }">
                       <v-select
                         v-model="attendanceModels[item.id].friday"
-                        :items="ATTENDANCE_OPTIONS"
+                        :items="ATTENDANCE_OPTIONS_FRIDAY"
                         :disabled="!item.isActive || !checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)"
                         density="compact"
                         variant="outlined"
@@ -526,7 +600,6 @@ const filteredParticipantAttendanceList = computed(() => {
                   :items="filteredParticipantAttendanceList"
                   :loading="isAttendancesLoading"
                   :headers="TABLE_HEADERS"
-                  hide-default-footer
                   density="comfortable"
                   class="modern-table"
                 >
@@ -560,22 +633,24 @@ const filteredParticipantAttendanceList = computed(() => {
                     </v-toolbar>
                   </template>
                   <template #item.participant.name="{ item }">
-                    <div class="d-flex align-center">
-                      <v-tooltip
-                        v-if="
-                          !item.isActive &&
-                          item.fridayAttendance !== AttendanceStatus.ASISTIO &&
-                          item.saturdayAttendance !== AttendanceStatus.ASISTIO &&
-                          item.sundayAttendance !== AttendanceStatus.ASISTIO
-                        "
-                        location="top"
-                      >
-                        <template #activator="{ props: activatorProps }">
-                          <v-icon class="mr-2" color="warning" size="small" v-bind="activatorProps">
-                            <Icon icon="mdi-information-outline" />
-                          </v-icon>
+                    <div class="d-inline-flex align-center gap-2">
+                      <v-tooltip location="top">
+                        <template #activator="{ props }">
+                          <v-chip
+                            v-bind="props"
+                            :color="chipColor(item)"
+                            size="x-small"
+                            variant="tonal"
+                            height="20"
+                            width="20"
+                            rounded="circle"
+                            class="mr-2 d-flex align-center justify-center"
+                          >
+                            <v-badge v-if="badgeColor(item)" dot :color="badgeColor(item)" inline />
+                            <Icon v-else icon="mdi-minus" size="16" />
+                          </v-chip>
                         </template>
-                        <span>El participante no asistió un día y fue eliminado del equipo</span>
+                        <span>{{ tooltipText(item) }}</span>
                       </v-tooltip>
 
                       <span :class="{ 'text-medium-emphasis': !item.isActive }">
@@ -587,7 +662,7 @@ const filteredParticipantAttendanceList = computed(() => {
                   <template #item.fridayAttendance="{ item }">
                     <v-select
                       v-model="attendanceModels[item.id].friday"
-                      :items="ATTENDANCE_OPTIONS"
+                      :items="ATTENDANCE_OPTIONS_FRIDAY"
                       :disabled="!item.isActive || !checkPermission(PermissionEnum.UPDATE_ATTENDANCES_DECLARATIONS)"
                       density="compact"
                       variant="outlined"

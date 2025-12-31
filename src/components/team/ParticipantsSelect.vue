@@ -78,14 +78,14 @@ const getAvailableRowClass = (item: Participant) => {
 
 const getDisabledRow = (item: Participant) => {
   if (props.origin === 'FOCUS') {
-    if (item.modules.hasYour) {
+    if (item?.modules?.hasYour) {
       return true;
     } else {
       return false;
     }
   }
   if (props.origin === 'YOUR') {
-    if (item.modules.hasLife) {
+    if (item?.modules?.hasLife) {
       return true;
     } else {
       return false;

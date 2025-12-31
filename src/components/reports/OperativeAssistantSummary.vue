@@ -3,12 +3,12 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed, ref, reactive, onMounted, watch } from 'vue';
 import type { TrainingInfo, WeeklyPaymentStats, DailyPaymentStats } from '@/models/DashboardOperativeAssistant';
 import { CallStatusLabels, DayOfWeek, CallTypeLabels, DayOfWeekLabels } from '@/models/DashboardOperativeAssistant';
+import { ca } from 'vuetify/locale';
 
 interface props {
   trainingInfo: TrainingInfo | null;
 }
 const props = defineProps<props>();
-console.log('LifeSummary - trainingInfo:', props.trainingInfo);
 
 const participantRealPercentage = computed(() => {
   if (props.trainingInfo) {
@@ -79,12 +79,15 @@ const chartCallsOptions = ref({
   chart: {
     type: 'bar',
     stacked: true,
-    height: 350,
+    height: 100,
     toolbar: { show: false }
   },
   plotOptions: {
     bar: {
-      horizontal: true, // Barras horizontales
+      horizontal: true,
+      barHeight: '20%',
+      rangeBarOverlap: true,
+      borderRadius: 10, // 👈 radio del borde
       dataLabels: {
         total: {
           enabled: true, // Muestra la suma total al final de la barra
@@ -128,7 +131,17 @@ const chartCallsOptions = ref({
   },
   fill: {
     opacity: 1,
-    colors: ['#663c84', '#2ca87f', '#FEB019'] // Colores para los 3 estados
+    colors: [
+      '#663c84', // morado
+      '#2ca87f', // verde teal
+      '#FEB019', // amarillo
+      '#3f6ad8', // azul medio
+      '#e5533d', // rojo coral
+      '#6d4c41', // verde claro
+      '#17a2b8', // cyan
+      '#8bc34a', // café / marrón
+      '#90A4AE' // violeta intenso (nuevo)
+    ]
   },
   legend: {
     position: 'top' as const,
@@ -141,24 +154,31 @@ const chartCallsOptions = ref({
     y: {
       formatter: (val: number) => val.toString()
     }
+  },
+  grid: {
+    padding: {
+      top: 0,
+      bottom: 0,
+      left: 45,
+      right: 10
+    }
   }
 });
 
 const updateChartData = () => {
   const callsInfoList: any[] | undefined = props.trainingInfo?.callsInfoList;
-
+  console.log('Updating chart data with callsInfoList:', callsInfoList);
   if (!callsInfoList || callsInfoList.length === 0) {
     seriesCalls.value = [];
     chartCallsOptions.value.xaxis.categories = [];
     return;
   }
-  // const statusNames: string[] = Array.from(new Set(callsInfoList.flatMap((item: any) => item.statuses.map((s: any) => s.status))));
-  const statusNames: string[] = Object.values(CallStatusLabels);
+  const statusNames: string[] = Array.from(new Set(callsInfoList.flatMap((item: any) => item.statuses.map((s: any) => s.status))));
+  const statusNamesSpanish: string[] = Object.values(CallStatusLabels);
   // const categories: string[] = callsInfoList.map((item: any) => item.callType);
   const categories: string[] = callsInfoList.map((item: any) =>
     item.callType in CallTypeLabels ? CallTypeLabels[item.callType as keyof typeof CallTypeLabels] : item.callType
   );
-
   const dataByStatus: Record<string, number[]> = {};
 
   statusNames.forEach((statusName) => {
@@ -173,10 +193,10 @@ const updateChartData = () => {
     });
   });
   const newSeries: any[] = statusNames.map((statusName) => ({
-    name: statusName,
+    // name: statusName,
+    name: CallStatusLabels[statusName as keyof typeof CallStatusLabels] || statusName,
     data: dataByStatus[statusName]
   }));
-
   seriesCalls.value = newSeries;
   chartCallsOptions.value.xaxis.categories = categories;
 };
@@ -222,15 +242,21 @@ const tableRows = computed(() => {
   const days = Object.keys(week.statsPerDay) as (keyof typeof week.statsPerDay)[];
 
   // declaramos los posibles nombres de métricas como keyof DailyPaymentStats
-  const metrics: (keyof DailyPaymentStats)[] = [
-    'participantsFinal',
-    'yourCount',
-    'yourLifeCount',
-    'totalPayments',
-    'partialPayments',
-    'passPercent',
-    'projectedPercent'
-  ];
+  // const metrics: (keyof DailyPaymentStats)[] = [
+  //   'participantsFinal',
+  //   'yourCount',
+  //   'yourLifeCount',
+  //   'totalPayments',
+  //   'partialPayments',
+  //   'passPercent',
+  //   'projectedPercent'
+  // ];
+  var metrics: (keyof DailyPaymentStats)[] = [];
+  if (props.trainingInfo?.courseLevel.includes('YOUR')) {
+    metrics = ['participantsFinal', 'totalPayments', 'finalPayments', 'passPercent', 'projectedPercent'];
+  } else {
+    metrics = ['participantsFinal', 'yourCount', 'yourLifeCount', 'totalPayments', 'partialPayments', 'passPercent', 'projectedPercent'];
+  }
 
   return metrics.map((metric) => {
     const row: Record<string, any> = { metric };
@@ -245,17 +271,44 @@ const tableRows = computed(() => {
         // Para otros valores, mostramos el número o '-' si no existe
         row[day] = value ?? '-';
       }
+
+      if (props.trainingInfo?.courseLevel.includes('YOUR') && metric === 'finalPayments' && value === undefined) {
+        row[day] = week.statsPerDay[day]['totalPayments'] + week.statsPerDay[day]['partialPayments'];
+      } else {
+        row[day] = value ?? '-';
+      }
     });
     return row;
   });
+});
+
+watch(
+  weeklyPaymentList,
+  (list) => {
+    if (list && list.length > 0) {
+      tab.value = list[0].weekNumber; // 👉 siempre el primer tab
+    }
+  },
+  { immediate: true }
+);
+
+const showLifeCard = computed(() => {
+  return props.trainingInfo?.courseLevel?.includes('LIFE');
+});
+
+const colSize = computed(() => {
+  return showLifeCard.value ? 4 : 6;
+});
+
+const generalTotalCalls = computed(() => {
+  return seriesCalls.value.reduce((total, serie) => total + serie.data.reduce((sum: number, val: number) => sum + val, 0), 0);
 });
 </script>
 
 <template>
   <v-divider class="mb-4" />
   <VRow class="tw-gap-4 mb-2">
-    <!-- Columna izquierda -->
-    <VCol cols="4" class="tw-flex tw-flex-col tw-gap-4">
+    <VCol cols="12" sm="12" md="4" class="tw-flex tw-flex-col tw-gap-4">
       <v-card rounded="lg">
         <v-list lines="one" rounded="lg">
           <v-list-item :title="trainingInfo?.trainerName" subtitle="Entrenador Responsable">
@@ -270,14 +323,15 @@ const tableRows = computed(() => {
     </VCol>
   </VRow>
   <VRow class="tw-gap-0">
-    <VCol cols="12" md="4" sm="4" class="p-0">
+    <!-- Card 1 -->
+    <VCol cols="12" :md="colSize" :sm="colSize" class="p-0">
       <v-card rounded="lg">
         <v-card-text class="pa-5">
-          <v-list class="pt-0" aria-busy="true" aria-label="chart content">
+          <v-list class="pt-0">
             <v-list-item class="pa-0">
-              <template v-slot:append>
+              <template #append>
                 <v-avatar variant="text" color="primary">
-                  <Icon icon="mdi:account-group" height="25" />
+                  <Icon icon="mdi:account-group" height="20" />
                 </v-avatar>
               </template>
               <h6 class="w:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Total Participantes</h6>
@@ -289,14 +343,16 @@ const tableRows = computed(() => {
         </v-card-text>
       </v-card>
     </VCol>
-    <VCol cols="12" md="4" sm="4" class="p-0">
+
+    <!-- Card 2 -->
+    <VCol cols="12" :md="colSize" :sm="colSize" class="p-0 animated-col">
       <v-card rounded="lg">
         <v-card-text class="pa-5">
-          <v-list class="pt-0" aria-busy="true" aria-label="chart content">
+          <v-list class="pt-0">
             <v-list-item class="pa-0">
-              <template v-slot:append>
+              <template #append>
                 <v-avatar variant="text" color="primary">
-                  <Icon icon="mdi:account-plus" height="25" />
+                  <Icon icon="mdi:account-plus" height="20" />
                 </v-avatar>
               </template>
               <h6 class="w:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Total Inscripciones</h6>
@@ -308,36 +364,43 @@ const tableRows = computed(() => {
         </v-card-text>
       </v-card>
     </VCol>
-    <VCol cols="12" md="4" sm="4" class="p-0">
-      <v-card rounded="lg">
-        <v-card-text class="pa-5">
-          <v-list class="pt-0" aria-busy="true" aria-label="chart content">
-            <v-list-item class="pa-0">
-              <template v-slot:append>
-                <v-avatar variant="text" color="primary">
-                  <Icon icon="mdi:account-tie" height="25" />
-                </v-avatar>
-              </template>
-              <h6 class="w:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Total Master Lifes</h6>
-            </v-list-item>
-          </v-list>
-          <div class="text-h4 font-weight-bold text-center">
-            {{ trainingInfo?.totalMasterLifes || 0 }}
-          </div>
-        </v-card-text>
-      </v-card>
+
+    <!-- Card 3 (dinámica, SIN romper el grid) -->
+    <VCol cols="12" :md="colSize" :sm="colSize" class="p-0">
+      <VExpandTransition>
+        <div v-show="showLifeCard">
+          <v-card rounded="lg">
+            <v-card-text class="pa-5">
+              <v-list class="pt-0">
+                <v-list-item class="pa-0">
+                  <template #append>
+                    <v-avatar variant="text" color="primary">
+                      <Icon icon="mdi:account-tie" height="25" />
+                    </v-avatar>
+                  </template>
+                  <h6 class="w:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Total Master Lifes</h6>
+                </v-list-item>
+              </v-list>
+
+              <div class="text-h4 font-weight-bold text-center">
+                {{ trainingInfo?.totalMasterLifes || 0 }}
+              </div>
+            </v-card-text>
+          </v-card>
+        </div>
+      </VExpandTransition>
     </VCol>
   </VRow>
 
   <VRow class="tw-gap-0">
-    <VCol cols="12" md="4" sm="4" class="p-0">
+    <VCol cols="12" :md="colSize" :sm="colSize" class="p-0 animated-col">
       <v-card rounded="lg">
         <v-card-text class="pa-5">
           <v-list class="pt-0" aria-busy="true" aria-label="chart content">
             <v-list-item class="pa-0">
               <template v-slot:prepend>
                 <v-avatar variant="tonal" color="primary" rounded="md">
-                  <Icon icon="mdi:account-group" />
+                  <Icon icon="mdi:account-group" height="20" />
                 </v-avatar>
               </template>
               <h6 class="text-subtitle-1 mb-0">Participantes</h6>
@@ -379,48 +442,53 @@ const tableRows = computed(() => {
       </v-card>
     </VCol>
 
-    <VCol cols="12" md="4" sm="4" class="p-0">
-      <v-card rounded="lg">
-        <v-card-text class="pa-5">
-          <v-list class="pt-0" aria-busy="true" aria-label="chart content">
-            <v-list-item class="pa-0">
-              <template v-slot:prepend>
-                <v-avatar variant="tonal" color="primary" rounded="md">
-                  <Icon icon="mdi:account-tie" />
-                </v-avatar>
-              </template>
-              <h6 class="text-subtitle-1 mb-0">Master Lifes</h6>
-            </v-list-item>
-          </v-list>
-          <div class="text-h4 font-weight-bold text-center">
-            <apexchart type="radialBar" height="200" :options="chartOptions" :series="[masterlifesRealPercentage]"></apexchart>
-          </div>
-          <VRow class="tw-gap-0 text-center">
-            <VCol cols="6" class="p-0">
-              <p class="text-body-1 mb-0">Inicio</p>
-              <p class="text-body-1 mb-0">
-                <v-chip color="primary" style="font-weight: 600">{{ trainingInfo?.totalMasterLifes || 0 }}</v-chip>
-              </p>
-            </VCol>
-            <VCol cols="6" class="p-0">
-              <p class="text-body-1 mb-0">Declaración</p>
-              <p class="text-body-1 mb-0">
-                <v-chip color="secondary" style="font-weight: 600">{{ trainingInfo?.totalMasterLifesDeclarations || 0 }}</v-chip>
-              </p>
-            </VCol>
-          </VRow>
-        </v-card-text>
-      </v-card>
-    </VCol>
+    <VExpandTransition>
+      <VCol v-if="showLifeCard" cols="12" :md="colSize" :sm="colSize" class="p-0 animated-col">
+        <v-card rounded="lg">
+          <v-card-text class="pa-5">
+            <v-list class="pt-0" aria-busy="true" aria-label="chart content">
+              <v-list-item class="pa-0">
+                <template #prepend>
+                  <v-avatar variant="tonal" color="primary" rounded="md">
+                    <Icon icon="mdi:account-tie" />
+                  </v-avatar>
+                </template>
+                <h6 class="text-subtitle-1 mb-0">Master Lifes</h6>
+              </v-list-item>
+            </v-list>
 
-    <VCol cols="12" md="4" sm="4" class="p-0">
+            <div class="text-h4 font-weight-bold text-center">
+              <apexchart type="radialBar" height="200" :options="chartOptions" :series="[masterlifesRealPercentage]" />
+            </div>
+
+            <VRow class="tw-gap-0 text-center">
+              <VCol cols="6" class="p-0">
+                <p class="text-body-1 mb-0">Inicio</p>
+                <v-chip color="primary" style="font-weight: 600">
+                  {{ trainingInfo?.totalMasterLifes || 0 }}
+                </v-chip>
+              </VCol>
+
+              <VCol cols="6" class="p-0">
+                <p class="text-body-1 mb-0">Declaración</p>
+                <v-chip color="secondary" style="font-weight: 600">
+                  {{ trainingInfo?.totalMasterLifesDeclarations || 0 }}
+                </v-chip>
+              </VCol>
+            </VRow>
+          </v-card-text>
+        </v-card>
+      </VCol>
+    </VExpandTransition>
+
+    <VCol cols="12" :md="colSize" :sm="colSize" class="p-0 animated-col">
       <v-card rounded="lg">
         <v-card-text class="pa-5">
           <v-list class="pt-0" aria-busy="true" aria-label="chart content">
             <v-list-item class="pa-0">
               <template v-slot:prepend>
                 <v-avatar variant="tonal" color="primary" rounded="md">
-                  <Icon icon="mdi:account-multiple-check" />
+                  <Icon icon="mdi:account-multiple-check" height="20" />
                 </v-avatar>
               </template>
               <h6 class="text-subtitle-1 mb-0">Enrolados</h6>
@@ -470,18 +538,64 @@ const tableRows = computed(() => {
             <v-list-item class="pa-0">
               <template v-slot:prepend>
                 <v-avatar variant="tonal" color="primary" rounded="md">
-                  <Icon icon="mdi:phone" />
+                  <Icon icon="mdi:phone" height="20" />
                 </v-avatar>
               </template>
               <h6 class="text-subtitle-1 mb-0">Regístro de Llamadas</h6>
             </v-list-item>
           </v-list>
-          <apexchart type="bar" height="350" :options="chartCallsOptions" :series="seriesCalls"></apexchart>
+          <VRow class="tw-mt-4">
+            <VCol cols="12" md="10" sm="12">
+              <apexchart type="bar" height="350" :options="chartCallsOptions" :series="seriesCalls"></apexchart>
+            </VCol>
+            <VCol cols="12" md="2" sm="12" class="d-flex align-center justify-center">
+              <div class="text-end">
+                <div class="text-center mt-6">
+                  <h6 class="text-subtitle-1 mb-0">Total</h6>
+                  <p class="text-body-1 mb-0">
+                    <v-chip color="primary" style="font-weight: 600; font-size: 12pt">
+                      {{ generalTotalCalls }}
+                    </v-chip>
+                  </p>
+                </div>
+              </div>
+            </VCol>
+          </VRow>
+          <v-divider class="my-4" />
+          <VRow class="tw-gap-0 text-center mr-6 ml-6">
+            <VCol v-for="calls in trainingInfo?.callsInfoList" cols="6" class="p-0">
+              <VRow cols="12" class="tw-gap-0 text-center">
+                <VCol cols="12" class="text-start">
+                  <h6 class="text-subtitle-1 mb-0">{{ CallTypeLabels[calls.callType as keyof typeof CallTypeLabels] }}</h6>
+                </VCol>
+              </VRow>
+
+              <VRow cols="12" class="tw-gap-0 text-center">
+                <VCol cols="6" class="text-start"> Cuadre </VCol>
+                <VCol cols="6">
+                  <v-chip color="primary" style="font-weight: 600">{{ calls.cuadre || 0 }}</v-chip>
+                </VCol>
+              </VRow>
+              <VRow cols="12" class="tw-gap-0 text-center">
+                <VCol cols="6" class="text-start"> Efectividad enrolamiento </VCol>
+                <VCol cols="6">
+                  <v-chip color="primary" style="font-weight: 600">{{ calls.effectivenessPercentage || 0 }} %</v-chip>
+                </VCol>
+              </VRow>
+              <VRow cols="12" class="tw-gap-0 text-center">
+                <VCol cols="6" class="text-start"> Proyectado </VCol>
+                <VCol cols="6">
+                  <v-chip color="primary" style="font-weight: 600">{{ calls.projectedCallsPercentage || 0 }} %</v-chip>
+                </VCol>
+              </VRow>
+              <v-divider vertical></v-divider>
+            </VCol>
+          </VRow>
         </v-card-text>
       </v-card>
     </VCol>
   </VRow>
-  <VRow>
+  <VRow v-if="!trainingInfo?.courseLevel?.includes('LIFE')">
     <VCol cols="12">
       <v-card rounded="lg">
         <v-card-text>
@@ -489,7 +603,7 @@ const tableRows = computed(() => {
             <v-list-item class="pa-0">
               <template v-slot:prepend>
                 <v-avatar variant="tonal" color="primary" rounded="md">
-                  <Icon icon="mdi:currency-usd" />
+                  <Icon icon="mdi:currency-usd" height="20" />
                 </v-avatar>
               </template>
               <h6 class="text-subtitle-1 mb-0">Seguimiento de Pagos</h6>
@@ -519,18 +633,20 @@ const tableRows = computed(() => {
                               item.metric === 'participantsFinal'
                                 ? 'Participantes Finales'
                                 : item.metric === 'yourCount'
-                                  ? 'Tu Conteo'
+                                  ? 'YOUR'
                                   : item.metric === 'yourLifeCount'
-                                    ? 'Tu Conteo Life'
+                                    ? 'YOUR + LIFE'
                                     : item.metric === 'totalPayments'
                                       ? 'Pagos Totales'
-                                      : item.metric === 'partialPayments'
-                                        ? 'Pagos Parciales'
-                                        : item.metric === 'passPercent'
-                                          ? '% Pase'
-                                          : item.metric === 'projectedPercent'
-                                            ? '% Proyectado'
-                                            : item.metric
+                                      : item.metric === 'finalPayments'
+                                        ? 'Total Pagos Finales'
+                                        : item.metric === 'partialPayments'
+                                          ? 'Pagos Parciales'
+                                          : item.metric === 'passPercent'
+                                            ? '% Pase'
+                                            : item.metric === 'projectedPercent'
+                                              ? '% Proyectado'
+                                              : item.metric
                             }}
                           </span>
                         </div>
@@ -653,7 +769,15 @@ const tableRows = computed(() => {
   transition: all 0.2s ease-in-out !important;
 }
 
-// .tw\:content-center {
-//     align-content: center !important;
+.animated-col {
+  transition:
+    flex-basis 0.1s ease,
+    max-width 0.1s ease;
+}
+// .v-expand-transition-leave-active {
+//   position: absolute;
+//     transition:
+//     flex-basis 0.3s ease,
+//     max-width 0.3s ease;
 // }
 </style>

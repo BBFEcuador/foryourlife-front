@@ -30,7 +30,7 @@ const useAdminTeam = (id: string) => {
       };
       promotionLifeRequest.value = {
         id: team.value.id,
-        masterLife: team.value.masterLife,
+        masterLife: team.value.masterLife as Participant[],
         trainer: team.value.trainer.id,
         users: [] as Participant[],
         name:

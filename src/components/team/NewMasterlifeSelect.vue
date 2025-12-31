@@ -18,8 +18,11 @@ const props = defineProps<props>();
 
 const { availableMasterlifeMutations } = useMasterlifeMutations();
 const masterlife = ref<Team[]>([]);
-const vmodel = defineModel({
-  default: [] as Participant[]
+// const vmodel = defineModel({
+//   default: [] as Participant[]
+// });
+const vmodel = defineModel<Team[]>({
+  default: []
 });
 onBeforeMount(() => {
   availableMasterlifeMutations.mutate({
@@ -46,11 +49,24 @@ watch(availableMasterlifeMutations.isSuccess, () => {
 
 const headers = ref([
   { title: 'Nombre', value: 'user.name', class: 'my-header-style', sortable: true },
-  { title: 'Cédula', value: 'user.email', class: 'my-header-style', sortable: true },
-  { title: 'Telefono', value: 'role', sortable: true }
+  { title: 'Correo', value: 'user.email', class: 'my-header-style', sortable: true },
+  { title: 'Teléfono', value: 'user.phone', sortable: true }
 ]);
 
 const searchQuery = ref('');
+
+watch(
+  masterlife,
+  (newMasterlife) => {
+    if (!newMasterlife.length) {
+      vmodel.value = [];
+      return;
+    }
+    // Todos seleccionados
+    vmodel.value = [...newMasterlife];
+  },
+  { immediate: true }
+);
 </script>
 
 <template>

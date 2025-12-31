@@ -4,7 +4,7 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric, helpers } from '@vuelidate/validators';
 import type { CashBox, Store } from '@/models/CashDrawer';
-import type { CallsLogRequest, CallTraining } from '@/models/CallsTraining';
+import type { CallsLogRequest, CallTraining,  } from '@/models/CallsTraining';
 import { CallType, CallStatus, CallTypeLabels, CallStatusLabels } from '@/models/CallsTraining';
 import useCallsLogMutations from '@/composables/admin/crm/useCallsLogMutations';
 import { toast } from 'vue3-toastify';
@@ -120,16 +120,6 @@ const handleSubmit = async () => {
   }
 };
 
-// const open = ref(false);
-
-// const { smAndDown } = useDisplay();
-
-// Si es móvil → ocupa todo el ancho
-// Si es grande → ocupa la mitad (o lo que quieras)
-// const panelStyle = computed(() => ({
-//   width: smAndDown.value ? '100vw' : '50vw',
-//   height: '100vh' // SIEMPRE FULL HEIGHT
-// }));
 </script>
 
 <template>

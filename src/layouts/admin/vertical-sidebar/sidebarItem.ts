@@ -135,7 +135,7 @@ const sidebarItem = [
       },
       {
         title: 'Asistente Operativo ',
-        to: 'operational-assistant-report',
+        to: 'operative-assistant-report',
         // permissions: [PermissionEnum.SEE_TRAINERS]
       }
     ]

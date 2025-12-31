@@ -262,8 +262,8 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/reports/AdminReports.vue')
       },
       {
-        name: 'operational-assistant-report',
-        path: 'operational-assistant-report',
+        name: 'operative-assistant-report',
+        path: 'operative-assistant-report',
         // meta: {
         //   requiresAuth: true,
         //   permissions: [PermissionEnum.SEE_PAYMENT_METHODS]

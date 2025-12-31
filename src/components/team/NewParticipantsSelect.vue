@@ -22,7 +22,7 @@ const sp = defineModel({
 const headers = ref([
   { title: 'Nombre', value: 'name', class: 'my-header-style' },
   { title: 'Cédula', value: 'profile.dni', class: 'my-header-style' },
-  { title: 'Telefono', value: 'phone' },
+  { title: 'Teléfono', value: 'phone' },
   { title: 'Nivel', value: 'participantLevel.courseLevel' }
 ]);
 

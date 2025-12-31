@@ -3,7 +3,7 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import useOperativeAssistantReport from '@/composables/admin/reports/useOperativeAssistantReport.ts';
 import type { Team } from '@/models/Participants';
 import { computed, ref, reactive, watch } from 'vue';
-import LifeSummary from './LifeSummary.vue';
+import OperativeAssistantSummary from './OperativeAssistantSummary.vue';
 import type { TrainingInfo } from '@/models/DashboardOperativeAssistant';
 
 interface props {
@@ -62,13 +62,6 @@ function onComponentLoaded() {
           <Icon icon="mdi-filter-variant" height="24" class="mr-2" />
           <div class="tw:font-bold">Filtrar por entrenamiento:</div>
         </div>
-        <!-- <v-chip-group selected-class="text-primary" mandatory column v-model="selectedTraining">
-          <v-chip v-for="(item, index) in trainingItems" :key="index" :text="item?.teamName" :value="item">
-            <template #prepend>
-              <Icon icon="mdi-information-outline" class="mr-1"></Icon>
-            </template>
-          </v-chip>
-        </v-chip-group> -->
         <div class="text-center tw:justify-center tw:block">
           <v-slide-group show-arrows class="tw:justify-center" v-model="selectedTraining">
             <v-slide-group-item v-for="(item, index) in trainingItems" :key="index" :value="item" v-slot="{ isSelected, toggle }">
@@ -80,7 +73,7 @@ function onComponentLoaded() {
         </div>
       </VCol>
     </VRow>
-    <LifeSummary v-if="selectedTraining?.courseLevel?.toUpperCase().includes('LIFE')" :trainingInfo="selectedTraining" />
+    <OperativeAssistantSummary v-if="selectedTraining" :trainingInfo="selectedTraining" />
   </div>
 </template>
 

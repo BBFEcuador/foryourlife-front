@@ -237,7 +237,7 @@ watch(promoteToYourMutation.isSuccess, () => {
             <v-card-text class="tw:p-0">
               <v-window v-model="tab" class="tw:mt-4">
                 <v-window-item value="newParticipants">
-                  <ParticipantsSelect :team="team" v-model="promotionYourRequest.users" />
+                  <ParticipantsSelect :team="team" v-model="promotionYourRequest.users" :origin="'FOCUS'" />
                 </v-window-item>
                 <v-window-item value="actualParticipants">
                   <NewParticipantsSelect :team="team" v-model="promotionYourRequest.users" :origin="'FOCUS'" />
