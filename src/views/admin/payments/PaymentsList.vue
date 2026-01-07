@@ -257,7 +257,7 @@ const formatDate = (date: string | Date) => {
               class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
               @click="onPaymentHistoryShow(item)"
             >
-              <Icon icon="mdi:list-box-outline" />
+              <Icon icon="mdi:list-box-outline" height="20" />
             </v-btn>
             <v-btn
               v-tooltip="'Imprimir compromiso de cobro'"
@@ -268,7 +268,7 @@ const formatDate = (date: string | Date) => {
               class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
               @click="handleDownloadPdf(item)"
             >
-              <Icon icon="material-symbols:print-outline-rounded" />
+              <Icon icon="material-symbols:print-outline-rounded" height="20" />
             </v-btn>
             <v-btn
               v-if="item.status !== 'CANCELLED' && checkPermission(PermissionEnum.DELETE_PAYMENTS)"
@@ -280,7 +280,7 @@ const formatDate = (date: string | Date) => {
               class="tw:bg-red-300 hover:!tw:bg-red-100"
               @click="onChangeStatus(item)"
             >
-              <Icon icon="mdi-power" height="18" />
+              <Icon icon="mdi-power" height="20" />
             </v-btn>
           </div>
         </template>

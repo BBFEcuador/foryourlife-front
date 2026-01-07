@@ -131,12 +131,17 @@ const sidebarItem = [
       {
         title: 'Por Entrenamiento',
         to: 'reports',
-        // permissions: [PermissionEnum.SEE_TRAINERS]
+        permissions: [PermissionEnum.SEE_TRAINER_DASHBOARD]
       },
       {
-        title: 'Asistente Operativo ',
+        title: 'Asistente Operativo',
         to: 'operative-assistant-report',
-        // permissions: [PermissionEnum.SEE_TRAINERS]
+        permissions: [PermissionEnum.SEE_OPERATIVE_DASHBOARD]
+      },
+      {
+        title: 'Financiero',
+        to: 'financial-administrator-report',
+        permissions: [PermissionEnum.SEE_FINANCIAL_DASHBOARD]
       }
     ]
   },

@@ -107,7 +107,7 @@ const onPaymentHistoryShow = (items: Payment) => {
             class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
             @click="onPaymentHistoryShow(item)"
           >
-            <Icon icon="mdi:list-box-outline" />
+            <Icon icon="mdi:list-box-outline" height="20" />
           </v-btn>
           <v-btn
             v-tooltip="'Realizar un pago'"
@@ -118,7 +118,7 @@ const onPaymentHistoryShow = (items: Payment) => {
             class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
             @click=""
           >
-            <Icon icon="hugeicons:payment-02" />
+            <Icon icon="hugeicons:payment-02" height="20" />
           </v-btn>
         </div>
       </template>

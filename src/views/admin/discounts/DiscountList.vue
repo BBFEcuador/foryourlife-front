@@ -241,7 +241,7 @@ const handleUpdateDiscount = async (discountData: Partial<Discount>) => {
                   v-tooltip="'Editar Descuento'"
                   @click="onEditDiscount(item.id)"
                 >
-                  <Icon icon="tabler:pencil" height="18" />
+                  <Icon icon="tabler:pencil" height="20" />
                 </v-btn>
                 <v-btn
                   v-if="checkPermission(PermissionEnum.DELETE_DISCOUNTS)"
@@ -253,7 +253,7 @@ const handleUpdateDiscount = async (discountData: Partial<Discount>) => {
                   :class="item.isActive ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
                   @click="onChangeStatus(item)"
                 >
-                  <Icon :icon="item.isActive ? 'mdi-power' : 'mdi-power-off'" height="18" />
+                  <Icon :icon="item.isActive ? 'mdi-power' : 'mdi-power-off'" height="20" />
                 </v-btn>
               </div>
             </template>
