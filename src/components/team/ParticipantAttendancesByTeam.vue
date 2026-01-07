@@ -2,13 +2,14 @@
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { Attendance } from '@/models/DashboardYour';
 import type { FocusAttendanceDashboard } from '@/models/DashboardFocus';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 
 interface Props {
   data?: Attendance | FocusAttendanceDashboard;
+  totalTrainings?: string[];
 }
 const props = defineProps<Props>();
-const attendances = computed(() => props.data?.attendances ?? []);
+// attendances is now defined after filterByTraining to avoid issues
 
 const emit = defineEmits(['loaded']);
 const ready = ref(false);
@@ -19,12 +20,21 @@ onMounted(async () => {
 });
 
 const search = ref('');
+const filterByTraining = ref<string | null>(null);
 const headers = [
   { title: 'Nombre', value: 'userName', sortable: true },
   { title: 'Viernes', value: 'fridayAttendance', sortable: true },
   { title: 'Sábado', value: 'saturdayAttendance', sortable: true },
   { title: 'Domingo', value: 'sundayAttendance', sortable: true }
 ];
+
+const attendances = computed(() => {
+  const data = props.data?.attendances ?? [];
+  if (filterByTraining.value) {
+    return data.filter((attendance) => attendance.forTrainingName === filterByTraining.value);
+  }
+  return data;
+});
 </script>
 
 <template>
@@ -72,7 +82,7 @@ const headers = [
               placeholder="Buscar Participante..."
               variant="outlined"
               density="compact"
-              class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
+              class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
               clearable
               hide-details
             >
@@ -84,6 +94,17 @@ const headers = [
               </template>
             </VTextField>
             <v-spacer></v-spacer>
+            <v-select
+              v-model="filterByTraining "
+              placeholder="Invitados"
+              :items="props.totalTrainings"
+              clearable
+              chips
+              density="compact"
+              variant="outlined"
+              class="tw:rounded-lg tw:bg-white/80"
+              hide-details
+            ></v-select>
           </v-toolbar>
         </template>
         <template #item.userName="{ item }">
@@ -93,7 +114,10 @@ const headers = [
             >
               <Icon icon="mdi:account" class="tw:text-indigo-600" height="18" />
             </div>
-            <span class="tw:font-medium tw:text-gray-800">{{ item.userName ?? '' }}</span>
+            <span class="tw:font-medium tw:text-gray-800"
+              >{{ item.userName ?? '' }}
+              <p class="tw:text-sm tw:font-light">{{ item.forTrainingName ?? '' }}</p>
+            </span>
           </div>
         </template>
         <template #item.fridayAttendance="{ item }">

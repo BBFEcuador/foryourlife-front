@@ -231,7 +231,7 @@ const switchViews = () => {
                     v-tooltip="'Editar Descuento'"
                     @click="onEditPaymentMethod(item)"
                   >
-                    <Icon icon="tabler:pencil" height="18" />
+                    <Icon icon="tabler:pencil" height="20" />
                   </v-btn>
                   <v-btn
                     v-if="checkPermission(PermissionEnum.DELETE_PAYMENT_METHODS)"
@@ -243,7 +243,7 @@ const switchViews = () => {
                     :class="item.isActive ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
                     @click="onChangeStatus(item)"
                   >
-                    <Icon :icon="item.isActive ? 'mdi-power' : 'mdi-power-off'" height="18" />
+                    <Icon :icon="item.isActive ? 'mdi-power' : 'mdi-power-off'" height="20" />
                   </v-btn>
                 </div>
               </template>

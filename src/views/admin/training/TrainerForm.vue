@@ -62,7 +62,7 @@ const onTrainerSubmit = () => {
         />
       </InputSection>
     </VCol>
-    <VCol cols="12">
+    <!-- <VCol cols="12">
       <InputSection label="Password">
         <VTextField
           placeholder="Password del entrenador"
@@ -70,7 +70,7 @@ const onTrainerSubmit = () => {
           :error-messages="validator.password.$errors.map((x) => x.$message.toString())"
         />
       </InputSection>
-    </VCol>
+    </VCol> -->
     <VCol cols="12">
       <InputSection label="Phone">
         <VTextField
@@ -84,10 +84,12 @@ const onTrainerSubmit = () => {
       <div class="w-full justify-end tw:flex tw:gap-2">
         <VBtn color="error" variant="elevated" @click="emits('cancel')">
           <Icon icon="mdi:close" class="mr-1" />
-          Cancelar </VBtn>
+          Cancelar
+        </VBtn>
         <VBtn color="primary" variant="elevated" @click="onTrainerSubmit" :loading="isLoading">
           <Icon icon="material-symbols:save" class="mr-1" />
-          Guardar </VBtn>
+          Guardar
+        </VBtn>
       </div>
     </VCol>
   </VRow>

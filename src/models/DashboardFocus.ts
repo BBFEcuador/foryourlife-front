@@ -4,6 +4,7 @@ export interface AttendanceRecord {
   fridayAttendance: 'ASISTIO' | 'NO_ASISTIO' | null;
   saturdayAttendance: 'ASISTIO' | 'NO_ASISTIO' | null;
   sundayAttendance: 'ASISTIO' | 'NO_ASISTIO' | null;
+  forTrainingName: string
 }
 export interface FocusAttendanceDashboard {
   totalFocus: number;
@@ -38,4 +39,5 @@ export interface DashboardFocus {
   genderByDay: GenderByDay[];
   ageDashboard: AgeDashboard[];
   paymentDashboard: PaymentStaffDashboard[];
+  totalTrainings: string[];
 }

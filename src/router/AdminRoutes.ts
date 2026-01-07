@@ -271,6 +271,15 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/reports/OperationalAssistantReport.vue')
       },
       {
+        name: 'financial-administrator-report',
+        path: 'financial-administrator-report',
+        // meta: {
+        //   requiresAuth: true,
+        //   permissions: [PermissionEnum.SEE_PAYMENT_METHODS]
+        // },
+        component: () => import('@/views/admin/reports/FinancialAdministratorReport.vue')
+      },
+      {
         name: 'pos-main',
         path: 'pos',
         meta: {

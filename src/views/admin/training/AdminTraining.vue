@@ -188,11 +188,11 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                     bg-color="white"
                   >
                     <template #prepend-inner>
-                      <Icon icon="mdi:magnify" height="18" />
+                      <Icon icon="mdi:magnify" height="20" />
                     </template>
                     <template #append v-if="debouncedSearch">
                       <VBtn icon variant="text" size="small" @click="debouncedSearch = ''">
-                        <Icon icon="mdi:close" height="18" />
+                        <Icon icon="mdi:close" height="20" />
                       </VBtn>
                     </template>
                   </VTextField>
@@ -205,7 +205,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                   @click="openCreateTrainerModal"
                   class="!tw:font-normal tw:rounded-lg"
                 >
-                  <Icon class="mr-2" icon="mdi:plus" />
+                  <Icon class="mr-2" icon="mdi:plus" height="20" />
                   Agregar Entrenador
                 </VBtn>
               </v-toolbar>
@@ -214,7 +214,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
             <template #item.name="{ item }">
               <div class="tw:flex tw:items-center tw:gap-3">
                 <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
-                  <Icon icon="mdi:dumbbell" class="tw:text-gray-600" />
+                  <Icon icon="mdi:dumbbell" class="tw:text-gray-600"  />
                 </div>
                 <span class="tw:font-medium">{{ item.name }}</span>
               </div>
@@ -222,14 +222,14 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 
             <template #item.email="{ item }">
               <div class="tw:flex tw:items-center tw:gap-2">
-                <Icon icon="mdi:email" class="tw:text-gray-400" />
+                <Icon icon="mdi:email" class="tw:text-gray-400" height="18" />
                 <span>{{ item.email }}</span>
               </div>
             </template>
 
             <template #item.phone="{ item }">
               <div class="tw:flex tw:items-center tw:gap-2">
-                <Icon icon="mdi:phone" class="tw:text-gray-400" />
+                <Icon icon="mdi:phone" class="tw:text-gray-400" height="18" />
                 <span>{{ item.phone }}</span>
               </div>
             </template>
@@ -243,7 +243,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                 :class="item.active ? 'tw:bg-green-50 !tw:text-green-700' : 'tw:bg-red-50 !tw:text-red-700'"
               >
                 <template #prepend>
-                  <Icon :icon="item.active ? 'mdi:check-circle' : 'mdi:close-circle'" class="tw:mr-1" />
+                  <Icon :icon="item.active ? 'mdi:check-circle' : 'mdi:close-circle'" class="mr-1" height="18" />
                 </template>
                 {{ item.active ? 'Activo' : 'Inactivo' }}
               </VChip>
@@ -261,7 +261,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                   v-tooltip="'Editar entrenador'"
                   @click="openEditTrainerModal(item)"
                 >
-                  <Icon icon="tabler:pencil" class="tw:text-blue-600" />
+                  <Icon icon="tabler:pencil" class="tw:text-blue-500" height="20" />
                 </VBtn>
                 <v-btn
                   v-if="checkPermission(PermissionEnum.DELETE_TRAINERS)"
@@ -277,7 +277,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                 >
                   <Icon
                     :icon="item.active ? 'mdi-power' : 'mdi-power-off'"
-                    :class="item.active ? 'tw:text-red-600' : 'tw:text-green-600'"
+                    :class="item.active ? 'tw:text-red-500' : 'tw:text-green-500'" height="20"
                   />
                 </v-btn>
               </div>
