@@ -12,7 +12,7 @@ import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 
-// Entrenamiento seleccionado
+// Entrenamiento seleccionado 
 const selectedTraining = ref<TrainingData | null>(null);
 const trainingId = ref('');
 const nameTraining = ref('');

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import AdminRoutes from './AdminRoutes';
-import { PublicRoutes, RegisterRoutes } from './AuthRoutes';
+import { PublicRoutes, RegisterRoutes, TermsRoutes } from './AuthRoutes';
 import MainRoutes from './MainRoutes';
 import TrainerRoutes from './TrainerRoutes';
 
@@ -11,6 +11,7 @@ const routes: RouteRecordRaw[] = [
   },
   MainRoutes,
   PublicRoutes,
+  TermsRoutes,
   RegisterRoutes,
   ...AdminRoutes,
   ...TrainerRoutes

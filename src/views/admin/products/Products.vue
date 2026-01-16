@@ -50,6 +50,7 @@ const headers = [
   { title: 'Moneda', value: 'currency', sortable: false },
   { title: 'Programas', value: 'programs', sortable: false },
   { title: 'Estado', value: 'isActive', sortable: true },
+  { title: 'Contifico', value: 'contificoId', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 
@@ -309,6 +310,17 @@ const updateProduct = async (product: Omit<Product, 'id'> & { id?: string }) => 
                 </template>
                 {{ item.isActive ? 'Activo' : 'Inactivo' }}
               </VChip>
+            </template>
+
+            <template #item.contificoId="{ item }">
+              <div class="d-flex tw:justify-center"> 
+
+                <Icon
+                :icon="item.contificoId ? 'mdi:check-circle' : 'mdi:close-circle'"
+                :class="item.contificoId ? 'tw:text-green-800' : 'text-error'"
+                height="25"
+                />
+              </div>
             </template>
 
             <template #item.actions="{ item }">

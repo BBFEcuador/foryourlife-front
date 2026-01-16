@@ -52,7 +52,7 @@ const getPaymentMethodIcon = (code: string | undefined): string => {
     case 'CQ':
       return 'mdi-cheque';
     default:
-      return 'mdi-credit-card-multiple';
+      return 'mdi-credit-card-multiple';  
   }
 };
 const getPaymentMethodIconClass = (code: string | undefined): string => {
@@ -313,11 +313,20 @@ watch(
         <p class="tw:text-sm tw:text-gray-500">Listado de seguimiento de Pagos</p>
       </div>
     </div>
-
     <VRow v-if="!courseLevel?.includes('LIFE')">
       <VCol cols="12">
         <v-card rounded="lg">
           <v-card-text>
+            <div v-if="weeklyPaymentList.length === 0" class="text-center pa-4">
+              <v-card elevation="0" rounded="xl">
+                <v-card-text>
+                  <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
+                    <Icon icon="mdi-calendar-remove" height="48" class="tw:mb-4" />
+                    <p class="tw:text-lg text-center">No hay datos de pagos semanales disponibles</p>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </div>
             <!-- tabla de pagos -->
             <div class="d-flex flex-row">
               <v-tabs v-model="tab" color="primary" direction="vertical" style="background-color: #ece7f0">
