@@ -357,24 +357,6 @@ const generalTotalCalls = computed(() => {
           <p class="tw:text-xs tw:text-light-500">Total Inscripciones</p>
         </div>
       </v-alert>
-
-      <!-- <v-card rounded="lg">
-        <v-card-text class="pa-5">
-          <v-list class="pt-0">
-            <v-list-item class="pa-0">
-              <template #append>
-                <v-avatar variant="text" color="primary">
-                  <Icon icon="mdi:account-plus" height="20" />
-                </v-avatar>
-              </template>
-              <h6 class="w:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Total Inscripciones</h6>
-            </v-list-item>
-          </v-list>
-          <div class="text-h4 font-weight-bold text-center">
-            {{ trainingInfo?.totalEnrolments || 0 }}
-          </div>
-        </v-card-text>
-      </v-card> -->
     </VCol>
 
     <!-- Card 3 (dinámica, SIN romper el grid) -->
@@ -395,24 +377,6 @@ const generalTotalCalls = computed(() => {
               <p class="tw:text-xs tw:text-light-500">Total Master Lifes</p>
             </div>
           </v-alert>
-          <!-- <v-card rounded="lg">
-            <v-card-text class="pa-5">
-              <v-list class="pt-0">
-                <v-list-item class="pa-0">
-                  <template #append>
-                    <v-avatar variant="text" color="primary">
-                      <Icon icon="mdi:account-tie" height="25" />
-                    </v-avatar>
-                  </template>
-                  <h6 class="w:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Total Master Lifes</h6>
-                </v-list-item>
-              </v-list>
-
-              <div class="text-h4 font-weight-bold text-center">
-                {{ trainingInfo?.totalMasterLifes || 0 }}
-              </div>
-            </v-card-text>
-          </v-card> -->
         </div>
       </VExpandTransition>
     </VCol>
@@ -420,7 +384,7 @@ const generalTotalCalls = computed(() => {
 
   <VRow class="tw-gap-0">
     <VCol cols="12" :md="colSize" :sm="colSize" class="p-0 animated-col">
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="h-100">
         <v-card-text class="pa-5">
           <v-list class="pt-0" aria-busy="true" aria-label="chart content">
             <v-list-item class="pa-0">
@@ -459,7 +423,7 @@ const generalTotalCalls = computed(() => {
             ></v-progress-linear>
           </div>
           <div class="text-center mt-6">
-            <p class="text-body-1 mb-0">Declaración</p>
+            <p class="text-body-1 mb-0 nowrap">Declaración</p>
             <p class="text-body-1 mb-0">
               <v-chip color="secondary" style="font-weight: 600">{{ trainingInfo?.totalParticipantsDeclarations }}</v-chip>
             </p>
@@ -470,7 +434,7 @@ const generalTotalCalls = computed(() => {
 
     <VExpandTransition>
       <VCol v-if="showLifeCard" cols="12" :md="colSize" :sm="colSize" class="p-0 animated-col">
-        <v-card rounded="lg">
+        <v-card rounded="lg" class="h-100">
           <v-card-text class="pa-5">
             <v-list class="pt-0" aria-busy="true" aria-label="chart content">
               <v-list-item class="pa-0">
@@ -496,7 +460,7 @@ const generalTotalCalls = computed(() => {
               </VCol>
 
               <VCol cols="6" class="p-0">
-                <p class="text-body-1 mb-0">Declaración</p>
+                <p class="text-body-1 mb-0 nowrap">Declaración</p>
                 <v-chip color="secondary" style="font-weight: 600">
                   {{ trainingInfo?.totalMasterLifesDeclarations || 0 }}
                 </v-chip>
@@ -508,7 +472,7 @@ const generalTotalCalls = computed(() => {
     </VExpandTransition>
 
     <VCol cols="12" :md="colSize" :sm="colSize" class="p-0 animated-col">
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="h-100">
         <v-card-text class="pa-5">
           <v-list class="pt-0" aria-busy="true" aria-label="chart content">
             <v-list-item class="pa-0">
@@ -547,7 +511,7 @@ const generalTotalCalls = computed(() => {
             ></v-progress-linear>
           </div>
           <div class="text-center mt-6">
-            <p class="text-body-1 mb-0">Declaración</p>
+            <p class="text-body-1 mb-0 nowrap">Declaración</p>
             <p class="text-body-1 mb-0">
               <v-chip color="secondary" style="font-weight: 600">{{ trainingInfo?.totalEnrolmentsDeclarations }}</v-chip>
             </p>
@@ -635,6 +599,16 @@ const generalTotalCalls = computed(() => {
               <h6 class="text-subtitle-1 mb-0">Seguimiento de Pagos</h6>
             </v-list-item>
           </v-list>
+          <div v-if="weeklyPaymentList.length === 0" class="text-center pa-4">
+            <v-card elevation="0" rounded="xl">
+              <v-card-text>
+                <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
+                  <Icon icon="mdi-calendar-remove" height="48" class="tw:mb-4" />
+                  <p class="tw:text-lg text-center">No hay datos de pagos semanales disponibles</p>
+                </div>
+              </v-card-text>
+            </v-card>
+          </div>
           <!-- tabla de pagos -->
           <div class="d-flex flex-row">
             <v-tabs v-model="tab" color="primary" direction="vertical" style="background-color: #ece7f0">
