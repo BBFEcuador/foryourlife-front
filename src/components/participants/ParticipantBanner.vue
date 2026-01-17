@@ -146,7 +146,7 @@ const navigateToInvitation = (userId: string) => {
           </div>
         </v-col>
         <v-col cols="12" lg="4" sm="12" class="d-flex justify-center order-sml-first">
-          <v-menu location="bottom" v-if="participant.team?.trainingData?.curseLevel == 'LIFE_GRADUATE'">
+          <v-menu location="bottom" v-if="participant.participantLevel.courseLevel == 'LIFE_GRADUATE'">
             <template v-slot:activator="{ props }">
               <v-btn color="primary" v-bind="props" class="px-4">
                 <Icon icon="mdi:account-convert" class="mr-2" />
