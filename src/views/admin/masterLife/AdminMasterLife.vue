@@ -313,6 +313,14 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                 :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
               />
             </InputSection>
+            <InputSection label="Contraseña" v-if="!masterLife.user.id">
+              <VTextField
+                placeholder="Correo"
+                v-model="masterLife.user.password"
+                :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
+              />
+            </InputSection>
+
             <InputSection label="Teléfono">
               <VTextField
                 placeholder="Teléfono"
