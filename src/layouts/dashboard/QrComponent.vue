@@ -27,7 +27,6 @@ const link = computed(() => {
 </script>
 
 <template>
-  {{ props.invitations.token }}
 
   <v-card class="tw:bg-gradient-to-br tw:from-primary/5 tw:to-secondary/5 tw:backdrop-blur-sm">
     <v-card-title class="d-flex align-center gap-2 justify-start">
