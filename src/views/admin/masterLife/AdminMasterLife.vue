@@ -15,10 +15,13 @@ import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
+import useInvitationMutation from '@/composables/invitation/useInvitationMutation';
+import { VNumberInput } from 'vuetify/labs/VNumberInput';
+import { toast } from 'vue3-toastify';
 
 const { isMasterLifeError, isMasterLifeLoading, masterLifeData, refetchMasterLife, page, perPage, search } = useMasterLifes();
 const { saveMasterLifeMutations, changeStatusMutations } = useMasterLifeMutations();
-
+const { genericMutation } = useInvitationMutation();
 const debouncedSearch = ref('');
 
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -140,6 +143,50 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
     }
   }
 };
+
+const invitReq = ref<{ trainingId: string; id: string; quantity: number }>({} as { trainingId: string; id: string; quantity: number });
+const showInvitationLot = ref(false);
+const showInvitation = ref(false);
+const invitationLink = ref('');
+const copied = ref(false);
+const onInvitCreate = (master: MasterLife) => {
+  invitReq.value.id = master.user.id;
+  invitReq.value.quantity = 1;
+  selectedMasterLife.value = master;
+  showInvitationLot.value = true;
+};
+const selectedMasterLife = ref<MasterLife>({} as MasterLife);
+
+const submit = () => {
+  if (!invitReq.value.quantity && invitReq.value.quantity < 0) {
+    toast.error('La cantidad debe ser mayor a 0');
+    return;
+  }
+  if (!invitReq.value.trainingId) {
+    toast.error('Debe seleccionar un entrenamiento');
+    return;
+  }
+  genericMutation.mutate(invitReq.value, {
+    onError(error, variables, context) {
+      const err = error as AxiosError<ErrorApiResponse>;
+      showErrorToast(err);
+    },
+    onSuccess(data, variables, context) {
+      invitationLink.value = `${window.location.origin}/register/${data}`;
+      showInvitationLot.value = false;
+      showInvitation.value = true;
+    }
+  });
+};
+const copyLink = async () => {
+  try {
+    await navigator.clipboard.writeText(invitationLink.value);
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 2000);
+  } catch (err) {
+    console.error('Error al copiar el enlace:', err);
+  }
+};
 </script>
 
 <template>
@@ -255,6 +302,18 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                 >
                   <Icon :icon="item.active ? 'mdi-power' : 'mdi-power-off'" height="18" />
                 </v-btn>
+                <v-btn
+                  :color="'info'"
+                  icon
+                  :disabled="!item.active"
+                  variant="text"
+                  size="32"
+                  v-tooltip="'Link Invitación'"
+                  :class="item.active ? 'tw:bg-red-300 hover:!tw:bg-red-100' : 'tw:bg-green-300 hover:!tw:bg-green-100'"
+                  @click="onInvitCreate(item)"
+                >
+                  <Icon :icon="'material-symbols:add-link'" height="18" />
+                </v-btn>
               </div>
             </template>
             <template #loading>
@@ -336,6 +395,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
       </v-col>
     </VRow>
   </div>
+
   <div v-else>
     <v-alert title="Acceso denegado" variant="outlined" border="top" elevation="2" type="warning">
       <template #prepend>
@@ -344,6 +404,44 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
       No tienes permiso para ver esta sección.
     </v-alert>
   </div>
+  <VDialog v-model="showInvitationLot" width="500">
+    <UiParentCard title="Invitaciones">
+      <VRow>
+        <VCol cols="12">
+          <VNumberInput label="Cantidad" v-model="invitReq.quantity" variant="outlined" :min="1" />
+        </VCol>
+        <VCol cols="12">
+          <VSelect
+            label="Entrenamiento"
+            :items="selectedMasterLife.teams"
+            item-title="name"
+            item-value="training.id"
+            v-model="invitReq.trainingId"
+          >
+          </VSelect>
+        </VCol>
+        <VCol cols="12">
+          <VBtn color="primary" @click="submit" :loading="genericMutation.isPending.value"> Enviar </VBtn>
+        </VCol>
+      </VRow>
+    </UiParentCard>
+  </VDialog>
+  <VDialog v-model="showInvitation" width="500">
+    <VCard class="tw:rounded-xl">
+      <VCardTitle class="tw:p-6 tw:pb-0">
+        <h3 class="tw:text-xl tw:font-medium">Invitar Participante</h3>
+      </VCardTitle>
+      <VCardText class="tw:p-6">
+        <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details class="tw:mb-2">
+          <template #append>
+            <VBtn color="primary" variant="elevated" @click="copyLink" class="!tw:font-normal">
+              {{ copied ? 'Copiado!' : 'Copiar enlace' }}
+            </VBtn>
+          </template>
+        </VTextField>
+      </VCardText>
+    </VCard>
+  </VDialog>
 </template>
 
 <style scoped>
