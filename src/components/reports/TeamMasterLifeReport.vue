@@ -353,7 +353,6 @@ const getColor = (item: TrainingMasterLifeDashboard) => {
                         :headers="participantHeaders"
                         :items="item.users"
                         :search="search"
-                        hide-default-footer
                         class="modern-table tw:rounded-xl tw:border tw:border-gray-200 tw:overflow-hidden"
                       >
                         <template v-slot:top>
