@@ -1,6 +1,5 @@
 import { router } from '@/router';
 import { adminStore } from '@/stores/adminStore';
-import { userStore } from '@/stores/useStore';
 import axios from 'axios';
 
 const baseURL = import.meta.env.VITE_API_URI;

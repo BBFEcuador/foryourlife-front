@@ -90,7 +90,7 @@ const submitForm = async () => {
       amount: form.value.amount,
       paymentMethod: form.value.paymentMethod,
       transactionId: form.value.transactionId,
-      pingType: form.value.paymentMethod.code === 'TC' ? form.value.pingType : undefined
+      pingType: form.value.paymentMethod.code === 'TC' ? form.value.pingType : "D"
     },
     cashDrawerId: adminStore().cashDrawer.id
   };

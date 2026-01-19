@@ -472,7 +472,7 @@ const filteredMasterlifes = computed(() => {
                       v-for="p in filteredMasterlifes"
                       v-model="selectedMasterlifes"
                       :label="p.user.name"
-                      :value="p.user.id"
+                      :value="p.id"
                       hide-details
                     ></v-checkbox>
                   </div>
