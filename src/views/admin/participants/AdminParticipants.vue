@@ -17,12 +17,15 @@ import { adminStore } from '@/stores/adminStore';
 import useCampus from '@/composables/admin/useCampus.ts';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
+import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
+import { toast } from 'vue3-toastify';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
 const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch } = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitationMutation();
+const { resetPasswordMutation } = useParticipantMutations();
 const router = useRouter();
 const adminS = adminStore();
 const headers = [
@@ -191,6 +194,53 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
     }
   }
 };
+
+const showResetPasswordDialog = ref(false);
+const selectedParticipant = ref<any>(null);
+const newPassword = ref('');
+const showPassword = ref(false);
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
+const resetPassword = () => {
+  if (!selectedParticipant.value) {
+    return;
+  }
+
+  if (!newPassword.value) {
+    toast.error('La nueva contraseña no puede estar vacía');
+    return;
+  }
+
+  const userId = selectedParticipant.value.id;
+  const password = newPassword.value;
+
+  resetPasswordMutation.mutate(
+    { id: userId, newPassword: password },
+    {
+      onSuccess: () => {
+        toast.success('La contraseña se ha reseteado');
+      },
+      onError: (error) => {
+        const err = error as AxiosError<{ message: string }>;
+        toast.error(err.response?.data?.message || 'Error al resetear la contraseña');
+      }
+    }
+  );
+
+  // Después de resetear la contraseña, cerrar el diálogo y limpiar los campos
+  showResetPasswordDialog.value = false;
+  selectedParticipant.value = null;
+  newPassword.value = '';
+};
+
+// limpiar campos dialog constraseña
+watch(showResetPasswordDialog, (newVal) => {
+  if (!newVal) {
+    selectedParticipant.value = null;
+    newPassword.value = '';
+  }
+});
 </script>
 
 <template>
@@ -349,6 +399,21 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                   >
                     <Icon icon="mdi:pencil" />
                   </VBtn>
+                  <VBtn
+                    v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
+                    icon
+                    variant="text"
+                    color="warning"
+                    height="32"
+                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                    v-tooltip="'Resetear contraseña'"
+                    @click="
+                      showResetPasswordDialog = true;
+                      selectedParticipant = item;
+                    "
+                  >
+                    <Icon icon="mdi:lock-reset" height="20" />
+                  </VBtn>
                 </div>
               </template>
 
@@ -428,6 +493,39 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
           </VBtn>
         </div>
       </UiParentCard>
+    </VDialog>
+
+    <VDialog v-model="showResetPasswordDialog" width="500">
+      <VCard class="tw:rounded-xl">
+        <VCardTitle class="tw:p-6 tw:pb-0">
+          <h3 class="tw:text-xl tw:font-medium">Resetear Contraseña</h3>
+        </VCardTitle>
+        <v-divider class="mb-4"></v-divider>
+        <VCardText class="tw:p-6">
+          <!-- <p>¿Estás seguro de que deseas resetear la contraseña de este participante?</p> -->
+          <VTextField
+            v-model="newPassword"
+            label="Nueva Contraseña"
+            :type="showPassword ? 'text' : 'password'"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            class="tw:mt-4"
+          >
+            <template #append-inner>
+              <Icon
+                :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'"
+                height="18"
+                class="cursor-pointer"
+                @click="togglePasswordVisibility"
+              />
+            </template>
+          </VTextField>
+        </VCardText>
+        <VCardActions class="tw:flex tw:justify-end">
+          <VBtn color="primary" variant="elevated" @click="resetPassword" class="!tw:font-normal"> Resetear </VBtn>
+        </VCardActions>
+      </VCard>
     </VDialog>
   </div>
   <div v-else>

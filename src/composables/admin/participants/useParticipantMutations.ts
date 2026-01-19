@@ -32,6 +32,12 @@ const promotionStaff = async (req: { userId: string; role: string }): Promise<Pa
   return data;
 };
 
+// cambiar contreaseña
+const resetPassword = async (user: {id:string,newPassword:string}): Promise<any> => {
+  const { data } = await api.put(`/users/reset-password/${user.id}`, user);
+  return data;
+};
+
 const useParticipantMutations = () => {
   const updateParticipantMutation = useMutation({ mutationFn: updateParticipant });
   const setCourseLevelMutation = useMutation({ mutationFn: setFocus });
@@ -39,13 +45,15 @@ const useParticipantMutations = () => {
   const promotionMasterLifeMutation = useMutation({ mutationFn: promotionMasterLife });
   const promotionVisionaryMutation = useMutation({ mutationFn: promotionVisionary });
   const promotionStaffMutation = useMutation({ mutationFn: promotionStaff });
+  const resetPasswordMutation = useMutation({ mutationFn: resetPassword });
   return {
     updateParticipantMutation,
     setCourseLevelMutation,
     getByLvlMutation,
     promotionMasterLifeMutation,
     promotionVisionaryMutation,
-    promotionStaffMutation
+    promotionStaffMutation,
+    resetPasswordMutation
   };
 };
 
