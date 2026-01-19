@@ -41,6 +41,7 @@ export interface SaveParticipantReq {
   profile: Profile;
   medicalRecord: MedicalRecord;
   contact: EmergencyContactReq;
+  termsAndConditions: boolean
 }
 
 export interface EmergencyContactReq {

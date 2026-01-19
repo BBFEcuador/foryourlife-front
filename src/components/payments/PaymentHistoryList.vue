@@ -187,7 +187,6 @@ const sendPaymentHistory = () => {
                   type="text"
                   variant="outlined"
                   :rules="[(v) => !!v || 'Campo requerido']"
-                  :disabled="form.paymentMethod.code === 'EF'"
                 />
               </v-col>
               <v-col v-if="form.paymentMethod.code === 'TC'" cols="12" md="4">

@@ -31,11 +31,28 @@ export const RegisterRoutes = {
   ]
 };
 
+export const TermsRoutes = {
+  path: '/terms-and-conditions',
+  component: () => import('@/layouts/blank/BlankLayout.vue'),
+  meta: {
+    requiresAuth: false
+  },
+  children: [
+    {
+      name: 'termsAndConditions',
+      path: '/terms-and-conditions',
+      component: () => import('@/views/authentication/TermsAndConditions.vue')
+    }
+  ]
+};
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     PublicRoutes,
-    RegisterRoutes
+    RegisterRoutes,
+    TermsRoutes
   ]
 });
+
 export default router;
