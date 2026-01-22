@@ -6,7 +6,7 @@ import TeamParticipantsList from '@/components/team/TeamParticipantsList.vue';
 import TeamStaff from '@/components/team/TeamStaff.vue';
 import TeamVisionary from '@/components/team/TeamVisionary.vue';
 import type { Team } from '@/models/Participants';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
@@ -16,6 +16,7 @@ import type { AddUsers } from '@/models/AddUsers';
 import useMembersMutations from '@/composables/admin/team/useAdminTeamAddUserMutations';
 import { toast } from 'vue3-toastify';
 import type { AxiosError } from 'axios';
+import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
 
 interface props {
   team: Team;
@@ -23,6 +24,7 @@ interface props {
   isTeamError: boolean;
   isForEdit: boolean;
 }
+const { generateGafetesMutation } = useAdminTeamMutations();
 const tab = ref('1');
 const props = defineProps<props>();
 const emits = defineEmits(['fetch-team']);
@@ -76,6 +78,38 @@ const saveAddedMembers = (members: AddUsers) => {
     }
   );
 };
+
+const handleGenerateGafetes = async () => {
+  if (!props.team.id) return;
+  const gafetePayload = {
+    teamId: props.team.id
+  };
+  await generateGafetesMutation.mutateAsync(gafetePayload, {
+    onSuccess: (data) => {
+      if (data) {
+        const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Gafetes_${props.team.trainingData?.name}_${new Date().toLocaleDateString('es-EC').replace(/\//g, '-')}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      toast.success('Gafetes generados exitosamente');
+    },
+    onError: (error) => {
+      const err = error as AxiosError<{ message: string }>;
+      toast.error(err.response?.data?.message || 'Error al generar gafetes');
+    }
+  });
+};
+
+const existParticipants = computed(() => {
+  return props.team.users && props.team.users.length > 0;
+});
 </script>
 <template>
   <div>
@@ -85,10 +119,15 @@ const saveAddedMembers = (members: AddUsers) => {
         <TeamDetails :team />
       </VCol>
       <VCol cols="12" md="9" sm="12" class="tw:gap-4">
-        <div cols="12" md="3" sm="12" class="text-end mb-4">
-          <v-btn class="" color="secondary" @click="showAddMembersDialog = true">
-            <Icon class="mr-2" icon="mdi:account-plus" height="24" /> Agregar miembros</v-btn
-          >
+        <div cols="12" md="12" sm="12" class="text-end mb-4">
+          <v-btn v-if="existParticipants" class="mb-1" color="success" @click="handleGenerateGafetes">
+            <Icon class="mr-2" icon="mdi-badge-account" height="24" />
+            Generar Gafetes
+          </v-btn>
+          <v-btn class="ml-1 mb-1" color="secondary" @click="showAddMembersDialog = true">
+            <Icon class="mr-2" icon="mdi:account-plus" height="24" />
+            Agregar miembros
+          </v-btn>
         </div>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-tabs v-model="tab">

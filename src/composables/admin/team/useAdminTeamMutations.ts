@@ -55,6 +55,14 @@ const promoteToLifeGraduate = async (req: TeamLifePromotionRequest): Promise<any
   const { data } = await api.put(`/teams/promotion/lifegraduate`, req);
   return data;
 };
+
+const generateGafetes = async (idsReq: { teamId: string }): Promise<Uint8Array> => {
+  const { data } = await api.post('/teams/gafetes/' + idsReq.teamId, null, {
+    responseType: 'arraybuffer'
+  });
+  return data;
+};
+
 const useAdminTeamMutations = () => {
   const saveTeamMutations = useMutation({ mutationFn: saveTeam });
   const removeParticipantsMutations = useMutation({ mutationFn: removeParticipants });
@@ -64,6 +72,7 @@ const useAdminTeamMutations = () => {
   const promoteToLife2Mutation = useMutation({ mutationFn: promoteToLife2 });
   const promoteToLife3Mutation = useMutation({ mutationFn: promoteToLife3 });
   const promoteToLifeGraduateMutation = useMutation({ mutationFn: promoteToLifeGraduate });
+  const generateGafetesMutation = useMutation({ mutationFn: generateGafetes });
   return {
     saveTeamMutations,
     removeParticipantsMutations,
@@ -72,7 +81,8 @@ const useAdminTeamMutations = () => {
     promoteToLifeMutation,
     promoteToLife2Mutation,
     promoteToLife3Mutation,
-    promoteToLifeGraduateMutation
+    promoteToLifeGraduateMutation,
+    generateGafetesMutation
   };
 };
 
