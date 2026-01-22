@@ -19,13 +19,16 @@ import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import { toast } from 'vue3-toastify';
+import useProducts from '@/composables/admin/products/useProducts';
+import type { TrainingData } from '@/models/Training';
+import useTrainings from '@/composables/admin/training/useTrainings';
 
 const showFilters = ref(false);
 const showFiltersDrawer = ref(false);
 const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch } = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitationMutation();
-const { resetPasswordMutation } = useParticipantMutations();
+const { resetPasswordMutation, generateContractMutation } = useParticipantMutations();
 const router = useRouter();
 const adminS = adminStore();
 const headers = [
@@ -241,6 +244,73 @@ watch(showResetPasswordDialog, (newVal) => {
     newPassword.value = '';
   }
 });
+
+const loadingContractId = ref<string | null>(null);
+
+const generateContracts = async () => {
+  if (!selectedParticipant.value) {
+    return;
+  }
+  loadingContractId.value = selectedParticipant.value.id;
+  const request = {
+    participantId: selectedParticipant.value.id,
+    productId: selectedProduct.value?.id || '',
+    trainingId: selectedTraining.value?.id || ''
+  };
+  console.log('Generate Contract Request:', request);
+  try {
+    const data = await generateContractMutation.mutateAsync(request);
+    const blob = new Blob([new Uint8Array(data)], {
+      type: 'application/pdf'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Contrato_${new Date().toLocaleDateString('es-EC').replace(/\//g, '-')}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Contrato generado exitosamente');
+  } catch (error) {
+    const err = error as AxiosError<{ message: string }>;
+    toast.error(err.response?.data?.message || 'Error al generar contrato');
+  } finally {
+    loadingContractId.value = null;
+  }
+};
+
+const showContractDialog = ref(false);
+
+const { productsData, isProductsLoading, productSearch, refetchProducts } = useProducts();
+const selectedProduct = ref<any>(null);
+const handleProductChange = (product: any | null) => {
+  selectedProduct.value = product;
+};
+const searchProduct = (s: string) => {
+  productSearch.value = s;
+};
+
+const selectedTraining = ref<TrainingData | null>(null);
+const trainingId = ref('');
+const { trainings, debouncedSearch } = useTrainings();
+
+const handleTrainingChange = (training: TrainingData) => {
+  selectedTraining.value = training;
+  trainingId.value = training?.id ?? '';
+};
+
+const searchTraining = (s: string) => {
+  debouncedSearch.value = s;
+};
+
+watch(showContractDialog, (newVal) => {
+  if (!newVal) {
+    selectedParticipant.value = null;
+    selectedProduct.value = null;
+    selectedTraining.value = null;
+  }
+});
 </script>
 
 <template>
@@ -400,6 +470,33 @@ watch(showResetPasswordDialog, (newVal) => {
                     <Icon icon="mdi:pencil" />
                   </VBtn>
                   <VBtn
+                    icon
+                    variant="text"
+                    color="info"
+                    height="32"
+                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                    v-tooltip="'Generar Contrato'"
+                    @click="
+                      showContractDialog = true;
+                      selectedParticipant = item;
+                    "
+                  >
+                    <Icon icon="mdi:file-sign" height="20" />
+                  </VBtn>
+                  <!-- <VBtn
+                    icon
+                    variant="text"
+                    color="info"
+                    height="32"
+                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                    v-tooltip="'Generar Contrato'"
+                    @click="handleGenerateContracts(item.id)"
+                    :loading="loadingContractId === item.id"
+                    :disabled="loadingContractId === item.id"
+                  >
+                    <Icon icon="mdi:file-sign" height="20" />
+                  </VBtn> -->
+                  <VBtn
                     v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
                     icon
                     variant="text"
@@ -524,6 +621,78 @@ watch(showResetPasswordDialog, (newVal) => {
         </VCardText>
         <VCardActions class="tw:flex tw:justify-end">
           <VBtn color="primary" variant="elevated" @click="resetPassword" class="!tw:font-normal"> Resetear </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VDialog v-model="showContractDialog" width="500">
+      <VCard class="tw:rounded-xl">
+        <VCardTitle class="tw:p-6 tw:pb-0">
+          <h3 class="tw:text-xl tw:font-medium">Contrato Participante</h3>
+        </VCardTitle>
+        <v-divider class="mb-4"></v-divider>
+        <VCardText class="tw:p-6">
+          <!-- <p>¿Estás seguro de que deseas resetear la contraseña de este participante?</p> -->
+          <!-- <label class="mb-2">Listado de Productos</label> -->
+          <VCombobox
+            v-model="selectedProduct"
+            :items="productsData.content"
+            item-title="name"
+            item-value="id"
+            variant="outlined"
+            :placeholder="productsData.totalElements > 0 ? 'Seleccionar Producto' : 'No hay productos disponibles'"
+            return-object
+            @update:search="searchProduct"
+            @update:model-value="handleProductChange"
+            hide-details
+            class="tw:bg-white mb-4"
+            label="Producto"
+          >
+            <template v-slot:item="{ props, item }">
+              <v-list-item v-bind="props">
+                <template v-slot:prepend>
+                  <v-avatar color="primary" size="32">
+                    <span class="tw:text-white">{{ item.raw.name?.charAt(0) || 'C' }}</span>
+                  </v-avatar>
+                </template>
+              </v-list-item>
+            </template>
+          </VCombobox>
+
+          <VCombobox
+            v-model="selectedTraining"
+            :items="trainings"
+            item-title="name"
+            item-value="id"
+            variant="outlined"
+            :placeholder="trainings.length > 0 ? 'Seleccionar Entrenamiento' : 'No hay entrenamientos disponibles'"
+            return-object
+            @update:search="searchTraining"
+            @update:model-value="handleTrainingChange"
+            label="Entrenamiento"
+          >
+            <template v-slot:item="{ props, item }">
+              <v-list-item v-bind="props">
+                <template v-slot:prepend>
+                  <v-avatar color="primary" size="32">
+                    <span class="tw:text-white">{{ item.raw.name?.charAt(0) || 'C' }}</span>
+                  </v-avatar>
+                </template>
+                <v-list-item-subtitle>{{ item.raw?.courseLevelDisplay }}</v-list-item-subtitle>
+              </v-list-item>
+            </template>
+          </VCombobox>
+        </VCardText>
+        <VCardActions class="tw:flex tw:justify-end">
+          <VBtn
+            color="primary"
+            variant="elevated"
+            @click="generateContracts"
+            class="!tw:font-normal"
+            :loading="generateContractMutation.isPending.value"
+          >
+            Generar Contrato
+          </VBtn>
         </VCardActions>
       </VCard>
     </VDialog>

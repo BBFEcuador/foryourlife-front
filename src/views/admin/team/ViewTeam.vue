@@ -79,32 +79,40 @@ const saveAddedMembers = (members: AddUsers) => {
   );
 };
 
+const isGeneratingGafetes = ref(false);
 const handleGenerateGafetes = async () => {
   if (!props.team.id) return;
+
+  isGeneratingGafetes.value = true; // ⚡ comienza loader
+
   const gafetePayload = {
     teamId: props.team.id
   };
-  await generateGafetesMutation.mutateAsync(gafetePayload, {
-    onSuccess: (data) => {
-      if (data) {
-        const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
 
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Gafetes_${props.team.trainingData?.name}_${new Date().toLocaleDateString('es-EC').replace(/\//g, '-')}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-      toast.success('Gafetes generados exitosamente');
-    },
-    onError: (error) => {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || 'Error al generar gafetes');
+  try {
+    const data = await generateGafetesMutation.mutateAsync(gafetePayload);
+
+    if (data) {
+      const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Gafetes_${props.team.trainingData?.name}_${new Date().toLocaleDateString('es-EC').replace(/\//g, '-')}.pdf`;
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
-  });
+
+    toast.success('Gafetes generados exitosamente');
+  } catch (error) {
+    const err = error as AxiosError<{ message: string }>;
+    toast.error(err.response?.data?.message || 'Error al generar gafetes');
+  } finally {
+    isGeneratingGafetes.value = false; // ⚡ termina loader
+  }
 };
 
 const existParticipants = computed(() => {
@@ -120,7 +128,14 @@ const existParticipants = computed(() => {
       </VCol>
       <VCol cols="12" md="9" sm="12" class="tw:gap-4">
         <div cols="12" md="12" sm="12" class="text-end mb-4">
-          <v-btn v-if="existParticipants" class="mb-1" color="success" @click="handleGenerateGafetes">
+          <v-btn
+            v-if="existParticipants"
+            class="mb-1"
+            color="success"
+            @click="handleGenerateGafetes"
+            :loading="isGeneratingGafetes"
+            :disabled="isGeneratingGafetes"
+          >
             <Icon class="mr-2" icon="mdi-badge-account" height="24" />
             Generar Gafetes
           </v-btn>

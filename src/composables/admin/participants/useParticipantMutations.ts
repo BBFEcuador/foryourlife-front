@@ -38,6 +38,13 @@ const resetPassword = async (user: {id:string,newPassword:string}): Promise<any>
   return data;
 };
 
+const generateContract = async (req: { participantId: string; productId: string; trainingId: string }): Promise<Uint8Array> => {
+  const { data } = await api.post('/users/get-contract/' + req.participantId, req, {
+    responseType: 'arraybuffer'
+  });
+  return data;
+};
+
 const useParticipantMutations = () => {
   const updateParticipantMutation = useMutation({ mutationFn: updateParticipant });
   const setCourseLevelMutation = useMutation({ mutationFn: setFocus });
@@ -46,6 +53,7 @@ const useParticipantMutations = () => {
   const promotionVisionaryMutation = useMutation({ mutationFn: promotionVisionary });
   const promotionStaffMutation = useMutation({ mutationFn: promotionStaff });
   const resetPasswordMutation = useMutation({ mutationFn: resetPassword });
+  const generateContractMutation = useMutation({ mutationFn: generateContract });
   return {
     updateParticipantMutation,
     setCourseLevelMutation,
@@ -53,7 +61,8 @@ const useParticipantMutations = () => {
     promotionMasterLifeMutation,
     promotionVisionaryMutation,
     promotionStaffMutation,
-    resetPasswordMutation
+    resetPasswordMutation,
+    generateContractMutation
   };
 };
 
