@@ -63,6 +63,13 @@ const generateGafetes = async (idsReq: { teamId: string }): Promise<Uint8Array> 
   return data;
 };
 
+const generateMasiveContract = async (teamId: string): Promise<Uint8Array> => {
+  const { data } = await api.post('/users/get-contract-team/' + teamId, null, {
+    responseType: 'arraybuffer'
+  });
+  return data;
+};
+
 const useAdminTeamMutations = () => {
   const saveTeamMutations = useMutation({ mutationFn: saveTeam });
   const removeParticipantsMutations = useMutation({ mutationFn: removeParticipants });
@@ -73,6 +80,7 @@ const useAdminTeamMutations = () => {
   const promoteToLife3Mutation = useMutation({ mutationFn: promoteToLife3 });
   const promoteToLifeGraduateMutation = useMutation({ mutationFn: promoteToLifeGraduate });
   const generateGafetesMutation = useMutation({ mutationFn: generateGafetes });
+  const generateMasiveContractMutation = useMutation({ mutationFn: generateMasiveContract });
   return {
     saveTeamMutations,
     removeParticipantsMutations,
@@ -82,7 +90,8 @@ const useAdminTeamMutations = () => {
     promoteToLife2Mutation,
     promoteToLife3Mutation,
     promoteToLifeGraduateMutation,
-    generateGafetesMutation
+    generateGafetesMutation,
+    generateMasiveContractMutation
   };
 };
 
