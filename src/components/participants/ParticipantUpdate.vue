@@ -60,18 +60,28 @@ const formattedBirthday = computed({
       <v-text-field v-model="props.participant.user.phone" label="Teléfono" variant="outlined" />
       <div class="d-flex tw:gap-x-2">
         <v-text-field v-model="props.participant.profile.dni" label="Cédula" variant="outlined" />
-        <v-text-field v-model="props.participant.profile.civilStatus" label="Estado Civil" variant="outlined" />
+        <VSelect
+          :items="['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión de Hecho']"
+          v-model="props.participant.profile.civilStatus"
+          label="Estado Civil"
+        />
       </div>
       <v-row dense>
         <v-col cols="12" md="6">
           <VDateInput v-model="formattedBirthday" label="Fecha de nacimiento" variant="outlined"></VDateInput>
         </v-col>
         <v-col cols="12" md="6">
-          <v-select :items="[
-            { label: 'Femenino', value: 'M' },
-            { label: 'Masculino', value: 'H' }
-          ]" item-title="label" item-value="value" label="Género" variant="outlined"
-            v-model="props.participant.profile.gender" />
+          <v-select
+            :items="[
+              { label: 'Femenino', value: 'M' },
+              { label: 'Masculino', value: 'H' }
+            ]"
+            item-title="label"
+            item-value="value"
+            label="Género"
+            variant="outlined"
+            v-model="props.participant.profile.gender"
+          />
         </v-col>
       </v-row>
       <v-text-field v-model="props.participant.profile.occupation" label="Ocupación" variant="outlined" />
@@ -81,8 +91,7 @@ const formattedBirthday = computed({
       <v-text-field v-model="props.participant.profile.address" label="Dirección" variant="outlined" />
 
       <v-spacer />
-      <v-btn color="primary" @click="onSubmitParticipant"
-        :loading="updateParticipantMutation.isPending.value">Actualizar</v-btn>
+      <v-btn color="primary" @click="onSubmitParticipant" :loading="updateParticipantMutation.isPending.value">Actualizar</v-btn>
     </v-card-item>
   </v-card>
 </template>

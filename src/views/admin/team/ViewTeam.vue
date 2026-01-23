@@ -153,7 +153,7 @@ const handleGenerateMasiveContracts = async () => {
         <TeamDetails :team />
       </VCol>
       <VCol cols="12" md="9" sm="12" class="tw:gap-4">
-        <div cols="12" md="12" sm="12" class="text-center mb-4">
+        <div cols="12" md="12" sm="12" class="tw:text-end mb-4 mt-4">
           <v-btn class="mb-1" color="secondary" @click="showAddMembersDialog = true">
             <Icon class="mr-2" icon="mdi:account-plus" height="24" />
             Agregar miembros
@@ -179,7 +179,6 @@ const handleGenerateMasiveContracts = async () => {
             <Icon class="mr-2" icon="mdi-badge-account" height="24" />
             Generar Gafetes
           </v-btn>
-          
         </div>
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-tabs v-model="tab">

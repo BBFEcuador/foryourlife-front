@@ -245,19 +245,24 @@ watch(showResetPasswordDialog, (newVal) => {
   }
 });
 
-const loadingContractId = ref<string | null>(null);
 
 const generateContracts = async () => {
-  if (!selectedParticipant.value) {
+  if (!selectedParticipant.value) return;
+  if(selectedProduct.value?.id == null || selectedProduct.value?.id == '') {
+    toast.error('Seleccione un producto para generar el contrato');
     return;
   }
-  loadingContractId.value = selectedParticipant.value.id;
+ 
+  if(selectedTraining.value?.id == null || selectedTraining.value?.id == '') {
+    toast.error('Seleccione un entrenamiento para generar el contrato');
+    return;
+  }
+
   const request = {
     participantId: selectedParticipant.value.id,
     productId: selectedProduct.value?.id || '',
     trainingId: selectedTraining.value?.id || ''
   };
-  console.log('Generate Contract Request:', request);
   try {
     const data = await generateContractMutation.mutateAsync(request);
     const blob = new Blob([new Uint8Array(data)], {
@@ -276,7 +281,7 @@ const generateContracts = async () => {
     const err = error as AxiosError<{ message: string }>;
     toast.error(err.response?.data?.message || 'Error al generar contrato');
   } finally {
-    loadingContractId.value = null;
+
   }
 };
 
@@ -483,19 +488,6 @@ watch(showContractDialog, (newVal) => {
                   >
                     <Icon icon="mdi:file-sign" height="20" />
                   </VBtn>
-                  <!-- <VBtn
-                    icon
-                    variant="text"
-                    color="info"
-                    height="32"
-                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                    v-tooltip="'Generar Contrato'"
-                    @click="handleGenerateContracts(item.id)"
-                    :loading="loadingContractId === item.id"
-                    :disabled="loadingContractId === item.id"
-                  >
-                    <Icon icon="mdi:file-sign" height="20" />
-                  </VBtn> -->
                   <VBtn
                     v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
                     icon
