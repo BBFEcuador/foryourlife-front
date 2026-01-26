@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref, watch } from 'vue';
+import {Icon} from '@iconify/vue/dist/iconify.js';
+import {ref} from 'vue';
 import useTrainings from '@/composables/admin/training/useTrainings';
-import type { TrainingData } from '@/models/Training';
+import type {TrainingData} from '@/models/Training';
 import TeamMasterLifeReport from '@/components/reports/TeamMasterLifeReport.vue';
 import TeamFocusReport from '@/components/reports/TeamFocusReport.vue';
 import TeamYourReport from '@/components/reports/TeamYourReport.vue';
 import useReportsMutations from '@/composables/admin/reports/useReportsMutations';
-import { toast } from 'vue3-toastify';
-import type { AxiosError } from 'axios';
-import type { ErrorApiResponse } from '@/models/ApiResponse';
+import {toast} from 'vue3-toastify';
+import type {AxiosError} from 'axios';
+import type {ErrorApiResponse} from '@/models/ApiResponse';
 
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 
@@ -32,7 +32,6 @@ const handleTrainingChange = (training: TrainingData) => {
 };
 
 // Buscador
-const search = ref('');
 const searchTraining = (s: string) => {
   debouncedSearch.value = s;
 };

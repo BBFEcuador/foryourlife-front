@@ -398,7 +398,7 @@ const badgeColor = (item: Attendance): string | undefined => {
                       :class="{ 'v-list-item--active': selectedTraining?.id === training.id }"
                       @click="selectedTraining = training"
                     >
-                      <v-list-item-title> {{ training.name }} {{ training.courseLevel }} </v-list-item-title>
+                      <v-list-item-title> {{ training.name }} {{ training.courseLevelDisplay }} </v-list-item-title>
                     </v-list-item>
                   </v-list>
 

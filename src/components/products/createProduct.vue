@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits } from 'vue';
-import type { Product, Program } from '@/models/Products';
-import { Icon } from '@iconify/vue/dist/iconify.js';
+import {defineEmits, defineProps, ref, watch} from 'vue';
+import type {Product, Program} from '@/models/Products';
+import {Icon} from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
-import { required, numeric } from '@vuelidate/validators';
+import {numeric, required} from '@vuelidate/validators';
 import usePrograms from '@/composables/programs/usePrograms';
 import useCampus from '@/composables/admin/useCampus';
-import type { Campus } from '@/models/Campus';
-import { adminStore } from '@/stores/adminStore';
+import type {Campus} from '@/models/Campus';
+import {adminStore} from '@/stores/adminStore';
 
 const { programs, isProgramsError } = usePrograms();
 const { campus } = useCampus();

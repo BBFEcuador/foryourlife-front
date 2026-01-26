@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue/dist/iconify.js';
+import {Icon} from '@iconify/vue/dist/iconify.js';
 import useFinancialReport from '@/composables/admin/reports/useFinancialReport';
-import { computed, ref, reactive, watch } from 'vue';
-import type { WeeklyPaymentStats, DailyPaymentStats } from '@/models/DashboardFinancial';
-import { DayOfWeekLabels } from '@/models/DashboardFinancial';
+import {computed, ref, watch} from 'vue';
+import type {DailyPaymentStats, WeeklyPaymentStats} from '@/models/DashboardFinancial';
+import {DayOfWeekLabels} from '@/models/DashboardFinancial';
 
 interface props {
   trainingId: string;

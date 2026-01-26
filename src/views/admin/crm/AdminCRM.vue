@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref, watch } from 'vue';
+import {Icon} from '@iconify/vue/dist/iconify.js';
+import {ref} from 'vue';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import useCallsByTraining from '@/composables/admin/crm/useCallsByTraining';
-import type { TrainingData } from '@/models/Training';
-import type { CallTraining } from '@/models/CallsTraining';
+import type {TrainingData} from '@/models/Training';
+import type {CallTraining} from '@/models/CallsTraining';
 
 import CreateCallLog from '@/components/crm/CreateCallLog.vue';
 import SeeCallsLog from '@/components/crm/SeeCallsLog.vue';
