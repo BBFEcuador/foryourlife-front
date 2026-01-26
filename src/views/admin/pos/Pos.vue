@@ -240,7 +240,7 @@ const handleCloseCashDrawer = async () => {
                 </v-btn>
               </div>
               <v-btn
-                  v-if="!store.isCashDrawerOpen && !cashBox.opened"
+                  v-if="!store.isCashDrawerOpen && !cashBox.opened && checkPermission(PermissionEnum.CREATE_PAYMENTS)"
                   class="flex-grow"
                   variant="tonal"
                   color="primary"
