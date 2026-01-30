@@ -13,7 +13,6 @@ import type { TrainingData } from '@/models/Training';
 import { checkPermission } from '@/service/ability';
 import { showErrorToast } from '@/service/sweetAlert';
 import { adminStore } from '@/stores/adminStore';
-import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
@@ -255,12 +254,9 @@ watch(showResetPasswordDialog, (newVal) => {
 const generateContracts = async () => {
   if (!selectedParticipant.value) return;
   if (selectedProduct.value?.id == null || selectedProduct.value?.id == '') {
-  if (selectedProduct.value?.id == null || selectedProduct.value?.id == '') {
     toast.error('Seleccione un producto para generar el contrato');
     return;
   }
-
-  if (selectedTraining.value?.id == null || selectedTraining.value?.id == '') {
 
   if (selectedTraining.value?.id == null || selectedTraining.value?.id == '') {
     toast.error('Seleccione un entrenamiento para generar el contrato');
