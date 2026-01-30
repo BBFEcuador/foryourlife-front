@@ -14,7 +14,6 @@ import InputSection from '@/components/forms/InputSection.vue';
 import { VNumberInput } from 'vuetify/labs/VNumberInput';
 import { useRouter } from 'vue-router';
 import { adminStore } from '@/stores/adminStore';
-import useCampus from '@/composables/admin/useCampus.ts';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
@@ -23,9 +22,6 @@ import useProducts from '@/composables/admin/products/useProducts';
 import type { TrainingData } from '@/models/Training';
 import useTrainings from '@/composables/admin/training/useTrainings';
 
-const showFilters = ref(false);
-const showFiltersDrawer = ref(false);
-const { lgAndUp } = useDisplay();
 const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch } = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitationMutation();
 const { resetPasswordMutation, generateContractMutation } = useParticipantMutations();
@@ -34,13 +30,13 @@ const adminS = adminStore();
 const headers = [
   {
     title: 'Nombre',
-    value: 'name',
+    value: 'user.name',
     width: '200',
     class: 'tw:text-nowrap'
   },
   {
     title: 'Correo',
-    value: 'email',
+    value: 'user.email',
     width: '200'
   },
   {
@@ -150,6 +146,14 @@ const editParticipant = (item: string) => {
   router.push({ name: 'participants-admin-edit', params: { id: item } });
 };
 
+const medicalRecord = (item: string) => {
+  router.push({ name: 'participants-admin-medical', params: { id: item } });
+};
+
+const contactEmergency = (item: string) => {
+  router.push({ name: 'participants-admin-contact-emergency', params: { id: item } });
+};
+
 const getLevelColor = (level: string) => {
   const colors = {
     INIT: 'primary',
@@ -245,15 +249,14 @@ watch(showResetPasswordDialog, (newVal) => {
   }
 });
 
-
 const generateContracts = async () => {
   if (!selectedParticipant.value) return;
-  if(selectedProduct.value?.id == null || selectedProduct.value?.id == '') {
+  if (selectedProduct.value?.id == null || selectedProduct.value?.id == '') {
     toast.error('Seleccione un producto para generar el contrato');
     return;
   }
- 
-  if(selectedTraining.value?.id == null || selectedTraining.value?.id == '') {
+
+  if (selectedTraining.value?.id == null || selectedTraining.value?.id == '') {
     toast.error('Seleccione un entrenamiento para generar el contrato');
     return;
   }
@@ -281,7 +284,6 @@ const generateContracts = async () => {
     const err = error as AxiosError<{ message: string }>;
     toast.error(err.response?.data?.message || 'Error al generar contrato');
   } finally {
-
   }
 };
 
@@ -405,7 +407,7 @@ watch(showContractDialog, (newVal) => {
                   </VBtn>
                 </v-toolbar>
               </template>
-              <template #item.name="{ item }">
+              <template #item.user.name="{ item }">
                 <div class="tw:flex tw:items-center tw:gap-3 tw:text-nowrap">
                   <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
                     <Icon icon="mdi:account" class="tw:text-gray-600" />
@@ -414,16 +416,16 @@ watch(showContractDialog, (newVal) => {
                     class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity"
                   ></div>
                   <div>
-                    <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{ item.name }}</span>
+                    <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{ item.user.name }}</span>
                     <div class="tw:text-xs group-hover:tw:opacity-100">{{ item.phone }}</div>
                   </div>
                 </div>
               </template>
 
-              <template #item.email="{ item }">
+              <template #item.user.email="{ item }">
                 <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
                   <Icon icon="mdi:email" />
-                  <span>{{ item.email }}</span>
+                  <span>{{ item.user.email }}</span>
                 </div>
               </template>
 
@@ -462,7 +464,62 @@ watch(showContractDialog, (newVal) => {
 
               <template #item.actions="{ item }">
                 <div class="tw:flex tw:items-center tw:justify-center tw:gap-2 tw:text-nowrap">
-                  <VBtn
+                  <v-menu location="end" transition="slide-y-transition" :close-on-content-click="false">
+                    <template v-slot:activator="{ props }">
+                      <!-- <v-btn color="primary" v-bind="props"> Dropdown </v-btn> -->
+                      <VBtn
+                        v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
+                        v-bind="props"
+                        icon
+                        variant="text"
+                        color="primary"
+                        height="40"
+                        class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                        v-tooltip="'Acciones'"
+                      >
+                        <Icon icon="mdi:dots-vertical" />
+                      </VBtn>
+                    </template>
+
+                    <v-list>
+                      <v-list-item class="point">
+                        <v-list-item-title @click="editParticipant(item.id)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="mdi:pencil" height="20" color="primary" />
+                            Editar Participante
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title
+                          @click="
+                            showResetPasswordDialog = true;
+                            selectedParticipant = item;
+                          "
+                        >
+                          <div class="d-flex tw:gap-1"><Icon icon="mdi:lock-reset" height="20" /> Resetear contraseña</div>
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title class="point" @click="medicalRecord(item.id)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="mdi:hospital-building" height="20" color="primary" />
+                            Récord médico
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title @click="contactEmergency(item.id)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="mdi:phone-alert" height="20" color="primary" />
+                            Contactos de emergencia
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+
+                  <!-- <VBtn
                     v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
                     icon
                     variant="text"
@@ -473,8 +530,8 @@ watch(showContractDialog, (newVal) => {
                     @click="editParticipant(item.id)"
                   >
                     <Icon icon="mdi:pencil" />
-                  </VBtn>
-                  <VBtn
+                  </VBtn> -->
+                  <!-- <VBtn
                     icon
                     variant="text"
                     color="info"
@@ -487,8 +544,8 @@ watch(showContractDialog, (newVal) => {
                     "
                   >
                     <Icon icon="mdi:file-sign" height="20" />
-                  </VBtn>
-                  <VBtn
+                  </VBtn> -->
+                  <!-- <VBtn
                     v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
                     icon
                     variant="text"
@@ -502,7 +559,7 @@ watch(showContractDialog, (newVal) => {
                     "
                   >
                     <Icon icon="mdi:lock-reset" height="20" />
-                  </VBtn>
+                  </VBtn> -->
                 </div>
               </template>
 
@@ -763,5 +820,14 @@ watch(showContractDialog, (newVal) => {
   100% {
     background-position: 0% 50%;
   }
+}
+
+.point {
+  cursor: pointer !important;
+}
+
+.point:hover {
+  background-color: #e6e2eb !important;
+  transition: background-color 0.2s ease-in-out !important;
 }
 </style>

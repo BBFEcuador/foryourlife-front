@@ -99,6 +99,7 @@ export interface MedicalRecord {
   psychiatric_history_detail: string;
   medical_history_detail: string;
   medication_history_detail: string;
+  participantId?: string;
 }
 
 export interface Team {

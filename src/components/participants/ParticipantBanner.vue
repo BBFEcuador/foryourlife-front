@@ -138,10 +138,10 @@ const navigateToInvitation = (userId: string) => {
           <div class="text-center top-spacer">
             <div class="avatar-border">
               <v-avatar size="100" class="userImage">
-                <v-img :src="getInitialsAvatarUrl(participant?.name!)" alt="Avatar" />
+                <v-img :src="getInitialsAvatarUrl(participant?.user.name!)" alt="Avatar" />
               </v-avatar>
             </div>
-            <h5 class="text-h5 mt-3">{{ participant.name }}</h5>
+            <h5 class="text-h5 mt-3">{{ participant.user.name }}</h5>
             <span class="textSecondary font-weight-regular">Estudiante</span>
           </div>
         </v-col>

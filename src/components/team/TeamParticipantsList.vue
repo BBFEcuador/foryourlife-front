@@ -156,18 +156,18 @@ const colorSwitch = computed(() => {
       </v-toolbar>
     </template>
     <template #item.name="{ item }">
-      <span class="tw:text-nowrap">{{ item.name }}</span>
+      <span class="tw:text-nowrap">{{ item.user.name }}</span>
     </template>
     <template #item.phone="{ item }">
       <v-btn variant="tonal" color="primary" rounded="xl" size="small" v-tooltip="'Llamar'" @click="handleContact('phone', item.phone)">
         <Icon icon="mdi-phone" />
-        <span class="tw:text-nowrap ml-2">{{ item.phone }}</span>
+        <span class="tw:text-nowrap ml-2">{{ item.user.phone }}</span>
       </v-btn>
     </template>
     <template #item.email="{ item }">
       <v-btn variant="tonal" color="secondary" rounded="xl" size="small" @click="handleContact('email', item.email)">
         <Icon icon="mdi-email" />
-        <span class="tw:text-nowrap ml-2">{{ item.email }}</span>
+        <span class="tw:text-nowrap ml-2">{{ item.user.email }}</span>
       </v-btn>
     </template>
     <template #item.actions="{ item }" v-if="isForEdit">

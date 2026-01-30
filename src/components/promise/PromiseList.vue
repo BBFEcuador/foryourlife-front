@@ -152,7 +152,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
           <v-spacer></v-spacer>
         </v-toolbar>
       </template>
-      <template #item.participant.name="{ item }">
+      <template #item.participant.user.name="{ item }">
         <div class="d-flex align-center">
           <span>{{ item.user.name }}</span>
         </div>
@@ -252,7 +252,7 @@ const handlePromiseChange = (promiseId: string, day: 'first' | 'second' | 'third
           <v-spacer></v-spacer>
         </v-toolbar>
       </template>
-      <template #item.participant.name="{ item }">
+      <template #item.participant.user.name="{ item }">
         <div class="d-flex align-center">
           <span>{{ item.user.name }}</span>
         </div>

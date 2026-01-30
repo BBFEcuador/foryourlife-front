@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {defineEmits, defineProps, ref, watch} from 'vue';
+import { ref, watch} from 'vue';
 import type {Product, Program} from '@/models/Products';
 import {Icon} from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';

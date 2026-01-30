@@ -141,6 +141,24 @@ const AdminRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/participants/EditParticipants.vue')
       },
       {
+        name: 'participants-admin-medical',
+        path: 'participants/medical/:id',
+        meta: {
+          requiresAuth: true,
+          permissions: [PermissionEnum.UPDATE_PARTICIPANTS]
+        },
+        component: () => import('@/views/admin/participants/MedicalReportParticipants.vue')
+      },
+      {
+        name: 'participants-admin-contact-emergency',
+        path: 'participants/contact-emergency/:id',
+        meta: {
+          requiresAuth: true,
+          permissions: [PermissionEnum.UPDATE_PARTICIPANTS]
+        },
+        component: () => import('@/views/admin/participants/ContactEmergencyParticipants.vue')
+      },
+      {
         name: 'calendar-admin',
         path: 'calendar',
         meta: {

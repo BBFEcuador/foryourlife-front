@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { CallTraining } from '@/models/CallsTraining';
 import { CallType, CallStatus, CallTypeLabels, CallStatusLabels } from '@/models/CallsTraining';

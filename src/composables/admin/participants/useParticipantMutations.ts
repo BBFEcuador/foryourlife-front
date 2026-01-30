@@ -1,5 +1,6 @@
 import { api } from '@/api/axios';
-import type { Participant, ParticipantLevelUpdate, ParticipantUpdate } from '@/models/Participants';
+import type { Participant, ParticipantLevelUpdate, ParticipantUpdate, MedicalRecord } from '@/models/Participants';
+import type { RequestContactEmergency } from '@/models/ContactEmergencyParticipant';
 import { useMutation } from '@tanstack/vue-query';
 
 const updateParticipant = async (participants: Partial<ParticipantUpdate>): Promise<any> => {
@@ -12,8 +13,8 @@ const setFocus = async (participants: Partial<ParticipantLevelUpdate>): Promise<
   return data;
 };
 
-const getByLvl = async (req:{lvl: string, campusId?: string }): Promise<Participant[]> => {
-  const { data } = await api.post(`/users/participants-available/${req.lvl}`, req.campusId?{ campusId: req.campusId } : undefined);
+const getByLvl = async (req: { lvl: string, campusId?: string }): Promise<Participant[]> => {
+  const { data } = await api.post(`/users/participants-available/${req.lvl}`, req.campusId ? { campusId: req.campusId } : undefined);
   return data;
 };
 
@@ -33,7 +34,7 @@ const promotionStaff = async (req: { userId: string; role: string }): Promise<Pa
 };
 
 // cambiar contreaseña
-const resetPassword = async (user: {id:string,newPassword:string}): Promise<any> => {
+const resetPassword = async (user: { id: string, newPassword: string }): Promise<any> => {
   const { data } = await api.put(`/users/reset-password/${user.id}`, user);
   return data;
 };
@@ -45,6 +46,33 @@ const generateContract = async (req: { participantId: string; productId: string;
   return data;
 };
 
+//medical record
+const updateMedicalRecord = async (req: { id: string, medicalRecord: Partial<MedicalRecord> }): Promise<any> => {
+  const { data } = await api.put(`/medical-record/update/${req.id}`, req.medicalRecord);
+  return data;
+};
+
+const createMedicalRecord = async (req: { medicalRecord: Partial<MedicalRecord> }): Promise<any> => {
+  const { data } = await api.post(`/medical-record/add`, req.medicalRecord);
+  return data;
+};
+
+//contactos de emergencia
+const updateContactEmergency = async (contactEmergency: Partial<RequestContactEmergency> ): Promise<any> => {
+  const { data } = await api.put(`/contacts`, contactEmergency);
+  return data;
+};
+
+const createContactEmergency = async (contactEmergency: Partial<RequestContactEmergency> ): Promise<any> => {
+  const { data } = await api.post(`/contacts`, contactEmergency);
+  return data;
+}
+
+const deleteContact = async (id: string): Promise<any> => {
+  const { data } = await api.delete(`/contacts/` + id);
+  return data;
+}
+
 const useParticipantMutations = () => {
   const updateParticipantMutation = useMutation({ mutationFn: updateParticipant });
   const setCourseLevelMutation = useMutation({ mutationFn: setFocus });
@@ -54,6 +82,11 @@ const useParticipantMutations = () => {
   const promotionStaffMutation = useMutation({ mutationFn: promotionStaff });
   const resetPasswordMutation = useMutation({ mutationFn: resetPassword });
   const generateContractMutation = useMutation({ mutationFn: generateContract });
+  const updateMedicalRecordMutation = useMutation({ mutationFn: updateMedicalRecord });
+  const createMedicalRecordMutation = useMutation({ mutationFn: createMedicalRecord });
+  const updateContactEmergencyMutation = useMutation({ mutationFn: updateContactEmergency });
+  const createContactEmergencyMutation = useMutation({ mutationFn: createContactEmergency });
+  const deleteContactMutation = useMutation({ mutationFn: deleteContact });
   return {
     updateParticipantMutation,
     setCourseLevelMutation,
@@ -62,7 +95,12 @@ const useParticipantMutations = () => {
     promotionVisionaryMutation,
     promotionStaffMutation,
     resetPasswordMutation,
-    generateContractMutation
+    generateContractMutation,
+    updateMedicalRecordMutation,
+    createMedicalRecordMutation,
+    updateContactEmergencyMutation,
+    createContactEmergencyMutation,
+    deleteContactMutation,
   };
 };
 
