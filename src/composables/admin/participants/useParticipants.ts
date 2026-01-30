@@ -46,7 +46,7 @@ const useParticipants = () => {
     queryFn: fetchParticipants,
     queryKey: ['participants', page, perPage, search],
     initialData: {
-      numberOfElements: 0
+      totalElements: 0
     } as PageableApiResponse<Participant[]>
   });
 

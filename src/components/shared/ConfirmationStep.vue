@@ -242,7 +242,8 @@ onMounted(() => {
               Atrás
             </v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="success" :loading="false" :disabled="disabled" size="large" @click="onSubmit">
+            <v-btn color="success" :loading="saveTeamMutations.isPending.value" :disabled="disabled" size="large"
+              @click="onSubmit">
               <Icon icon="mdi-check" class="mr-2" />
               Confirmar Equipo
             </v-btn>
