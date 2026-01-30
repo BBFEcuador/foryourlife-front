@@ -179,7 +179,7 @@ defineExpose({ resetTextFields });
         <VCombobox
           v-model="selectedParticipant"
           :items="participantsList"
-          item-title="name"
+          item-title="user.name"
           item-value="id"
           variant="outlined"
           :placeholder="participantsList.length > 0 ? 'Seleccionar cliente' : 'No hay clientes disponibles'"
