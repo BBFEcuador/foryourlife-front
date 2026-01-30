@@ -30,12 +30,12 @@ const useAdminTeam = (id: string) => {
       };
       promotionLifeRequest.value = {
         id: team.value.id,
-        masterLife: team.value.masterLife as Participant[],
+        masterLife: team.value.masterLife as unknown as Participant[],
         trainer: team.value.trainer.id,
         users: [] as Participant[],
         name:
           team.value.training.nextLevel?.courseLevel == 'LIFE'
-            ? `${team.value.training.nextLevel.courseLevel}-${team.value.training.nextLevel.number}`
+            ? `${team.value.training.nextLevel.courseLevel}-${team.value.training.number}`
             : team.value.name
       };
     }
