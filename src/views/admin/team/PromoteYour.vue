@@ -97,7 +97,6 @@ watch(promoteToLifeMutation.isSuccess, () => {
         router.push({name:'teams-admin'})
     }
 });
-const isPromoting = ref(false);
 </script>
 <template>
     <BaseBreadcrumb :title="'Promover equipo'" :breadcrumbs="breadcrumbs" class="tw:mb-6"></BaseBreadcrumb>
@@ -148,14 +147,14 @@ const isPromoting = ref(false);
                         <p>Puede asignar un nombre personalizado al equipo, de no asignarlo se quedara con el nombre del entrenamiento (LIFE-100)</p>
                     </VCardSubtitle>
                     <VCardItem >
-                        <VTextField placeholder="Nombre del equipo" v-model="promotionLifeRequest.name"/>
+                        <VTextField v-model="promotionLifeRequest.name" placeholder="Nombre del equipo"/>
                     </VCardItem>
                 </v-card>
             </VCol>
 
             <v-col cols="12">
                 <v-row class="tw:py-6">
-                    <v-col cols="12" sm="4" v-for="(tab, index) in tabs" :key="index">
+                    <v-col v-for="(tab, index) in tabs" :key="index" cols="12" sm="4">
                         <v-card :color="activeTab === index ? tab.color : undefined"
                             :variant="activeTab === index ? 'flat' : 'tonal'" v-motion :initial="{ opacity: 0, y: -10 }"
                             :enter="{ opacity: 1, y: 0 }" :delay="200 * (index + 1)" :duration="150"

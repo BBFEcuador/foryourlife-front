@@ -47,9 +47,9 @@ watch(getByLvlMutation.isSuccess, () => {
 });
 
 const headers = ref([
-  { title: 'Nombre', value: 'name', class: 'my-header-style' },
+  { title: 'Nombre', value: 'user.name', class: 'my-header-style' },
   { title: 'Cédula', value: 'profile.dni', class: 'my-header-style' },
-  { title: 'Telefono', value: 'phone' },
+  { title: 'Telefono', value: 'user.phone' },
   { title: 'Nivel', value: 'participantLevel.courseLevel' },
   { title: 'Rezagado', value: 'isLingerer' }
 ]);

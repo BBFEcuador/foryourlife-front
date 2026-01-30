@@ -20,9 +20,9 @@ const sp = defineModel({
 });
 
 const headers = ref([
-  { title: 'Nombre', value: 'name', class: 'my-header-style' },
+  { title: 'Nombre', value: 'user.name', class: 'my-header-style' },
   { title: 'Cédula', value: 'profile.dni', class: 'my-header-style' },
-  { title: 'Teléfono', value: 'phone' },
+  { title: 'Teléfono', value: 'user.phone' },
   { title: 'Nivel', value: 'participantLevel.courseLevel' }
 ]);
 
@@ -51,18 +51,10 @@ const getAvailableRowClass = (item: Participant) => {
 };
 const getDisabledRow = (item: Participant) => {
   if (props.origin === 'FOCUS') {
-    if (item.modules.hasYour) {
-      return true;
-    } else {
-      return false;
-    }
+    return item.modules.hasYour;
   }
   if (props.origin === 'YOUR') {
-    if (item.modules.hasLife) {
-      return true;
-    } else {
-      return false;
-    }
+    return item.modules.hasLife;
   }
   if (props.origin === 'LIFE') {
     return true;
