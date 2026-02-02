@@ -155,7 +155,7 @@ const isSaving = computed(() => {
         <VCol cols="12" md="8" sm="12" class="tw:flex tw:flex-col tw:items-center">
           <v-card variant="flat">
             <v-card-text>
-              <h3 class="text-h5 mb-6">Información Crítica</h3>
+              <h3 class="text-h5 mb-6">Información</h3>
               <v-row>
                 <v-col cols="12">
                   <v-checkbox

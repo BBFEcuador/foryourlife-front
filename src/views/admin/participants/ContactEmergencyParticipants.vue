@@ -56,7 +56,7 @@ const reqContact = ref<RequestContactEmergency>({
 } as RequestContactEmergency);
 
 const rules = {
-  name: { required: helpers.withMessage('El documento es obligatorio', required) },
+  name: { required: helpers.withMessage('El nombre es obligatorio', required) },
   relationship: { required: helpers.withMessage('La relación es obligatoria', required) },
   phone: {
     required: helpers.withMessage('El teléfono es obligatorio', required),
@@ -88,6 +88,14 @@ const onMedicalSubmit = () => {
         onSuccess: () => {
           toast.success('Contacto creado exitosamente');
           refetchContactEmergency();
+          validator.value.$reset();
+          //setear valores a vacio
+          reqContact.value = {
+            name: '',
+            relationship: '',
+            phone: '',
+            userId: ''
+          } as RequestContactEmergency;
         },
         onError: (error) => {
           const e = error as AxiosError<ErrorApiResponse>;
@@ -156,6 +164,7 @@ const onDeleteContact = async (id: string) => {
 watch(
   showContactDialog,
   (val) => {
+    console.log('Dialog closed:', val);
     if (!val) {
       validator.value.$reset();
     }
@@ -306,10 +315,15 @@ const isSaving = computed(() => {
         </VCol>
       </VRow>
     </div>
-    <VDialog v-model="showContactDialog" width="500">
+    <VDialog v-model="showContactDialog" width="500" persistent>
       <VCard class="tw:rounded-xl">
-        <VCardTitle class="tw:p-6 tw:pb-0 px-6 py-4 bg-primary">
-          <h3 class="tw:text-xl tw:font-medium">{{ title }}</h3>
+        <VCardTitle class="d-flex flex-shrink-0 align-center text-white bg-primary">
+          <Icon icon="mdi:phone" class="mr-2" />
+          <span class="text-h6 text-white">{{ title }}</span>
+          <v-spacer />
+          <v-btn icon variant="text" @click="showContactDialog = false">
+            <Icon icon="mdi:close" class="" width="24" />
+          </v-btn>
         </VCardTitle>
         <v-divider class="mb-4"></v-divider>
         <VCardText class="tw:p-6">
@@ -363,6 +377,16 @@ const isSaving = computed(() => {
           </v-row>
         </VCardText>
         <VCardActions class="tw:flex tw:justify-end">
+          <VBtn
+            variant="text"
+            color="error"
+            @click="showContactDialog = false"
+            :disabled="isSaving"
+            class="!tw:font-normal tw:rounded-lg tw:min-w-[120px]"
+          >
+            <Icon icon="mdi:close" class="tw:mr-2" />
+            Cancelar
+          </VBtn>
           <VBtn color="primary" variant="elevated" @click="onMedicalSubmit" class="!tw:font-normal" :loading="isSaving"
             ><Icon icon="mdi-content-save" height="20" class="mr-1" /> Guardar
           </VBtn>
