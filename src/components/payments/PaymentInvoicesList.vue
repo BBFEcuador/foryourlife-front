@@ -256,11 +256,6 @@ const hasInvoicesWithContificoError = computed(() => {
             </v-row>
           </InputSection>
           <div class="d-flex tw:justify-between tw:items-center">
-            <v-btn v-if="hasInvoicesWithContificoError" variant="elevated" color="info" class="mt-2"
-              @click="sendInvoices">
-              <Icon class="mr-2" icon="meteor-icons:paper-plane" />
-              Enviar a Contifico
-            </v-btn>
             <div v-if="!props.originPos" class="text-h3">$ {{ props.payment?.remainingBalance }} Restante</div>
             <v-btn type="submit" color="primary" class="mt-2"
               :loading="savePaymentRecordMutations.isPending.value">Guardar</v-btn>
@@ -272,6 +267,13 @@ const hasInvoicesWithContificoError = computed(() => {
         <v-data-table-server :headers="headers" :items="paginatedHistory"
           :loading="isRefetching || sendInvoicesToContificoMutation.isPending.value || savePaymentRecordMutations.isPending.value"
           :items-length="total" :items-per-page="itemsPerPage" class="mt-4" @update:options="onUpdateOptions">
+          <template #top>
+            <v-btn v-if="hasInvoicesWithContificoError" variant="elevated" color="info" class="mt-2"
+              @click="sendInvoices">
+              <Icon class="mr-2" icon="meteor-icons:paper-plane" />
+              Enviar a Contifico
+            </v-btn>
+          </template>
           <template #item.date="{ item }">
             <span>{{ formatDate(item.invoiceDate) }}</span>
           </template>
