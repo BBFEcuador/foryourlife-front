@@ -273,6 +273,7 @@ const hasInvoicesWithContificoError = computed(() => {
               <Icon class="mr-2" icon="meteor-icons:paper-plane" />
               Enviar a Contifico
             </v-btn>
+            <VSpacer />
           </template>
           <template #item.date="{ item }">
             <span>{{ formatDate(item.invoiceDate) }}</span>
