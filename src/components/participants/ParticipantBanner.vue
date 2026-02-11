@@ -142,11 +142,11 @@ const navigateToInvitation = (userId: string) => {
               </v-avatar>
             </div>
             <h5 class="text-h5 mt-3">{{ participant.user.name }}</h5>
-            <span class="textSecondary font-weight-regular">Estudiante</span>
+            <span class="textSecondary font-weight-regular">{{ participant.profile.occupation }}</span>
           </div>
         </v-col>
         <v-col cols="12" lg="4" sm="12" class="d-flex justify-center order-sml-first">
-            <v-menu location="bottom" v-if="participant.participantLevel.courseLevel == 'LIFE_GRADUATE'">
+          <v-menu location="bottom" v-if="participant.participantLevel.courseLevel == 'LIFE_GRADUATE'">
             <template v-slot:activator="{ props }">
               <v-btn color="primary" v-bind="props" class="px-4">
                 <Icon icon="mdi:account-convert" class="mr-2" />
@@ -156,54 +156,30 @@ const navigateToInvitation = (userId: string) => {
             </template>
 
             <v-list width="300" class="pa-2">
-              <v-list-item
-                @click="name"
-                :disabled="promotionMasterLifeMutation.isPending.value"
-                title="Master Life"
-                subtitle="Promover a Master Life"
-                class="mb-2 rounded-lg"
-              >
+              <v-list-item @click="name" :disabled="promotionMasterLifeMutation.isPending.value" title="Master Life"
+                subtitle="Promover a Master Life" class="mb-2 rounded-lg">
                 <template v-slot:append>
                   <Icon icon="mdi:school" class="mr-2" />
-                  <v-progress-circular
-                    v-if="promotionMasterLifeMutation.isPending.value"
-                    indeterminate
-                    size="20"
-                    width="2"
-                    color="primary"
-                  />
+                  <v-progress-circular v-if="promotionMasterLifeMutation.isPending.value" indeterminate size="20"
+                    width="2" color="primary" />
                 </template>
               </v-list-item>
 
-              <v-list-item
-                @click="promotionVisionary"
-                :disabled="promotionVisionaryMutation.isPending.value"
-                title="Visionario"
-                subtitle="Promover a Visionario"
-                class="mb-2 rounded-lg"
-              >
+              <v-list-item @click="promotionVisionary" :disabled="promotionVisionaryMutation.isPending.value"
+                title="Visionario" subtitle="Promover a Visionario" class="mb-2 rounded-lg">
                 <template v-slot:append>
                   <Icon icon="mdi:eye-outline" class="mr-2" />
-                  <v-progress-circular
-                    v-if="promotionVisionaryMutation.isPending.value"
-                    indeterminate
-                    size="20"
-                    width="2"
-                    color="primary"
-                  />
+                  <v-progress-circular v-if="promotionVisionaryMutation.isPending.value" indeterminate size="20"
+                    width="2" color="primary" />
                 </template>
               </v-list-item>
 
-              <v-list-item
-                @click="promotionStaff"
-                :disabled="promotionStaffMutation.isPending.value"
-                title="Staff"
-                subtitle="Promover a Staff"
-                class="rounded-lg"
-              >
+              <v-list-item @click="promotionStaff" :disabled="promotionStaffMutation.isPending.value" title="Staff"
+                subtitle="Promover a Staff" class="rounded-lg">
                 <template v-slot:append>
                   <Icon icon="mdi:account-tie" class="mr-2" />
-                  <v-progress-circular v-if="promotionStaffMutation.isPending.value" indeterminate size="20" width="2" color="primary" />
+                  <v-progress-circular v-if="promotionStaffMutation.isPending.value" indeterminate size="20" width="2"
+                    color="primary" />
                 </template>
               </v-list-item>
             </v-list>

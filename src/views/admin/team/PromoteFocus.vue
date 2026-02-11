@@ -15,7 +15,6 @@ import StaffSelect from '@/components/team/StaffSelect.vue';
 import NewParticipantsSelect from '@/components/team/NewParticipantsSelect.vue';
 import NewStaffSelect from '@/components/team/NewStaffSelect.vue';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
-import type { TeamYourPromotionRequest } from '@/models/Team';
 
 const breadcrumbs = ref([
   {
@@ -139,19 +138,12 @@ watch(promoteToYourMutation.isSuccess, () => {
       <v-col cols="12">
         <v-row class="tw:py-6">
           <v-col cols="12" sm="4" v-for="(tab, index) in tabs" :key="index">
-            <v-card
-              :color="activeTab === index ? tab.color : undefined"
-              :variant="activeTab === index ? 'flat' : 'tonal'"
-              v-motion
-              :initial="{ opacity: 0, y: -10 }"
-              :enter="{ opacity: 1, y: 0 }"
-              :delay="200 * (index + 1)"
-              :duration="150"
+            <v-card :color="activeTab === index ? tab.color : undefined"
+              :variant="activeTab === index ? 'flat' : 'tonal'" v-motion :initial="{ opacity: 0, y: -10 }"
+              :enter="{ opacity: 1, y: 0 }" :delay="200 * (index + 1)" :duration="150"
               :elevation="activeTab === index ? 3 : 1"
               class="tw:cursor-pointer tw:transition-all tw:duration-300 tw:ease-in-out tw:rounded-xl tw:border hover:tw:scale-102"
-              :class="{ 'tw:border-primary': activeTab === index }"
-              @click="setActiveTab(index)"
-            >
+              :class="{ 'tw:border-primary': activeTab === index }" @click="setActiveTab(index)">
               <v-card-title class="tw:py-6 tw:flex tw:items-center tw:justify-center tw:gap-3">
                 <Icon :icon="tab.icon" height="26" />
                 {{ tab.label }}
@@ -162,16 +154,8 @@ watch(promoteToYourMutation.isSuccess, () => {
       </v-col>
 
       <v-col cols="12">
-        <v-card
-          class="tw:mb-4 fill-height tw:rounded-xl"
-          elevation="2"
-          v-motion
-          :initial="{ opacity: 0, y: -10 }"
-          :enter="{ opacity: 1, y: 0 }"
-          :delay="200"
-          :duration="150"
-          v-if="activeTab === 0"
-        >
+        <v-card class="tw:mb-4 fill-height tw:rounded-xl" elevation="2" v-motion :initial="{ opacity: 0, y: -10 }"
+          :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="150" v-if="activeTab === 0">
           <v-card-item>
             <v-card-title class="tw:mb-6 tw:flex tw:items-center tw:gap-3">
               <div class="tw:bg-primary tw:bg-opacity-10 tw:p-2 tw:rounded-lg">
@@ -185,33 +169,24 @@ watch(promoteToYourMutation.isSuccess, () => {
             <v-card-text class="tw:mb-4">
               <div class="tw:flex tw:items-center tw:justify-between tw:gap-4">
                 <span class="tw:text-gray-600">¿Deseas cambiar el entrenador del equipo?</span>
-                <v-btn
-                  :color="showTrainerSelect ? 'error' : 'primary'"
-                  :variant="showTrainerSelect ? 'outlined' : 'flat'"
-                  @click="loadAvailableTrainers"
-                  class="tw:rounded-lg"
-                >
-                  <Icon :icon="showTrainerSelect ? 'mdi:close' : 'material-symbols:change-circle-outline'" class="tw:mr-2" />
+                <v-btn :color="showTrainerSelect ? 'error' : 'primary'"
+                  :variant="showTrainerSelect ? 'outlined' : 'flat'" @click="loadAvailableTrainers"
+                  class="tw:rounded-lg">
+                  <Icon :icon="showTrainerSelect ? 'mdi:close' : 'material-symbols:change-circle-outline'"
+                    class="tw:mr-2" />
                   {{ showTrainerSelect ? 'Cancelar cambio' : 'Cambiar entrenador' }}
                 </v-btn>
               </div>
             </v-card-text>
             <v-expand-transition>
-              <TrainerSelect v-if="showTrainerSelect" :trainer="trainers" @trainer-selected="handleTrainerSelected" class="tw:mt-4" />
+              <TrainerSelect v-if="showTrainerSelect" :trainer="trainers" @trainer-selected="handleTrainerSelected"
+                class="tw:mt-4" />
             </v-expand-transition>
           </v-card-item>
         </v-card>
 
-        <v-card
-          elevation="2"
-          class="fill-height tw:rounded-xl"
-          v-motion
-          :initial="{ opacity: 0, y: -10 }"
-          :enter="{ opacity: 1, y: 0 }"
-          :delay="200"
-          :duration="150"
-          v-if="activeTab === 1"
-        >
+        <v-card elevation="2" class="fill-height tw:rounded-xl" v-motion :initial="{ opacity: 0, y: -10 }"
+          :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="150" v-if="activeTab === 1">
           <v-card-item>
             <v-card-title class="tw:mb-6 tw:flex tw:items-center tw:gap-3">
               <div class="tw:bg-info tw:bg-opacity-10 tw:p-2 tw:rounded-lg">
@@ -246,16 +221,8 @@ watch(promoteToYourMutation.isSuccess, () => {
             </v-card-text>
           </v-card-item>
         </v-card>
-        <v-card
-          class="mb-4"
-          elevation="1"
-          v-motion
-          :initial="{ opacity: 0, y: -10 }"
-          :enter="{ opacity: 1, y: 0 }"
-          :delay="200"
-          :duration="150"
-          v-if="activeTab === 2"
-        >
+        <v-card class="mb-4" elevation="1" v-motion :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }"
+          :delay="200" :duration="150" v-if="activeTab === 2">
           <v-card-item>
             <v-card-title class="tw:mb-6 tw:flex tw:items-center tw:gap-3">
               <div class="tw:bg-primary tw:bg-opacity-10 tw:p-2 tw:rounded-lg">
@@ -300,14 +267,14 @@ watch(promoteToYourMutation.isSuccess, () => {
         Confirmar promoción
       </v-card-title>
       <v-card-text class="tw:py-6 tw:px-6">
-        ¿Estás seguro de promover al equipo "<strong>{{ team.name }}</strong
-        >" al nivel <strong>{{ team?.training?.nextLevel?.courseLevel }}</strong
-        >?
+        ¿Estás seguro de promover al equipo "<strong>{{ team.name }}</strong>" al nivel <strong>{{
+          team?.training?.nextLevel?.courseLevel }}</strong>?
       </v-card-text>
       <v-card-actions class="tw:p-4 tw:bg-gray-50">
         <v-spacer></v-spacer>
         <v-btn color="grey" variant="text" @click="showConfirmDialog = false" class="tw:mr-2"> Cancelar </v-btn>
-        <v-btn color="primary" variant="flat" :loading="promoteToYourMutation.isPending.value" @click="onPromoteTeam" > Confirmar promoción </v-btn>
+        <v-btn color="primary" variant="flat" :loading="promoteToYourMutation.isPending.value" @click="onPromoteTeam">
+          Confirmar promoción </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

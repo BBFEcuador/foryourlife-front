@@ -6,9 +6,10 @@ import useParticipantMutations from '@/composables/admin/participants/usePartici
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import useProducts from '@/composables/admin/products/useProducts';
 import useTrainings from '@/composables/admin/training/useTrainings';
+import useCampus from '@/composables/admin/useCampus';
 import useInvitationMutation from '@/composables/invitation/useInvitationMutation';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
-import type { Criteria, Filter } from '@/models/Criteria';
+import type { Participant } from '@/models/Participants';
 import type { TrainingData } from '@/models/Training';
 import { checkPermission } from '@/service/ability';
 import { showErrorToast } from '@/service/sweetAlert';
@@ -19,12 +20,12 @@ import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
-import { useDisplay } from 'vuetify';
 import { VNumberInput } from 'vuetify/labs/VNumberInput';
 
-const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch } = useParticipants();
+const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch, refetchParticipants } = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitationMutation();
-const { resetPasswordMutation, generateContractMutation } = useParticipantMutations();
+const { campusData, isError, isFetching, refetch } = useCampus()
+const { resetPasswordMutation, generateContractMutation, changeCampusMutation } = useParticipantMutations();
 const router = useRouter();
 const adminS = adminStore();
 const headers = [
@@ -55,6 +56,11 @@ const headers = [
     width: '100'
   },
   {
+    title: 'Ocupación',
+    value: 'profile.occupation',
+    width: '100'
+  },
+  {
     title: 'Acciones',
     value: 'actions',
     align: 'center' as const,
@@ -73,13 +79,6 @@ const breadcrumbs = ref([
 
 const openCreateInvitation = () => {
   showInvitationForm.value = true;
-};
-const onFilterSubmit = (criteria: Criteria) => {
-  criteriaMutations.mutate(criteria);
-};
-
-const onFilterClear = () => {
-  criteriaMutations.mutate({ filters: [] as Filter[], limit: 0, offset: 0 });
 };
 
 const campusId = ref();
@@ -154,6 +153,30 @@ const contactEmergency = (item: string) => {
   router.push({ name: 'participants-admin-contact-emergency', params: { id: item } });
 };
 
+const showChangeCampus = ref(false)
+const selectedCampus = ref()
+const changeCampus = (item: Participant) => {
+  selectedParticipant.value = item;
+  showChangeCampus.value = true;
+};
+
+const onParticiapntChangeCampus = () => {
+  changeCampusMutation.mutate(
+    { userId: selectedParticipant.value?.id || '', campusId: selectedCampus.value },
+    {
+      onSuccess: () => {
+        toast.success('Sede cambiada correctamente');
+        showChangeCampus.value = false;
+        refetchParticipants()
+      },
+      onError: (error) => {
+        const er = error as AxiosError<ErrorApiResponse>;
+        showErrorToast(er);
+      }
+    }
+  );
+}
+
 const getLevelColor = (level: string) => {
   const colors = {
     INIT: 'primary',
@@ -164,9 +187,10 @@ const getLevelColor = (level: string) => {
     LIFE_2: 'error',
     LIFE_3: 'darkprimary',
     MASTER_LIFE: 'background',
-    LIFE_GRADUATE: 'background'
+    LIFE_GRADUATE: 'background',
   };
-  return colors[level] || 'gray';
+  const l = level as keyof typeof colors;
+  return colors[l] || 'gray';
 };
 
 const getLevelIcon = (level: string) => {
@@ -181,7 +205,8 @@ const getLevelIcon = (level: string) => {
     MASTER_LIFE: 'eos-icons:master-outlined',
     LIFE_GRADUATE: 'fluent:hat-graduation-sparkle-16-regular'
   };
-  return icons[level] || 'mdi:help-circle';
+  const l = level as keyof typeof icons;
+  return icons[l] || 'mdi:help-circle';
 };
 
 const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
@@ -205,7 +230,7 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 };
 
 const showResetPasswordDialog = ref(false);
-const selectedParticipant = ref<any>(null);
+const selectedParticipant = ref<Participant | null>(null);
 const newPassword = ref('');
 const showPassword = ref(false);
 const togglePasswordVisibility = () => {
@@ -380,7 +405,8 @@ watch(showContractDialog, (newVal) => {
                     class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity">
                   </div>
                   <div>
-                    <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{ item.user.name }}</span>
+                    <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{
+                      item.user.name }}</span>
                     <div class="tw:text-xs group-hover:tw:opacity-100">{{ item.phone }}</div>
                   </div>
                 </div>
@@ -403,7 +429,7 @@ watch(showContractDialog, (newVal) => {
               </template>
 
               <template #item.participantLevel.courseLevel="{ item }">
-                <div class="tw:text-nowrap">
+                <div class="tw:text-nowrap tw:flex tw:flex-col tw:gap-1">
                   <VChip :color="item.participantLevel.courseLevel === 'LIFE_GRADUATE' ? undefined : getLevelColor(item.participantLevel.courseLevel)
                     " variant="flat"
                     class="!tw:font-medium tw:min-w-[120px] !tw:justify-center tw:transition-all group-hover:tw:shadow-md group-hover:tw:scale-105"
@@ -416,6 +442,7 @@ watch(showContractDialog, (newVal) => {
                     <div v-if="item.participantLevel.courseLevel === 'LIFE_GRADUATE'">GRADUADO</div>
                     <div v-else>{{ item.participantLevel.courseLevel }}</div>
                   </VChip>
+                  <p class="tw:font-semibold">{{ item.campus.city }}</p>
                 </div>
               </template>
 
@@ -424,16 +451,9 @@ watch(showContractDialog, (newVal) => {
                   <v-menu location="end" transition="slide-y-transition" :close-on-content-click="false">
                     <template v-slot:activator="{ props }">
                       <!-- <v-btn color="primary" v-bind="props"> Dropdown </v-btn> -->
-                      <VBtn
-                        v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
-                        v-bind="props"
-                        icon
-                        variant="text"
-                        color="primary"
-                        height="40"
-                        class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                        v-tooltip="'Acciones'"
-                      >
+                      <VBtn v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)" v-bind="props" icon
+                        variant="text" color="primary" height="40"
+                        class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100" v-tooltip="'Acciones'">
                         <Icon icon="mdi:dots-vertical" />
                       </VBtn>
                     </template>
@@ -448,13 +468,13 @@ watch(showContractDialog, (newVal) => {
                         </v-list-item-title>
                       </v-list-item>
                       <v-list-item class="point">
-                        <v-list-item-title
-                          @click="
-                            showResetPasswordDialog = true;
-                            selectedParticipant = item;
-                          "
-                        >
-                          <div class="d-flex tw:gap-1"><Icon icon="mdi:lock-reset" height="20" /> Resetear contraseña</div>
+                        <v-list-item-title @click="
+                          showResetPasswordDialog = true;
+                        selectedParticipant = item;
+                        ">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="mdi:lock-reset" height="20" /> Resetear contraseña
+                          </div>
                         </v-list-item-title>
                       </v-list-item>
                       <v-list-item class="point">
@@ -473,47 +493,16 @@ watch(showContractDialog, (newVal) => {
                           </div>
                         </v-list-item-title>
                       </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title @click="changeCampus(item)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="solar:buildings-2-bold" height="20" color="primary" />
+                            Cambiar sede
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
                     </v-list>
                   </v-menu>
-
-                  <!-- <VBtn
-                    v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
-                    icon
-                    variant="text"
-                    color="primary"
-                    height="32"
-                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                    v-tooltip="'Editar participante'"
-                    @click="editParticipant(item.id)"
-                  >
-                    <Icon icon="mdi:pencil" />
-                  </VBtn> -->
-                  <!-- <VBtn
-                    icon
-                    variant="text"
-                    color="info"
-                    height="32"
-                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                    v-tooltip="'Generar Contrato'" @click="
-                      showContractDialog = true;
-                    selectedParticipant = item;
-                    ">
-                    <Icon icon="mdi:file-sign" height="20" />
-                  </VBtn> -->
-                  <!-- <VBtn
-                    v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
-                    icon
-                    variant="text"
-                    color="warning"
-                    height="32"
-                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                    v-tooltip="'Resetear contraseña'"
-                    @click="
-                      showResetPasswordDialog = true;
-                    selectedParticipant = item;
-                    ">
-                    <Icon icon="mdi:lock-reset" height="20" />
-                  </VBtn> -->
                 </div>
               </template>
 
@@ -657,6 +646,36 @@ watch(showContractDialog, (newVal) => {
           </VBtn>
         </VCardActions>
       </VCard>
+    </VDialog>
+    <VDialog max-width="600" v-model="showChangeCampus">
+      <UiParentCard title="Cambiar de sede">
+        <VRow>
+          <VCol cols="12">
+            <p>Estás a punto de cambiar la sede del participante
+              <strong>{{ selectedParticipant?.user.name }}</strong> de
+              <strong>{{ selectedParticipant?.campus.city }}</strong>.
+            </p>
+          </VCol>
+          <VCol cols="12">
+            <InputSection label="Seleccionar sede">
+              <VSelect v-model="selectedCampus" :items="campusData.filter(x => x.id != selectedParticipant?.campus.id)"
+                item-title="city" item-value="id" placeholder="Elija el campus" :loading="isFetching">
+                <template #append>
+                  <VBtn icon variant="text" @click="refetch" :loading="isFetching">
+                    <Icon icon="mdi:refresh" height="18" />
+                  </VBtn>
+                </template>
+              </VSelect>
+            </InputSection>
+          </VCol>
+          <VCol cols="12">
+            <VBtn :disabled="!selectedCampus" color="primary" @click="onParticiapntChangeCampus"
+              :loading="changeCampusMutation.isPending.value">
+              Cambiar
+            </VBtn>
+          </VCol>
+        </VRow>
+      </UiParentCard>
     </VDialog>
   </div>
   <div v-else>

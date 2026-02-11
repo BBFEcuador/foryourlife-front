@@ -28,7 +28,7 @@ const breadcrumbs = ref([
 
 const route = useRoute();
 const router = useRouter();
-const { isTeamError, isTeamLoading, team, refetchTeam,promotionLifeRequest } = useAdminTeam(route.params.id.toString())
+const { isTeamError, isTeamLoading, team, refetchTeam, promotionLifeRequest } = useAdminTeam(route.params.id.toString())
 
 const trainers = ref<Trainers[]>([]);
 const { availableTrainerMutation } = useTrainerMutations();
@@ -38,6 +38,7 @@ const showTrainerSelect = ref(false);
 
 const handleTrainerSelected = (trainer: Trainers[]) => {
     team.value.trainer = trainer[0];
+    promotionLifeRequest.value.trainer = team.value.trainer.id
     showTrainerSelect.value = false;
 }
 const loadAvailableTrainers = async () => {
@@ -94,7 +95,7 @@ watch(promoteToLifeMutation.isError, () => {
 
 watch(promoteToLifeMutation.isSuccess, () => {
     if (promoteToLifeMutation.isSuccess.value) {
-        router.push({name:'teams-admin'})
+        router.push({ name: 'teams-admin' })
     }
 });
 </script>
@@ -144,10 +145,11 @@ watch(promoteToLifeMutation.isSuccess, () => {
                         Nombre del equipo
                     </v-card-title>
                     <VCardSubtitle>
-                        <p>Puede asignar un nombre personalizado al equipo, de no asignarlo se quedara con el nombre del entrenamiento (LIFE-100)</p>
+                        <p>Puede asignar un nombre personalizado al equipo, de no asignarlo se quedara con el nombre del
+                            entrenamiento (LIFE-100)</p>
                     </VCardSubtitle>
-                    <VCardItem >
-                        <VTextField v-model="promotionLifeRequest.name" placeholder="Nombre del equipo"/>
+                    <VCardItem>
+                        <VTextField v-model="promotionLifeRequest.name" placeholder="Nombre del equipo" />
                     </VCardItem>
                 </v-card>
             </VCol>
@@ -232,10 +234,12 @@ watch(promoteToLifeMutation.isSuccess, () => {
                         <v-card-text class="tw:p-0">
                             <v-window v-model="tab" class="tw:mt-4">
                                 <v-window-item value="newParticipants">
-                                    <ParticipantsSelect :team="team" v-model="promotionLifeRequest.users" :origin="'YOUR'"/>
+                                    <ParticipantsSelect :team="team" v-model="promotionLifeRequest.users"
+                                        :origin="'YOUR'" />
                                 </v-window-item>
                                 <v-window-item value="actualParticipants">
-                                    <NewParticipantsSelect :origin="'YOUR'" :team="team" v-model="promotionLifeRequest.users"/>
+                                    <NewParticipantsSelect :origin="'YOUR'" :team="team"
+                                        v-model="promotionLifeRequest.users" />
                                 </v-window-item>
                             </v-window>
                         </v-card-text>
@@ -265,7 +269,7 @@ watch(promoteToLifeMutation.isSuccess, () => {
                         <v-card-text>
                             <v-window v-model="tab2">
                                 <v-window-item value="actualMasterlife">
-                                    <NewMasterlifeSelect :team="team" v-model="promotionLifeRequest.masterLife"/>
+                                    <NewMasterlifeSelect :team="team" v-model="promotionLifeRequest.masterLife" />
                                 </v-window-item>
                             </v-window>
                         </v-card-text>
@@ -289,9 +293,10 @@ watch(promoteToLifeMutation.isSuccess, () => {
                 <v-btn color="grey" variant="text" @click="showConfirmDialog = false" class="tw:mr-2">
                     Cancelar
                 </v-btn>
-                <v-btn color="primary" variant="flat" @click="onPromoteTeam" :loading="promoteToLifeMutation.isPending.value" :disabled="promoteToLifeMutation.isPending.value" >
+                <v-btn color="primary" variant="flat" @click="onPromoteTeam"
+                    :loading="promoteToLifeMutation.isPending.value" :disabled="promoteToLifeMutation.isPending.value">
                     Confirmar promoción
-                </v-btn> 
+                </v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>

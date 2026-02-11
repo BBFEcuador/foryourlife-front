@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MasterLife } from '@/models/MasterLife';
 import type { Participant, Team } from '@/models/Participants';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
@@ -9,7 +10,7 @@ interface props {
 
 const props = defineProps<props>();
 const vModel = defineModel({
-  default: [] as Participant[]
+  default: [] as MasterLife[]
 });
 
 const headers = ref([
@@ -29,15 +30,8 @@ const searchQuery = ref('');
           <Icon icon="mdi-magnify" />
         </template>
       </v-text-field>
-      <VDataTable
-        :items="props.team.masterLife"
-        hide-default-footer
-        :headers="headers"
-        show-select
-        v-model="vModel"
-        return-object
-        :search="searchQuery"
-      >
+      <VDataTable :items="props.team.masterLife" hide-default-footer :headers="headers" show-select v-model="vModel"
+        return-object :search="searchQuery">
       </VDataTable>
     </div>
   </v-card>

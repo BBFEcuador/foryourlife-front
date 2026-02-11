@@ -30,7 +30,7 @@ export interface TeamYourPromotionRequest {
 export interface TeamLifePromotionRequest {
   id: string;
   users: Participant[];
-  masterLife: Participant[];
+  masterLife: MasterLife[];
   trainer: string;
   name: string;
 }

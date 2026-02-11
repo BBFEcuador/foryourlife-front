@@ -176,7 +176,9 @@ const handleGenerateMasiveContracts = async () => {
             <v-tab value="2" v-if="team.trainingData?.curseLevel == 'FOCUS'">Visionarios</v-tab>
             <v-tab value="3"
               v-if="team.trainingData?.curseLevel == 'YOUR' || team.trainingData?.curseLevel == 'FOCUS'">Staff</v-tab>
-            <v-tab value="4" v-if="team.trainingData?.curseLevel == 'LIFE'">Master life</v-tab>
+            <v-tab value="4"
+              v-if="team.trainingData?.curseLevel == 'LIFE' || team.trainingData?.curseLevel == 'LIFE_2' || team.trainingData?.curseLevel == 'LIFE_3'">Master
+              life</v-tab>
           </v-tabs>
           <v-card-text>
             <v-tabs-window v-model="tab">
@@ -193,7 +195,8 @@ const handleGenerateMasiveContracts = async () => {
                 <TeamStaff :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
                   @refetchTeam="fetchTeamData" :is-for-edit="isForEdit" />
               </v-tabs-window-item>
-              <v-tabs-window-item value="4" v-if="team.trainingData?.curseLevel == 'LIFE'">
+              <v-tabs-window-item value="4"
+                v-if="team.trainingData?.curseLevel == 'LIFE' || team.trainingData?.curseLevel == 'LIFE_2' || team.trainingData?.curseLevel == 'LIFE_3'">
                 <TeamMasterLife :team="team" :isTeamLoading="isTeamLoading" :isTeamError="isTeamError"
                   @refetchTeam="fetchTeamData" :is-for-edit="isForEdit" />
               </v-tabs-window-item>

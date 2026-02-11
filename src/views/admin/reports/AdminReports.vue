@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import {Icon} from '@iconify/vue/dist/iconify.js';
-import {ref} from 'vue';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import { ref } from 'vue';
 import useTrainings from '@/composables/admin/training/useTrainings';
-import type {TrainingData} from '@/models/Training';
+import type { TrainingData } from '@/models/Training';
 import TeamMasterLifeReport from '@/components/reports/TeamMasterLifeReport.vue';
 import TeamFocusReport from '@/components/reports/TeamFocusReport.vue';
 import TeamYourReport from '@/components/reports/TeamYourReport.vue';
 import useReportsMutations from '@/composables/admin/reports/useReportsMutations';
-import {toast} from 'vue3-toastify';
-import type {AxiosError} from 'axios';
-import type {ErrorApiResponse} from '@/models/ApiResponse';
+import { toast } from 'vue3-toastify';
+import type { AxiosError } from 'axios';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 
@@ -75,17 +75,10 @@ const onExcelDownload = (training_id: string) => {
         <v-card-item class="mt-0 pt-2 pb-0">
           <label class="tw-whitespace-normal tw-block">Seleccione un entrenamiento</label>
           <div class="d-sm-flex align-center justify-space-between mt-3">
-            <VCombobox
-              v-model="selectedTraining"
-              :items="trainings"
-              item-title="name"
-              item-value="id"
+            <VCombobox v-model="selectedTraining" :items="trainings" item-title="name" item-value="id"
               variant="outlined"
               :placeholder="trainings.length > 0 ? 'Seleccionar Entrenamiento' : 'No hay entrenamientos disponibles'"
-              return-object
-              @update:search="searchTraining"
-              @update:model-value="handleTrainingChange"
-            >
+              return-object @update:search="searchTraining" @update:model-value="handleTrainingChange">
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
                   <template v-slot:prepend>
@@ -113,7 +106,8 @@ const onExcelDownload = (training_id: string) => {
               <Icon icon="mdi-account-group" class="mr-2" />
               <div>{{ nameTraining }}</div>
             </div>
-            <v-btn @click="onExcelDownload(trainingId)" color="primary" variant="outlined">
+            <v-btn @click="onExcelDownload(trainingId)" color="primary" variant="outlined"
+              :loading="excelMutation.isPending.value">
               <Icon icon="mdi-file-excel" height="20" class="mr-2" />
               Reporte
             </v-btn>
@@ -122,16 +116,14 @@ const onExcelDownload = (training_id: string) => {
       </v-col>
     </v-row>
     <!-- LIFE DASHBOARD -->
-    <TeamMasterLifeReport
-      v-if="selectedTraining?.courseLevel?.includes('LIFE') && trainingId && selectedTraining.name"
-      :trainingId="trainingId"
-      :trainingDataName="selectedTraining.name"
-      class="mb-2"
-    />
+    <TeamMasterLifeReport v-if="selectedTraining?.courseLevel?.includes('LIFE') && trainingId && selectedTraining.name"
+      :trainingId="trainingId" :trainingDataName="selectedTraining.name" class="mb-2" />
     <!-- YOUR DASHBOARD -->
-    <TeamYourReport v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId" class="mb-2" />
+    <TeamYourReport v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId"
+      class="mb-2" />
     <!-- FOCUS DASHBOARD -->
-    <TeamFocusReport v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2" />
+    <TeamFocusReport v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId"
+      class="mb-2" />
   </div>
 </template>
 
