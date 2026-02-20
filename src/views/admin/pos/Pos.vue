@@ -8,23 +8,23 @@ import useCashBoxMutation from '@/composables/admin/pos/useCashBoxMutation';
 import useCashDrawerMutation from '@/composables/admin/pos/useCashDrawerMutation';
 import useStoreMutations from '@/composables/admin/pos/useStoreMutations';
 import useStores from '@/composables/admin/pos/useStores';
-import type {CashBox, CashBoxRequest, StoreRequest} from '@/models/CashDrawer';
-import {router} from '@/router';
-import {adminStore} from '@/stores/adminStore';
-import {PermissionEnum} from '@/utils/locales/PermissionEnum.ts';
-import {checkPermission} from '@/service/ability';
-import {Icon} from '@iconify/vue';
-import type {AxiosError} from 'axios';
-import {computed, ref} from 'vue';
-import {toast} from 'vue3-toastify';
+import type { CashBox, CashBoxRequest, StoreRequest } from '@/models/CashDrawer';
+import { router } from '@/router';
+import { adminStore } from '@/stores/adminStore';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum.ts';
+import { checkPermission } from '@/service/ability';
+import { Icon } from '@iconify/vue';
+import type { AxiosError } from 'axios';
+import { computed, ref } from 'vue';
+import { toast } from 'vue3-toastify';
 
-const {cashBoxes, isCashBoxesLoading, refetchCashBoxes} = useCashBoxes();
-const {storesData, isStoresDataLoading, refetchStoresData} = useStores();
-const {saveCashBoxMutation} = useCashBoxMutation();
-const {openCashDrawerMutation} = useCashDrawerMutation();
-const {useContificoSyncPosMutations, isSyncPosLoading} = useContificoPosMutation();
-const {saveStoreMutation} = useStoreMutations();
-const {closeCashDrawerMutation} = useCashDrawerMutation();
+const { cashBoxes, isCashBoxesLoading, refetchCashBoxes } = useCashBoxes();
+const { storesData, isStoresDataLoading, refetchStoresData } = useStores();
+const { saveCashBoxMutation } = useCashBoxMutation();
+const { openCashDrawerMutation } = useCashDrawerMutation();
+const { useContificoSyncPosMutations, isSyncPosLoading } = useContificoPosMutation();
+const { saveStoreMutation } = useStoreMutations();
+const { closeCashDrawerMutation } = useCashDrawerMutation();
 
 const store = adminStore();
 const showCreateCashBox = ref(false);
@@ -63,7 +63,7 @@ const handleSaveCashBox = async (cashBox: Partial<CashBox>) => {
 
 const handleOpenCashDrawer = async (cashBox: CashBox) => {
   if (store.isCashDrawerOpen) {
-    router.push({name: 'payments-admin-create'});
+    router.push({ name: 'payments-admin-create' });
   } else {
     auxCashBox.value = cashBox;
     showCreateCashDrawer.value = true;
@@ -82,7 +82,7 @@ const openCashDrawer = async (cashDrawerData: { openingBalance: number; details:
       store.setCashDrawerOpen(true);
       toast.success('Caja abierta exitosamente');
 
-      router.push({name: 'payments-admin-create'});
+      router.push({ name: 'payments-admin-create' });
     },
     onError: (error) => {
       const err = error as AxiosError<{ message: string }>;
@@ -132,9 +132,7 @@ const handleCloseCashDrawer = async () => {
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Cierre_Caja_${new Date()
-            .toLocaleDateString('es-EC')
-            .replace('/', '-')}.pdf`;
+        a.download = `Cierre_Caja_${new Date().toLocaleDateString('es-EC').replace('/', '-')}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -150,7 +148,7 @@ const handleCloseCashDrawer = async () => {
     },
     onError: (error) => {
       const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || "Error al procesar la caja");
+      toast.error(err.response?.data?.message || 'Error al procesar la caja');
     }
   });
 };
@@ -163,45 +161,45 @@ const handleCloseCashDrawer = async () => {
       <v-spacer></v-spacer>
       <div class="d-flex tw:flex-wrap tw:gap-2 tw:justify-end">
         <v-btn
-            v-if="checkPermission(PermissionEnum.SEE_PAYMENTS)"
-            variant="flat"
-            color="success"
-            @click="router.push({ name: 'payments-admin' })"
+          v-if="checkPermission(PermissionEnum.SEE_PAYMENTS)"
+          variant="flat"
+          color="success"
+          @click="router.push({ name: 'payments-admin' })"
         >
           <Icon icon="mdi:eye" class="mr-2"></Icon>
           <span class="">Ver pagos</span>
         </v-btn>
         <v-btn
-            v-if="checkPermission(PermissionEnum.CREATE_EMISSION_POINTS)"
-            color="primary"
-            @click="showCreateCashBox = true"
-            :disabled="disabledProperty"
+          v-if="checkPermission(PermissionEnum.CREATE_EMISSION_POINTS)"
+          color="primary"
+          @click="showCreateCashBox = true"
+          :disabled="disabledProperty"
         >
-          <Icon icon="mdi:plus" class="mr-2"/>
+          <Icon icon="mdi:plus" class="mr-2" />
           Nueva caja
         </v-btn>
       </div>
       <CreateCashBox
-          :model-value="showCreateCashBox"
-          :is-loading="isCashBoxesLoading"
-          @cancel="showCreateCashBox = false"
-          @save="handleSaveCashBox"
-          :stores="storesData"
+        :model-value="showCreateCashBox"
+        :is-loading="isCashBoxesLoading"
+        @cancel="showCreateCashBox = false"
+        @save="handleSaveCashBox"
+        :stores="storesData"
       />
     </v-card>
 
     <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
-      <Icon icon="cil:warning" height="48" class="mb-4"/>
+      <Icon icon="cil:warning" height="48" class="mb-4" />
       <p class="text-subtitle-1">Elija un campus para ver las Cajas Disponibles</p>
     </div>
 
     <v-card v-else variant="text">
       <div v-if="isCashBoxesLoading" class="d-flex justify-center align-center pa-5">
-        <v-progress-circular indeterminate color="primary"/>
+        <v-progress-circular indeterminate color="primary" />
       </div>
 
       <v-row v-else-if="sortedCashDrawers.length" dense>
-        <v-col v-for="cashBox in sortedCashDrawers" :key="cashBox.id" cols="12" md="4">
+        <v-col v-for="cashBox in sortedCashDrawers.filter((x) => x.isActive)" :key="cashBox.id" cols="12" md="4">
           <v-card variant="outlined" class="h-100 d-flex flex-column justify-space-between">
             <v-card-item>
               <div class="d-flex justify-space-between align-start text-h4 mb-2">
@@ -214,54 +212,55 @@ const handleCloseCashDrawer = async () => {
 
               <div>Creada por: {{ cashBox.createdBy }}</div>
               <div>Fecha de creación: {{ formatDate(cashBox.createdDate) }}</div>
+              <div class="">Establecimiento: {{ cashBox.store.number }}</div>
             </v-card-item>
 
             <v-card-actions class="pa-3 d-flex flex-wrap gap-2">
               <div v-if="store.isCashDrawerOpen && store.cashDrawer.cashBox.id === cashBox.id">
                 <v-btn
-                    v-if="checkPermission(PermissionEnum.CREATE_PAYMENTS)"
-                    class="flex-grow"
-                    variant="tonal"
-                    color="success"
-                    @click="handleOpenCashDrawer(cashBox)"
+                  v-if="checkPermission(PermissionEnum.CREATE_PAYMENTS)"
+                  class="flex-grow"
+                  variant="tonal"
+                  color="success"
+                  @click="handleOpenCashDrawer(cashBox)"
                 >
-                  <Icon icon="hugeicons:save-money-dollar" class="mr-1"/>
+                  <Icon icon="hugeicons:save-money-dollar" class="mr-1" />
                   Crear cobros
                 </v-btn>
                 <v-btn
-                    v-if="checkPermission(PermissionEnum.UPDATE_EMISSION_POINTS)"
-                    variant="tonal"
-                    class="flex-grow ml-2"
-                    color="error"
-                    @click="handleCloseCashDrawer"
+                  v-if="checkPermission(PermissionEnum.UPDATE_EMISSION_POINTS)"
+                  variant="tonal"
+                  class="flex-grow ml-2"
+                  color="error"
+                  @click="handleCloseCashDrawer"
                 >
-                  <Icon icon="mdi:lock" class="mr-1"/>
+                  <Icon icon="mdi:lock" class="mr-1" />
                   Cerrar Caja
                 </v-btn>
               </div>
               <v-btn
-                  v-if="!store.isCashDrawerOpen && !cashBox.opened && checkPermission(PermissionEnum.CREATE_PAYMENTS)"
-                  class="flex-grow"
-                  variant="tonal"
-                  color="primary"
-                  @click="handleOpenCashDrawer(cashBox)"
+                v-if="!store.isCashDrawerOpen && !cashBox.opened && checkPermission(PermissionEnum.CREATE_PAYMENTS)"
+                class="flex-grow"
+                variant="tonal"
+                color="primary"
+                @click="handleOpenCashDrawer(cashBox)"
               >
-                <Icon icon="mdi:key" class="mr-1"/>
+                <Icon icon="mdi:key" class="mr-1" />
                 Abrir Caja
               </v-btn>
               <v-btn
-                  v-if="checkPermission(PermissionEnum.UPDATE_EMISSION_POINTS)"
-                  class="flex-grow"
-                  variant="tonal"
-                  color="info"
-                  @click="
+                v-if="checkPermission(PermissionEnum.UPDATE_EMISSION_POINTS)"
+                class="flex-grow"
+                variant="tonal"
+                color="info"
+                @click="
                   router.push({
                     name: 'cash-drawer-balances',
                     params: { id: cashBox.id }
                   })
                 "
               >
-                <Icon icon="mdi:eye" class="mr-1"/>
+                <Icon icon="mdi:eye" class="mr-1" />
                 Ver balances de caja
               </v-btn>
             </v-card-actions>
@@ -270,7 +269,7 @@ const handleCloseCashDrawer = async () => {
       </v-row>
 
       <div v-else class="d-flex flex-column align-center justify-center py-12 text-grey">
-        <Icon icon="mdi:cash-register" height="48" class="mb-4"/>
+        <Icon icon="mdi:cash-register" height="48" class="mb-4" />
         <p class="text-subtitle-1">No se encontraron cajas</p>
         <p class="text-body-2">Intenta crear una nueva</p>
       </div>
@@ -278,43 +277,43 @@ const handleCloseCashDrawer = async () => {
 
     <v-card variant="text" class="d-flex align-center mt-4 mb-4">
       <h3 class="text-h3 font-weight-bold">Establecimientos</h3>
-      <v-spacer/>
+      <v-spacer />
       <div class="d-flex tw:flex-wrap tw:gap-2 tw:justify-end">
         <v-btn
-            v-if="checkPermission(PermissionEnum.UPDATE_EMISSION_POINTS)"
-            :loading="isSyncPosLoading"
-            color="info"
-            @click="syncPos"
-            :disabled="disabledProperty"
+          v-if="checkPermission(PermissionEnum.UPDATE_EMISSION_POINTS)"
+          :loading="isSyncPosLoading"
+          color="info"
+          @click="syncPos"
+          :disabled="disabledProperty"
         >
-          <Icon icon="mdi:reload" class="mr-1"/>
+          <Icon icon="mdi:reload" class="mr-1" />
           <span class="d-none d-sm-flex"> Sincronizar establecimientos de Contifico </span>
         </v-btn>
-        <v-btn
-            v-if="checkPermission(PermissionEnum.CREATE_EMISSION_POINTS)"
-            color="primary"
-            @click="showCreateStore = true"
-            :disabled="disabledProperty"
+        <!-- <v-btn
+          v-if="checkPermission(PermissionEnum.CREATE_EMISSION_POINTS)"
+          color="primary"
+          @click="showCreateStore = true"
+          :disabled="disabledProperty"
         >
-          <Icon icon="mdi:add" class="mr-1"/>
+          <Icon icon="mdi:add" class="mr-1" />
           <span class="d-none d-sm-flex">Agregar establecimiento</span>
-        </v-btn>
+        </v-btn> -->
       </div>
-      <CreateStore :model-value="showCreateStore" @cancel="showCreateStore = false" @save="saveStore"/>
+      <CreateStore :model-value="showCreateStore" @cancel="showCreateStore = false" @save="saveStore" />
     </v-card>
 
     <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
-      <Icon icon="cil:warning" height="48" class="mb-4"/>
+      <Icon icon="cil:warning" height="48" class="mb-4" />
       <p class="text-subtitle-1">Elija un campus para ver los establecimientos</p>
     </div>
 
     <v-card variant="text" v-else>
       <div v-if="isStoresDataLoading || isSyncPosLoading" class="d-flex justify-center align-center pa-5">
-        <v-progress-circular indeterminate color="primary"/>
+        <v-progress-circular indeterminate color="primary" />
       </div>
 
       <v-row v-else-if="storesData.length" dense>
-        <v-col v-for="store in storesData" :key="store.id" cols="12" md="4">
+        <v-col v-for="store in storesData.filter((x) => x.isActive)" :key="store.id" cols="12" md="4">
           <v-card variant="outlined" class="h-100 d-flex flex-column justify-space-between">
             <v-card-item>
               <div class="d-flex justify-space-between align-start text-h4 mb-2">
@@ -327,23 +326,23 @@ const handleCloseCashDrawer = async () => {
       </v-row>
 
       <div v-else class="d-flex flex-column align-center justify-center py-12 text-grey">
-        <Icon icon="mdi:cash-register" height="48" class="mb-4"/>
+        <Icon icon="mdi:cash-register" height="48" class="mb-4" />
         <p class="text-subtitle-1">No se encontraron puntos de venta</p>
         <p class="text-body-2">Intenta sincronizar los datos</p>
       </div>
 
       <CreateCashDrawer
-          :model-value="showCreateCashDrawer"
-          :is-loading="openCashDrawerMutation.isPending.value"
-          @cancel="showCreateCashDrawer = false"
-          @save="openCashDrawer"
+        :model-value="showCreateCashDrawer"
+        :is-loading="openCashDrawerMutation.isPending.value"
+        @cancel="showCreateCashDrawer = false"
+        @save="openCashDrawer"
       />
     </v-card>
   </div>
   <div v-else>
     <v-alert title="Acceso denegado" class="mt-5" variant="outlined" border="top" elevation="2" type="warning">
       <template #prepend>
-        <Icon color="warning" icon="mdi-alert" height="30"/>
+        <Icon color="warning" icon="mdi-alert" height="30" />
       </template>
       No tienes permiso para ver esta sección.
     </v-alert>

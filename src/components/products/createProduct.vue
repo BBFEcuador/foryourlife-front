@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import {defineEmits, defineProps, ref, watch} from 'vue';
-import type {Product, Program} from '@/models/Products';
-import {Icon} from '@iconify/vue/dist/iconify.js';
+import { defineEmits, defineProps, ref, watch } from 'vue';
+import type { Product, Program } from '@/models/Products';
+import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
-import {numeric, required} from '@vuelidate/validators';
+import { numeric, required } from '@vuelidate/validators';
 import usePrograms from '@/composables/programs/usePrograms';
 import useCampus from '@/composables/admin/useCampus';
-import type {Campus} from '@/models/Campus';
-import {adminStore} from '@/stores/adminStore';
+import type { Campus } from '@/models/Campus';
+import { adminStore } from '@/stores/adminStore';
 
 const { programs, isProgramsError } = usePrograms();
 const { campus } = useCampus();
@@ -160,66 +160,32 @@ defineExpose({
         <v-form ref="form" @submit.prevent="saveProduct">
           <v-row>
             <v-col cols="12" md="6">
-              <v-text-field
-                v-model="formData.name"
-                label="Nombre del producto"
-                :error-messages="v$.name.$errors.map((e: any) => e.$message as string)"
-                variant="outlined"
-                density="comfortable"
-                required
-              />
+              <v-text-field v-model="formData.name" label="Nombre del producto"
+                :error-messages="v$.name.$errors.map((e: any) => e.$message as string)" variant="outlined"
+                density="comfortable" required />
             </v-col>
 
             <v-col cols="12" md="6">
-              <v-text-field
-                v-model="formData.code"
-                label="Código"
-                :error-messages="v$.code.$errors.map((e: any) => e.$message as string)"
-                variant="outlined"
-                density="comfortable"
-                required
-              />
+              <v-text-field v-model="formData.code" label="Código"
+                :error-messages="v$.code.$errors.map((e: any) => e.$message as string)" variant="outlined"
+                density="comfortable" required />
             </v-col>
             <v-col cols="12">
-              <v-select
-                v-model="formData.campus"
-                :items="campus"
-                item-title="city"
-                label="Campus"
-                :error-messages="v$.campus.$errors.map((e: any) => e.$message as string)"
-                variant="outlined"
-                density="comfortable"
-                return-object
-                :disabled="disabledProperty"
-                required
-              />
+              <v-select v-model="formData.campus" :items="campus" item-title="city" label="Campus"
+                :error-messages="v$.campus.$errors.map((e: any) => e.$message as string)" variant="outlined"
+                density="comfortable" return-object :disabled="disabledProperty" required />
             </v-col>
 
             <v-col cols="12">
-              <v-textarea
-                v-model="formData.description"
-                label="Descripción"
-                :error-messages="v$.description.$errors.map((e: any) => e.$message as string)"
-                variant="outlined"
-                density="comfortable"
-                rows="2"
-                auto-grow
-                required
-              />
+              <v-textarea v-model="formData.description" label="Descripción"
+                :error-messages="v$.description.$errors.map((e: any) => e.$message as string)" variant="outlined"
+                density="comfortable" rows="2" auto-grow required />
             </v-col>
 
             <v-col cols="12" md="6">
-              <v-text-field
-                v-model.number="formData.basePrice"
-                label="Precio base"
-                :error-messages="v$.basePrice.$errors.map((e: any) => e.$message as string)"
-                type="number"
-                min="0"
-                step="0.01"
-                variant="outlined"
-                density="comfortable"
-                required
-              >
+              <v-text-field v-model.number="formData.basePrice" label="Precio base"
+                :error-messages="v$.basePrice.$errors.map((e: any) => e.$message as string)" type="number" min="0"
+                step="0.01" variant="outlined" density="comfortable" required>
                 <template v-slot:prepend-inner>
                   <span class="text-subtitle-2">{{ formData.currency === 'USD' ? '$' : 'COP ' }}</span>
                 </template>
@@ -227,34 +193,17 @@ defineExpose({
             </v-col>
 
             <v-col cols="12" md="6">
-              <v-select
-                v-model="formData.currency"
-                :items="[
-                  { title: 'USD', value: 'USD' },
-                  { title: 'COP', value: 'COP' }
-                ]"
-                label="Moneda"
-                :error-messages="v$.currency.$errors.map((e: any) => e.$message as string)"
-                variant="outlined"
-                density="comfortable"
-                required
-              />
+              <v-select v-model="formData.currency" :items="[
+                { title: 'USD', value: 'USD' },
+                { title: 'COP', value: 'COP' }
+              ]" label="Moneda" :error-messages="v$.currency.$errors.map((e: any) => e.$message as string)"
+                variant="outlined" density="comfortable" required />
             </v-col>
 
             <v-col cols="12">
-              <v-select
-                v-model="formData.programs"
-                :items="programs"
-                item-title="name"
-                item-value="id"
-                label="Programas"
-                :error-messages="v$.programs.$errors.map((e: any) => e.$message as string)"
-                multiple
-                chips
-                variant="outlined"
-                density="comfortable"
-                required
-              />
+              <v-select v-model="formData.programs" :items="programs" item-title="name" item-value="id"
+                label="Programas" :error-messages="v$.programs.$errors.map((e: any) => e.$message as string)" multiple
+                chips variant="outlined" density="comfortable" required />
             </v-col>
           </v-row>
         </v-form>

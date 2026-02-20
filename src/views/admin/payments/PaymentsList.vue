@@ -65,18 +65,20 @@ const getProgramColor = (level: string): string => {
 };
 
 const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
-  if (data.page) {
-    if (data.page != page.value - 1) {
-      page.value = data.page - 1;
+  if (!isPaymentsLoading.value) {
+    if (data.page) {
+      if (data.page != page.value - 1) {
+        page.value = data.page - 1;
+      }
     }
-  }
 
-  if (data.page) {
-    if (data.itemsPerPage != perPage.value) {
-      if (data.itemsPerPage == -1) {
-        perPage.value = paymentsData.value.totalElements;
-      } else {
-        perPage.value = data.itemsPerPage;
+    if (data.page) {
+      if (data.itemsPerPage != perPage.value) {
+        if (data.itemsPerPage == -1) {
+          perPage.value = paymentsData.value.totalElements;
+        } else {
+          perPage.value = data.itemsPerPage;
+        }
       }
     }
   }
@@ -144,35 +146,14 @@ const formatDate = (date: string | Date) => {
   <BaseBreadcrumb :title="'Cobros'" :breadcrumbs="breadcrumbs" />
   <div v-if="checkPermission(PermissionEnum.SEE_PAYMENTS)">
     <UiParentCard title="Lista de Cobros">
-      <v-data-table-server
-        :headers="headers"
-        :search="debouncedSearch"
-        :items="paymentsData.content"
-        :loading="isPaymentsLoading || isPaymentPdfLoading"
-        :items-length="paymentsData.totalElements"
-        :items-per-page="10"
-        show-expand
-        @update:options="loadItems"
-      >
+      <v-data-table-server :headers="headers" :search="debouncedSearch" :items="paymentsData.content"
+        :loading="isPaymentsLoading || isPaymentPdfLoading" :items-length="paymentsData.totalElements"
+        :items-per-page="10" show-expand @update:options="loadItems" :page="page + 1">
         <template v-slot:top>
-          <v-toolbar
-            v-motion
-            class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-            flat
-            :initial="{ opacity: 0, y: -10 }"
-            :enter="{ opacity: 1, y: 0 }"
-            :delay="200"
-            :duration="250"
-          >
-            <VTextField
-              v-model="debouncedSearch"
-              placeholder="Buscar cobros..."
-              variant="outlined"
-              density="comfortable"
-              hide-details
-              class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
-              bg-color="white"
-            >
+          <v-toolbar v-motion class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat
+            :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+            <VTextField v-model="debouncedSearch" placeholder="Buscar cobros..." variant="outlined"
+              density="comfortable" hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm" bg-color="white">
               <template #prepend-inner>
                 <div class="tw:relative">
                   <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
@@ -180,19 +161,15 @@ const formatDate = (date: string | Date) => {
                 </div>
               </template>
               <template v-if="debouncedSearch" #append>
-                <VBtn
-                  icon
-                  variant="text"
-                  size="small"
-                  class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
-                  @click="debouncedSearch = ''"
-                >
+                <VBtn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                  @click="debouncedSearch = ''">
                   <Icon icon="mdi:close" height="18" />
                 </VBtn>
               </template>
             </VTextField>
             <v-spacer></v-spacer>
-            <VBtn v-if="checkPermission(PermissionEnum.CREATE_PAYMENTS)" variant="elevated" color="primary" @click="onCreatePayment">
+            <VBtn v-if="checkPermission(PermissionEnum.CREATE_PAYMENTS)" variant="elevated" color="primary"
+              @click="onCreatePayment">
               <Icon class="mr-2" icon="mdi:plus" />
               Crear Cobro
             </VBtn>
@@ -200,14 +177,8 @@ const formatDate = (date: string | Date) => {
         </template>
         <template #item.programs="{ item }">
           <div class="d-flex flex-wrap gap-2">
-            <v-chip
-              v-for="program in item.products[0].programs"
-              :key="program.id"
-              size="small"
-              variant="outlined"
-              class="text-caption mr-2"
-              :color="getProgramColor(program.courseLevel)"
-            >
+            <v-chip v-for="program in item.products[0].programs" :key="program.id" size="small" variant="outlined"
+              class="text-caption mr-2" :color="getProgramColor(program.courseLevel)">
               {{ program.courseLevel }}
             </v-chip>
           </div>
@@ -221,7 +192,8 @@ const formatDate = (date: string | Date) => {
         </template>
         <template #item.status="{ item }">
           <div class="d-flex flex-wrap gap-2">
-            <v-chip size="small" :color="item.status === 'PENDING' ? 'warning' : item.status === 'COMPLETED' ? 'success' : 'error'">
+            <v-chip size="small"
+              :color="item.status === 'PENDING' ? 'warning' : item.status === 'COMPLETED' ? 'success' : 'error'">
               {{ item.status === 'PENDING' ? 'Pendiente' : item.status === 'COMPLETED' ? 'Completado' : 'Cancelado' }}
             </v-chip>
           </div>
@@ -248,38 +220,18 @@ const formatDate = (date: string | Date) => {
 
         <template #item.actions="{ item }">
           <div class="d-flex ga-2">
-            <v-btn
-              v-tooltip="'Ver lista de pagos'"
-              icon
-              color="info"
-              variant="text"
-              size="32"
+            <v-btn v-tooltip="'Ver lista de pagos'" icon color="info" variant="text" size="32"
               class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-              @click="onPaymentHistoryShow(item)"
-            >
+              @click="onPaymentHistoryShow(item)">
               <Icon icon="mdi:list-box-outline" height="20" />
             </v-btn>
-            <v-btn
-              v-tooltip="'Imprimir compromiso de cobro'"
-              icon
-              color="success"
-              variant="text"
-              size="32"
-              class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-              @click="handleDownloadPdf(item)"
-            >
+            <v-btn v-tooltip="'Imprimir compromiso de cobro'" icon color="success" variant="text" size="32"
+              class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100" @click="handleDownloadPdf(item)">
               <Icon icon="material-symbols:print-outline-rounded" height="20" />
             </v-btn>
-            <v-btn
-              v-if="item.status !== 'CANCELLED' && checkPermission(PermissionEnum.DELETE_PAYMENTS)"
-              v-tooltip="'Cerrar Cobro'"
-              color="error"
-              icon
-              variant="text"
-              size="32"
-              class="tw:bg-red-300 hover:!tw:bg-red-100"
-              @click="onChangeStatus(item)"
-            >
+            <v-btn v-if="item.status !== 'CANCELLED' && checkPermission(PermissionEnum.DELETE_PAYMENTS)"
+              v-tooltip="'Cerrar Cobro'" color="error" icon variant="text" size="32"
+              class="tw:bg-red-300 hover:!tw:bg-red-100" @click="onChangeStatus(item)">
               <Icon icon="mdi-power" height="20" />
             </v-btn>
           </div>
@@ -327,12 +279,8 @@ const formatDate = (date: string | Date) => {
           </td>
         </template>
       </v-data-table-server>
-      <PaymentInvoicesList
-        v-model="showPaymentHistory"
-        :payment="payment"
-        @payment-updated="refetchPayment"
-        :isRefetching="isPaymentLoading"
-      />
+      <PaymentInvoicesList v-model="showPaymentHistory" :payment="payment" @payment-updated="refetchPayment"
+        :isRefetching="isPaymentLoading" />
     </UiParentCard>
   </div>
   <div v-else>
@@ -412,7 +360,8 @@ const formatDate = (date: string | Date) => {
 
 /* Agrupa el Label y el Valor con espacio */
 .detail-group {
-  margin-bottom: 1rem; /* Espacio entre cada par de datos */
+  margin-bottom: 1rem;
+  /* Espacio entre cada par de datos */
 }
 
 /* Estilo para la Etiqueta (Minimalista y Suave) */
@@ -436,7 +385,8 @@ const formatDate = (date: string | Date) => {
 .detail-group .value {
   /* color: #1f2937;  */
   font-size: 0.875rem;
-  font-weight: 500; /* Hace que el dato sea el foco visual */
+  font-weight: 500;
+  /* Hace que el dato sea el foco visual */
   /* margin-left: 8px; */
 }
 </style>

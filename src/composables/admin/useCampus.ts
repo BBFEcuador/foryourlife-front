@@ -11,7 +11,7 @@ const fetchCampus = async (): Promise<Campus[]> => {
 };
 
 const useCampus = () => {
-  const { data, isFetching, isError, refetch } = useQuery({ queryKey: ['Campus'], queryFn: fetchCampus });
+  const { data, isFetching, isError, refetch } = useQuery({ queryKey: ['Campus'], queryFn: fetchCampus, initialData: [] });
   watch(data, () => {
     if (data.value) {
       campus.value = [...data.value];
@@ -21,7 +21,8 @@ const useCampus = () => {
     campus,
     isFetching,
     isError,
-    refetch
+    refetch,
+    campusData: data
   };
 };
 

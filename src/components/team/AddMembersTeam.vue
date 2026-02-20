@@ -295,10 +295,11 @@ const filteredMasterlifes = computed(() => {
           <v-tabs v-model="tab">
             <v-tab value="1">Participantes</v-tab>
             <v-tab value="2" v-if="props.team?.training?.courseLevel == 'FOCUS'">Visionarios</v-tab>
-            <v-tab value="3" v-if="props.team?.training?.courseLevel == 'YOUR' || props.team?.training?.courseLevel == 'FOCUS'"
-              >Staff</v-tab
-            >
-            <v-tab value="4" v-if="props.team?.training?.courseLevel == 'LIFE'">Master life</v-tab>
+            <v-tab value="3"
+              v-if="props.team?.training?.courseLevel == 'YOUR' || props.team?.training?.courseLevel == 'FOCUS'">Staff</v-tab>
+            <v-tab value="4"
+              v-if="props.team?.training?.courseLevel == 'LIFE' || props.team?.training?.courseLevel == 'LIFE_2' || props.team?.training?.courseLevel == 'LIFE_3'">Master
+              life</v-tab>
           </v-tabs>
           <v-card-text class="pa-0">
             <v-tabs-window v-model="tab">
@@ -312,31 +313,20 @@ const filteredMasterlifes = computed(() => {
                     <template v-slot:prepend>
                       <v-checkbox hide-details v-model="selectAllParticipants" />
                     </template>
-                    <VTextField
-                      v-model="searchParticipant"
-                      placeholder="Buscar..."
-                      variant="outlined"
-                      density="compact"
-                      class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
-                      clearable
-                      hide-details
-                    >
+                    <VTextField v-model="searchParticipant" placeholder="Buscar..." variant="outlined" density="compact"
+                      class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm" clearable hide-details>
                       <template #prepend-inner>
                         <div class="tw:relative">
                           <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full">
+                          </div>
                         </div>
                       </template>
                     </VTextField>
                   </v-toolbar>
                   <div class="pl-4">
-                    <v-checkbox
-                      v-for="p in filteredParticipants"
-                      v-model="selectedParticipants"
-                      :label="p.name"
-                      :value="p.id"
-                      hide-details
-                    ></v-checkbox>
+                    <v-checkbox v-for="p in filteredParticipants" v-model="selectedParticipants" :label="p.user.name"
+                      :value="p.id" hide-details></v-checkbox>
                   </div>
                 </div>
                 <div v-else-if="getByLvlMutation.isError.value" class="text-center">
@@ -348,7 +338,8 @@ const filteredMasterlifes = computed(() => {
 
               <!-- VISIONARIES -->
               <v-tabs-window-item value="2" v-if="props.team?.training?.courseLevel == 'FOCUS'">
-                <div v-if="availableVisionaryMutations.isPending.value" class="tw:flex tw:justify-center tw:items-center tw-my-6">
+                <div v-if="availableVisionaryMutations.isPending.value"
+                  class="tw:flex tw:justify-center tw:items-center tw-my-6">
                   <v-progress-circular indeterminate color="primary" size="50" width="6" />
                 </div>
                 <div v-else-if="availableVisionaryMutations.isSuccess.value">
@@ -357,31 +348,20 @@ const filteredMasterlifes = computed(() => {
                     <template v-slot:prepend>
                       <v-checkbox hide-details v-model="selectAllVisionaries" />
                     </template>
-                    <VTextField
-                      v-model="searchVisionary"
-                      placeholder="Buscar..."
-                      variant="outlined"
-                      density="compact"
-                      class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
-                      clearable
-                      hide-details
-                    >
+                    <VTextField v-model="searchVisionary" placeholder="Buscar..." variant="outlined" density="compact"
+                      class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm" clearable hide-details>
                       <template #prepend-inner>
                         <div class="tw:relative">
                           <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full">
+                          </div>
                         </div>
                       </template>
                     </VTextField>
                   </v-toolbar>
                   <div class="pl-4">
-                    <v-checkbox
-                      v-for="p in filteredVisionaries"
-                      v-model="selectedVisionaries"
-                      :label="p.user.name"
-                      :value="p.id"
-                      hide-details
-                    ></v-checkbox>
+                    <v-checkbox v-for="p in filteredVisionaries" v-model="selectedVisionaries" :label="p.user.name"
+                      :value="p.id" hide-details></v-checkbox>
                   </div>
                 </div>
                 <div v-else-if="availableVisionaryMutations.isError.value" class="text-center">
@@ -392,11 +372,10 @@ const filteredMasterlifes = computed(() => {
               </v-tabs-window-item>
 
               <!-- STAFFS -->
-              <v-tabs-window-item
-                value="3"
-                v-if="props.team?.training?.courseLevel == 'YOUR' || props.team?.training?.courseLevel == 'FOCUS'"
-              >
-                <div v-if="availableStaffMutations.isPending.value" class="tw:flex tw:justify-center tw:items-center tw-my-6">
+              <v-tabs-window-item value="3"
+                v-if="props.team?.training?.courseLevel == 'YOUR' || props.team?.training?.courseLevel == 'FOCUS'">
+                <div v-if="availableStaffMutations.isPending.value"
+                  class="tw:flex tw:justify-center tw:items-center tw-my-6">
                   <v-progress-circular indeterminate color="primary" size="50" width="6" />
                 </div>
                 <div v-else-if="availableStaffMutations.isSuccess.value">
@@ -405,31 +384,20 @@ const filteredMasterlifes = computed(() => {
                     <template v-slot:prepend>
                       <v-checkbox hide-details v-model="selectAllStaffs" />
                     </template>
-                    <VTextField
-                      v-model="searchStaff"
-                      placeholder="Buscar..."
-                      variant="outlined"
-                      density="compact"
-                      class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
-                      clearable
-                      hide-details
-                    >
+                    <VTextField v-model="searchStaff" placeholder="Buscar..." variant="outlined" density="compact"
+                      class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm" clearable hide-details>
                       <template #prepend-inner>
                         <div class="tw:relative">
                           <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full">
+                          </div>
                         </div>
                       </template>
                     </VTextField>
                   </v-toolbar>
                   <div class="pl-4">
-                    <v-checkbox
-                      v-for="p in filteredStaffs"
-                      v-model="selectedStaffs"
-                      :label="p.user.name"
-                      :value="p.id"
-                      hide-details
-                    ></v-checkbox>
+                    <v-checkbox v-for="p in filteredStaffs" v-model="selectedStaffs" :label="p.user.name" :value="p.id"
+                      hide-details></v-checkbox>
                   </div>
                 </div>
                 <div v-else-if="availableStaffMutations.isError.value" class="text-center">
@@ -440,8 +408,10 @@ const filteredMasterlifes = computed(() => {
               </v-tabs-window-item>
 
               <!-- MasterLife -->
-              <v-tabs-window-item value="4" v-if="props.team?.training?.courseLevel == 'LIFE'">
-                <div v-if="availableMasterlifeMembersMutations.isPending.value" class="tw:flex tw:justify-center tw:items-center tw-my-6">
+              <v-tabs-window-item value="4"
+                v-if="props.team?.training?.courseLevel == 'LIFE' || props.team?.training?.courseLevel == 'LIFE_2' || props.team?.training?.courseLevel == 'LIFE_3'">
+                <div v-if="availableMasterlifeMembersMutations.isPending.value"
+                  class="tw:flex tw:justify-center tw:items-center tw-my-6">
                   <v-progress-circular indeterminate color="primary" size="50" width="6" />
                 </div>
                 <div v-else-if="availableMasterlifeMembersMutations.isSuccess.value">
@@ -450,31 +420,20 @@ const filteredMasterlifes = computed(() => {
                     <template v-slot:prepend>
                       <v-checkbox hide-details v-model="selectAllMasterlifes" />
                     </template>
-                    <VTextField
-                      v-model="searchMasterlife"
-                      placeholder="Buscar..."
-                      variant="outlined"
-                      density="compact"
-                      class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
-                      clearable
-                      hide-details
-                    >
+                    <VTextField v-model="searchMasterlife" placeholder="Buscar..." variant="outlined" density="compact"
+                      class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm" clearable hide-details>
                       <template #prepend-inner>
                         <div class="tw:relative">
                           <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full">
+                          </div>
                         </div>
                       </template>
                     </VTextField>
                   </v-toolbar>
                   <div class="pl-4">
-                    <v-checkbox
-                      v-for="p in filteredMasterlifes"
-                      v-model="selectedMasterlifes"
-                      :label="p.user.name"
-                      :value="p.id"
-                      hide-details
-                    ></v-checkbox>
+                    <v-checkbox v-for="p in filteredMasterlifes" v-model="selectedMasterlifes" :label="p.user.name"
+                      :value="p.id" hide-details></v-checkbox>
                   </div>
                 </div>
                 <div v-else-if="availableStaffMutations.isError.value" class="text-center">

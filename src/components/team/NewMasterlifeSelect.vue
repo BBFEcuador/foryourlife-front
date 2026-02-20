@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import useStaffMutations from '@/composables/admin/staff/useStaffMutations';
 import useMasterlifeMutations from '@/composables/masterlife/useMasterlifeMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
-import type { Participant, Team } from '@/models/Participants';
-import type { StaffWriteModel } from '@/models/Staff';
-import type { TeamWriteModel } from '@/models/Team';
+import type { MasterLife } from '@/models/MasterLife';
+import type { Team } from '@/models/Participants';
+
 import { showErrorToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
@@ -17,17 +16,17 @@ interface props {
 const props = defineProps<props>();
 
 const { availableMasterlifeMutations } = useMasterlifeMutations();
-const masterlife = ref<Team[]>([]);
+const masterlife = ref<MasterLife[]>([]);
 // const vmodel = defineModel({
 //   default: [] as Participant[]
 // });
-const vmodel = defineModel<Team[]>({
+const vmodel = defineModel<MasterLife[]>({
   default: []
 });
 onBeforeMount(() => {
   availableMasterlifeMutations.mutate({
-    endDate: props.team.training.endDate,
-    startDate: props.team.training.startDate
+    endDate: props.team.training?.endDate ?? '',
+    startDate: props.team.training?.startDate ?? ''
   });
 });
 
@@ -71,22 +70,18 @@ watch(
 
 <template>
   <v-card variant="flat">
-    <v-progress-circular v-if="availableMasterlifeMutations.isPending.value" indeterminate color="primary"></v-progress-circular>
-    <v-alert v-else-if="availableMasterlifeMutations.isError.value" type="error" class="mb-4"> Error al cargar los masterlife :( </v-alert>
+    <v-progress-circular v-if="availableMasterlifeMutations.isPending.value" indeterminate
+      color="primary"></v-progress-circular>
+    <v-alert v-else-if="availableMasterlifeMutations.isError.value" type="error" class="mb-4"> Error al cargar los
+      masterlife :( </v-alert>
     <div v-else>
       <v-text-field v-model="searchQuery" label="Buscar por Nombre" outlined dense clearable>
         <template #prepend-inner>
           <Icon icon="mdi-magnify" />
         </template>
       </v-text-field>
-      <VDataTable
-        :items="masterlife"
-        :headers="headers"
-        show-select
-        v-model="vmodel"
-        return-object
-        :search="searchQuery"
-      >
+      <VDataTable :items="masterlife" :headers="headers" show-select v-model="vmodel" return-object
+        :search="searchQuery">
       </VDataTable>
     </div>
   </v-card>

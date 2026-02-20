@@ -11,10 +11,10 @@ interface Props {
 
 const props = defineProps<Props>();
 const headers = ref([
-  { title: 'Nombre', value: 'name', class: 'my-header-style' },
+  { title: 'Nombre', value: 'user.name', class: 'my-header-style' },
   { title: 'Cédula', value: 'profile.dni', class: 'my-header-style' },
-  { title: 'Correo', value: 'email' },
-  { title: 'Telefono', value: 'phone' },
+  { title: 'Correo', value: 'user.email' },
+  { title: 'Telefono', value: 'user.phone' },
   { title: 'Nivel', value: 'participantLevel.courseLevel' },
   { title: 'Estado', value: 'actions', width: 50 }
 ]);

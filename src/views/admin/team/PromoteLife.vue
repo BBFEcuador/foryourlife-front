@@ -37,6 +37,7 @@ const showTrainerSelect = ref(false);
 
 const handleTrainerSelected = (trainer: Trainers[]) => {
   team.value.trainer = trainer[0];
+  promotionLifeRequest.value.trainer = team.value.trainer.id
   showTrainerSelect.value = false;
 };
 const loadAvailableTrainers = async () => {
@@ -166,19 +167,13 @@ const isPromoting = computed(() => {
                 <Icon icon="mdi:account-group" size="32" class="text-primary" />
               </div>
               <span class="tw:flex-1">
-                Promover al equipo "<strong class="text-primary">{{ team.name }}</strong
-                >" al nivel
+                Promover al equipo "<strong class="text-primary">{{ team.name }}</strong>" al nivel
                 <v-chip color="info" variant="tonal" class="tw:ml-2">
                   {{ team?.training?.nextLevel?.courseLevel }}
                 </v-chip>
               </span>
-              <v-btn
-                v-if="team.training.courseLevel === 'LIFE_3'"
-                color="primary"
-                variant="flat"
-                class="tw:rounded-lg"
-                @click="showConfirmDialog = true"
-              >
+              <v-btn v-if="team.training?.courseLevel === 'LIFE_3'" color="primary" variant="flat" class="tw:rounded-lg"
+                @click="showConfirmDialog = true">
                 GRADUAR EL EQUIPO 🚀
               </v-btn>
               <v-btn v-else color="primary" @click="showConfirmDialog = true" variant="flat" class="tw:rounded-lg">
@@ -194,7 +189,8 @@ const isPromoting = computed(() => {
         <v-card elevation="2" class="tw:rounded-xl tw:overflow-hidden tw:border tw:border-gray-200">
           <v-card-title class="d-flex align-center tw:gap-4"> Nombre del equipo </v-card-title>
           <VCardSubtitle>
-            <p>Puede asignar un nombre personalizado al equipo, de no asignarlo se quedara con el nombre del entrenamiento (LIFE-100)</p>
+            <p>Puede asignar un nombre personalizado al equipo, de no asignarlo se quedara con el nombre del
+              entrenamiento (LIFE-100)</p>
           </VCardSubtitle>
           <VCardItem>
             <VTextField placeholder="Nombre del equipo" v-model="promotionLifeRequest.name" />
@@ -205,19 +201,12 @@ const isPromoting = computed(() => {
       <v-col cols="12">
         <v-row class="tw:py-6">
           <v-col cols="12" sm="4" v-for="(tab, index) in tabs" :key="index">
-            <v-card
-              :color="activeTab === index ? tab.color : undefined"
-              :variant="activeTab === index ? 'flat' : 'tonal'"
-              v-motion
-              :initial="{ opacity: 0, y: -10 }"
-              :enter="{ opacity: 1, y: 0 }"
-              :delay="200 * (index + 1)"
-              :duration="150"
+            <v-card :color="activeTab === index ? tab.color : undefined"
+              :variant="activeTab === index ? 'flat' : 'tonal'" v-motion :initial="{ opacity: 0, y: -10 }"
+              :enter="{ opacity: 1, y: 0 }" :delay="200 * (index + 1)" :duration="150"
               :elevation="activeTab === index ? 3 : 1"
               class="tw:cursor-pointer tw:transition-all tw:duration-300 tw:ease-in-out tw:rounded-xl tw:border hover:tw:scale-102"
-              :class="{ 'tw:border-primary': activeTab === index }"
-              @click="setActiveTab(index)"
-            >
+              :class="{ 'tw:border-primary': activeTab === index }" @click="setActiveTab(index)">
               <v-card-title class="tw:py-6 tw:flex tw:items-center tw:justify-center tw:gap-3">
                 <Icon :icon="tab.icon" height="26" />
                 {{ tab.label }}
@@ -228,16 +217,8 @@ const isPromoting = computed(() => {
       </v-col>
 
       <v-col cols="12">
-        <v-card
-          class="tw:mb-4 fill-height tw:rounded-xl"
-          elevation="2"
-          v-motion
-          :initial="{ opacity: 0, y: -10 }"
-          :enter="{ opacity: 1, y: 0 }"
-          :delay="200"
-          :duration="150"
-          v-if="activeTab === 0"
-        >
+        <v-card class="tw:mb-4 fill-height tw:rounded-xl" elevation="2" v-motion :initial="{ opacity: 0, y: -10 }"
+          :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="150" v-if="activeTab === 0">
           <v-card-item>
             <v-card-title class="tw:mb-6 tw:flex tw:items-center tw:gap-3">
               <div class="tw:bg-primary tw:bg-opacity-10 tw:p-2 tw:rounded-lg">
@@ -251,33 +232,24 @@ const isPromoting = computed(() => {
             <v-card-text class="tw:mb-4">
               <div class="tw:flex tw:items-center tw:justify-between tw:gap-4">
                 <span class="tw:text-gray-600">¿Deseas cambiar el entrenador del equipo?</span>
-                <v-btn
-                  :color="showTrainerSelect ? 'error' : 'primary'"
-                  :variant="showTrainerSelect ? 'outlined' : 'flat'"
-                  @click="loadAvailableTrainers"
-                  class="tw:rounded-lg"
-                >
-                  <Icon :icon="showTrainerSelect ? 'mdi:close' : 'material-symbols:change-circle-outline'" class="tw:mr-2" />
+                <v-btn :color="showTrainerSelect ? 'error' : 'primary'"
+                  :variant="showTrainerSelect ? 'outlined' : 'flat'" @click="loadAvailableTrainers"
+                  class="tw:rounded-lg">
+                  <Icon :icon="showTrainerSelect ? 'mdi:close' : 'material-symbols:change-circle-outline'"
+                    class="tw:mr-2" />
                   {{ showTrainerSelect ? 'Cancelar cambio' : 'Cambiar entrenador' }}
                 </v-btn>
               </div>
             </v-card-text>
             <v-expand-transition>
-              <TrainerSelect v-if="showTrainerSelect" :trainer="trainers" @trainer-selected="handleTrainerSelected" class="tw:mt-4" />
+              <TrainerSelect v-if="showTrainerSelect" :trainer="trainers" @trainer-selected="handleTrainerSelected"
+                class="tw:mt-4" />
             </v-expand-transition>
           </v-card-item>
         </v-card>
 
-        <v-card
-          elevation="2"
-          class="fill-height tw:rounded-xl"
-          v-motion
-          :initial="{ opacity: 0, y: -10 }"
-          :enter="{ opacity: 1, y: 0 }"
-          :delay="200"
-          :duration="150"
-          v-if="activeTab === 1"
-        >
+        <v-card elevation="2" class="fill-height tw:rounded-xl" v-motion :initial="{ opacity: 0, y: -10 }"
+          :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="150" v-if="activeTab === 1">
           <v-card-item>
             <v-card-title class="tw:mb-6 tw:flex tw:items-center tw:gap-3">
               <div class="tw:bg-info tw:bg-opacity-10 tw:p-2 tw:rounded-lg">
@@ -305,16 +277,8 @@ const isPromoting = computed(() => {
             </v-card-text>
           </v-card-item>
         </v-card>
-        <v-card
-          class="mb-4"
-          elevation="1"
-          v-motion
-          :initial="{ opacity: 0, y: -10 }"
-          :enter="{ opacity: 1, y: 0 }"
-          :delay="200"
-          :duration="150"
-          v-if="activeTab === 2"
-        >
+        <v-card class="mb-4" elevation="1" v-motion :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }"
+          :delay="200" :duration="150" v-if="activeTab === 2">
           <v-card-item>
             <v-card-title class="tw:mb-6 tw:flex tw:items-center tw:gap-3">
               <div class="tw:bg-primary tw:bg-opacity-10 tw:p-2 tw:rounded-lg">
@@ -360,20 +324,19 @@ const isPromoting = computed(() => {
       </v-card-title>
       <v-card-text class="py-6 px-6">
         <template v-if="team?.training?.nextLevel?.courseLevel === 'LIFE_GRADUATE'">
-          ¿Está seguro de graduar al equipo "<strong>{{ team.name }}</strong
-          >"?
+          ¿Está seguro de graduar al equipo "<strong>{{ team.name }}</strong>"?
         </template>
         <template v-else>
-          ¿Estás seguro de promover al equipo "<strong>{{ team.name }}</strong
-          >" al nivel <strong>{{ team?.training?.nextLevel?.courseLevel }}</strong
-          >?
+          ¿Estás seguro de promover al equipo "<strong>{{ team.name }}</strong>" al nivel <strong>{{
+            team?.training?.nextLevel?.courseLevel }}</strong>?
         </template>
       </v-card-text>
 
       <v-card-actions class="p-4">
         <v-spacer></v-spacer>
         <v-btn color="error" variant="tonal" @click="showConfirmDialog = false" class="mr-2"> Cancelar </v-btn>
-        <v-btn color="primary" variant="flat" @click="onPromoteTeam" :loading="promoteToLifeMutation.isPending.value" :disabled="promoteToLifeMutation.isPending.value">
+        <v-btn color="primary" variant="flat" @click="onPromoteTeam" :loading="promoteToLifeMutation.isPending.value"
+          :disabled="promoteToLifeMutation.isPending.value">
           {{ promotionButtonText }}
         </v-btn>
       </v-card-actions>

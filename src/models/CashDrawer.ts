@@ -1,5 +1,5 @@
-import type { Campus } from "./Campus";
-import type { User } from "./User";
+import type { Campus } from './Campus';
+import type { User } from './User';
 
 export interface CashBox {
   id: string;
@@ -9,7 +9,7 @@ export interface CashBox {
   createdDate: string;
   firstNumberInvoice: number;
   store: Store;
-  opened: boolean
+  opened: boolean;
 }
 
 export interface CashBoxRequest {
@@ -20,12 +20,12 @@ export interface CashBoxRequest {
   store: Store;
 }
 
-
 export interface Store {
   id: string;
   address: string;
   number: string;
-  campus: Campus,
+  campus: Campus;
+  isActive: boolean;
 }
 
 export interface StoreRequest {

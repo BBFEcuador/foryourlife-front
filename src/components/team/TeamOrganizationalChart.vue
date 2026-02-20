@@ -1323,8 +1323,8 @@ const checkAll = (type: 'visionary' | 'staff' | 'participant' | 'masterlife') =>
                     hide-details
                   />
                 </template>
-                <v-list-item-title>{{ participant.name }}</v-list-item-title>
-                <v-list-item-subtitle>{{ participant.email }}</v-list-item-subtitle>
+                <v-list-item-title>{{ participant.user.name }}</v-list-item-title>
+                <v-list-item-subtitle>{{ participant.user.email }}</v-list-item-subtitle>
                 <template v-slot:append v-if="participant.isInChart">
                   <v-chip color="secondary">En diagrama</v-chip>
                 </template>

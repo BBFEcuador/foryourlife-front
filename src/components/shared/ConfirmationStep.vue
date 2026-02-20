@@ -191,10 +191,10 @@ onMounted(() => {
                         :subtitle="user.participantLevel?.courseLevel">
                         <template #prepend>
                           <v-avatar color="info" variant="tonal">
-                            <span class="text-h6">{{ user.name.charAt(0) }}</span>
+                            <span class="text-h6">{{ user.user.name.charAt(0) }}</span>
                           </v-avatar>
                         </template>
-                        <v-list-item-title>{{ user.name }}</v-list-item-title>
+                        <v-list-item-title>{{ user.user.name }}</v-list-item-title>
                       </v-list-item>
                     </v-list>
                   </div>

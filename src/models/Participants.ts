@@ -11,7 +11,7 @@ export interface Participant {
   user: User;
   participantLevel: ParticipantLevel;
   profile: Profile;
-  campus:Campus;
+  campus: Campus;
   email: string;
   token: string;
   password: string;
@@ -34,6 +34,7 @@ export interface SaveParticipantReq {
   token: string;
   password: string;
   name1: string;
+  nickname: string;
   name2: string;
   lastname1: string;
   lastname2: string;
@@ -41,11 +42,12 @@ export interface SaveParticipantReq {
   profile: Profile;
   medicalRecord: MedicalRecord;
   contact: EmergencyContactReq;
-  termsAndConditions: boolean
+  termsAndConditions: boolean;
 }
 
 export interface EmergencyContactReq {
   name: string;
+  lastname: string;
   relationship: string;
   phone: string;
 }
@@ -99,6 +101,7 @@ export interface MedicalRecord {
   psychiatric_history_detail: string;
   medical_history_detail: string;
   medication_history_detail: string;
+  participantId?: string;
 }
 
 export interface Team {

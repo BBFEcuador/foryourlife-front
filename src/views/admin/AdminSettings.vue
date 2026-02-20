@@ -34,12 +34,6 @@ const sections: Section[] = [
     description: 'Configuración de datos para el funcionamiento de la facturación',
     value: 'contifico',
     icon: 'ph:coins-fill'
-  },
-  {
-    title: 'Otros',
-    description: 'Configuración de datos para el funcionamiento de la facturación',
-    value: 'others',
-    icon: 'material-symbols:settings-suggest'
   }
 ];
 
@@ -77,9 +71,6 @@ const selectedSection = ref<Section | null>(null);
           </template>
           <template v-else-if="selectedSection?.value === 'contifico'">
             <ContificoSettings />
-          </template>
-          <template v-else-if="selectedSection?.value === 'others'">
-            <div>TODO</div>
           </template>
           <template v-else>
             <p>Selecciona una sección para ver el contenido.</p>

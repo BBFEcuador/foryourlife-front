@@ -32,7 +32,7 @@ const ATTENDANCE_OPTIONS = [
 // ] as const;
 
 const TABLE_HEADERS = [
-  { title: 'Participante', value: 'participant.name', width: '40%', sortable: true },
+  { title: 'Participante', value: 'participant.user.name', width: '40%', sortable: true },
   { title: 'Viernes', value: 'fridayAttendance' },
   { title: 'Sábado', value: 'saturdayAttendance' },
   { title: 'Domingo', value: 'sundayAttendance' }
@@ -516,7 +516,7 @@ const badgeColor = (item: Attendance): string | undefined => {
                         <v-spacer></v-spacer>
                       </v-toolbar>
                     </template>
-                    <template #item.participant.name="{ item }">
+                    <template #item.participant.user.name="{ item }">
                       <div class="d-flex align-center">
                         <v-tooltip
                           v-if="
@@ -632,7 +632,7 @@ const badgeColor = (item: Attendance): string | undefined => {
                       <v-spacer></v-spacer>
                     </v-toolbar>
                   </template>
-                  <template #item.participant.name="{ item }">
+                  <template #item.participant.user.name="{ item }">
                     <div class="d-inline-flex align-center gap-2">
                       <v-tooltip location="top">
                         <template #activator="{ props }">

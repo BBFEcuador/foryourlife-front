@@ -1,46 +1,43 @@
 <script setup lang="ts">
+import InputSection from '@/components/forms/InputSection.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
-import useParticipants from '@/composables/admin/participants/useParticipants';
-import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref, watch } from 'vue';
-import { useDisplay } from 'vuetify';
-import type { Criteria, Filter } from '@/models/Criteria';
-import useInvitationMutation from '@/composables/invitation/useInvitationMutation';
-import type { AxiosError } from 'axios';
-import type { ErrorApiResponse } from '@/models/ApiResponse';
-import { showErrorToast } from '@/service/sweetAlert';
-import InputSection from '@/components/forms/InputSection.vue';
-import { VNumberInput } from 'vuetify/labs/VNumberInput';
-import { useRouter } from 'vue-router';
-import { adminStore } from '@/stores/adminStore';
-import useCampus from '@/composables/admin/useCampus.ts';
-import { checkPermission } from '@/service/ability';
-import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
-import { toast } from 'vue3-toastify';
+import useParticipants from '@/composables/admin/participants/useParticipants';
 import useProducts from '@/composables/admin/products/useProducts';
-import type { TrainingData } from '@/models/Training';
 import useTrainings from '@/composables/admin/training/useTrainings';
+import useCampus from '@/composables/admin/useCampus';
+import useInvitationMutation from '@/composables/invitation/useInvitationMutation';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import type { Participant } from '@/models/Participants';
+import type { TrainingData } from '@/models/Training';
+import { checkPermission } from '@/service/ability';
+import { showErrorToast } from '@/service/sweetAlert';
+import { adminStore } from '@/stores/adminStore';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import type { AxiosError } from 'axios';
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
+import { VNumberInput } from 'vuetify/labs/VNumberInput';
 
-const showFilters = ref(false);
-const showFiltersDrawer = ref(false);
-const { lgAndUp } = useDisplay();
-const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch } = useParticipants();
+const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch, refetchParticipants } = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitationMutation();
-const { resetPasswordMutation, generateContractMutation } = useParticipantMutations();
+const { campusData, isError, isFetching, refetch } = useCampus()
+const { resetPasswordMutation, generateContractMutation, changeCampusMutation } = useParticipantMutations();
 const router = useRouter();
 const adminS = adminStore();
 const headers = [
   {
     title: 'Nombre',
-    value: 'name',
+    value: 'user.name',
     width: '200',
     class: 'tw:text-nowrap'
   },
   {
     title: 'Correo',
-    value: 'email',
+    value: 'user.email',
     width: '200'
   },
   {
@@ -56,6 +53,11 @@ const headers = [
   {
     title: 'Documento',
     value: 'profile.dni',
+    width: '100'
+  },
+  {
+    title: 'Ocupación',
+    value: 'profile.occupation',
     width: '100'
   },
   {
@@ -77,13 +79,6 @@ const breadcrumbs = ref([
 
 const openCreateInvitation = () => {
   showInvitationForm.value = true;
-};
-const onFilterSubmit = (criteria: Criteria) => {
-  criteriaMutations.mutate(criteria);
-};
-
-const onFilterClear = () => {
-  criteriaMutations.mutate({ filters: [] as Filter[], limit: 0, offset: 0 });
 };
 
 const campusId = ref();
@@ -150,6 +145,38 @@ const editParticipant = (item: string) => {
   router.push({ name: 'participants-admin-edit', params: { id: item } });
 };
 
+const medicalRecord = (item: string) => {
+  router.push({ name: 'participants-admin-medical', params: { id: item } });
+};
+
+const contactEmergency = (item: string) => {
+  router.push({ name: 'participants-admin-contact-emergency', params: { id: item } });
+};
+
+const showChangeCampus = ref(false)
+const selectedCampus = ref()
+const changeCampus = (item: Participant) => {
+  selectedParticipant.value = item;
+  showChangeCampus.value = true;
+};
+
+const onParticiapntChangeCampus = () => {
+  changeCampusMutation.mutate(
+    { userId: selectedParticipant.value?.id || '', campusId: selectedCampus.value },
+    {
+      onSuccess: () => {
+        toast.success('Sede cambiada correctamente');
+        showChangeCampus.value = false;
+        refetchParticipants()
+      },
+      onError: (error) => {
+        const er = error as AxiosError<ErrorApiResponse>;
+        showErrorToast(er);
+      }
+    }
+  );
+}
+
 const getLevelColor = (level: string) => {
   const colors = {
     INIT: 'primary',
@@ -160,9 +187,10 @@ const getLevelColor = (level: string) => {
     LIFE_2: 'error',
     LIFE_3: 'darkprimary',
     MASTER_LIFE: 'background',
-    LIFE_GRADUATE: 'background'
+    LIFE_GRADUATE: 'background',
   };
-  return colors[level] || 'gray';
+  const l = level as keyof typeof colors;
+  return colors[l] || 'gray';
 };
 
 const getLevelIcon = (level: string) => {
@@ -177,29 +205,32 @@ const getLevelIcon = (level: string) => {
     MASTER_LIFE: 'eos-icons:master-outlined',
     LIFE_GRADUATE: 'fluent:hat-graduation-sparkle-16-regular'
   };
-  return icons[level] || 'mdi:help-circle';
+  const l = level as keyof typeof icons;
+  return icons[l] || 'mdi:help-circle';
 };
 
 const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
-  if (data.page) {
-    if (data.page != page.value - 1) {
-      page.value = data.page - 1;
+  if (!isParticipantsLoading.value) {
+    if (data.page) {
+      if (data.page != page.value - 1) {
+        page.value = data.page - 1;
+      }
     }
-  }
 
-  if (data.page) {
-    if (data.itemsPerPage != perPage.value) {
-      if (data.itemsPerPage == -1) {
-        perPage.value = participants.value.totalElements;
-      } else {
-        perPage.value = data.itemsPerPage;
+    if (data.page) {
+      if (data.itemsPerPage != perPage.value) {
+        if (data.itemsPerPage == -1) {
+          perPage.value = participants.value.totalElements;
+        } else {
+          perPage.value = data.itemsPerPage;
+        }
       }
     }
   }
 };
 
 const showResetPasswordDialog = ref(false);
-const selectedParticipant = ref<any>(null);
+const selectedParticipant = ref<Participant | null>(null);
 const newPassword = ref('');
 const showPassword = ref(false);
 const togglePasswordVisibility = () => {
@@ -245,15 +276,14 @@ watch(showResetPasswordDialog, (newVal) => {
   }
 });
 
-
 const generateContracts = async () => {
   if (!selectedParticipant.value) return;
-  if(selectedProduct.value?.id == null || selectedProduct.value?.id == '') {
+  if (selectedProduct.value?.id == null || selectedProduct.value?.id == '') {
     toast.error('Seleccione un producto para generar el contrato');
     return;
   }
- 
-  if(selectedTraining.value?.id == null || selectedTraining.value?.id == '') {
+
+  if (selectedTraining.value?.id == null || selectedTraining.value?.id == '') {
     toast.error('Seleccione un entrenamiento para generar el contrato');
     return;
   }
@@ -281,7 +311,6 @@ const generateContracts = async () => {
     const err = error as AxiosError<{ message: string }>;
     toast.error(err.response?.data?.message || 'Error al generar contrato');
   } finally {
-
   }
 };
 
@@ -325,105 +354,68 @@ watch(showContractDialog, (newVal) => {
       <VCol cols="12">
         <VCard variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <VDataTableServer
-              :items="participants.content"
-              :headers="headers"
-              :search="participantSearch"
-              :loading="isParticipantsLoading"
-              :loading-text="'Cargando participantes...'"
-              :no-data-text="'No se encontraron participantes'"
-              hover
-              class="tw:rounded-xl elevation-0"
-              v-motion
-              :initial="{ opacity: 0, y: 20 }"
-              :enter="{ opacity: 1, y: 0 }"
-              :delay="200"
-              :items-length="participants.totalElements"
-              :items-per-page="10"
-              @update:options="loadItems"
-            >
+            <VDataTableServer :items="participants.content" :headers="headers" :search="participantSearch"
+              :loading="isParticipantsLoading" :loading-text="'Cargando participantes...'"
+              :no-data-text="'No se encontraron participantes'" hover class="tw:rounded-xl elevation-0" v-motion
+              :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0 }" :delay="200"
+              :items-length="participants.totalElements" :items-per-page="10" :page="page + 1"
+              @update:options="loadItems">
               <template #top>
-                <v-toolbar
-                  class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-                  flat
-                  v-motion
-                  :initial="{ opacity: 0, y: -10 }"
-                  :enter="{ opacity: 1, y: 0 }"
-                  :delay="200"
-                  :duration="250"
-                >
+                <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
+                  :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
                   <div class="tw:flex-1 tw:max-w-md tw:relative">
-                    <VTextField
-                      v-model="participantSearch"
-                      placeholder="Buscar participantes..."
-                      variant="outlined"
-                      density="comfortable"
-                      hide-details
-                      class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
-                      bg-color="white"
-                    >
+                    <VTextField v-model="participantSearch" placeholder="Buscar participantes..." variant="outlined"
+                      density="comfortable" hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+                      bg-color="white">
                       <template #prepend-inner>
                         <div class="tw:relative">
                           <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
+                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full">
+                          </div>
                         </div>
                       </template>
                       <template #append v-if="participantSearch">
-                        <VBtn
-                          icon
-                          variant="text"
-                          size="small"
-                          @click="participantSearch = ''"
-                          class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
-                        >
+                        <VBtn icon variant="text" size="small" @click="participantSearch = ''"
+                          class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
                           <Icon icon="mdi:close" height="18" />
                         </VBtn>
                       </template>
                     </VTextField>
                   </div>
                   <VSpacer />
-                  <VBtn
-                    v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)"
-                    variant="elevated"
-                    color="primary"
-                    class="mr-2"
-                    @click="openCreateInvitation"
-                    :loading="generateInvitationMutation.isPending.value"
-                  >
+                  <VBtn v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)" variant="elevated" color="primary"
+                    class="mr-2" @click="openCreateInvitation" :loading="generateInvitationMutation.isPending.value">
                     <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
                     Invitar Participante
                   </VBtn>
-                  <VBtn
-                    v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)"
-                    variant="elevated"
-                    color="primary"
-                    @click="showInvitationLot = true"
-                    :loading="generateInvitationMutation.isPending.value"
-                  >
+                  <VBtn v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)" variant="elevated" color="primary"
+                    @click="showInvitationLot = true" :loading="generateInvitationMutation.isPending.value">
                     <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
                     Invitar lote
                   </VBtn>
                 </v-toolbar>
               </template>
-              <template #item.name="{ item }">
+              <template #item.user.name="{ item }">
                 <div class="tw:flex tw:items-center tw:gap-3 tw:text-nowrap">
-                  <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
+                  <div
+                    class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
                     <Icon icon="mdi:account" class="tw:text-gray-600" />
                   </div>
                   <div
-                    class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity"
-                  ></div>
+                    class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity">
+                  </div>
                   <div>
-                    <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{ item.name }}</span>
+                    <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{
+                      item.user.name }}</span>
                     <div class="tw:text-xs group-hover:tw:opacity-100">{{ item.phone }}</div>
                   </div>
                 </div>
               </template>
 
-              <template #item.email="{ item }">
+              <template #item.user.email="{ item }">
                 <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
                   <Icon icon="mdi:email" />
-                  <span>{{ item.email }}</span>
+                  <span>{{ item.user.email }}</span>
                 </div>
               </template>
 
@@ -437,72 +429,80 @@ watch(showContractDialog, (newVal) => {
               </template>
 
               <template #item.participantLevel.courseLevel="{ item }">
-                <div class="tw:text-nowrap">
-                  <VChip
-                    :color="
-                      item.participantLevel.courseLevel === 'LIFE_GRADUATE' ? undefined : getLevelColor(item.participantLevel.courseLevel)
-                    "
-                    variant="flat"
+                <div class="tw:text-nowrap tw:flex tw:flex-col tw:gap-1">
+                  <VChip :color="item.participantLevel.courseLevel === 'LIFE_GRADUATE' ? undefined : getLevelColor(item.participantLevel.courseLevel)
+                    " variant="flat"
                     class="!tw:font-medium tw:min-w-[120px] !tw:justify-center tw:transition-all group-hover:tw:shadow-md group-hover:tw:scale-105"
                     :class="{ 'animated-gradient': item.participantLevel.courseLevel === 'LIFE_GRADUATE' }"
-                    size="small"
-                  >
+                    size="small">
                     <div class="tw:relative">
-                      <Icon
-                        :icon="getLevelIcon(item.participantLevel.courseLevel)"
-                        height="20"
-                        class="mr-2 tw:transition-transform group-hover:tw:scale-110"
-                      />
+                      <Icon :icon="getLevelIcon(item.participantLevel.courseLevel)" height="20"
+                        class="mr-2 tw:transition-transform group-hover:tw:scale-110" />
                     </div>
                     <div v-if="item.participantLevel.courseLevel === 'LIFE_GRADUATE'">GRADUADO</div>
                     <div v-else>{{ item.participantLevel.courseLevel }}</div>
                   </VChip>
+                  <p class="tw:font-semibold">{{ item.campus.city }}</p>
                 </div>
               </template>
 
               <template #item.actions="{ item }">
                 <div class="tw:flex tw:items-center tw:justify-center tw:gap-2 tw:text-nowrap">
-                  <VBtn
-                    v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
-                    icon
-                    variant="text"
-                    color="primary"
-                    height="32"
-                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                    v-tooltip="'Editar participante'"
-                    @click="editParticipant(item.id)"
-                  >
-                    <Icon icon="mdi:pencil" />
-                  </VBtn>
-                  <VBtn
-                    icon
-                    variant="text"
-                    color="info"
-                    height="32"
-                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                    v-tooltip="'Generar Contrato'"
-                    @click="
-                      showContractDialog = true;
-                      selectedParticipant = item;
-                    "
-                  >
-                    <Icon icon="mdi:file-sign" height="20" />
-                  </VBtn>
-                  <VBtn
-                    v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
-                    icon
-                    variant="text"
-                    color="warning"
-                    height="32"
-                    class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                    v-tooltip="'Resetear contraseña'"
-                    @click="
-                      showResetPasswordDialog = true;
-                      selectedParticipant = item;
-                    "
-                  >
-                    <Icon icon="mdi:lock-reset" height="20" />
-                  </VBtn>
+                  <v-menu location="end" transition="slide-y-transition" :close-on-content-click="false">
+                    <template v-slot:activator="{ props }">
+                      <!-- <v-btn color="primary" v-bind="props"> Dropdown </v-btn> -->
+                      <VBtn v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)" v-bind="props" icon
+                        variant="text" color="primary" height="40"
+                        class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100" v-tooltip="'Acciones'">
+                        <Icon icon="mdi:dots-vertical" />
+                      </VBtn>
+                    </template>
+
+                    <v-list>
+                      <v-list-item class="point">
+                        <v-list-item-title @click="editParticipant(item.id)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="mdi:pencil" height="20" color="primary" />
+                            Editar Participante
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title @click="
+                          showResetPasswordDialog = true;
+                        selectedParticipant = item;
+                        ">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="mdi:lock-reset" height="20" /> Resetear contraseña
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title class="point" @click="medicalRecord(item.id)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="mdi:hospital-building" height="20" color="primary" />
+                            Récord médico
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title @click="contactEmergency(item.id)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="mdi:phone-alert" height="20" color="primary" />
+                            Contactos de emergencia
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title @click="changeCampus(item)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="solar:buildings-2-bold" height="20" color="primary" />
+                            Cambiar sede
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
                 </div>
               </template>
 
@@ -530,17 +530,13 @@ watch(showContractDialog, (newVal) => {
         </VCardTitle>
         <VCardText class="tw:p-6">
           <InputSection label="Campus">
-            <VSelect
-              placeholder="Elija el campus"
-              v-model="campusId"
-              :items="adminS.availableCampus"
-              item-title="city"
-              item-value="id"
-            ></VSelect>
+            <VSelect placeholder="Elija el campus" v-model="campusId" :items="adminS.availableCampus" item-title="city"
+              item-value="id"></VSelect>
           </InputSection>
         </VCardText>
         <VCardActions class="tw:flex tw:justify-end">
-          <VBtn color="primary" variant="elevated" @click="handleGenerateInvitation" class="!tw:font-normal"> Invitar </VBtn>
+          <VBtn color="primary" variant="elevated" @click="handleGenerateInvitation" class="!tw:font-normal"> Invitar
+          </VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
@@ -551,7 +547,8 @@ watch(showContractDialog, (newVal) => {
           <h3 class="tw:text-xl tw:font-medium">Invitar Participante</h3>
         </VCardTitle>
         <VCardText class="tw:p-6">
-          <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details class="tw:mb-2">
+          <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details
+            class="tw:mb-2">
             <template #append>
               <VBtn color="primary" variant="elevated" @click="copyLink" class="!tw:font-normal">
                 {{ copied ? 'Copiado!' : 'Copiar enlace' }}
@@ -568,17 +565,12 @@ watch(showContractDialog, (newVal) => {
           <VNumberInput variant="outlined" placeholder="cantidad de usos para este token" v-model="quantity" :min="1" />
         </InputSection>
         <InputSection label="Campus">
-          <VSelect
-            placeholder="Elija el campus"
-            v-model="campusId"
-            :items="adminS.availableCampus"
-            item-title="city"
-            item-value="id"
-          ></VSelect>
+          <VSelect placeholder="Elija el campus" v-model="campusId" :items="adminS.availableCampus" item-title="city"
+            item-value="id"></VSelect>
         </InputSection>
         <div class="tw:flex tw:justify-end">
-          <VBtn color="primary" @click="handleGenerateInvitationLot" :loading="generateInvitationWithQuantityMutation.isPending.value"
-            >Generar
+          <VBtn color="primary" @click="handleGenerateInvitationLot"
+            :loading="generateInvitationWithQuantityMutation.isPending.value">Generar
           </VBtn>
         </div>
       </UiParentCard>
@@ -592,22 +584,11 @@ watch(showContractDialog, (newVal) => {
         <v-divider class="mb-4"></v-divider>
         <VCardText class="tw:p-6">
           <!-- <p>¿Estás seguro de que deseas resetear la contraseña de este participante?</p> -->
-          <VTextField
-            v-model="newPassword"
-            label="Nueva Contraseña"
-            :type="showPassword ? 'text' : 'password'"
-            variant="outlined"
-            density="comfortable"
-            hide-details
-            class="tw:mt-4"
-          >
+          <VTextField v-model="newPassword" label="Nueva Contraseña" :type="showPassword ? 'text' : 'password'"
+            variant="outlined" density="comfortable" hide-details class="tw:mt-4">
             <template #append-inner>
-              <Icon
-                :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'"
-                height="18"
-                class="cursor-pointer"
-                @click="togglePasswordVisibility"
-              />
+              <Icon :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'" height="18"
+                class="cursor-pointer" @click="togglePasswordVisibility" />
             </template>
           </VTextField>
         </VCardText>
@@ -626,20 +607,11 @@ watch(showContractDialog, (newVal) => {
         <VCardText class="tw:p-6">
           <!-- <p>¿Estás seguro de que deseas resetear la contraseña de este participante?</p> -->
           <!-- <label class="mb-2">Listado de Productos</label> -->
-          <VCombobox
-            v-model="selectedProduct"
-            :items="productsData.content"
-            item-title="name"
-            item-value="id"
+          <VCombobox v-model="selectedProduct" :items="productsData.content" item-title="name" item-value="id"
             variant="outlined"
             :placeholder="productsData.totalElements > 0 ? 'Seleccionar Producto' : 'No hay productos disponibles'"
-            return-object
-            @update:search="searchProduct"
-            @update:model-value="handleProductChange"
-            hide-details
-            class="tw:bg-white mb-4"
-            label="Producto"
-          >
+            return-object @update:search="searchProduct" @update:model-value="handleProductChange" hide-details
+            class="tw:bg-white mb-4" label="Producto">
             <template v-slot:item="{ props, item }">
               <v-list-item v-bind="props">
                 <template v-slot:prepend>
@@ -651,18 +623,10 @@ watch(showContractDialog, (newVal) => {
             </template>
           </VCombobox>
 
-          <VCombobox
-            v-model="selectedTraining"
-            :items="trainings"
-            item-title="name"
-            item-value="id"
-            variant="outlined"
+          <VCombobox v-model="selectedTraining" :items="trainings" item-title="name" item-value="id" variant="outlined"
             :placeholder="trainings.length > 0 ? 'Seleccionar Entrenamiento' : 'No hay entrenamientos disponibles'"
-            return-object
-            @update:search="searchTraining"
-            @update:model-value="handleTrainingChange"
-            label="Entrenamiento"
-          >
+            return-object @update:search="searchTraining" @update:model-value="handleTrainingChange"
+            label="Entrenamiento">
             <template v-slot:item="{ props, item }">
               <v-list-item v-bind="props">
                 <template v-slot:prepend>
@@ -676,17 +640,42 @@ watch(showContractDialog, (newVal) => {
           </VCombobox>
         </VCardText>
         <VCardActions class="tw:flex tw:justify-end">
-          <VBtn
-            color="primary"
-            variant="elevated"
-            @click="generateContracts"
-            class="!tw:font-normal"
-            :loading="generateContractMutation.isPending.value"
-          >
+          <VBtn color="primary" variant="elevated" @click="generateContracts" class="!tw:font-normal"
+            :loading="generateContractMutation.isPending.value">
             Generar Contrato
           </VBtn>
         </VCardActions>
       </VCard>
+    </VDialog>
+    <VDialog max-width="600" v-model="showChangeCampus">
+      <UiParentCard title="Cambiar de sede">
+        <VRow>
+          <VCol cols="12">
+            <p>Estás a punto de cambiar la sede del participante
+              <strong>{{ selectedParticipant?.user.name }}</strong> de
+              <strong>{{ selectedParticipant?.campus.city }}</strong>.
+            </p>
+          </VCol>
+          <VCol cols="12">
+            <InputSection label="Seleccionar sede">
+              <VSelect v-model="selectedCampus" :items="campusData.filter(x => x.id != selectedParticipant?.campus.id)"
+                item-title="city" item-value="id" placeholder="Elija el campus" :loading="isFetching">
+                <template #append>
+                  <VBtn icon variant="text" @click="refetch" :loading="isFetching">
+                    <Icon icon="mdi:refresh" height="18" />
+                  </VBtn>
+                </template>
+              </VSelect>
+            </InputSection>
+          </VCol>
+          <VCol cols="12">
+            <VBtn :disabled="!selectedCampus" color="primary" @click="onParticiapntChangeCampus"
+              :loading="changeCampusMutation.isPending.value">
+              Cambiar
+            </VBtn>
+          </VCol>
+        </VRow>
+      </UiParentCard>
     </VDialog>
   </div>
   <div v-else>
@@ -763,5 +752,14 @@ watch(showContractDialog, (newVal) => {
   100% {
     background-position: 0% 50%;
   }
+}
+
+.point {
+  cursor: pointer !important;
+}
+
+.point:hover {
+  background-color: #e6e2eb !important;
+  transition: background-color 0.2s ease-in-out !important;
 }
 </style>
