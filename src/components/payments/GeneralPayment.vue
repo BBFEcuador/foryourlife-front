@@ -56,8 +56,8 @@ function assignParticipantFields(participant: Participant | null) {
   fullname.value = participant?.user?.name || '';
   address.value = participant?.profile?.address || '';
   document.value = participant?.profile?.dni || '';
-  phone.value = formatPhone(participant?.phone);
-  email.value = participant?.email || '';
+  phone.value = formatPhone(participant?.user?.phone);
+  email.value = participant?.user?.email || '';
 }
 
 watch(selectedParticipant, (newVal, oldVal) => {
