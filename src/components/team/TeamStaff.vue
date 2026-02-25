@@ -23,21 +23,21 @@ const headers = props.isForEdit
   ? [
       {
         title: 'Participante',
-        value: 'name',
+        value: 'user.name',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Contacto',
-        value: 'phone',
+        value: 'user.phone',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Correo',
-        value: 'email',
+        value: 'user.email',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
@@ -53,21 +53,21 @@ const headers = props.isForEdit
   : [
       {
         title: 'Participante',
-        value: 'name',
+        value: 'user.name',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Contacto',
-        value: 'phone',
+        value: 'user.phone',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Correo',
-        value: 'email',
+        value: 'user.email',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
@@ -155,10 +155,10 @@ const onRemoveParticipant = async (id: string) => {
         </div>
       </v-toolbar>
     </template>
-    <template #item.name="{ item }">
+    <template #item.user.name="{ item }">
       <span class="tw:text-nowrap">{{ item.user.name }}</span>
     </template>
-    <template #item.phone="{ item }">
+    <template #item.user.phone="{ item }">
       <v-btn
         variant="tonal"
         color="primary"
@@ -171,7 +171,7 @@ const onRemoveParticipant = async (id: string) => {
         <span class="tw:text-nowrap ml-2">{{ item.user.phone }}</span>
       </v-btn>
     </template>
-    <template #item.email="{ item }">
+    <template #item.user.email="{ item }">
       <v-btn variant="tonal" color="secondary" rounded="xl" size="small" @click="handleContact('email', item.user.email)">
         <Icon icon="mdi-email" />
         <span class="tw:text-nowrap ml-2">{{ item.user.email }}</span>
@@ -209,7 +209,7 @@ const onRemoveParticipant = async (id: string) => {
 
     <template #no-data>
       <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-16 tw:bg-gray-50/30">
-        <div class="tw:absolute tw:inset-0 tw:bg-gradient-to-br tw:from-gray-100 tw:to-transparent tw:opacity-50"></div>
+        <!-- <div class="tw:absolute tw:inset-0 tw:bg-gradient-to-br tw:from-gray-100 tw:to-transparent tw:opacity-50"></div> -->
         <div class="tw:relative tw:z-10">
           <Icon icon="mdi:account-group" height="64" class="tw:text-gray-400 tw:mb-2" />
           <div class="tw:absolute tw:-top-1 tw:-right-1">
