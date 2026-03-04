@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import {Icon} from '@iconify/vue/dist/iconify.js';
-import {ref} from 'vue';
+import {computed, ref} from 'vue';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import useCallsByTraining from '@/composables/admin/crm/useCallsByTraining';
 import type {TrainingData} from '@/models/Training';
-import type {CallTraining} from '@/models/CallsTraining';
+import {CallStatus, CallStatusLabels, CallType, CallTypeLabels, type CallTraining} from '@/models/CallsTraining';
 
 import CreateCallLog from '@/components/crm/CreateCallLog.vue';
 import SeeCallsLog from '@/components/crm/SeeCallsLog.vue';
@@ -22,6 +22,8 @@ const headers = [
 
 // Entrenamiento seleccionado
 const selectedTraining = ref<TrainingData | null>(null);
+const selectedCallType = ref<CallType | null>(null);
+const selectedCallStatus = ref<CallStatus | null>(null);
 const trainingId = ref('');
 
 // Cargar entrenamientos
@@ -33,6 +35,20 @@ const {
   selectedCallTraining, // <-- mantenido
   refetchCalls
 } = useCallsByTraining(trainingId);
+
+const filteredCalls = computed(() => {
+  if (!calls.value) return [];
+  
+  return calls.value.filter(call => {
+    // Filter by Type
+    const matchesType = !selectedCallType.value || (call.callLogs && call.callLogs.some(log => log.type === selectedCallType.value));
+    
+    // Filter by Status
+    const matchesStatus = !selectedCallStatus.value || (call.callLogs && call.callLogs.some(log => log.status === selectedCallStatus.value));
+    
+    return matchesType && matchesStatus;
+  });
+});
 
 // Cuando cambia el training, automáticamente hace fetch (por enabled)
 const handleParticipantChange = (training: TrainingData) => {
@@ -79,7 +95,7 @@ const seeCallLog = (call: CallTraining) => {
         </v-card-item>
         <v-card-item class="mt-0 pt-2 pb-5">
           <label class="tw-whitespace-normal tw-block">Seleccione un entrenamiento</label>
-          <div class="d-sm-flex align-center justify-space-between mt-3">
+          <div class="d-sm-flex align-center justify-space-between mt-3 tw:gap-4">
             <VCombobox
               v-model="selectedTraining"
               :items="trainings"
@@ -88,8 +104,10 @@ const seeCallLog = (call: CallTraining) => {
               variant="outlined"
               :placeholder="trainings.length > 0 ? 'Seleccionar Entrenamiento' : 'No hay entrenamientos disponibles'"
               return-object
+              hide-details
               @update:search="searchClient"
               @update:model-value="handleParticipantChange"
+              class="tw:w-full"
             >
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
@@ -102,7 +120,26 @@ const seeCallLog = (call: CallTraining) => {
                 </v-list-item>
               </template>
             </VCombobox>
-            <v-spacer></v-spacer>
+
+            <VSelect
+              v-model="selectedCallType"
+              :items="Object.keys(CallTypeLabels).map(key => ({ title: CallTypeLabels[key as CallType], value: key }))"
+              label="Tipo de Llamada"
+              variant="outlined"
+              clearable
+              hide-details
+              class="tw:w-full"
+            />
+
+            <VSelect
+              v-model="selectedCallStatus"
+              :items="Object.keys(CallStatusLabels).map(key => ({ title: CallStatusLabels[key as CallStatus], value: key }))"
+              label="Estado de Llamada"
+              variant="outlined"
+              clearable
+              hide-details
+              class="tw:w-full"
+            />
           </div>
         </v-card-item>
         <v-card-item class="pa-5 text-primary" style="background-color: #f0eff4">
@@ -120,7 +157,7 @@ const seeCallLog = (call: CallTraining) => {
         </v-card-item>
         <v-divider></v-divider>
         <v-card-text class="pt-3">
-          <v-data-table :headers="headers" :search="search" :items="calls" :items-per-page="10">
+          <v-data-table :headers="headers" :search="search" :items="filteredCalls" :items-per-page="10">
             <template v-slot:top>
               <v-toolbar
                 class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"

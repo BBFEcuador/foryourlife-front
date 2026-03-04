@@ -61,8 +61,9 @@ const staffRules = {
     name2: { required: { ...required, $message: 'Debe ingresar su segundo nombre' } },
     lastname1: { required: { ...required, $message: 'Debe ingresar su primer apellido' } },
     lastname2: { required: { ...required, $message: 'Debe ingresar su segundo apellido' } },
-    phone: { required: { ...required, $message: 'Debe ingresar su número de teléfono' }, numeric },
-    email: { required: { ...required, $message: 'Debe ingresar su correo electrónico' }, email }
+    phone: { required: { ...required, $message: 'Debe ingresar su número de teléfono' } },
+    email: { required: { ...required, $message: 'Debe ingresar su correo electrónico' }, email },
+    nickname: { required: { ...required, $message: 'Debe ingresar su nickname' } }
   }
 };
 const validator = useVuelidate(staffRules, masterLife);
@@ -246,7 +247,15 @@ const copyLink = async () => {
                   v-if="checkPermission(PermissionEnum.CREATE_MASTER_LIFES)"
                   variant="elevated"
                   color="primary"
-                  @click="showForm = true"
+                  @click="
+                    () => {
+                      masterLife = {
+                        user: {},
+                        active: true
+                      } as MasterLife;
+                      showForm = true;
+                    }
+                  "
                 >
                   <Icon class="mr-2" icon="mdi:plus" />
                   Agregar
@@ -329,25 +338,32 @@ const copyLink = async () => {
             </template>
           </v-data-table-server>
         </UiParentCard>
-        <VDialog max-width="500" v-model="showForm">
+        <VDialog max-width="500" v-model="showForm" persistent>
           <UiParentCard title="Guardar Master Life">
             <VRow>
               <v-col cols="12" md="6">
                 <InputSection label="Nombre 1">
                   <VTextField
-                    placeholder="Nombre 1"
-                    v-model="masterLife.user.name1"
-                    :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())"
+                  placeholder="Nombre 1"
+                  v-model="masterLife.user.name1"
+                  :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())"
                   />
                 </InputSection>
                 <InputSection label="Apellido 1">
                   <VTextField
-                    placeholder="Apellido 1"
-                    v-model="masterLife.user.lastname1"
-                    :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
+                  placeholder="Apellido 1"
+                  v-model="masterLife.user.lastname1"
+                  :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
                   />
                 </InputSection>
-              </v-col>
+                <InputSection label="Teléfono">
+                  <VTextField
+                    placeholder="Teléfono"
+                    v-model="masterLife.user.phone"
+                    :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
+                  />
+                </InputSection>
+                </v-col>
               <v-col cols="12" md="6">
                 <InputSection label="Nombre 2">
                   <VTextField
@@ -358,9 +374,16 @@ const copyLink = async () => {
                 </InputSection>
                 <InputSection label="Apellido 2">
                   <VTextField
-                    placeholder="Apellido 2"
-                    v-model="masterLife.user.lastname2"
-                    :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
+                  placeholder="Apellido 2"
+                  v-model="masterLife.user.lastname2"
+                  :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
+                  />
+                </InputSection>
+                <InputSection label="Nicknam">
+                  <VTextField
+                    placeholder="Nickname"
+                    v-model="masterLife.user.nickname"
+                    :error-messages="validator.user.nickname.$errors.map((x) => x.$message.toString())"
                   />
                 </InputSection>
               </v-col>
@@ -374,20 +397,14 @@ const copyLink = async () => {
             </InputSection>
             <InputSection label="Contraseña" v-if="!masterLife.user.id">
               <VTextField
-                placeholder="Correo"
+                placeholder="********"
                 v-model="masterLife.user.password"
                 :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
               />
             </InputSection>
 
-            <InputSection label="Teléfono">
-              <VTextField
-                placeholder="Teléfono"
-                v-model="masterLife.user.phone"
-                :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
-              />
-            </InputSection>
             <div class="tw:w-full tw:flex tw:justify-end">
+              <VBtn @click="showForm = false" color="grey-darken-1" variant="text">Cancelar</VBtn>
               <VBtn @click="onSave" color="primary" :loading="saveMasterLifeMutations.isPending.value">Guardar</VBtn>
             </div>
           </UiParentCard>

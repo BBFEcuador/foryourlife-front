@@ -4,27 +4,23 @@ import vueParser from 'vue-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
 
 export default [
-  js.configs.recommended,
   {
-    files: ['**/*.vue'],
     languageOptions: {
-      parser: vueParser,
+      globals: globals.browser,
       parserOptions: {
-        parser: tsParser,
-        ecmaVersion: 2020,
-        sourceType: 'module'
-      },
-      globals: {
-        console: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly'
+        parser: '@typescript-eslint/parser'
       }
-    },
-    plugins: {
-      vue
-    },
-    rules: {
-      ...vue.configs['vue3-recommended'].rules
     }
+  },
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+  ...pluginVue.configs['flat/essential'],
+  {
+    'vue/valid-v-slot': [
+      'error',
+      {
+        allowModifiers: false
+      }
+    ]
   }
 ];

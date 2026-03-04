@@ -57,7 +57,10 @@ const formattedBirthday = computed({
         <v-text-field v-model="props.participant.user.lastname2" label="Apellido 2" variant="outlined" />
       </div>
       <v-text-field v-model="props.participant.user.email" label="Correo Electrónico" variant="outlined" />
-      <v-text-field v-model="props.participant.user.phone" label="Teléfono" variant="outlined" />
+      <div class="d-flex tw:gap-x-2">
+        <v-text-field v-model="props.participant.user.phone" label="Teléfono" variant="outlined" />
+        <v-text-field v-model="props.participant.user.nickname" label="Nickname" variant="outlined" />
+      </div>
       <div class="d-flex tw:gap-x-2">
         <v-text-field v-model="props.participant.profile.dni" label="Cédula" variant="outlined" />
         <VSelect
@@ -89,6 +92,7 @@ const formattedBirthday = computed({
       <!-- <VDateInput placeholder="" v-model="props.participant.profile.birthday" label="Fecha de nacimiento" variant="outlined"></VDateInput> -->
       <v-text-field v-model="props.participant.profile.city" label="Ciudad" variant="outlined" />
       <v-text-field v-model="props.participant.profile.address" label="Dirección" variant="outlined" />
+      <v-text-field v-model="props.participant.enroller" label="Enrolador (Quién lo invitó)" variant="outlined" placeholder="Nombre o ID del enrolador" />
 
       <v-spacer />
       <v-btn color="primary" @click="onSubmitParticipant" :loading="updateParticipantMutation.isPending.value">Actualizar</v-btn>

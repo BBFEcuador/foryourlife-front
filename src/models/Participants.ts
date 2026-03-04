@@ -26,6 +26,8 @@ export interface Participant {
   modules: Modules;
   medicalRecord: MedicalRecord;
   team?: Team;
+  originalTraining?: string;
+  enroller?: string;
 }
 
 export interface SaveParticipantReq {

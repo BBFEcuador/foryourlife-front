@@ -45,8 +45,9 @@ const staffRules = {
     name2: { required },
     lastname1: { required },
     lastname2: { required },
-    phone: { required, numeric },
-    email: { required, email }
+    phone: { required },
+    email: { required, email },
+    nickname: { required }
   }
 };
 const headers = [
@@ -319,13 +320,26 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               </InputSection>
             </v-col>
           </v-row>
-          <InputSection label="Correo">
-            <VTextField
-              placeholder="Correo del Staff"
-              v-model="staff.user.email"
-              :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
-            />
-          </InputSection>
+          <v-row>
+            <v-col cols="12" md="6">
+              <InputSection label="Correo">
+                <VTextField
+                  placeholder="Correo del Staff"
+                  v-model="staff.user.email"
+                  :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
+                />
+              </InputSection>
+            </v-col>
+            <v-col cols="12" md="6">
+              <InputSection label="Nickname">
+                <VTextField
+                  placeholder="Nickname"
+                  v-model="staff.user.nickname"
+                  :error-messages="validator.user.nickname.$errors.map((x) => x.$message.toString())"
+                />
+              </InputSection>
+            </v-col>
+          </v-row>
           <InputSection label="Teléfono">
             <VTextField
               placeholder="Teléfono del Staff"

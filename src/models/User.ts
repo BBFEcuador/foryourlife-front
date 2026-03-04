@@ -10,6 +10,7 @@ export interface User {
   lastname1: string;
   lastname2: string;
   phone: string;
+  nickname?: string;
   entityMap: EntityMap[];
 }
 

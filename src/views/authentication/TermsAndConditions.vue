@@ -109,7 +109,7 @@ import Logoimg from '@/assets/images/logos/focusYourLife.png';
 
                     <h3 class="text-h6 font-weight-bold mt-6">6. Tratamiento de Datos Personales</h3>
                     <p>
-                      El participante autoriza a FULL POTENTIAL S.A.S. a recopilar, almacenar y tratar sus datos personales con la finalidad
+                      El participante autoriza a IMPETUS S.A.S. a recopilar, almacenar y tratar sus datos personales con la finalidad
                       de gestionar su inscripción, facturación, ejecución del entrenamiento y comunicaciones relacionadas con los servicios
                       contratados.
                     </p>

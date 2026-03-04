@@ -23,7 +23,6 @@ const participant = ref<Participant[]>([]);
 onBeforeMount(() => {
   const training = props.team?.trainingObj;
   if (!training) return;
-  console.log('Nivel del equipo:', props.team);
   getByLvlMutation.mutate({ lvl: training.courseLevel, ...(training.campus?.id && { campusId: training.campus.id }) });
 });
 watch(getByLvlMutation.isError, () => {
@@ -61,7 +60,7 @@ watch(getByLvlMutation.isSuccess, () => {
         Atrás
       </v-btn>
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="emit('next')" :disabled="team.users.length <= 0">
+      <v-btn color="primary" :disabled="team.users.length <= 0" @click="emit('next')">
         <Icon icon="mdi-arrow-right" />
         Siguiente
       </v-btn>

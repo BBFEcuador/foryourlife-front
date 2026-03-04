@@ -56,9 +56,9 @@ const headers = [
     width: '100'
   },
   {
-    title: 'Ocupación',
-    value: 'profile.occupation',
-    width: '100'
+    title: 'Entrenamiento Original',
+    value: 'originalTraining',
+    width: '150'
   },
   {
     title: 'Acciones',

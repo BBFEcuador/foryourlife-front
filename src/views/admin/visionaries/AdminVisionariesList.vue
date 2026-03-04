@@ -44,8 +44,9 @@ const staffRules = {
     name2: { required: { ...required, $message: 'Debe ingresar su segundo nombre' } },
     lastname1: { required: { ...required, $message: 'Debe ingresar su primer apellido' } },
     lastname2: { required: { ...required, $message: 'Debe ingresar su segundo apellido' } },
-    phone: { required: { ...required, $message: 'Debe ingresar su número de teléfono' }, numeric },
-    email: { required: { ...required, $message: 'Debe ingresar su correo electrónico' }, email }
+    phone: { required: { ...required, $message: 'Debe ingresar su número de teléfono' } },
+    email: { required: { ...required, $message: 'Debe ingresar su correo electrónico' }, email },
+    nickname: { required: { ...required, $message: 'Debe ingresar su nickname' } }
   }
 };
 const headers = [
@@ -169,14 +170,14 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
       >
         <template v-slot:top>
           <v-toolbar
+          v-motion
+          :initial="{ opacity: 0, y: -10 }"
+          :enter="{ opacity: 1, y: 0 }"
+          :delay="200"
+          :duration="250"
             class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
             flat
-            v-motion
-            :initial="{ opacity: 0, y: -10 }"
-            :enter="{ opacity: 1, y: 0 }"
-            :delay="200"
-            :duration="250"
-          >
+            >
             <div class="tw:flex-1 tw:max-w-md tw:relative">
               <VTextField
                 v-model="debouncedSearch"
@@ -385,22 +386,45 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                 </InputSection>
               </VCol>
             </VRow>
-            <InputSection label="E-mail" required>
-              <VTextField
-                placeholder="Ingrese el correo electrónico"
-                v-model="staff.user.email"
-                :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-                class="tw:rounded-lg !tw:shadow-sm"
-                bg-color="white"
-              >
-                <template v-slot:prepend>
-                  <Icon icon="mdi:email" />
-                </template>
-              </VTextField>
-            </InputSection>
+            <VRow>
+              <VCol cols="12" sm="6">
+                <InputSection label="E-mail" required>
+                  <VTextField
+                    placeholder="Ingrese el correo electrónico"
+                    v-model="staff.user.email"
+                    :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    class="tw:rounded-lg !tw:shadow-sm"
+                    bg-color="white"
+                  >
+                    <template v-slot:prepend>
+                      <Icon icon="mdi:email" />
+                    </template>
+                  </VTextField>
+                </InputSection>
+              </VCol>
+              <VCol cols="12" sm="6">
+                <InputSection label="Nickname">
+                  <VTextField
+                    placeholder="Ingrese el nickname (opcional)"
+                    v-model="staff.user.nickname"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    class="tw:rounded-lg !tw:shadow-sm"
+                    bg-color="white"
+                    :error-messages="validator.user.nickname.$errors.map((x) => x.$message.toString())"
+
+                  >
+                    <template v-slot:prepend>
+                      <Icon icon="mdi:account" />
+                    </template>
+                  </VTextField>
+                </InputSection>
+              </VCol>
+            </VRow>
 
             <InputSection label="Teléfono" required>
               <VTextField

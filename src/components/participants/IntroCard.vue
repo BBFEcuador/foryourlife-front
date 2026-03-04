@@ -18,8 +18,8 @@ const props = defineProps<props>();
       </p>
       <div class="d-flex tw:gap-3 mb-5">
         <Icon icon="mdi:alert-circle-outline" height="21" />
-        <span class="text-h6" v-if="participant.isLingerer === true">REZAGADO</span>
-        <span class="text-h6" v-else>NO REZAGADO</span>
+        <span v-if="participant.isLingerer === true" class="text-h6">REZAGADO </span>
+        <span v-else class="text-h6">JORNADA </span>
       </div>
       <div class="d-flex tw:gap-3 mb-5">
         <Icon icon="material-symbols:person" height="21" />
@@ -45,13 +45,13 @@ const props = defineProps<props>();
         <Icon icon="carbon:skill-level" height="21" />
         <span class="text-h6">{{
           participant.team?.trainingData?.curseLevel ? participant.team.trainingData.curseLevel : 'No pertenece a ningún equipo'
-        }}</span>
+          }}</span>
       </div>
       <div class="d-flex tw:gap-3 mb-5">
         <Icon icon="streamline:startup-solid" height="21" />
         <span class="text-h6">{{
           participant.team?.trainingData?.startDate ? participant.team?.trainingData.startDate : 'No pertenece a ningún equipo'
-        }}</span>
+          }}</span>
       </div>
     </v-card-item>
   </v-card>
