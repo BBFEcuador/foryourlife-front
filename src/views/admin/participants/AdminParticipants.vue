@@ -4,6 +4,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import useParticipants from '@/composables/admin/participants/useParticipants';
+import useParticipantPaymentMutations from '@/composables/admin/payments/useParticipantPayments';
 import useProducts from '@/composables/admin/products/useProducts';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import useCampus from '@/composables/admin/useCampus';
@@ -18,7 +19,7 @@ import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
 import { VNumberInput } from 'vuetify/labs/VNumberInput';
 
@@ -26,6 +27,11 @@ const { isParticipantsError, isParticipantsLoading, participants, criteriaMutati
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitationMutation();
 const { campusData, isError, isFetching, refetch } = useCampus()
 const { resetPasswordMutation, generateContractMutation, changeCampusMutation } = useParticipantMutations();
+const showPaymentsDialog = ref(false);
+const selectedParticipantId = ref('');
+
+const route = useRoute();
+const { payments, isPaymentError, isPaymentLoading, refetchPayment } = useParticipantPaymentMutations(selectedParticipantId);
 const router = useRouter();
 const adminS = adminStore();
 const headers = [
@@ -34,11 +40,6 @@ const headers = [
     value: 'user.name',
     width: '200',
     class: 'tw:text-nowrap'
-  },
-  {
-    title: 'Correo',
-    value: 'user.email',
-    width: '200'
   },
   {
     title: 'Equipo',
@@ -158,6 +159,11 @@ const selectedCampus = ref()
 const changeCampus = (item: Participant) => {
   selectedParticipant.value = item;
   showChangeCampus.value = true;
+};
+
+const viewPayments = (id: string) => {
+  selectedParticipantId.value = id;
+  showPaymentsDialog.value = true;
 };
 
 const onParticiapntChangeCampus = () => {
@@ -407,9 +413,9 @@ watch(showContractDialog, (newVal) => {
                   <div>
                     <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{
                       item.user.name }}</span>
-                    <div class="tw:text-xs group-hover:tw:opacity-100">{{ item.phone }}</div>
                   </div>
                 </div>
+                {{ item.user.email }}
               </template>
 
               <template #item.user.email="{ item }">
@@ -498,6 +504,14 @@ watch(showContractDialog, (newVal) => {
                           <div class="d-flex tw:gap-1">
                             <Icon icon="solar:buildings-2-bold" height="20" color="primary" />
                             Cambiar sede
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title @click="viewPayments(item.id)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="streamline-ultimate:money-bag-dollar" height="20" color="primary" />
+                            Ver cobros
                           </div>
                         </v-list-item-title>
                       </v-list-item>
@@ -677,6 +691,70 @@ watch(showContractDialog, (newVal) => {
         </VRow>
       </UiParentCard>
     </VDialog>
+
+    <v-dialog v-model="showPaymentsDialog" max-width="900">
+      <v-card>
+        <v-card-title class="d-flex justify-space-between align-center">
+          <span>Historial de Cobros</span>
+          <v-btn icon="mdi-close" variant="text" @click="showPaymentsDialog = false"></v-btn>
+        </v-card-title>
+        <v-card-text>
+          <div v-if="isPaymentLoading" class="d-flex justify-center my-4">
+            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          </div>
+          <div v-else-if="isPaymentError" class="text-error text-center my-4">
+            Error al cargar los cobros.
+          </div>
+          <div v-else-if="payments && payments.length === 0" class="text-center my-4">
+            No hay cobros registrados para este participante.
+          </div>
+          <v-table v-else>
+            <thead>
+              <tr>
+                <th class="text-left">Fecha</th>
+                <th class="text-left">Concepto</th>
+                <th class="text-left">Monto Total</th>
+                <th class="text-left">Saldo Restante</th>
+                <th class="text-left">Estado</th>
+                <th class="text-left">Historial Pagos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="payment in payments" :key="payment.id">
+                <td>{{ new Date(payment.createdAt).toLocaleDateString() }}</td>
+                <td>
+                  <div v-for="prod in payment.products" :key="prod.id">
+                    {{ prod.name }}
+                  </div>
+                </td>
+                <td>${{ payment.total }}</td>
+                <td>${{ payment.remainingBalance }}</td>
+                <td>
+                  <v-chip
+                    :color="payment.status === 'PAID' ? 'success' : payment.status === 'PARTIAL' ? 'warning' : 'error'"
+                    size="small">
+                    {{ payment.status === 'PAID' ? 'Pagado' : payment.status === 'PARTIAL' ? 'Parcial' : 'Pendiente' }}
+                  </v-chip>
+                </td>
+                <td>
+                  <div v-if="payment.paymentshistory && payment.paymentshistory.length > 0">
+                    <div v-for="(hist, index) in payment.paymentshistory" :key="index" class="text-caption mb-1">
+                      {{ new Date(hist.date).toLocaleDateString() }} - ${{ hist.amount }} ({{ hist.paymentMethod?.type
+                      }})
+                    </div>
+                  </div>
+                  <span v-else class="text-caption text-grey">Sin abonos</span>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" variant="text" @click="showPaymentsDialog = false">Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
   <div v-else>
     <v-alert title="Acceso denegado" variant="outlined" border="top" elevation="2" type="warning">
