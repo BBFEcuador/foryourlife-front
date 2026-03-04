@@ -33,6 +33,11 @@ const promotionStaff = async (req: { userId: string; role: string }): Promise<Pa
   return data;
 };
 
+const globalMutate = async (req: { id: string; type: string }): Promise<Participant> => {
+  const { data } = await api.post(`/global-user/mutate`, req);
+  return data;
+};
+
 // cambiar contreaseña
 const resetPassword = async (user: { id: string; newPassword: string }): Promise<any> => {
   const { data } = await api.put(`/users/reset-password/${user.id}`, user);
@@ -93,6 +98,8 @@ const useParticipantMutations = () => {
   const createContactEmergencyMutation = useMutation({ mutationFn: createContactEmergency });
   const deleteContactMutation = useMutation({ mutationFn: deleteContact });
   const changeCampusMutation = useMutation({ mutationFn: changeCampus });
+  const globalMutateMutation = useMutation({ mutationFn: globalMutate });
+
   return {
     updateParticipantMutation,
     setCourseLevelMutation,
@@ -100,6 +107,7 @@ const useParticipantMutations = () => {
     promotionMasterLifeMutation,
     promotionVisionaryMutation,
     promotionStaffMutation,
+    globalMutateMutation,
     resetPasswordMutation,
     generateContractMutation,
     updateMedicalRecordMutation,
