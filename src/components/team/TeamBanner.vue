@@ -36,7 +36,7 @@ const props = defineProps<props>();
                     <div class="text-center top-spacer">
                         <div class="avatar-border">
                             <v-avatar size="100" class="userImage">
-                                <v-img :src="getInitialsAvatarUrl(team?.name!)" alt="Avatar" />
+                                <v-img :src="getInitialsAvatarUrl(team?.name!, 1)" alt="Avatar" />
                             </v-avatar>
                         </div>
                         <span class="textSecondary text-h4">
