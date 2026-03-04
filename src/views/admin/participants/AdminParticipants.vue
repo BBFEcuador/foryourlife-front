@@ -18,6 +18,7 @@ import { adminStore } from '@/stores/adminStore';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
+import moment from 'moment';
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
@@ -213,6 +214,28 @@ const getLevelIcon = (level: string) => {
   };
   const l = level as keyof typeof icons;
   return icons[l] || 'mdi:help-circle';
+};
+
+const getCodePayment = (paymentMethod: string) => {
+  if (paymentMethod === 'EF') {
+    return 'Efectivo';
+  } else if (paymentMethod === 'CQ') {
+    return 'Cheque';
+  } else if (paymentMethod === 'TC') {
+    return 'Tarjeta de Crédito';
+  } else {
+    return paymentMethod === 'TRANSFER' ? 'Transferencia' : paymentMethod;
+  }
+}
+
+const getPaymentMethodIcon = (code: string) => {
+  switch (code) {
+    case 'EF': return 'solar:wad-of-money-bold-duotone';
+    case 'CQ': return 'solar:document-text-bold-duotone';
+    case 'TC': return 'solar:card-bold-duotone';
+    case 'TRANSFER': return 'solar:transfer-horizontal-bold-duotone';
+    default: return 'solar:wallet-bold-duotone';
+  }
 };
 
 const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
@@ -692,13 +715,15 @@ watch(showContractDialog, (newVal) => {
       </UiParentCard>
     </VDialog>
 
-    <v-dialog v-model="showPaymentsDialog" max-width="900">
+    <v-dialog v-model="showPaymentsDialog" max-width="900" scrollable>
       <v-card>
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span>Historial de Cobros</span>
-          <v-btn icon="mdi-close" variant="text" @click="showPaymentsDialog = false"></v-btn>
+        <v-card-title class="pa-4 bg-primary d-flex justify-space-between align-center">
+          <div class="d-flex align-center gap-2">
+            <Icon icon="solar:wallet-money-bold-duotone" height="24" class="mr-2" />
+            <span class="text-h6 font-weight-bold">Historial de Cobros</span>
+          </div>
         </v-card-title>
-        <v-card-text>
+        <v-card-text class="pa-4">
           <div v-if="isPaymentLoading" class="d-flex justify-center my-4">
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
           </div>
@@ -708,46 +733,120 @@ watch(showContractDialog, (newVal) => {
           <div v-else-if="payments && payments.length === 0" class="text-center my-4">
             No hay cobros registrados para este participante.
           </div>
-          <v-table v-else>
-            <thead>
-              <tr>
-                <th class="text-left">Fecha</th>
-                <th class="text-left">Concepto</th>
-                <th class="text-left">Monto Total</th>
-                <th class="text-left">Saldo Restante</th>
-                <th class="text-left">Estado</th>
-                <th class="text-left">Historial Pagos</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="payment in payments" :key="payment.id">
-                <td>{{ new Date(payment.createdAt).toLocaleDateString() }}</td>
-                <td>
-                  <div v-for="prod in payment.products" :key="prod.id">
-                    {{ prod.name }}
+          <div v-else class="d-flex flex-column gap-4">
+            <v-card v-for="payment in payments" :key="payment.id" elevation="0" border
+              class="rounded-lg overflow-hidden mb-4">
+              <div class="pa-4 d-flex justify-space-between align-center bg-white border-b">
+                <div>
+                  <div class="text-subtitle-1 font-weight-bold d-flex align-center">
+                    {{payment.products.map(p => p.name).join(', ')}}
                   </div>
-                </td>
-                <td>${{ payment.total }}</td>
-                <td>${{ payment.remainingBalance }}</td>
-                <td>
-                  <v-chip
-                    :color="payment.status === 'PAID' ? 'success' : payment.status === 'PARTIAL' ? 'warning' : 'error'"
-                    size="small">
-                    {{ payment.status === 'PAID' ? 'Pagado' : payment.status === 'PARTIAL' ? 'Parcial' : 'Pendiente' }}
-                  </v-chip>
-                </td>
-                <td>
-                  <div v-if="payment.paymentshistory && payment.paymentshistory.length > 0">
-                    <div v-for="(hist, index) in payment.paymentshistory" :key="index" class="text-caption mb-1">
-                      {{ new Date(hist.date).toLocaleDateString() }} - ${{ hist.amount }} ({{ hist.paymentMethod?.type
-                      }})
+                  <div class="text-caption text-grey">
+                    Registrado el {{ new Date(payment.createdDate).toLocaleDateString() }}
+                  </div>
+                </div>
+                <v-chip
+                  :color="payment.status === 'PAID' ? 'success' : payment.status === 'PARTIAL' ? 'warning' : 'error'"
+                  variant="flat" size="small" class="font-weight-bold">
+                  {{ payment.status === 'PAID' ? 'Pagado' : payment.status === 'PARTIAL' ? 'Parcial' : 'Pendiente' }}
+                </v-chip>
+              </div>
+
+              <div class="pa-4 bg-white">
+                <v-row>
+                  <v-col cols="12" md="4">
+                    <div class="text-caption text-grey mb-1">Total a Pagar</div>
+                    <div class="text-h6 font-weight-bold text-primary">${{ payment.total }}</div>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <div class="text-caption text-grey mb-1">Saldo Pendiente</div>
+                    <div class="text-h6 font-weight-bold text-error">${{ payment.remainingBalance }}</div>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <div class="text-caption text-grey mb-1">Progreso</div>
+                    <v-progress-linear :model-value="((payment.total - payment.remainingBalance) / payment.total) * 100"
+                      color="success" height="8" rounded striped></v-progress-linear>
+                    <div class="text-right text-caption mt-1">
+                      {{ Math.round(((payment.total - payment.remainingBalance) / payment.total) * 100) }}% Pagado
                     </div>
-                  </div>
-                  <span v-else class="text-caption text-grey">Sin abonos</span>
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
+                  </v-col>
+                </v-row>
+
+                <v-divider class="my-4"></v-divider>
+
+                <v-expansion-panels variant="accordion" elevation="0">
+                  <v-expansion-panel title="Historial de Abonos">
+                    <v-expansion-panel-text>
+                      <div class="d-flex justify-center align-center">
+                        <v-timeline density="compact" align="start" truncate-line="start" class="ma-3" side="end">
+                          <v-timeline-item v-for="(hist, index) in payment.paymentshistory" :key="index"
+                            :dot-color="getCodePayment(hist.paymentMethod?.code) === 'EF' ? 'success' : 'info'"
+                            size="small">
+                            <template v-slot:icon>
+                              <Icon :icon="getPaymentMethodIcon(hist.paymentMethod?.code)" color="white" height="14" />
+                            </template>
+                            <v-card variant="outlined" class="mb-2">
+                              <v-card-text class="pa-3">
+                                <div class="d-flex justify-space-between align-center mb-2">
+                                  <div class="font-weight-bold text-subtitle-2 text-primary">
+                                    Abono: ${{ hist.amount }}
+                                  </div>
+                                  <div class="text-caption text-grey-darken-1 d-flex align-center tw:gap-2">
+                                    <Icon icon="solar:calendar-bold-duotone" />
+                                    {{ hist.date }}
+                                  </div>
+                                </div>
+                                <v-divider class="mb-2"></v-divider>
+                                <div class="d-flex flex-column gap-1 text-caption">
+                                  <div class="d-flex align-center tw:gap-2">
+                                    <Icon icon="solar:wallet-money-bold-duotone" class="text-grey" height="16" />
+                                    <span class="font-weight-medium">Método:</span>
+                                    <span>{{ getCodePayment(hist.paymentMethod?.code) }}</span>
+                                    <v-chip size="x-small" density="comfortable" variant="tonal" color="primary"
+                                      class="ml-1">
+                                      {{ hist.paymentMethod?.code }}
+                                    </v-chip>
+                                  </div>
+                                  <div v-if="hist.transactionId" class="d-flex align-center tw:gap-2">
+                                    <Icon icon="solar:bill-list-bold-duotone" class="text-grey" height="16" />
+                                    <span class="font-weight-medium">Ref:</span>
+                                    <span class="font-monospace">{{ hist.transactionId }}</span>
+                                  </div>
+                                  <div v-if="hist.paymentMethod?.bank" class="d-flex align-center tw:gap-2">
+                                    <Icon icon="mdi:bank" class="text-grey" height="16" />
+                                    <span class="font-weight-medium">Banco:</span>
+                                    <span>{{ hist.paymentMethod.bank }}</span>
+                                  </div>
+                                  <div v-if="hist.paymentMethod?.campus" class="d-flex align-center tw:gap-2">
+                                    <Icon icon="solar:buildings-bold-duotone" class="text-grey" height="16" />
+                                    <span class="font-weight-medium">Sede:</span>
+                                    <span>{{ hist.paymentMethod.campus.city }}</span>
+                                  </div>
+                                  <div class="d-flex align-center tw:gap-2 mt-1">
+                                    <v-chip size="x-small" :color="hist.sent ? 'success' : 'warning'"
+                                      variant="outlined">
+                                      {{ hist.sent ? 'Enviado' : 'No Enviado' }}
+                                    </v-chip>
+                                    <v-chip v-if="hist.pingType" size="x-small" color="info" variant="outlined">
+                                      Ping: {{ hist.pingType }}
+                                    </v-chip>
+                                  </div>
+                                </div>
+                              </v-card-text>
+                            </v-card>
+                          </v-timeline-item>
+                          <div v-if="!payment.paymentshistory?.length" class="text-center text-caption text-grey py-2">
+                            No hay abonos registrados
+                          </div>
+                        </v-timeline>
+                      </div>
+
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </div>
+            </v-card>
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>

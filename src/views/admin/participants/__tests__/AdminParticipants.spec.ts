@@ -142,7 +142,9 @@ describe('AdminParticipants.vue', () => {
           VRow: true,
           VCol: true,
           VCard: true,
+          VCardTitle: true,
           VCardText: true,
+          VCardActions: true,
           VTextField: true,
           VBtn: true,
           VSpacer: true,
@@ -152,8 +154,21 @@ describe('AdminParticipants.vue', () => {
           VListItem: true,
           VListItemTitle: true,
           VProgressLinear: true,
-          VToolbar: true
+          VToolbar: true,
+          VAlert: true,
+          VDialog: true,
+          VTimeline: true,
+          VTimelineItem: true,
+          VExpansionPanels: true,
+          VExpansionPanel: true,
+          VExpansionPanelText: true,
+          VProgressCircular: true
         },
+        directives: {
+          'auto-animate': () => {},
+          'tooltip': () => {},
+          'motion': () => {}
+        }
       },
     });
 
