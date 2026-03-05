@@ -4,6 +4,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import useParticipants from '@/composables/admin/participants/useParticipants';
+import useParticipantPaymentMutations from '@/composables/admin/payments/useParticipantPayments';
 import useProducts from '@/composables/admin/products/useProducts';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import useCampus from '@/composables/admin/useCampus';
@@ -17,8 +18,9 @@ import { adminStore } from '@/stores/adminStore';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AxiosError } from 'axios';
+import moment from 'moment';
 import { ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
 import { VNumberInput } from 'vuetify/labs/VNumberInput';
 
@@ -26,6 +28,11 @@ const { isParticipantsError, isParticipantsLoading, participants, criteriaMutati
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitationMutation();
 const { campusData, isError, isFetching, refetch } = useCampus()
 const { resetPasswordMutation, generateContractMutation, changeCampusMutation } = useParticipantMutations();
+const showPaymentsDialog = ref(false);
+const selectedParticipantId = ref('');
+
+const route = useRoute();
+const { payments, isPaymentError, isPaymentLoading, refetchPayment } = useParticipantPaymentMutations(selectedParticipantId);
 const router = useRouter();
 const adminS = adminStore();
 const headers = [
@@ -34,11 +41,6 @@ const headers = [
     value: 'user.name',
     width: '200',
     class: 'tw:text-nowrap'
-  },
-  {
-    title: 'Correo',
-    value: 'user.email',
-    width: '200'
   },
   {
     title: 'Equipo',
@@ -56,9 +58,9 @@ const headers = [
     width: '100'
   },
   {
-    title: 'Ocupación',
-    value: 'profile.occupation',
-    width: '100'
+    title: 'Entrenamiento Original',
+    value: 'originalTraining',
+    width: '150'
   },
   {
     title: 'Acciones',
@@ -160,6 +162,11 @@ const changeCampus = (item: Participant) => {
   showChangeCampus.value = true;
 };
 
+const viewPayments = (id: string) => {
+  selectedParticipantId.value = id;
+  showPaymentsDialog.value = true;
+};
+
 const onParticiapntChangeCampus = () => {
   changeCampusMutation.mutate(
     { userId: selectedParticipant.value?.id || '', campusId: selectedCampus.value },
@@ -207,6 +214,28 @@ const getLevelIcon = (level: string) => {
   };
   const l = level as keyof typeof icons;
   return icons[l] || 'mdi:help-circle';
+};
+
+const getCodePayment = (paymentMethod: string) => {
+  if (paymentMethod === 'EF') {
+    return 'Efectivo';
+  } else if (paymentMethod === 'CQ') {
+    return 'Cheque';
+  } else if (paymentMethod === 'TC') {
+    return 'Tarjeta de Crédito';
+  } else {
+    return paymentMethod === 'TRANSFER' ? 'Transferencia' : paymentMethod;
+  }
+}
+
+const getPaymentMethodIcon = (code: string) => {
+  switch (code) {
+    case 'EF': return 'solar:wad-of-money-bold-duotone';
+    case 'CQ': return 'solar:document-text-bold-duotone';
+    case 'TC': return 'solar:card-bold-duotone';
+    case 'TRANSFER': return 'solar:transfer-horizontal-bold-duotone';
+    default: return 'solar:wallet-bold-duotone';
+  }
 };
 
 const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
@@ -407,9 +436,9 @@ watch(showContractDialog, (newVal) => {
                   <div>
                     <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{
                       item.user.name }}</span>
-                    <div class="tw:text-xs group-hover:tw:opacity-100">{{ item.phone }}</div>
                   </div>
                 </div>
+                {{ item.user.email }}
               </template>
 
               <template #item.user.email="{ item }">
@@ -498,6 +527,14 @@ watch(showContractDialog, (newVal) => {
                           <div class="d-flex tw:gap-1">
                             <Icon icon="solar:buildings-2-bold" height="20" color="primary" />
                             Cambiar sede
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item class="point">
+                        <v-list-item-title @click="viewPayments(item.id)">
+                          <div class="d-flex tw:gap-1">
+                            <Icon icon="streamline-ultimate:money-bag-dollar" height="20" color="primary" />
+                            Ver cobros
                           </div>
                         </v-list-item-title>
                       </v-list-item>
@@ -677,6 +714,146 @@ watch(showContractDialog, (newVal) => {
         </VRow>
       </UiParentCard>
     </VDialog>
+
+    <v-dialog v-model="showPaymentsDialog" max-width="900" scrollable>
+      <v-card>
+        <v-card-title class="pa-4 bg-primary d-flex justify-space-between align-center">
+          <div class="d-flex align-center gap-2">
+            <Icon icon="solar:wallet-money-bold-duotone" height="24" class="mr-2" />
+            <span class="text-h6 font-weight-bold">Historial de Cobros</span>
+          </div>
+        </v-card-title>
+        <v-card-text class="pa-4">
+          <div v-if="isPaymentLoading" class="d-flex justify-center my-4">
+            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          </div>
+          <div v-else-if="isPaymentError" class="text-error text-center my-4">
+            Error al cargar los cobros.
+          </div>
+          <div v-else-if="payments && payments.length === 0" class="text-center my-4">
+            No hay cobros registrados para este participante.
+          </div>
+          <div v-else class="d-flex flex-column gap-4">
+            <v-card v-for="payment in payments" :key="payment.id" elevation="0" border
+              class="rounded-lg overflow-hidden mb-4">
+              <div class="pa-4 d-flex justify-space-between align-center bg-white border-b">
+                <div>
+                  <div class="text-subtitle-1 font-weight-bold d-flex align-center">
+                    {{payment.products.map(p => p.name).join(', ')}}
+                  </div>
+                  <div class="text-caption text-grey">
+                    Registrado el {{ new Date(payment.createdDate).toLocaleDateString() }}
+                  </div>
+                </div>
+                <v-chip
+                  :color="payment.status === 'PAID' ? 'success' : payment.status === 'PARTIAL' ? 'warning' : 'error'"
+                  variant="flat" size="small" class="font-weight-bold">
+                  {{ payment.status === 'PAID' ? 'Pagado' : payment.status === 'PARTIAL' ? 'Parcial' : 'Pendiente' }}
+                </v-chip>
+              </div>
+
+              <div class="pa-4 bg-white">
+                <v-row>
+                  <v-col cols="12" md="4">
+                    <div class="text-caption text-grey mb-1">Total a Pagar</div>
+                    <div class="text-h6 font-weight-bold text-primary">${{ payment.total }}</div>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <div class="text-caption text-grey mb-1">Saldo Pendiente</div>
+                    <div class="text-h6 font-weight-bold text-error">${{ payment.remainingBalance }}</div>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <div class="text-caption text-grey mb-1">Progreso</div>
+                    <v-progress-linear :model-value="((payment.total - payment.remainingBalance) / payment.total) * 100"
+                      color="success" height="8" rounded striped></v-progress-linear>
+                    <div class="text-right text-caption mt-1">
+                      {{ Math.round(((payment.total - payment.remainingBalance) / payment.total) * 100) }}% Pagado
+                    </div>
+                  </v-col>
+                </v-row>
+
+                <v-divider class="my-4"></v-divider>
+
+                <v-expansion-panels variant="accordion" elevation="0">
+                  <v-expansion-panel title="Historial de Abonos">
+                    <v-expansion-panel-text>
+                      <div class="d-flex justify-center align-center">
+                        <v-timeline density="compact" align="start" truncate-line="start" class="ma-3" side="end">
+                          <v-timeline-item v-for="(hist, index) in payment.paymentshistory" :key="index"
+                            :dot-color="getCodePayment(hist.paymentMethod?.code) === 'EF' ? 'success' : 'info'"
+                            size="small">
+                            <template v-slot:icon>
+                              <Icon :icon="getPaymentMethodIcon(hist.paymentMethod?.code)" color="white" height="14" />
+                            </template>
+                            <v-card variant="outlined" class="mb-2">
+                              <v-card-text class="pa-3">
+                                <div class="d-flex justify-space-between align-center mb-2">
+                                  <div class="font-weight-bold text-subtitle-2 text-primary">
+                                    Abono: ${{ hist.amount }}
+                                  </div>
+                                  <div class="text-caption text-grey-darken-1 d-flex align-center tw:gap-2">
+                                    <Icon icon="solar:calendar-bold-duotone" />
+                                    {{ hist.date }}
+                                  </div>
+                                </div>
+                                <v-divider class="mb-2"></v-divider>
+                                <div class="d-flex flex-column gap-1 text-caption">
+                                  <div class="d-flex align-center tw:gap-2">
+                                    <Icon icon="solar:wallet-money-bold-duotone" class="text-grey" height="16" />
+                                    <span class="font-weight-medium">Método:</span>
+                                    <span>{{ getCodePayment(hist.paymentMethod?.code) }}</span>
+                                    <v-chip size="x-small" density="comfortable" variant="tonal" color="primary"
+                                      class="ml-1">
+                                      {{ hist.paymentMethod?.code }}
+                                    </v-chip>
+                                  </div>
+                                  <div v-if="hist.transactionId" class="d-flex align-center tw:gap-2">
+                                    <Icon icon="solar:bill-list-bold-duotone" class="text-grey" height="16" />
+                                    <span class="font-weight-medium">Ref:</span>
+                                    <span class="font-monospace">{{ hist.transactionId }}</span>
+                                  </div>
+                                  <div v-if="hist.paymentMethod?.bank" class="d-flex align-center tw:gap-2">
+                                    <Icon icon="mdi:bank" class="text-grey" height="16" />
+                                    <span class="font-weight-medium">Banco:</span>
+                                    <span>{{ hist.paymentMethod.bank }}</span>
+                                  </div>
+                                  <div v-if="hist.paymentMethod?.campus" class="d-flex align-center tw:gap-2">
+                                    <Icon icon="solar:buildings-bold-duotone" class="text-grey" height="16" />
+                                    <span class="font-weight-medium">Sede:</span>
+                                    <span>{{ hist.paymentMethod.campus.city }}</span>
+                                  </div>
+                                  <div class="d-flex align-center tw:gap-2 mt-1">
+                                    <v-chip size="x-small" :color="hist.sent ? 'success' : 'warning'"
+                                      variant="outlined">
+                                      {{ hist.sent ? 'Enviado' : 'No Enviado' }}
+                                    </v-chip>
+                                    <v-chip v-if="hist.pingType" size="x-small" color="info" variant="outlined">
+                                      Ping: {{ hist.pingType }}
+                                    </v-chip>
+                                  </div>
+                                </div>
+                              </v-card-text>
+                            </v-card>
+                          </v-timeline-item>
+                          <div v-if="!payment.paymentshistory?.length" class="text-center text-caption text-grey py-2">
+                            No hay abonos registrados
+                          </div>
+                        </v-timeline>
+                      </div>
+
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </div>
+            </v-card>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" variant="text" @click="showPaymentsDialog = false">Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
   <div v-else>
     <v-alert title="Acceso denegado" variant="outlined" border="top" elevation="2" type="warning">

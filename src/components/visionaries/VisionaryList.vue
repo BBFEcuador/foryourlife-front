@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import useVisionarymutations from '@/composables/admin/visionaries/useVisionarymutations';
 import type { TeamWriteModel } from '@/models/Team';
 import type { Visionary } from '@/models/Visionary';
 import { Icon } from '@iconify/vue/dist/iconify.js';
@@ -11,6 +10,7 @@ interface props{
     isVisionariesloading:boolean
 }
 const porps = defineProps<props>()
+
 const search = ref('');
 
 const headers = [

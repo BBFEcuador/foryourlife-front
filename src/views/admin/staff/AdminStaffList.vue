@@ -4,6 +4,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import useStaffMutations from '@/composables/admin/staff/useStaffMutations';
 import useStaffs from '@/composables/admin/staff/useStaffs';
+import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { StaffWriteModel } from '@/models/Staff';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
@@ -18,7 +19,49 @@ import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const { isStaffError, isStaffloading, staffData, refetchStaff, page, perPage, search } = useStaffs();
 const { saveStaffMutations, changeStatusMutations } = useStaffMutations();
+const { globalMutateMutation } = useParticipantMutations();
+
 const showForm = ref(false);
+const showRoleDialog = ref(false);
+const selectedStaff = ref<StaffWriteModel | null>(null);
+const selectedNewRole = ref('');
+
+const roles = [
+  { id: 'V', name: 'Visionario', icon: 'solar:user-bold-duotone', color: 'info', desc: 'Rol externo' },
+  { id: 'ML', name: 'Master Life', icon: 'eos-icons:master-outlined', color: 'info', desc: 'Liderazgo y maestría' }
+];
+
+const roleMap: Record<string, { label: string; color: string; icon: string }> = {
+  STAFF: { label: 'Staff', color: 'primary', icon: 'mdi:account-tie' },
+  VISIONARY: { label: 'Visionario', color: 'secondary', icon: 'mdi:account-star' },
+  MASTER_LIFE: { label: 'Master Life', color: 'info', icon: 'mdi:crown' }
+};
+
+const getRoleInfo = (entity: string) => {
+  return roleMap[entity] || { label: entity, color: 'grey', icon: 'mdi:account' };
+};
+
+const openRoleDialog = (item: StaffWriteModel) => {
+  selectedStaff.value = item;
+  selectedNewRole.value = '';
+  showRoleDialog.value = true;
+};
+
+const handleRoleChange = () => {
+  if (selectedStaff.value && selectedNewRole.value) {
+    globalMutateMutation.mutate({ id: selectedStaff.value.user.id, type: selectedNewRole.value }, {
+      onSuccess: () => {
+        showSuccessToast('Rol actualizado correctamente');
+        showRoleDialog.value = false;
+        refetchStaff();
+      },
+      onError: (error) => {
+        showErrorToast(error as AxiosError<ErrorApiResponse>);
+      }
+    });
+  }
+};
+
 const breadcrumbs = ref([
   {
     title: 'Staff',
@@ -45,8 +88,9 @@ const staffRules = {
     name2: { required },
     lastname1: { required },
     lastname2: { required },
-    phone: { required, numeric },
-    email: { required, email }
+    phone: { required },
+    email: { required, email },
+    nickname: { required }
   }
 };
 const headers = [
@@ -54,6 +98,7 @@ const headers = [
   { title: 'E-mail', value: 'user.email', sortable: true },
   { title: 'Teléfono', value: 'user.phone', sortable: true },
   { title: 'Activo', value: 'active', sortable: true },
+  { title: 'Roles Adicionales', value: 'user.entityMap', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false, width: 50 }
 ];
 
@@ -234,6 +279,20 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                 {{ item.active ? 'Activo' : 'Inactivo' }}
               </VChip>
             </template>
+            <!-- Implicit Role Logic: Hiding 'STAFF' role as it is implied in this view -->
+            <template #item.user.entityMap="{ item }">
+              <div class="tw:flex tw:flex-wrap tw:gap-1">
+                <template v-for="role in item.user.entityMap" :key="role.id">
+                  <VChip v-if="role.entity !== 'STAFF'" :color="getRoleInfo(role.entity).color"
+                    size="small" variant="flat" class="!tw:font-normal tw:text-xs !tw:min-w-[80px]">
+                    <template #prepend>
+                      <Icon :icon="getRoleInfo(role.entity).icon" class="mr-2" />
+                    </template>
+                    {{ getRoleInfo(role.entity).label }}
+                  </VChip>
+                </template>
+              </div>
+            </template>
             <template #item.actions="{ item }">
               <div class="d-flex ga-2">
                 <v-btn
@@ -259,6 +318,18 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
                   @click="onChangeStatus(item)"
                 >
                   <Icon :icon="item.active ? 'mdi-power' : 'mdi-power-off'" height="18" />
+                </v-btn>
+                <v-btn
+                  v-if="checkPermission(PermissionEnum.UPDATE_STAFF)"
+                  icon
+                  variant="text"
+                  size="32"
+                  color="purple"
+                  class="!tw:bg-purple-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-purple-100"
+                  v-tooltip="'Asignar rol adicional'"
+                  @click="openRoleDialog(item)"
+                >
+                  <Icon icon="mdi:account-cog" height="18" />
                 </v-btn>
               </div>
             </template>
@@ -319,13 +390,26 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               </InputSection>
             </v-col>
           </v-row>
-          <InputSection label="Correo">
-            <VTextField
-              placeholder="Correo del Staff"
-              v-model="staff.user.email"
-              :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
-            />
-          </InputSection>
+          <v-row>
+            <v-col cols="12" md="6">
+              <InputSection label="Correo">
+                <VTextField
+                  placeholder="Correo del Staff"
+                  v-model="staff.user.email"
+                  :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
+                />
+              </InputSection>
+            </v-col>
+            <v-col cols="12" md="6">
+              <InputSection label="Nickname">
+                <VTextField
+                  placeholder="Nickname"
+                  v-model="staff.user.nickname"
+                  :error-messages="validator.user.nickname.$errors.map((x) => x.$message.toString())"
+                />
+              </InputSection>
+            </v-col>
+          </v-row>
           <InputSection label="Teléfono">
             <VTextField
               placeholder="Teléfono del Staff"
@@ -380,6 +464,69 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
             <VBtn @click="onSave" color="primary">Guardar</VBtn>
           </div>
         </UiParentCard>
+      </VDialog>
+
+      <VDialog v-model="showRoleDialog" max-width="500" transition="dialog-bottom-transition">
+        <v-card class="rounded-xl overflow-hidden">
+          <v-card-title class="d-flex justify-space-between align-center pa-4 bg-primary text-white">
+            <div class="d-flex align-center gap-2">
+              <Icon icon="solar:users-group-two-rounded-bold-duotone" height="24" class="mr-2" />
+              <span class="text-h6 font-weight-bold">Cambiar Rol</span>
+            </div>
+            <v-btn icon variant="text" color="white" @click="showRoleDialog = false">
+              <Icon icon="mdi:close" height="24" />
+            </v-btn>
+          </v-card-title>
+          
+          <v-card-text class="pa-6">
+            <div class="text-center mb-6">
+              <div class="text-h6 font-weight-bold mb-1">
+                {{ selectedStaff?.user.name }}
+              </div>
+              <div class="text-body-2 text-grey">Selecciona el nuevo rol para este usuario</div>
+            </div>
+
+            <v-row>
+              <v-col cols="12" sm="6" v-for="role in roles" :key="role.id">
+                <v-card
+                  @click="selectedNewRole = role.id"
+                  :color="selectedNewRole === role.id ? role.color : 'white'"
+                  :variant="selectedNewRole === role.id ? 'flat' : 'outlined'"
+                  class="cursor-pointer h-100 py-4 transition-all d-flex flex-column align-center justify-center gap-2"
+                  :class="{'elevation-6 transform-scale-105': selectedNewRole === role.id, 'hover:elevation-2': selectedNewRole !== role.id}"
+                  height="140"
+                >
+                  <Icon :icon="role.icon" height="40" :class="selectedNewRole === role.id ? 'text-white' : `text-${role.color}`" />
+                  <div class="font-weight-bold text-subtitle-1" :class="selectedNewRole === role.id ? 'text-white' : 'text-high-emphasis'">
+                    {{ role.name }}
+                  </div>
+                  <div class="text-caption px-2 text-center" :class="selectedNewRole === role.id ? 'text-white' : 'text-grey'">
+                    {{ role.desc }}
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card-text>
+
+          <v-divider></v-divider>
+
+          <v-card-actions class="pa-4">
+            <v-spacer></v-spacer>
+            <v-btn variant="text" color="grey-darken-1" @click="showRoleDialog = false" class="text-none font-weight-bold">
+              Cancelar
+            </v-btn>
+            <v-btn 
+              color="primary" 
+              variant="elevated" 
+              @click="handleRoleChange"
+              :disabled="!selectedNewRole"
+              :loading="globalMutateMutation.isPending.value"
+              class="text-none font-weight-bold px-6 rounded-lg"
+            >
+              Confirmar Cambio
+            </v-btn>
+          </v-card-actions>
+        </v-card>
       </VDialog>
     </v-row>
   </div>

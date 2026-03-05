@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*", "env.d.ts", "src/shims-vue.d.ts", "tests/**/*"],
+  "compilerOptions": {
+    "verbatimModuleSyntax": false,
+    "types": ["jest", "node"],
+    "noEmit": true,
+    "allowJs": true
+  }
+}

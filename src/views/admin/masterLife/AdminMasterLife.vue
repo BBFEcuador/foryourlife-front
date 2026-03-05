@@ -4,6 +4,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import useMasterLifeMutations from '@/composables/admin/masterLife/useMasterLifeMutations';
 import useMasterLifes from '@/composables/admin/masterLife/useMasterLifes';
+import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import type { MasterLife } from '@/models/MasterLife';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
@@ -22,6 +23,36 @@ import { toast } from 'vue3-toastify';
 const { isMasterLifeError, isMasterLifeLoading, masterLifeData, refetchMasterLife, page, perPage, search } = useMasterLifes();
 const { saveMasterLifeMutations, changeStatusMutations } = useMasterLifeMutations();
 const { genericMutation } = useInvitationMutation();
+const { globalMutateMutation } = useParticipantMutations();
+
+const showRoleDialog = ref(false);
+const selectedNewRole = ref('');
+const roles = [
+  { id: 'S', name: 'Staff', icon: 'solar:user-id-bold-duotone', color: 'primary', desc: 'Gestiona tareas operativas' },
+  { id: 'V', name: 'Visionario', icon: 'solar:user-bold-duotone', color: 'info', desc: 'Rol externo' }
+];
+
+const openRoleDialog = (item: MasterLife) => {
+  selectedMasterLife.value = item;
+  selectedNewRole.value = '';
+  showRoleDialog.value = true;
+};
+
+const handleRoleChange = () => {
+  if (selectedMasterLife.value && selectedNewRole.value) {
+    globalMutateMutation.mutate({ id: selectedMasterLife.value.user.id, type: selectedNewRole.value }, {
+      onSuccess: () => {
+        showSuccessToast('Rol actualizado correctamente');
+        showRoleDialog.value = false;
+        refetchMasterLife();
+      },
+      onError: (error) => {
+        showErrorToast(error as AxiosError<ErrorApiResponse>);
+      }
+    });
+  }
+};
+
 const debouncedSearch = ref('');
 
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -38,8 +69,20 @@ const headers = [
   { title: 'E-mail', value: 'user.email', sortable: true },
   { title: 'Teléfono', value: 'user.phone', sortable: true },
   { title: 'Activo', value: 'active', sortable: true },
+  { title: 'Roles Adicionales', value: 'user.entityMap', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false, width: 50 }
 ];
+
+const roleMap: Record<string, { label: string; color: string; icon: string }> = {
+  STAFF: { label: 'Staff', color: 'primary', icon: 'mdi:account-tie' },
+  VISIONARY: { label: 'Visionario', color: 'secondary', icon: 'mdi:account-star' },
+  MASTER_LIFE: { label: 'Master Life', color: 'info', icon: 'mdi:crown' }
+};
+
+const getRoleInfo = (entity: string) => {
+  return roleMap[entity] || { label: entity, color: 'grey', icon: 'mdi:account' };
+};
+
 const breadcrumbs = ref([
   {
     title: 'Master life',
@@ -61,8 +104,9 @@ const staffRules = {
     name2: { required: { ...required, $message: 'Debe ingresar su segundo nombre' } },
     lastname1: { required: { ...required, $message: 'Debe ingresar su primer apellido' } },
     lastname2: { required: { ...required, $message: 'Debe ingresar su segundo apellido' } },
-    phone: { required: { ...required, $message: 'Debe ingresar su número de teléfono' }, numeric },
-    email: { required: { ...required, $message: 'Debe ingresar su correo electrónico' }, email }
+    phone: { required: { ...required, $message: 'Debe ingresar su número de teléfono' } },
+    email: { required: { ...required, $message: 'Debe ingresar su correo electrónico' }, email },
+    nickname: { required: { ...required, $message: 'Debe ingresar su nickname' } }
   }
 };
 const validator = useVuelidate(staffRules, masterLife);
@@ -246,7 +290,15 @@ const copyLink = async () => {
                   v-if="checkPermission(PermissionEnum.CREATE_MASTER_LIFES)"
                   variant="elevated"
                   color="primary"
-                  @click="showForm = true"
+                  @click="
+                    () => {
+                      masterLife = {
+                        user: {},
+                        active: true
+                      } as MasterLife;
+                      showForm = true;
+                    }
+                  "
                 >
                   <Icon class="mr-2" icon="mdi:plus" />
                   Agregar
@@ -276,6 +328,20 @@ const copyLink = async () => {
                 {{ item.active ? 'Activo' : 'Inactivo' }}
               </VChip>
             </template>
+            <!-- Implicit Role Logic: Hiding 'MASTER_LIFE' role as it is implied in this view -->
+            <template #item.user.entityMap="{ item }">
+              <div class="tw:flex tw:flex-wrap tw:gap-1">
+                <template v-for="role in item.user.entityMap" :key="role.id">
+                  <VChip v-if="role.entity !== 'MASTER_LIFE'" :color="getRoleInfo(role.entity).color"
+                    size="small" variant="flat" class="!tw:font-normal tw:text-xs !tw:min-w-[80px]">
+                    <template #prepend>
+                      <Icon :icon="getRoleInfo(role.entity).icon" class="mr-2" />
+                    </template>
+                    {{ getRoleInfo(role.entity).label }}
+                  </VChip>
+                </template>
+              </div>
+            </template>
             <template #item.actions="{ item }">
               <div class="d-flex ga-2">
                 <v-btn
@@ -284,8 +350,8 @@ const copyLink = async () => {
                   color="info"
                   variant="text"
                   size="32"
-                  class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-                  v-tooltip="'Editar Staff'"
+                  class="text-info tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                  v-tooltip="'Editar Master Life'"
                   @click="onVisionaryEdit(item)"
                 >
                   <Icon icon="tabler:pencil" height="18" />
@@ -301,6 +367,18 @@ const copyLink = async () => {
                   @click="onChangeStatus(item)"
                 >
                   <Icon :icon="item.active ? 'mdi-power' : 'mdi-power-off'" height="18" />
+                </v-btn>
+                <v-btn
+                  v-if="checkPermission(PermissionEnum.UPDATE_MASTER_LIFES)"
+                  icon
+                  variant="text"
+                  size="32"
+                  color="purple"
+                  class="!tw:bg-purple-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-purple-100"
+                  v-tooltip="'Asignar rol adicional'"
+                  @click="openRoleDialog(item)"
+                >
+                  <Icon icon="mdi:account-cog" height="18" />
                 </v-btn>
                 <v-btn
                   :color="'info'"
@@ -329,25 +407,32 @@ const copyLink = async () => {
             </template>
           </v-data-table-server>
         </UiParentCard>
-        <VDialog max-width="500" v-model="showForm">
+        <VDialog max-width="500" v-model="showForm" persistent>
           <UiParentCard title="Guardar Master Life">
             <VRow>
               <v-col cols="12" md="6">
                 <InputSection label="Nombre 1">
                   <VTextField
-                    placeholder="Nombre 1"
-                    v-model="masterLife.user.name1"
-                    :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())"
+                  placeholder="Nombre 1"
+                  v-model="masterLife.user.name1"
+                  :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())"
                   />
                 </InputSection>
                 <InputSection label="Apellido 1">
                   <VTextField
-                    placeholder="Apellido 1"
-                    v-model="masterLife.user.lastname1"
-                    :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
+                  placeholder="Apellido 1"
+                  v-model="masterLife.user.lastname1"
+                  :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
                   />
                 </InputSection>
-              </v-col>
+                <InputSection label="Teléfono">
+                  <VTextField
+                    placeholder="Teléfono"
+                    v-model="masterLife.user.phone"
+                    :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
+                  />
+                </InputSection>
+                </v-col>
               <v-col cols="12" md="6">
                 <InputSection label="Nombre 2">
                   <VTextField
@@ -358,9 +443,16 @@ const copyLink = async () => {
                 </InputSection>
                 <InputSection label="Apellido 2">
                   <VTextField
-                    placeholder="Apellido 2"
-                    v-model="masterLife.user.lastname2"
-                    :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
+                  placeholder="Apellido 2"
+                  v-model="masterLife.user.lastname2"
+                  :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
+                  />
+                </InputSection>
+                <InputSection label="Nicknam">
+                  <VTextField
+                    placeholder="Nickname"
+                    v-model="masterLife.user.nickname"
+                    :error-messages="validator.user.nickname.$errors.map((x) => x.$message.toString())"
                   />
                 </InputSection>
               </v-col>
@@ -374,20 +466,14 @@ const copyLink = async () => {
             </InputSection>
             <InputSection label="Contraseña" v-if="!masterLife.user.id">
               <VTextField
-                placeholder="Correo"
+                placeholder="********"
                 v-model="masterLife.user.password"
                 :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
               />
             </InputSection>
 
-            <InputSection label="Teléfono">
-              <VTextField
-                placeholder="Teléfono"
-                v-model="masterLife.user.phone"
-                :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
-              />
-            </InputSection>
             <div class="tw:w-full tw:flex tw:justify-end">
+              <VBtn @click="showForm = false" color="grey-darken-1" variant="text">Cancelar</VBtn>
               <VBtn @click="onSave" color="primary" :loading="saveMasterLifeMutations.isPending.value">Guardar</VBtn>
             </div>
           </UiParentCard>
@@ -404,6 +490,68 @@ const copyLink = async () => {
       No tienes permiso para ver esta sección.
     </v-alert>
   </div>
+  <VDialog v-model="showRoleDialog" max-width="500" transition="dialog-bottom-transition">
+    <v-card class="rounded-xl overflow-hidden">
+      <v-card-title class="d-flex justify-space-between align-center pa-4 bg-primary text-white">
+        <div class="d-flex align-center gap-2">
+          <Icon icon="solar:users-group-two-rounded-bold-duotone" height="24" class="mr-2" />
+          <span class="text-h6 font-weight-bold">Cambiar Rol</span>
+        </div>
+        <v-btn icon variant="text" color="white" @click="showRoleDialog = false">
+          <Icon icon="mdi:close" height="24" />
+        </v-btn>
+      </v-card-title>
+      
+      <v-card-text class="pa-6">
+        <div class="text-center mb-6">
+          <div class="text-h6 font-weight-bold mb-1">
+            {{ selectedMasterLife?.user.name }}
+          </div>
+          <div class="text-body-2 text-grey">Selecciona el nuevo rol para este usuario</div>
+        </div>
+
+        <v-row>
+          <v-col cols="12" sm="6" v-for="role in roles" :key="role.id">
+            <v-card
+              @click="selectedNewRole = role.id"
+              :color="selectedNewRole === role.id ? role.color : 'white'"
+              :variant="selectedNewRole === role.id ? 'flat' : 'outlined'"
+              class="cursor-pointer h-100 py-4 transition-all d-flex flex-column align-center justify-center gap-2"
+              :class="{'elevation-6 transform-scale-105': selectedNewRole === role.id, 'hover:elevation-2': selectedNewRole !== role.id}"
+              height="140"
+            >
+              <Icon :icon="role.icon" height="40" :class="selectedNewRole === role.id ? 'text-white' : `text-${role.color}`" />
+              <div class="font-weight-bold text-subtitle-1" :class="selectedNewRole === role.id ? 'text-white' : 'text-high-emphasis'">
+                {{ role.name }}
+              </div>
+              <div class="text-caption px-2 text-center" :class="selectedNewRole === role.id ? 'text-white' : 'text-grey'">
+                {{ role.desc }}
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-card-text>
+
+      <v-divider></v-divider>
+
+      <v-card-actions class="pa-4">
+        <v-spacer></v-spacer>
+        <v-btn variant="text" color="grey-darken-1" @click="showRoleDialog = false" class="text-none font-weight-bold">
+          Cancelar
+        </v-btn>
+        <v-btn 
+          color="primary" 
+          variant="elevated" 
+          @click="handleRoleChange"
+          :disabled="!selectedNewRole"
+          :loading="globalMutateMutation.isPending.value"
+          class="text-none font-weight-bold px-6 rounded-lg"
+        >
+          Confirmar Cambio
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </VDialog>
   <VDialog v-model="showInvitationLot" width="500">
     <UiParentCard title="Invitaciones">
       <VRow>

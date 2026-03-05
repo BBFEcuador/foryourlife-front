@@ -16,6 +16,7 @@ export interface Payment {
   note: any;
   invoice: Invoice[];
   hasSomePaymentWithError: boolean;
+  createdDate: string;
 }
 
 export interface PaymentRequest {

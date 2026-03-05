@@ -4,6 +4,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import useVisionaries from '@/composables/admin/visionaries/useVisionaries';
 import useVisionarymutations from '@/composables/admin/visionaries/useVisionarymutations';
+import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 import type { Visionary } from '@/models/Visionary';
 import Swal from 'sweetalert2';
@@ -18,7 +19,48 @@ import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 
 const { isVisionariesError, isVisionariesloading, refetchVisionaries, visionariesData, page, perPage, search } = useVisionaries();
 const { saveVisionaryMutations, changeStatusMutations } = useVisionarymutations();
+const { globalMutateMutation } = useParticipantMutations();
+
 const showForm = ref(false);
+const showRoleDialog = ref(false);
+const selectedVisionary = ref<Visionary | null>(null);
+const selectedNewRole = ref('');
+const roles = [
+  { id: 'S', name: 'Staff', icon: 'solar:user-id-bold-duotone', color: 'primary', desc: 'Gestiona tareas operativas' },
+  { id: 'ML', name: 'Master Life', icon: 'eos-icons:master-outlined', color: 'info', desc: 'Liderazgo y maestría' }
+];
+
+const roleMap: Record<string, { label: string; color: string; icon: string }> = {
+  STAFF: { label: 'Staff', color: 'primary', icon: 'mdi:account-tie' },
+  VISIONARY: { label: 'Visionario', color: 'secondary', icon: 'mdi:account-star' },
+  MASTER_LIFE: { label: 'Master Life', color: 'info', icon: 'mdi:crown' }
+};
+
+const getRoleInfo = (entity: string) => {
+  return roleMap[entity] || { label: entity, color: 'grey', icon: 'mdi:account' };
+};
+
+const openRoleDialog = (item: Visionary) => {
+  selectedVisionary.value = item;
+  selectedNewRole.value = '';
+  showRoleDialog.value = true;
+};
+
+const handleRoleChange = () => {
+  if (selectedVisionary.value && selectedNewRole.value) {
+    globalMutateMutation.mutate({ id: selectedVisionary.value.user.id, type: selectedNewRole.value }, {
+      onSuccess: () => {
+        showSuccessToast('Rol actualizado correctamente');
+        showRoleDialog.value = false;
+        refetchVisionaries();
+      },
+      onError: (error) => {
+        showErrorToast(error as AxiosError<ErrorApiResponse>);
+      }
+    });
+  }
+};
+
 const breadcrumbs = ref([
   {
     title: 'Visionarios',
@@ -44,8 +86,9 @@ const staffRules = {
     name2: { required: { ...required, $message: 'Debe ingresar su segundo nombre' } },
     lastname1: { required: { ...required, $message: 'Debe ingresar su primer apellido' } },
     lastname2: { required: { ...required, $message: 'Debe ingresar su segundo apellido' } },
-    phone: { required: { ...required, $message: 'Debe ingresar su número de teléfono' }, numeric },
-    email: { required: { ...required, $message: 'Debe ingresar su correo electrónico' }, email }
+    phone: { required: { ...required, $message: 'Debe ingresar su número de teléfono' } },
+    email: { required: { ...required, $message: 'Debe ingresar su correo electrónico' }, email },
+    nickname: { required: { ...required, $message: 'Debe ingresar su nickname' } }
   }
 };
 const headers = [
@@ -53,6 +96,7 @@ const headers = [
   { title: 'E-mail', value: 'user.email', width: '200', sortable: true },
   { title: 'Teléfono', value: 'user.phone', width: '150', sortable: true },
   { title: 'Activo', value: 'active', width: '100', sortable: true },
+  { title: 'Roles Adicionales', value: 'user.entityMap', sortable: true },
   { title: 'Acciones', value: 'actions', width: '100', sortable: false, align: 'center' as const }
 ];
 
@@ -154,39 +198,16 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
         <Icon icon="mdi:format-list-bulleted" />
       </template>
 
-      <v-data-table-server
-        :headers="headers"
-        :search="debouncedSearch"
-        :items="visionariesData.content"
-        :loading="isVisionariesloading"
-        class="tw:rounded-xl elevation-0"
-        :loading-text="'Cargando visionarios...'"
-        :no-data-text="'No se encontraron visionarios'"
-        hover
-        :items-length="visionariesData.totalElements"
-        :items-per-page="10"
-        @update:options="loadItems"
-      >
+      <v-data-table-server :headers="headers" :search="debouncedSearch" :items="visionariesData.content"
+        :loading="isVisionariesloading" class="tw:rounded-xl elevation-0" :loading-text="'Cargando visionarios...'"
+        :no-data-text="'No se encontraron visionarios'" hover :items-length="visionariesData.totalElements"
+        :items-per-page="10" @update:options="loadItems">
         <template v-slot:top>
-          <v-toolbar
-            class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-            flat
-            v-motion
-            :initial="{ opacity: 0, y: -10 }"
-            :enter="{ opacity: 1, y: 0 }"
-            :delay="200"
-            :duration="250"
-          >
+          <v-toolbar v-motion :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200"
+            :duration="250" class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat>
             <div class="tw:flex-1 tw:max-w-md tw:relative">
-              <VTextField
-                v-model="debouncedSearch"
-                placeholder="Buscar por nombre, email o teléfono..."
-                variant="outlined"
-                density="comfortable"
-                hide-details
-                class="tw:rounded-lg"
-                bg-color="white"
-              >
+              <VTextField v-model="debouncedSearch" placeholder="Buscar por nombre, email o teléfono..."
+                variant="outlined" density="comfortable" hide-details class="tw:rounded-lg" bg-color="white">
                 <template #prepend-inner>
                   <Icon icon="mdi:magnify" height="18" />
                 </template>
@@ -198,19 +219,14 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               </VTextField>
             </div>
             <v-spacer></v-spacer>
-            <VBtn
-              v-if="checkPermission(PermissionEnum.CREATE_VISIONARIES)"
-              variant="elevated"
-              color="primary"
-              @click="
-                () => {
-                  staff = {
-                    user: {}
-                  } as Visionary;
-                  showForm = true;
-                }
-              "
-            >
+            <VBtn v-if="checkPermission(PermissionEnum.CREATE_VISIONARIES)" variant="elevated" color="primary" @click="
+              () => {
+                staff = {
+                  user: {}
+                } as Visionary;
+                showForm = true;
+              }
+            ">
               <Icon class="mr-2" icon="mdi:plus" />
               Agregar Visionario
             </VBtn>
@@ -240,11 +256,18 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
           </div>
         </template>
 
-        <template #item.role="{ item }">
-          <div class="tw:text-nowrap">
-            <VChip :color="item.role === 'CAPITAN' ? 'amber' : 'primary'" variant="flat" class="!tw:font-normal" size="small">
-              {{ item.role }}
-            </VChip>
+        <!-- Implicit Role Logic: Hiding 'VISIONARY' role as it is implied in this view -->
+        <template #item.user.entityMap="{ item }">
+          <div class="tw:flex tw:flex-wrap tw:gap-1">
+            <template v-for="role in item.user.entityMap" :key="role.id">
+              <VChip v-if="role.entity !== 'VISIONARY'" :color="getRoleInfo(role.entity).color"
+                size="small" variant="flat" class="!tw:font-normal tw:text-xs !tw:min-w-[80px]">
+                <template #prepend>
+                  <Icon :icon="getRoleInfo(role.entity).icon" class="mr-2" />
+                </template>
+                {{ getRoleInfo(role.entity).label }}
+              </VChip>
+            </template>
           </div>
         </template>
 
@@ -258,30 +281,23 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
 
         <template #item.actions="{ item }">
           <div class="tw:flex tw:items-center tw:justify-center tw:gap-2 tw:text-nowrap">
-            <VBtn
-              v-if="checkPermission(PermissionEnum.UPDATE_VISIONARIES)"
-              icon
-              variant="text"
-              color="primary"
-              height="32"
-              class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-              v-tooltip="'Editar visionario'"
-              @click="onVisionaryEdit(item)"
-            >
+            <VBtn v-if="checkPermission(PermissionEnum.UPDATE_VISIONARIES)" icon variant="text" color="primary"
+              height="32" class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+              v-tooltip="'Editar visionario'" @click="onVisionaryEdit(item)">
               <Icon icon="mdi:pencil" />
             </VBtn>
-            <VBtn
-              v-if="checkPermission(PermissionEnum.UPDATE_VISIONARIES)"
-              icon
-              variant="text"
-              height="32"
+            <VBtn v-if="checkPermission(PermissionEnum.UPDATE_VISIONARIES)" icon variant="text" height="32"
               :color="item.active ? 'error' : 'success'"
               :class="item.active ? '!tw:bg-red-50 hover:!tw:bg-red-100' : '!tw:bg-green-50 hover:!tw:bg-green-100'"
               class="tw:rounded-lg !tw:shadow-sm"
               v-tooltip="item.active ? 'Desactivar visionario' : 'Activar visionario'"
-              @click="handleDisableVisionary(item)"
-            >
+              @click="handleDisableVisionary(item)">
               <Icon :icon="item.active ? 'mdi:toggle-switch' : 'mdi:toggle-switch-off'" />
+            </VBtn>
+            <VBtn v-if="checkPermission(PermissionEnum.UPDATE_VISIONARIES)" icon variant="text" color="primary"
+              height="32" class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+              v-tooltip="'Asignar rol adicional'" @click="openRoleDialog(item)">
+              <Icon icon="mdi:account-cog" />
             </VBtn>
           </div>
         </template>
@@ -301,10 +317,8 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
     </UiParentCard>
 
     <VDialog max-width="500" v-model="showForm" transition="dialog-bottom-transition" persistent>
-      <UiParentCard
-        :title="staff.user.id ? 'Editar Visionario' : 'Nuevo Visionario'"
-        class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100"
-      >
+      <UiParentCard :title="staff.user.id ? 'Editar Visionario' : 'Nuevo Visionario'"
+        class="!tw:rounded-xl !tw:shadow-xl !tw:border !tw:border-gray-100">
         <template #prepend>
           <Icon :icon="staff.user.id ? 'mdi:account-edit' : 'mdi:account-plus'" class="tw:text-gray-600 tw:mr-2" />
         </template>
@@ -314,16 +328,9 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
             <VRow>
               <VCol cols="12" sm="6">
                 <InputSection label="Nombre 1" required>
-                  <VTextField
-                    placeholder="Ingrese el nombre del visionario"
-                    v-model="staff.user.name1"
-                    :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())"
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details="auto"
-                    class="tw:rounded-lg !tw:shadow-sm"
-                    bg-color="white"
-                  >
+                  <VTextField placeholder="Ingrese el nombre del visionario" v-model="staff.user.name1"
+                    :error-messages="validator.user.name1.$errors.map((x) => x.$message.toString())" variant="outlined"
+                    density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
                     <template v-slot:prepend>
                       <Icon icon="mdi:account" />
                     </template>
@@ -332,16 +339,9 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               </VCol>
               <VCol cols="12" sm="6">
                 <InputSection label="Nombre 2">
-                  <VTextField
-                    placeholder="Ingrese el nombre del visionario"
-                    v-model="staff.user.name2"
-                    :error-messages="validator.user.name2.$errors.map((x) => x.$message.toString())"
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details="auto"
-                    class="tw:rounded-lg !tw:shadow-sm"
-                    bg-color="white"
-                  >
+                  <VTextField placeholder="Ingrese el nombre del visionario" v-model="staff.user.name2"
+                    :error-messages="validator.user.name2.$errors.map((x) => x.$message.toString())" variant="outlined"
+                    density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
                     <template v-slot:prepend>
                       <Icon icon="mdi:account" />
                     </template>
@@ -350,16 +350,10 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               </VCol>
               <VCol cols="12" sm="6">
                 <InputSection label="Apellido 1" required>
-                  <VTextField
-                    placeholder="Ingrese el apellido del visionario"
-                    v-model="staff.user.lastname1"
+                  <VTextField placeholder="Ingrese el apellido del visionario" v-model="staff.user.lastname1"
                     :error-messages="validator.user.lastname1.$errors.map((x) => x.$message.toString())"
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details="auto"
-                    class="tw:rounded-lg !tw:shadow-sm"
-                    bg-color="white"
-                  >
+                    variant="outlined" density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm"
+                    bg-color="white">
                     <template v-slot:prepend>
                       <Icon icon="mdi:account" />
                     </template>
@@ -368,16 +362,35 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               </VCol>
               <VCol cols="12" sm="6">
                 <InputSection label="Apellido 2">
-                  <VTextField
-                    placeholder="Ingrese el apellido del visionario"
-                    v-model="staff.user.lastname2"
+                  <VTextField placeholder="Ingrese el apellido del visionario" v-model="staff.user.lastname2"
                     :error-messages="validator.user.lastname2.$errors.map((x) => x.$message.toString())"
-                    variant="outlined"
-                    density="comfortable"
-                    hide-details="auto"
-                    class="tw:rounded-lg !tw:shadow-sm"
+                    variant="outlined" density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm"
+                    bg-color="white">
+                    <template v-slot:prepend>
+                      <Icon icon="mdi:account" />
+                    </template>
+                  </VTextField>
+                </InputSection>
+              </VCol>
+            </VRow>
+            <VRow>
+              <VCol cols="12" sm="6">
+                <InputSection label="Teléfono" required>
+                  <VTextField placeholder="Ingrese el número telefónico" v-model="staff.user.phone"
+                    :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())" variant="outlined"
+                    density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
+                    <template v-slot:prepend>
+                      <Icon icon="mdi:phone" />
+                    </template>
+                  </VTextField>
+                </InputSection>
+              </VCol>
+              <VCol cols="12" sm="6">
+                <InputSection label="Nickname">
+                  <VTextField placeholder="Ingrese el nickname (opcional)" v-model="staff.user.nickname"
+                    variant="outlined" density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm"
                     bg-color="white"
-                  >
+                    :error-messages="validator.user.nickname.$errors.map((x) => x.$message.toString())">
                     <template v-slot:prepend>
                       <Icon icon="mdi:account" />
                     </template>
@@ -386,63 +399,94 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
               </VCol>
             </VRow>
             <InputSection label="E-mail" required>
-              <VTextField
-                placeholder="Ingrese el correo electrónico"
-                v-model="staff.user.email"
-                :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-                class="tw:rounded-lg !tw:shadow-sm"
-                bg-color="white"
-              >
+              <VTextField placeholder="Ingrese el correo electrónico" v-model="staff.user.email"
+                :error-messages="validator.user.email.$errors.map((x) => x.$message.toString())" variant="outlined"
+                density="comfortable" hide-details="auto" class="tw:rounded-lg !tw:shadow-sm" bg-color="white">
                 <template v-slot:prepend>
                   <Icon icon="mdi:email" />
                 </template>
               </VTextField>
             </InputSection>
-
-            <InputSection label="Teléfono" required>
-              <VTextField
-                placeholder="Ingrese el número telefónico"
-                v-model="staff.user.phone"
-                :error-messages="validator.user.phone.$errors.map((x) => x.$message.toString())"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-                class="tw:rounded-lg !tw:shadow-sm"
-                bg-color="white"
-              >
-                <template v-slot:prepend>
-                  <Icon icon="mdi:phone" />
-                </template>
-              </VTextField>
-            </InputSection>            
           </div>
 
           <div class="tw:flex tw:justify-end tw:gap-3 tw:mt-6">
-            <VBtn
-              variant="text"
-              color="error"
-              @click="showForm = false"
-              :disabled="saveVisionaryMutations.isPending.value"
-              class="!tw:font-normal tw:rounded-lg tw:min-w-[120px]"
-            >
+            <VBtn variant="text" color="error" @click="showForm = false"
+              :disabled="saveVisionaryMutations.isPending.value" class="!tw:font-normal tw:rounded-lg tw:min-w-[120px]">
               <Icon icon="mdi:close" class="tw:mr-2" />
               Cancelar
             </VBtn>
-            <VBtn
-              color="primary"
-              @click="onSave"
-              :loading="saveVisionaryMutations.isPending.value"
-              class="!tw:font-normal tw:rounded-lg tw:min-w-[120px] !tw:bg-primary"
-            >
+            <VBtn color="primary" @click="onSave" :loading="saveVisionaryMutations.isPending.value"
+              class="!tw:font-normal tw:rounded-lg tw:min-w-[120px] !tw:bg-primary">
               <Icon :icon="staff.user.id ? 'mdi:content-save-edit' : 'mdi:content-save-plus'" class="tw:mr-2" />
               {{ staff.user.id ? 'Actualizar' : 'Guardar' }}
             </VBtn>
           </div>
         </v-form>
       </UiParentCard>
+    </VDialog>
+
+    <!-- Role Selection Dialog -->
+    <VDialog v-model="showRoleDialog" max-width="500" transition="dialog-bottom-transition">
+      <v-card class="rounded-xl overflow-hidden">
+        <v-card-title class="d-flex justify-space-between align-center pa-4 bg-primary text-white">
+          <div class="d-flex align-center gap-2">
+            <Icon icon="solar:users-group-two-rounded-bold-duotone" height="24" class="mr-2" />
+            <span class="text-h6 font-weight-bold">Cambiar Rol</span>
+          </div>
+          <v-btn icon variant="text" color="white" @click="showRoleDialog = false">
+            <Icon icon="mdi:close" height="24" />
+          </v-btn>
+        </v-card-title>
+        
+        <v-card-text class="pa-6">
+          <div class="text-center mb-6">
+            <div class="text-h6 font-weight-bold mb-1">
+              {{ selectedVisionary?.user.name }}
+            </div>
+            <div class="text-body-2 text-grey">Selecciona el nuevo rol para este usuario</div>
+          </div>
+
+          <v-row>
+            <v-col cols="12" sm="6" v-for="role in roles" :key="role.id">
+              <v-card
+                @click="selectedNewRole = role.id"
+                :color="selectedNewRole === role.id ? role.color : 'white'"
+                :variant="selectedNewRole === role.id ? 'flat' : 'outlined'"
+                class="cursor-pointer h-100 py-4 transition-all d-flex flex-column align-center justify-center gap-2"
+                :class="{'elevation-6 transform-scale-105': selectedNewRole === role.id, 'hover:elevation-2': selectedNewRole !== role.id}"
+                height="140"
+              >
+                <Icon :icon="role.icon" height="40" :class="selectedNewRole === role.id ? 'text-white' : `text-${role.color}`" />
+                <div class="font-weight-bold text-subtitle-1" :class="selectedNewRole === role.id ? 'text-white' : 'text-high-emphasis'">
+                  {{ role.name }}
+                </div>
+                <div class="text-caption px-2 text-center" :class="selectedNewRole === role.id ? 'text-white' : 'text-grey'">
+                  {{ role.desc }}
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn variant="text" color="grey-darken-1" @click="showRoleDialog = false" class="text-none font-weight-bold">
+            Cancelar
+          </v-btn>
+          <v-btn 
+            color="primary" 
+            variant="elevated" 
+            @click="handleRoleChange"
+            :disabled="!selectedNewRole"
+            :loading="globalMutateMutation.isPending.value"
+            class="text-none font-weight-bold px-6 rounded-lg"
+          >
+            Confirmar Cambio
+          </v-btn>
+        </v-card-actions>
+      </v-card>
     </VDialog>
   </div>
   <div v-else>

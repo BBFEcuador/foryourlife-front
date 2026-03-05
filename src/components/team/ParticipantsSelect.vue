@@ -108,10 +108,10 @@ const getDisabledRow = (item: Participant) => {
         </template>
       </v-text-field>
       <VDataTable
+        v-model="sp"
         :items="participants"
         :headers="headers"
         show-select
-        v-model="sp"
         return-object
         :search="searchQuery"
         :page="page"
@@ -122,7 +122,7 @@ const getDisabledRow = (item: Participant) => {
           <v-data-table-row :item="internalItem" :class="getAvailableRowClass(item)">
             <template #item.isLingerer="{ item }">
               <VChip :color="item.isLingerer ? 'error' : 'success'">
-                {{ item.isLingerer ? 'Rezagado' : 'No rezagado' }}
+                {{ item.isLingerer ? 'Rezagado' : 'Jornada' }}
               </VChip>
             </template>
             <template #item.participantLevel.courseLevel="{ item }">
