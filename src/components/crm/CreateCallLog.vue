@@ -27,7 +27,7 @@ const callLog = ref<CallsLogRequest>({
   callStatus: '' as CallStatus,
   notes: '',
   calledById: userId,
-  date: '',
+  date: new Date().toISOString().substring(0, 10),
   callId: ''
 } as CallsLogRequest);
 

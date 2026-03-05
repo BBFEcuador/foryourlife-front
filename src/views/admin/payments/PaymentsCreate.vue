@@ -35,6 +35,8 @@ const type = ref('N');
 const generalPaymentRef = ref();
 const paymentHistoryArr = ref<PaymentHistory[]>([]);
 const showPaymentHistoryModal = ref(false);
+const editingIndex = ref<number | null>(null);
+const editingPayment = ref<PaymentHistory | null>(null);
 const isLoading = ref(false);
 const showSuccessModal = ref(false);
 const redirectCountdown = ref(3);
@@ -136,6 +138,25 @@ const progressValue = computed(() => ((maxCountdown - redirectCountdown.value) /
 
 const isPaymentDisabled = computed(() => isLoading.value || !selectedProduct.value || !selectedParticipant.value || v$.value.$invalid);
 
+const totalPaid = computed(() => {
+  return paymentHistoryArr.value.reduce((acc, item) => acc + Number(item.amount), 0);
+});
+
+const remainingBalance = computed(() => {
+  return Math.max(0, grandTotal.value - totalPaid.value);
+});
+
+const changeAmount = computed(() => {
+  return Math.max(0, totalPaid.value - grandTotal.value);
+});
+
+const paymentStatusColor = computed(() => {
+    if (totalPaid.value === 0) return 'grey';
+    if (totalPaid.value < grandTotal.value) return 'warning';
+    if (totalPaid.value >= grandTotal.value) return 'success';
+    return 'primary';
+});
+
 // --- Methods ---
 function resetAllFields() {
   paymentNumber.value = 'PAY-000001';
@@ -226,11 +247,40 @@ const addPaymentHistoryRow = (paymentHistoryRow: PaymentHistoryRequest) => {
     transactionId: paymentHistoryRow.paymentHistory.transactionId,
     pingType: paymentHistoryRow.paymentHistory.pingType
   };
-  paymentHistoryArr.value.push(paymentHistory);
+  
+  if (editingIndex.value !== null) {
+    paymentHistoryArr.value[editingIndex.value] = paymentHistory;
+    editingIndex.value = null;
+    editingPayment.value = null;
+  } else {
+    paymentHistoryArr.value.push(paymentHistory);
+  }
 };
 
 const clearPaymentHistory = () => {
   paymentHistoryArr.value = [];
+  editingIndex.value = null;
+  editingPayment.value = null;
+};
+
+const removePayment = (index: number) => {
+  paymentHistoryArr.value.splice(index, 1);
+  if (editingIndex.value === index) {
+    editingIndex.value = null;
+    editingPayment.value = null;
+  }
+};
+
+const editPayment = (index: number) => {
+  editingIndex.value = index;
+  editingPayment.value = paymentHistoryArr.value[index];
+  showPaymentHistoryModal.value = true;
+};
+
+const openAddPaymentModal = () => {
+  editingIndex.value = null;
+  editingPayment.value = null;
+  showPaymentHistoryModal.value = true;
 };
 
 defineExpose({ showSuccessModal, redirectCountdown });
@@ -327,51 +377,162 @@ defineExpose({ showSuccessModal, redirectCountdown });
           </v-card-text>
         </v-card>
 
-        <div>
-          <v-btn color="success" variant="tonal" @click="showPaymentHistoryModal = true">
-            <Icon icon="mdi:plus" class="mr-2" />
-            Añadir Pago
-          </v-btn>
-        </div>
-
-        <v-card v-if="paymentHistoryArr.length > 0" class="mt-4">
-          <v-card-title class="d-flex tw:justify-between tw:items-center">
-            <h3 class="tw:text-lg tw:font-semibold">Pagos</h3>
-            <v-btn color="red" variant="tonal" @click="clearPaymentHistory">
-              <Icon icon="mdi:close" class="mr-2" />
-              Limpiar pagos
-            </v-btn>
+        <v-card class="mt-4 payment-card h-full" variant="outlined" style="border-color: #e2e8f0;">
+          <v-card-title class="d-flex justify-space-between align-center py-3 bg-grey-lighten-5">
+            <div class="d-flex align-center">
+              <Icon icon="solar:wallet-money-bold-duotone" class="mr-2 text-primary" height="24" />
+              <span class="text-h6 font-weight-bold">Pagos y Cobro</span>
+            </div>
+            <v-chip :color="paymentStatusColor" variant="flat" size="small" class="font-weight-bold text-uppercase">
+              {{ totalPaid >= grandTotal && grandTotal > 0 ? 'COMPLETADO' : 'PENDIENTE' }}
+            </v-chip>
           </v-card-title>
+          
+          <v-divider></v-divider>
 
-          <v-card-text class="pl-4 pb-4">
-            <table class="tw:w-full">
-              <thead>
-                <tr class="tw:border-b tw:border-gray-300">
-                  <th class="tw:p-2 tw:text-left">Método de pago</th>
-                  <th class="tw:p-2 tw:text-right">Monto pagado</th>
-                  <th class="tw:p-2 tw:text-right">Código de Transacción</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, index) in paymentHistoryArr" :key="index" class="tw:border-b tw:border-gray-200">
-                  <td class="tw:p-2">{{ item.paymentMethod.type }}</td>
-                  <td class="tw:p-2 tw:text-right">${{ item.amount }}</td>
-                  <td class="tw:p-2 tw:text-right">{{ item.transactionId }}</td>
-                </tr>
-              </tbody>
-            </table>
+          <v-card-text class="pa-4">
+            <!-- Summary Stats -->
+            <v-row class="mb-6">
+              <v-col cols="4" class="text-center border-e">
+                <div class="text-caption text-grey text-uppercase font-weight-bold mb-1">Total a Pagar</div>
+                <div class="text-h5 font-weight-bold text-high-emphasis">${{ grandTotal.toFixed(2) }}</div>
+              </v-col>
+              <v-col cols="4" class="text-center border-e">
+                <div class="text-caption text-grey text-uppercase font-weight-bold mb-1">Total Pagado</div>
+                <div class="text-h5 font-weight-bold text-success">${{ totalPaid.toFixed(2) }}</div>
+              </v-col>
+              <v-col cols="4" class="text-center">
+                <div class="text-caption text-grey text-uppercase font-weight-bold mb-1">
+                  {{ changeAmount > 0 ? 'Cambio' : 'Restante' }}
+                </div>
+                <div class="text-h5 font-weight-bold" :class="changeAmount > 0 ? 'text-info' : 'text-error'">
+                  ${{ changeAmount > 0 ? changeAmount.toFixed(2) : remainingBalance.toFixed(2) }}
+                </div>
+              </v-col>
+            </v-row>
+
+            <!-- Progress Bar -->
+            <div class="mb-6">
+              <div class="d-flex justify-space-between text-caption mb-1">
+                <span>Progreso de pago</span>
+                <span>{{ Math.min(((totalPaid / (grandTotal || 1)) * 100), 100).toFixed(0) }}%</span>
+              </div>
+              <v-progress-linear
+                :model-value="(totalPaid / (grandTotal || 1)) * 100"
+                :color="paymentStatusColor"
+                height="10"
+                rounded
+                striped
+              ></v-progress-linear>
+            </div>
+
+            <!-- Action Buttons -->
+            <v-row dense class="mb-6">
+              <v-col cols="12" :md="remainingBalance > 0 ? 6 : 12">
+                <v-btn 
+                  block 
+                  variant="outlined" 
+                  color="primary" 
+                  class="border-dashed py-6" 
+                  style="border-width: 2px"
+                  height="auto"
+                  @click="openAddPaymentModal"
+                  :disabled="totalPaid >= grandTotal && grandTotal > 0"
+                >
+                  <div class="d-flex flex-column align-center py-2">
+                    <Icon icon="mdi:plus-circle-outline" class="mb-1" height="24" />
+                    <span class="font-weight-bold">Agregar Pago</span>
+                  </div>
+                </v-btn>
+              </v-col>
+              <v-col cols="12" md="6" v-if="remainingBalance > 0">
+                <v-btn 
+                  block 
+                  variant="tonal" 
+                  color="success" 
+                  class="py-6" 
+                  height="auto"
+                  @click="openAddPaymentModal"
+                  v-tooltip="'Pagar el monto restante exacto'"
+                >
+                  <div class="d-flex flex-column align-center py-2">
+                    <Icon icon="solar:check-read-linear" class="mb-1" height="24" />
+                    <span class="font-weight-bold">Saldar Restante (${{ remainingBalance.toFixed(2) }})</span>
+                  </div>
+                </v-btn>
+              </v-col>
+            </v-row>
+
+            <!-- Payment List -->
+            <div v-if="paymentHistoryArr.length > 0" class="payment-list rounded-lg border pa-0 overflow-hidden mb-4">
+              <div class="bg-grey-lighten-4 px-4 py-2 text-caption font-weight-bold text-uppercase text-grey">
+                Desglose de pagos
+              </div>
+              <v-list density="compact" class="pa-0">
+                <template v-for="(item, index) in paymentHistoryArr" :key="index">
+                  <v-list-item class="px-4 py-2" @click="editPayment(index)" style="cursor: pointer" v-tooltip="'Clic para editar'">
+                    <template v-slot:prepend>
+                      <v-avatar color="primary" variant="tonal" size="36" class="mr-3 rounded-lg">
+                        <Icon icon="solar:card-transfer-bold-duotone" size="20" />
+                      </v-avatar>
+                    </template>
+                    
+                    <v-list-item-title class="font-weight-bold">{{ item.paymentMethod.type }}</v-list-item-title>
+                    <v-list-item-subtitle class="text-caption">
+                      ID: {{ item.transactionId || 'N/A' }} • {{ new Date().toLocaleDateString() }}
+                    </v-list-item-subtitle>
+                    
+                    <template v-slot:append>
+                      <div class="d-flex align-center">
+                        <span class="font-weight-bold mr-3 text-body-2">${{ Number(item.amount).toFixed(2) }}</span>
+                        <v-btn icon size="small" variant="text" color="primary" @click.stop="editPayment(index)" class="mr-1" v-tooltip="'Editar pago'">
+                          <Icon icon="solar:pen-new-square-bold-duotone" size="18" />
+                        </v-btn>
+                        <v-btn icon size="small" variant="text" color="grey" @click.stop="removePayment(index)" v-tooltip="'Eliminar pago'">
+                          <Icon icon="solar:trash-bin-trash-bold" size="18" class="text-error" />
+                        </v-btn>
+                      </div>
+                    </template>
+                  </v-list-item>
+                  <v-divider v-if="index < paymentHistoryArr.length - 1"></v-divider>
+                </template>
+              </v-list>
+            </div>
+            
+            <div v-else class="text-center py-8 bg-grey-lighten-5 rounded-lg border border-dashed mb-4">
+              <Icon icon="solar:bill-list-linear" height="48" class="mb-2 text-grey-lighten-1" />
+              <div class="text-body-2 text-grey">No se han registrado pagos aún</div>
+            </div>
+
           </v-card-text>
-        </v-card>
 
-        <v-btn :loading="isLoading" :disabled="isPaymentDisabled" color="primary" class="tw:w-full mt-4" @click="processPayment">
-          Procesar cobro
-        </v-btn>
+          <v-divider></v-divider>
+
+          <v-card-actions class="pa-4 bg-grey-lighten-5">
+            <v-btn 
+              block 
+              size="x-large" 
+              color="primary" 
+              variant="elevated"
+              :loading="isLoading" 
+              :disabled="isPaymentDisabled || totalPaid > grandTotal"
+              @click="processPayment"
+              class="font-weight-bold text-none rounded-lg"
+              elevation="2"
+            >
+              Procesar Cobro Final
+              <Icon icon="solar:check-circle-bold" class="ml-2" />
+            </v-btn>
+          </v-card-actions>
+        </v-card>
       </v-col>
     </v-row>
 
     <PaymentHistoryList
       :model-value="showPaymentHistoryModal"
       :origin-pos="true"
+      :default-amount="remainingBalance"
+      :edit-data="editingPayment"
       @update:model-value="closePaymentHistoryModal"
       @update:payment-pos-origin="addPaymentHistoryRow"
     />
