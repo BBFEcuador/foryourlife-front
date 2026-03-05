@@ -867,7 +867,7 @@ const fitView = () => {
       <v-col cols="12" md="9" class="h-100 position-relative bg-slate-50">
         <div class="d-flex align-center justify-space-between px-4 py-2 bg-white border-b"
           style="z-index: 10; position: relative;">
-          <div class="d-flex align-center gap-2">
+          <div class="d-flex align-center tw:gap-2">
             <h3 class="text-subtitle-1 font-weight-bold">Organigrama</h3>
             <v-chip size="small" color="info" variant="tonal">Arrastra y suelta miembros</v-chip>
           </div>
@@ -878,8 +878,9 @@ const fitView = () => {
             <v-btn color="error" variant="text" size="small" prepend-icon="mdi:delete-outline" @click="clearGraph">
               Limpiar
             </v-btn>
-            <v-btn color="primary" size="small" prepend-icon="mdi:content-save" @click="saveOrgChart"
+            <v-btn color="primary" size="small" @click="saveOrgChart"
               :loading="updateOrganizationalChartMutations.isPending.value || saveOrganizationalChartMutations.isPending.value">
+              <Icon icon="mdi:content-save" class="mr-2" height="20" />
               Guardar
             </v-btn>
           </div>
