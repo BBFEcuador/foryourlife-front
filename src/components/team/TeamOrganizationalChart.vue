@@ -872,10 +872,12 @@ const fitView = () => {
             <v-chip size="small" color="info" variant="tonal">Arrastra y suelta miembros</v-chip>
           </div>
           <div class="d-flex gap-2">
-            <v-btn color="secondary" variant="text" size="small" prepend-icon="mdi:refresh" @click="layoutGraph('TB')">
+            <v-btn color="secondary" variant="text" size="small" @click="layoutGraph('TB')">
+              <Icon icon="mdi:refresh" class="mr-2" height="20" />
               Auto-Layout
             </v-btn>
-            <v-btn color="error" variant="text" size="small" prepend-icon="mdi:delete-outline" @click="clearGraph">
+            <v-btn color="error" variant="text" size="small" @click="clearGraph">
+              <Icon icon="mdi:delete-outline" class="mr-2" height="20" />
               Limpiar
             </v-btn>
             <v-btn color="primary" size="small" @click="saveOrgChart"
