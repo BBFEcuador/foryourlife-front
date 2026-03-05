@@ -1,7 +1,7 @@
 import { api } from '@/api/axios';
 import type { Participant } from '@/models/Participants';
 import type { MinimalEntity } from '@/models/Shared';
-import type { TeamLifePromotionRequest, TeamWriteModel, TeamYourPromotionRequest } from '@/models/Team';
+import type { TeamLifePromotionRequest, TeamWriteModel, TeamYourPromotionRequest } from '@/models/team';
 import { useMutation } from '@tanstack/vue-query';
 
 const saveTeam = async (team: TeamWriteModel): Promise<any> => {
@@ -70,6 +70,13 @@ const generateMasiveContract = async (teamId: string): Promise<Uint8Array> => {
   return data;
 };
 
+const generateMasiveList = async (teamId: string): Promise<Uint8Array> => {
+  const { data } = await api.post('/teams/participant-list/' + teamId, null, {
+    responseType: 'arraybuffer'
+  });
+  return data;
+};
+
 const useAdminTeamMutations = () => {
   const saveTeamMutations = useMutation({ mutationFn: saveTeam });
   const removeParticipantsMutations = useMutation({ mutationFn: removeParticipants });
@@ -81,6 +88,7 @@ const useAdminTeamMutations = () => {
   const promoteToLifeGraduateMutation = useMutation({ mutationFn: promoteToLifeGraduate });
   const generateGafetesMutation = useMutation({ mutationFn: generateGafetes });
   const generateMasiveContractMutation = useMutation({ mutationFn: generateMasiveContract });
+  const generateMasiveListMutation = useMutation({ mutationFn: generateMasiveList });
   return {
     saveTeamMutations,
     removeParticipantsMutations,
@@ -91,7 +99,8 @@ const useAdminTeamMutations = () => {
     promoteToLife3Mutation,
     promoteToLifeGraduateMutation,
     generateGafetesMutation,
-    generateMasiveContractMutation
+    generateMasiveContractMutation,
+    generateMasiveListMutation
   };
 };
 

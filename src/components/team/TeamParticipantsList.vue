@@ -26,21 +26,21 @@ const headers = props.isForEdit
   ? [
       {
         title: 'Participante',
-        value: 'name',
+        value: 'user.name',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Contacto',
-        value: 'phone',
+        value: 'user.phone',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Correo',
-        value: 'email',
+        value: 'user.email',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
@@ -56,21 +56,21 @@ const headers = props.isForEdit
   : [
       {
         title: 'Participante',
-        value: 'name',
+        value: 'user.name',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Contacto',
-        value: 'phone',
+        value: 'user.phone',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
       },
       {
         title: 'Correo',
-        value: 'email',
+        value: 'user.email',
         width: '200',
         class: 'tw:text-nowrap',
         sortable: true
@@ -113,10 +113,6 @@ const onDelete = () => {
     }
   );
 };
-
-const colorSwitch = computed(() => {
-  return userToDelete.value.isLingerer ? 'warning' : 'error';
-});
 </script>
 <template>
   <v-data-table :headers="headers" :show-select="isForEdit" :search="search" :items="team.users" :loading="isTeamLoading">
@@ -155,17 +151,24 @@ const colorSwitch = computed(() => {
         </div>
       </v-toolbar>
     </template>
-    <template #item.name="{ item }">
+    <template #item.user.name="{ item }">
       <span class="tw:text-nowrap">{{ item.user.name }}</span>
     </template>
-    <template #item.phone="{ item }">
-      <v-btn variant="tonal" color="primary" rounded="xl" size="small" v-tooltip="'Llamar'" @click="handleContact('phone', item.phone)">
+    <template #item.user.phone="{ item }">
+      <v-btn
+        variant="tonal"
+        color="primary"
+        rounded="xl"
+        size="small"
+        v-tooltip="'Llamar'"
+        @click="handleContact('phone', item.user.phone)"
+      >
         <Icon icon="mdi-phone" />
         <span class="tw:text-nowrap ml-2">{{ item.user.phone }}</span>
       </v-btn>
     </template>
-    <template #item.email="{ item }">
-      <v-btn variant="tonal" color="secondary" rounded="xl" size="small" @click="handleContact('email', item.email)">
+    <template #item.user.email="{ item }">
+      <v-btn variant="tonal" color="secondary" rounded="xl" size="small" @click="handleContact('email', item.user.email)">
         <Icon icon="mdi-email" />
         <span class="tw:text-nowrap ml-2">{{ item.user.email }}</span>
       </v-btn>
@@ -202,7 +205,7 @@ const colorSwitch = computed(() => {
 
     <template #no-data>
       <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-16 tw:bg-gray-50/30">
-        <div class="tw:absolute tw:inset-0 tw:bg-gradient-to-br tw:from-gray-100 tw:to-transparent tw:opacity-50"></div>
+        <!-- <div class="tw:absolute tw:inset-0 tw:bg-gradient-to-br tw:from-gray-100 tw:to-transparent tw:opacity-50"></div> -->
         <div class="tw:relative tw:z-10">
           <Icon icon="mdi:account-group" height="64" class="tw:text-gray-400 tw:mb-2" />
           <div class="tw:absolute tw:-top-1 tw:-right-1">
@@ -214,7 +217,14 @@ const colorSwitch = computed(() => {
         </div>
         <h3 class="tw:text-xl tw:font-medium tw:text-gray-700 tw:mb-2">No se encontraron participantes</h3>
         <p class="tw:text-gray-500">Intenta con otros términos de búsqueda</p>
-        <VBtn v-if="checkPermission(PermissionEnum.SEE_TEAMS)" variant="text" color="primary" class="tw:mt-4" :loading="isTeamLoading" @click="refreshParticipantsTeams">
+        <VBtn
+          v-if="checkPermission(PermissionEnum.SEE_TEAMS)"
+          variant="text"
+          color="primary"
+          class="tw:mt-4"
+          :loading="isTeamLoading"
+          @click="refreshParticipantsTeams"
+        >
           <div class="tw:relative">
             <Icon icon="mdi:refresh" class="mr-2 tw:transition-transform hover:tw:rotate-180" />
             <div class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-20"></div>

@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import {Icon} from '@iconify/vue/dist/iconify.js';
-import {computed, ref} from 'vue';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import { computed, ref } from 'vue';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import useCallsByTraining from '@/composables/admin/crm/useCallsByTraining';
-import type {TrainingData} from '@/models/Training';
-import {CallStatus, CallStatusLabels, CallType, CallTypeLabels, type CallTraining} from '@/models/CallsTraining';
+import type { TrainingData } from '@/models/Training';
+import {
+  CallStatus,
+  CallStatusLabels,
+  CallType,
+  CallTypeLabels,
+  type CallTraining,
+  type CallTrainingResponse
+} from '@/models/CallsTraining';
 
 import CreateCallLog from '@/components/crm/CreateCallLog.vue';
 import SeeCallsLog from '@/components/crm/SeeCallsLog.vue';
@@ -13,16 +20,17 @@ import SeeCallsLog from '@/components/crm/SeeCallsLog.vue';
 const breadcrumbs = ref([{ title: 'CRM', disabled: false, href: '#' }]);
 
 const headers = [
-  { title: 'Participante', value: 'calledUser.name', sortable: true },
-  { title: 'Teléfono', value: 'calledUser.phone', sortable: true },
-  { title: 'Correo', value: 'calledUser.email', sortable: true },
-  // { title: 'Estado', value: 'isActive', sortable: true },
+  { title: 'Participante', value: 'participant.user.name', sortable: true },
+  { title: 'Teléfono', value: 'participant.user.phone', sortable: true },
+  { title: 'Correo', value: 'participant.user.email', sortable: true },
+  { title: 'Equipo', value: 'team', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 
 // Entrenamiento seleccionado
 const selectedTraining = ref<TrainingData | null>(null);
 const selectedCallType = ref<CallType | null>(null);
+const selectedTeam = ref();
 const selectedCallStatus = ref<CallStatus | null>(null);
 const trainingId = ref('');
 
@@ -38,15 +46,19 @@ const {
 
 const filteredCalls = computed(() => {
   if (!calls.value) return [];
-  
-  return calls.value.filter(call => {
+
+  return calls.value.filter((call) => {
     // Filter by Type
-    const matchesType = !selectedCallType.value || (call.callLogs && call.callLogs.some(log => log.type === selectedCallType.value));
-    
+    const matchesType = !selectedCallType.value || (call.callLogs && call.callLogs.some((log) => log.type === selectedCallType.value));
+
     // Filter by Status
-    const matchesStatus = !selectedCallStatus.value || (call.callLogs && call.callLogs.some(log => log.status === selectedCallStatus.value));
-    
-    return matchesType && matchesStatus;
+    const matchesStatus =
+      !selectedCallStatus.value || (call.callLogs && call.callLogs.some((log) => log.status === selectedCallStatus.value));
+
+    // Filter by Team
+    const matchesTeam = !selectedTeam.value || call.invitation.enrolled.trainingName === selectedTeam.value;
+
+    return matchesType && matchesStatus && matchesTeam;
   });
 });
 
@@ -66,13 +78,13 @@ const showCreateCallLog = ref(false);
 const showSeeCallLog = ref(false);
 
 // Crear log
-const createCallLog = (call: CallTraining) => {
+const createCallLog = (call: CallTrainingResponse) => {
   selectedCallTraining.value = { ...call };
   showCreateCallLog.value = true;
 };
 
 // Ver logs
-const seeCallLog = (call: CallTraining) => {
+const seeCallLog = (call: CallTrainingResponse) => {
   selectedCallTraining.value = { ...call };
   showSeeCallLog.value = true;
 };
@@ -123,18 +135,34 @@ const seeCallLog = (call: CallTraining) => {
 
             <VSelect
               v-model="selectedCallType"
-              :items="Object.keys(CallTypeLabels).map(key => ({ title: CallTypeLabels[key as CallType], value: key }))"
+              :items="Object.keys(CallTypeLabels).map((key) => ({ title: CallTypeLabels[key as CallType], value: key }))"
               label="Tipo de Llamada"
               variant="outlined"
               clearable
+              :disabled="!selectedTraining"
               hide-details
               class="tw:w-full"
             />
 
             <VSelect
               v-model="selectedCallStatus"
-              :items="Object.keys(CallStatusLabels).map(key => ({ title: CallStatusLabels[key as CallStatus], value: key }))"
+              :items="Object.keys(CallStatusLabels).map((key) => ({ title: CallStatusLabels[key as CallStatus], value: key }))"
               label="Estado de Llamada"
+              variant="outlined"
+              clearable
+              :disabled="!selectedTraining"
+              hide-details
+              class="tw:w-full"
+            />
+            <VSelect
+              v-model="selectedTeam"
+              :items="
+                calls
+                  ?.map((call) => call.invitation.enrolled.trainingName)
+                  .filter((obj, index, self) => index === self.findIndex((t) => t === obj) && obj !== null)
+              "
+              label="Equipo enrolador"
+              :disabled="!selectedTraining"
               variant="outlined"
               clearable
               hide-details
@@ -146,10 +174,7 @@ const seeCallLog = (call: CallTraining) => {
           <div class="d-sm-flex align-center justify-space-between">
             <v-card-title class="text-h5" style="line-height: 1.57">
               <div class="d-flex tw:items-center">
-                <Icon
-                  icon="mdi-account-group"
-                  class="mr-2"
-                />
+                <Icon icon="mdi-account-group" class="mr-2" />
                 <div>Participantes</div>
               </div>
             </v-card-title>
@@ -187,28 +212,33 @@ const seeCallLog = (call: CallTraining) => {
                 <v-spacer></v-spacer>
               </v-toolbar>
             </template>
-            <template #item.calledUser.name="{ item }">
+            <template #item.participant.user.name="{ item }">
               <div class="tw:flex tw:items-center tw:gap-3 tw:text-nowrap">
                 <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
                   <Icon icon="mdi:account" class="tw:text-gray-600" />
                 </div>
                 <div>
                   <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{
-                    item.calledUser.name
+                    item.participant.user.name
                   }}</span>
                 </div>
               </div>
             </template>
-            <template #item.calledUser.email="{ item }">
+            <template #item.participant.user.email="{ item }">
               <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
                 <Icon icon="mdi:email" class="tw:text-cyan-500" />
-                <span>{{ item.calledUser.email }}</span>
+                <span>{{ item.participant.user.email }}</span>
               </div>
             </template>
-            <template #item.calledUser.phone="{ item }">
+            <template #item.team="{ item }">
+              <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap tw:flex-col">
+                <span class="tw:font-medium">{{ item.invitation.enrolled.trainingName }}</span>
+              </div>
+            </template>
+            <template #item.participant.user.phone="{ item }">
               <div class="tw:flex tw:items-center tw:gap-2 tw:text-nowrap">
                 <Icon icon="mdi:phone" class="tw:text-indigo-600" />
-                <span>{{ item.calledUser.phone }}</span>
+                <span>{{ item.participant.user.phone }}</span>
               </div>
             </template>
             <template #item.actions="{ item }">

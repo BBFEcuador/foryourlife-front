@@ -1,11 +1,10 @@
+import type { Campus } from './Campus';
+
 export interface Invitation {
   id: string;
   token: string;
-  users: {
-    userId: string;
-    name: string;
-    enrolledDate: Date
-  }[];
+  users: User[];
+  campus: Campus;
   senderId: string;
   quantity: number;
   enrolled: Enrolled;
@@ -14,6 +13,14 @@ export interface Invitation {
 }
 
 export interface Enrolled {
+  id: string;
   name: string;
+  trainingName: any;
   contact: string;
+}
+
+export interface User {
+  userId: string;
+  name: string;
+  enrolledDate: string;
 }
