@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { Icon } from '@iconify/vue';
 import moment from 'moment';
 import { toast } from 'vue3-toastify';
@@ -8,7 +8,7 @@ import type { AxiosError } from 'axios';
 import { VDateInput } from 'vuetify/labs/VDateInput';
 import InputSection from '../forms/InputSection.vue';
 
-import type { Payment, PaymentHistoryRequest, PaymentMethod } from '@/models/Payments';
+import type { Payment, PaymentHistory, PaymentHistoryRequest, PaymentMethod } from '@/models/Payments';
 import usePayment from '@/composables/admin/payments/usePayment';
 import usePaymentMethods from '@/composables/admin/paymentMethods/usePaymentMethods';
 import usePaymentRecordMutations from '@/composables/admin/payments/usePaymentMutations';
@@ -20,6 +20,8 @@ const props = defineProps<{
   modelValue: boolean;
   originPos?: boolean;
   payment?: Payment;
+  defaultAmount?: number;
+  editData?: PaymentHistory | null;
 }>();
 
 const emit = defineEmits(['update:modelValue', 'payment-updated', 'update:payment-posOrigin']);
@@ -39,6 +41,39 @@ const form = ref({
   pingType: 'D'
 });
 
+const isInitializing = ref(false);
+
+watch(
+  () => props.modelValue,
+  async (val) => {
+    if (val) {
+      isInitializing.value = true;
+      if (props.editData) {
+        // Editing mode
+        form.value = {
+          date: moment(props.editData.date, 'DD/MM/YYYY').toDate(),
+          amount: props.editData.amount.toString(),
+          paymentMethod: props.editData.paymentMethod,
+          transactionId: props.editData.transactionId || '',
+          pingType: props.editData.pingType || 'D'
+        };
+      } else {
+        // New payment mode
+        form.value = {
+          date: new Date(),
+          amount: props.defaultAmount ? props.defaultAmount.toString() : '',
+          paymentMethod: { id: '', type: '' } as PaymentMethod,
+          transactionId: '',
+          pingType: 'D'
+        };
+      }
+      // Allow the DOM to update and watchers to fire (and be ignored) before disabling the flag
+      await nextTick();
+      isInitializing.value = false;
+    }
+  }
+);
+
 const paymentId = computed(() => props.payment?.id!!);
 const { payment, refetchPayment } = usePayment(paymentId);
 const { paymentMethodsData } = usePaymentMethods();
@@ -52,6 +87,8 @@ const page = ref(1);
 watch(
   () => form.value.paymentMethod,
   (newVal) => {
+    if (isInitializing.value) return;
+
     if (newVal.code === 'EF') {
       form.value.transactionId = Date.now().toString();
     } else {
@@ -69,10 +106,7 @@ const paginatedHistory = computed(() => {
 
 const close = () => (visible.value = false);
 
-const onPaymentMethodSelected = (id: string) => {
-  const selected = paymentMethodsList.value.find((m) => m.id === id);
-  form.value.paymentMethod = selected ?? ({} as PaymentMethod);
-};
+
 
 const submitForm = async () => {
   const { valid } = await formRef.value.validate();
@@ -159,13 +193,14 @@ const sendPaymentHistory = () => {
             <v-row dense>
               <v-col cols="12" md="6">
                 <v-select
+                  v-model="form.paymentMethod"
                   label="Método de pago"
                   variant="outlined"
                   :items="paymentMethodsList"
                   item-value="id"
                   item-title="type"
+                  return-object
                   :rules="[(v) => !!v || 'Campo requerido']"
-                  @update:model-value="onPaymentMethodSelected"
                 />
               </v-col>
               <v-col cols="12" md="6">

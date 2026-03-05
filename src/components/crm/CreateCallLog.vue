@@ -27,7 +27,7 @@ const callLog = ref<CallsLogRequest>({
   callStatus: '' as CallStatus,
   notes: '',
   calledById: userId,
-  date: '',
+  date: new Date().toISOString().substring(0, 10),
   callId: ''
 } as CallsLogRequest);
 
@@ -94,25 +94,25 @@ const handleSubmit = async () => {
       callId: props.callTraining?.id || '',
       calledById: userId
     });
-
     toast.success('Llamada creada exitosamente', {
       autoClose: 3000,
       closeButton: true
     });
     emit('call-log-created');
+    emit('cancel');
 
     // Reset form
     callLog.value = {
       callType: '' as CallType,
       callStatus: '' as CallStatus,
       notes: '',
-      date: '',
+      date: new Date().toISOString().substring(0, 10),
       callId: ''
     } as CallsLogRequest;
     v$.value.$reset();
   } catch (error) {
     const axiosError = error as AxiosError<{ message: string }>;
-    const errorMessage = axiosError.response?.data?.message || 'Error al crear el equipo';
+    const errorMessage = axiosError.response?.data?.message || 'Error al crear la llamada';
     toast.error(errorMessage, {
       autoClose: 3000,
       closeButton: true
@@ -124,12 +124,12 @@ const handleSubmit = async () => {
 <template>
   <v-dialog v-model="isOpen" max-width="600" persistent>
     <v-card class="rounded-xl">
-      <VCardTitle class="d-flex flex-shrink-0 align-center text-white bg-primary">
-        <Icon icon="mdi:phone" class="mr-2" />
-        <span class="text-h6 text-white">Crear Llamada</span>
+      <VCardTitle class="d-flex flex-shrink-0 align-center bg-primary">
+        <Icon icon="mdi:phone-plus" class="mr-2" />
+        <span class="text-h6">Crear Llamada</span>
         <v-spacer />
         <v-btn icon variant="text" @click="closeDialog">
-          <Icon icon="mdi:close" class="" width="24" />
+          <Icon icon="mdi:close" width="24" />
         </v-btn>
       </VCardTitle>
       <v-card-text class="pa-4 flex-grow-1 tw:overflow-y-auto">
@@ -137,7 +137,7 @@ const handleSubmit = async () => {
           <template #prepend>
             <Icon icon="mdi:user" height="21" class="align-center mr-2 text-primary" />
           </template>
-          <v-alert-title class="tw:text-xs text-gray-800 mb-2 text-primary" style="font-size: 18px"> Participante </v-alert-title>
+          <v-alert-title class="tw:text-xs mb-2 text-primary" style="font-size: 18px"> Participante </v-alert-title>
           <v-row>
             <v-col cols="6" class="tw:text-sm">
               <span class="tw:font-semibold">Nombre:</span> {{ props.callTraining?.participant?.user?.name || '-' }}

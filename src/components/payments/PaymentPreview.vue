@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import Logoimg from '@/assets/images/logos/focusYourLife.png';
 
 interface Item {
   name: string;
@@ -69,13 +70,9 @@ const formatDate = (date: string | Date) => {
 
 <template>
   <div class="tw:border pa-6 rounded-lg">
-    <div class="tw:flex tw:justify-between mb-8">
-      <div>
-        <h2 class="tw:text-2xl tw:font-bold mb-4">Factura</h2>
-        <p class="tw:text-gray-600">Cobro #{{ paymentNumber }}</p>
-      </div>
-      <div class="tw:w-20 tw:h-20 tw:bg-teal-600 tw:flex tw:items-center tw:justify-center tw:rounded-md">
-        <span class="tw:text-white tw:text-xl">Logo</span>
+    <div class="tw:flex justify-end mb-8">
+      <div class="tw:w-28 tw:h-20 tw:flex tw:items-center tw:justify-center tw:rounded-md">
+        <v-img :src="Logoimg" alt="Logo" class="tw:w-12 tw:h-12 tw:rounded-md" />
       </div>
     </div>
 
