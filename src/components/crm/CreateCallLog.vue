@@ -4,7 +4,7 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric, helpers } from '@vuelidate/validators';
 import type { CashBox, Store } from '@/models/CashDrawer';
-import type { CallsLogRequest, CallTraining,  } from '@/models/CallsTraining';
+import type { CallsLogRequest, CallTraining, CallTrainingResponse } from '@/models/CallsTraining';
 import { CallType, CallStatus, CallTypeLabels, CallStatusLabels } from '@/models/CallsTraining';
 import useCallsLogMutations from '@/composables/admin/crm/useCallsLogMutations';
 import { toast } from 'vue3-toastify';
@@ -12,12 +12,12 @@ import { AxiosError } from 'axios';
 import { adminStore } from '@/stores/adminStore';
 import { useDisplay } from 'vuetify';
 
-const store = adminStore(); 
+const store = adminStore();
 const userId = store?.user?.user?.id ?? '';
 
 interface props {
   modelValue: boolean;
-  callTraining: CallTraining | null;
+  callTraining: CallTrainingResponse | null;
 }
 
 const props = defineProps<props>();
@@ -119,7 +119,6 @@ const handleSubmit = async () => {
     });
   }
 };
-
 </script>
 
 <template>
@@ -141,7 +140,7 @@ const handleSubmit = async () => {
           <v-alert-title class="tw:text-xs text-gray-800 mb-2 text-primary" style="font-size: 18px"> Participante </v-alert-title>
           <v-row>
             <v-col cols="6" class="tw:text-sm">
-              <span class="tw:font-semibold">Nombre:</span> {{ props.callTraining?.calledUser?.name || '-' }}
+              <span class="tw:font-semibold">Nombre:</span> {{ props.callTraining?.participant?.user?.name || '-' }}
             </v-col>
             <v-col cols="6" class="tw:text-sm">
               <span class="tw:text-sm tw:font-semibold">Entrenamiento:</span> {{ props.callTraining?.training?.name || '' }} -
@@ -221,7 +220,15 @@ const handleSubmit = async () => {
       <v-card-actions class="tw:border-t tw:border-gray-300 tw:sticky">
         <v-spacer></v-spacer>
         <v-btn variant="text" color="grey-darken-1" @click="closeDialog"> Cancelar </v-btn>
-        <v-btn color="primary" variant="elevated" :loading="saveCallsLogMutations.isPending.value" :disabled="saveCallsLogMutations.isPending.value" @click="handleSubmit"> Guardar </v-btn>
+        <v-btn
+          color="primary"
+          variant="elevated"
+          :loading="saveCallsLogMutations.isPending.value"
+          :disabled="saveCallsLogMutations.isPending.value"
+          @click="handleSubmit"
+        >
+          Guardar
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

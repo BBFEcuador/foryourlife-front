@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import type { CallTraining } from '@/models/CallsTraining';
+import type { CallTraining, CallTrainingResponse } from '@/models/CallsTraining';
 import { CallType, CallStatus, CallTypeLabels, CallStatusLabels } from '@/models/CallsTraining';
 import { useDisplay } from 'vuetify';
 
 interface props {
   modelValue: boolean;
-  callTraining: CallTraining | null;
+  callTraining: CallTrainingResponse | null;
 }
 
 const props = defineProps<props>();
@@ -79,7 +79,7 @@ const expanded = ref<any[]>([]);
             <v-alert-title class="tw:text-xs text-gray-800 mb-2 text-primary" style="font-size: 18px"> Participante </v-alert-title>
             <v-row>
               <v-col cols="6" class="tw:text-sm">
-                <span class="tw:font-semibold">Nombre:</span> {{ props.callTraining?.calledUser?.name || '-' }}
+                <span class="tw:font-semibold">Nombre:</span> {{ props.callTraining?.participant?.user?.name || '-' }}
               </v-col>
               <v-col cols="6" class="tw:text-sm">
                 <span class="tw:text-sm tw:font-semibold">Entrenamiento:</span> {{ props.callTraining?.training?.name || '' }} -
@@ -165,18 +165,18 @@ const expanded = ref<any[]>([]);
 /* Hover en filas normales */
 .striped-table tbody tr:not(.v-data-table__expanded__content):hover,
 .striped-table tbody tr:not(.v-data-table__expanded__content):hover + tr.v-data-table__expanded__content {
-    background-color: #f7f8f8 !important; 
+  background-color: #f7f8f8 !important;
 }
 
 /* Hover sobre la fila expandida resalta la fila normal anterior */
 .striped-table tbody tr.v-data-table__expanded__content:hover,
 .striped-table tbody tr.v-data-table__expanded__content:hover ~ tr:not(.v-data-table__expanded__content) {
-    background-color: #f7f8f8 !important;
+  background-color: #f7f8f8 !important;
 }
 
 thead tr {
   background-color: #f8fafc !important;
-} 
+}
 
 th {
   font-weight: 600 !important;
@@ -195,6 +195,6 @@ th {
 
 .tw\:flex-grow {
   flex-grow: 1 !important;
-  min-height: 0; 
+  min-height: 0;
 }
 </style>
