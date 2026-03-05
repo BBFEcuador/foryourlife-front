@@ -19,6 +19,7 @@ import '@vue-flow/minimap/dist/style.css';
 import Swal from 'sweetalert2';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
+import { isValidHierarchy } from '@/utils/orgChartValidation';
 
 interface Props {
   team: Team;
@@ -429,6 +430,96 @@ const layoutGraph = (direction = 'TB') => {
   });
 };
 
+// Validation Logic
+const isValidConnection = (connection: Connection | Edge) => {
+  const sourceNode = findNode(connection.source);
+  const targetNode = findNode(connection.target);
+
+  if (!sourceNode || !targetNode) return false;
+  
+  // Prevent self-connection
+  if (connection.source === connection.target) return false;
+
+  // Rule: Hierarchy check
+  if (!isValidHierarchy(sourceNode.data.role, targetNode.data.role)) return false;
+
+  // Rule: Single Parent Check (Indegree <= 1)
+  // A participant or staff can only belong to a single entity (one parent)
+  // Check if target already has an incoming edge from a different source
+  const existingIncomingEdge = edges.value.find(e => 
+    e.target === connection.target && 
+    e.id !== (connection as Edge).id // Ignore if we are re-validating the same edge object
+  );
+
+  if (existingIncomingEdge) {
+    // If the new connection is just "updating" the existing one (same source), it's fine (though unlikely in this context)
+    // If source is different, it's a violation of single parent rule
+    if (existingIncomingEdge.source !== connection.source) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+// Validate and Fix Graph (Migration)
+const validateAndFixGraph = () => {
+  let edgesToRemove: string[] = [];
+  
+  // 1. Check Hierarchy Rules
+  const invalidHierarchyEdges = edges.value.filter(edge => {
+      const sourceNode = findNode(edge.source);
+      const targetNode = findNode(edge.target);
+      if (!sourceNode || !targetNode) return true; // Remove broken edges
+      return !isValidHierarchy(sourceNode.data.role, targetNode.data.role);
+  });
+
+  if (invalidHierarchyEdges.length > 0) {
+      invalidHierarchyEdges.forEach(edge => {
+        const source = findNode(edge.source);
+        const target = findNode(edge.target);
+        if (source && target) {
+            console.warn(`[Auditoría] Jerarquía inválida eliminada: ${source.data.role} -> ${target.data.role}`);
+        }
+      });
+      edgesToRemove = [...edgesToRemove, ...invalidHierarchyEdges.map(e => e.id)];
+  }
+
+  // 2. Check Single Parent Rule (Indegree <= 1)
+  // Map targetId -> edgeId[]
+  const incomingEdgesMap = new Map<string, Edge[]>();
+  edges.value.forEach(edge => {
+      if (edgesToRemove.includes(edge.id)) return; // Skip already marked for removal
+      const target = edge.target;
+      if (!incomingEdgesMap.has(target)) {
+          incomingEdgesMap.set(target, []);
+      }
+      incomingEdgesMap.get(target)!.push(edge);
+  });
+
+  incomingEdgesMap.forEach((incomingEdges, targetId) => {
+      if (incomingEdges.length > 1) {
+          // Keep the first one, remove others
+          // Ideally we might want to keep the one that matches the current context or random
+          // For now, keep the first one encountered in the list (index 0)
+          const edgesToDelete = incomingEdges.slice(1);
+          edgesToDelete.forEach(edge => {
+              const source = findNode(edge.source);
+              const target = findNode(edge.target);
+               if (source && target) {
+                  console.warn(`[Auditoría] Múltiples padres detectados. Eliminando conexión extra: ${source.data.label} -> ${target.data.label}`);
+              }
+          });
+          edgesToRemove = [...edgesToRemove, ...edgesToDelete.map(e => e.id)];
+      }
+  });
+  
+  if (edgesToRemove.length > 0) {
+    removeEdges(edgesToRemove);
+    toast.warning(`Se eliminaron ${edgesToRemove.length} conexiones inválidas (Jerarquía o Múltiples Padres).`);
+  }
+};
+
 // Initialize from existing data
 const initializeGraph = () => {
   if (!organizationalChart.data.value?.OrganizationChart?.nodes) return;
@@ -480,6 +571,7 @@ const initializeGraph = () => {
 
   nextTick(() => {
     layoutGraph();
+    validateAndFixGraph(); // Validate loaded data
   });
 };
 
@@ -487,7 +579,35 @@ watch(() => organizationalChart.data.value, initializeGraph, { immediate: true }
 
 // Handle Connections
 onConnect((params) => {
-  addEdges([{ ...params, type: 'smoothstep', animated: true }]);
+  const sourceNode = findNode(params.source);
+  const targetNode = findNode(params.target);
+  
+  // Custom check for specific error messages
+  if (sourceNode && targetNode) {
+     if (params.source === params.target) {
+         toast.error('No se permiten autoconexiones.');
+         return;
+     }
+     
+     if (!isValidHierarchy(sourceNode.data.role, targetNode.data.role)) {
+         toast.error(`Jerarquía no permitida: ${sourceNode.data.role} no puede conectar con ${targetNode.data.role}`);
+         return;
+     }
+
+     const existingIncomingEdge = edges.value.find(e => e.target === params.target);
+     if (existingIncomingEdge) {
+         const existingParent = findNode(existingIncomingEdge.source);
+         toast.error(`${targetNode.data.label} ya pertenece a ${existingParent?.data.label || 'otra entidad'}.`);
+         return;
+     }
+  }
+
+  if (isValidConnection(params)) {
+    addEdges([{ ...params, type: 'smoothstep', animated: true }]);
+  } else {
+    // Fallback generic error if isValidConnection fails but above checks passed (unlikely)
+    toast.error('Conexión no permitida.');
+  }
 });
 
 // Save Logic
@@ -767,7 +887,7 @@ const fitView = () => {
 
         <div class="w-100 h-100" @drop="onDrop" @dragover="onDragOver">
           <VueFlow v-model:nodes="nodes" v-model:edges="edges" :default-viewport="{ zoom: 1 }" :min-zoom="0.2"
-            :max-zoom="4" fit-view-on-init>
+            :max-zoom="4" fit-view-on-init :is-valid-connection="isValidConnection">
             <template #node-custom="props">
               <OrgChartNode :data="props.data" @add-children="openBatchDialog" @remove-node="removeNodeHandler"
                 @swap-node="openSwapDialog" />
