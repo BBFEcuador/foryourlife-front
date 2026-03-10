@@ -25,6 +25,7 @@ const selectedProduct = ref(null);
 const selectedParticipant = ref(null);
 const selectedDiscount = ref(null);
 const selectedCampus = ref(null);
+const trainingId = ref('');
 const notes = ref('');
 const fullname = ref('');
 const address = ref('');
@@ -136,7 +137,9 @@ const grandTotal = computed(() => {
 
 const progressValue = computed(() => ((maxCountdown - redirectCountdown.value) / maxCountdown) * 100);
 
-const isPaymentDisabled = computed(() => isLoading.value || !selectedProduct.value || !selectedParticipant.value || v$.value.$invalid);
+const isPaymentDisabled = computed(
+  () => isLoading.value || !selectedProduct.value || !selectedParticipant.value || !trainingId.value || v$.value.$invalid
+);
 
 const totalPaid = computed(() => {
   return paymentHistoryArr.value.reduce((acc, item) => acc + Number(item.amount), 0);
@@ -164,6 +167,7 @@ function resetAllFields() {
   selectedParticipant.value = null;
   selectedDiscount.value = null;
   selectedCampus.value = null;
+  trainingId.value = '';
   notes.value = '';
   fullname.value = '';
   address.value = '';
@@ -182,6 +186,11 @@ const processPayment = async () => {
     isLoading.value = false;
     return;
   }
+  if (!trainingId.value) {
+    toast.error('Seleccione un entrenamiento');
+    isLoading.value = false;
+    return;
+  }
 
   const paymentData = {
     products: [(selectedProduct.value as any).id],
@@ -189,6 +198,7 @@ const processPayment = async () => {
     campus: (selectedCampus.value as any).id,
     total: grandTotal.value,
     totalDiscount: discountAmount.value,
+    trainingId: trainingId.value,
     invoice: {
       type: type.value,
       fullName: fullname.value,
@@ -255,12 +265,6 @@ const addPaymentHistoryRow = (paymentHistoryRow: PaymentHistoryRequest) => {
   } else {
     paymentHistoryArr.value.push(paymentHistory);
   }
-};
-
-const clearPaymentHistory = () => {
-  paymentHistoryArr.value = [];
-  editingIndex.value = null;
-  editingPayment.value = null;
 };
 
 const removePayment = (index: number) => {
@@ -334,6 +338,7 @@ defineExpose({ showSuccessModal, redirectCountdown });
               :v$="v$"
               @update:selected-participant="selectedParticipant = $event"
               @update:selected-product="selectedProduct = $event"
+              @update:training-id="trainingId = $event"
               @update:notes="notes = $event"
               @update:fullname="fullname = $event"
               @update:address="address = $event"
@@ -499,7 +504,7 @@ defineExpose({ showSuccessModal, redirectCountdown });
               </v-list>
             </div>
             
-            <div v-else class="text-center py-8 bg-grey-lighten-5 rounded-lg border border-dashed mb-4">
+            <div v-else class="d-flex flex-column align-center py-8 rounded-lg border border-dashed mb-4">
               <Icon icon="solar:bill-list-linear" height="48" class="mb-2 text-grey-lighten-1" />
               <div class="text-body-2 text-grey">No se han registrado pagos aún</div>
             </div>

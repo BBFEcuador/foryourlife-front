@@ -33,32 +33,28 @@ const getRoleIcon = (role: string) => {
     :style="{ borderTop: `4px solid ${data.color}` }">
     <Handle type="target" :position="Position.Top" class="custom-handle" />
 
+    <div class="d-flex gap-4">
+      <v-btn v-if="data.role !== 'PARTICIPANT'" icon size="x-small" variant="flat"
+        class="text-primary top-0 left-0 ma-1" @click.stop="emit('add-children', data)"
+        style="z-index: 10;">
+        <Icon icon="mdi-plus" height="16"></Icon>
+        <v-tooltip activator="parent" location="top">Agregar</v-tooltip>
+      </v-btn>
+      <v-btn icon size="x-small" variant="text" color="warning" class="top-0 left-0 ma-1"
+        style="z-index: 10;" @click.stop="emit('swap-node', data)">
+        <Icon icon="mdi:account-switch" height="16"></Icon>
+        <v-tooltip activator="parent" location="top">Intercambiar</v-tooltip>
+      </v-btn>
 
-    <v-btn v-if="data.role !== 'PARTICIPANT'" icon size="x-small" variant="flat"
-      class="position-absolute text-primary top-0 left-0 ma-1" @click.stop="emit('add-children', data)"
-      style="z-index: 10;">
-      <Icon icon="mdi-plus"></Icon>
-      <v-tooltip activator="parent" location="top">Agregar</v-tooltip>
-    </v-btn>
-    <v-btn icon size="x-small" variant="text" color="warning" class="position-absolute top-0 left-0 ma-1"
-      style="z-index: 10; margin-left: 32px !important;" @click.stop="emit('swap-node', data)">
-      <Icon icon="mdi:account-switch"></Icon>
-      <v-tooltip activator="parent" location="top">Intercambiar</v-tooltip>
-    </v-btn>
+      <v-btn icon size="x-small" variant="text" color="error" class="top-0 right-0 ma-1"
+        @click.stop="emit('remove-node', data)" style="z-index: 10;">
+        <Icon icon="mdi:close" height="16"></Icon>
+        <v-tooltip activator="parent" location="top">Eliminar</v-tooltip>
+      </v-btn>
 
-    <v-btn icon size="x-small" variant="text" color="error" class="position-absolute top-0 right-0 ma-1"
-      @click.stop="emit('remove-node', data)" style="z-index: 10;">
-      <Icon icon="mdi:close"></Icon>
-      <v-tooltip activator="parent" location="top">Eliminar</v-tooltip>
-    </v-btn>
+    </div>
 
-    <div class="pa-3 text-center" style="min-width: 180px;">
-      <div class="d-flex justify-center mb-2">
-        <v-avatar size="48" class="border-2 border-white elevation-1">
-          <v-img :src="data.avatar" alt="Avatar" cover></v-img>
-        </v-avatar>
-      </div>
-
+    <div class="pa-3 text-center">
       <div class="font-weight-bold text-subtitle-2 mb-0 text-truncate">{{ data.label }}</div>
       <div class="text-caption text-grey text-truncate mb-1" style="max-width: 160px;">{{ data.email }}</div>
 

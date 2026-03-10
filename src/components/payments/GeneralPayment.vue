@@ -2,8 +2,10 @@
 import useDiscounts from '@/composables/admin/discounts/useDiscounts';
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAvailableProducts from '@/composables/admin/products/useAvailableProducts';
+import useTrainings from '@/composables/admin/training/useTrainings';
 import type { Campus } from '@/models/Campus';
 import type { Participant } from '@/models/Participants';
+import type { TrainingData } from '@/models/Training';
 import { router } from '@/router';
 import type { Validation } from '@vuelidate/core';
 import Swal from 'sweetalert2';
@@ -27,17 +29,20 @@ const emit = defineEmits([
   'update:email',
   'update:selected-discount',
   'update:selected-campus',
-  'update:type'
+  'update:type',
+  'update:training-id'
 ]);
 
 const { participants, participantSearch } = useParticipants();
 const { productsData, productSearch } = useAvailableProducts();
 const { discountsData } = useDiscounts();
+const { trainings, debouncedSearch } = useTrainings();
 
 const selectedParticipant = ref<Participant | null>(null);
 const selectedProduct = ref(null);
 const selectedDiscount = ref(null);
 const selectedCampus = ref<Campus | null>(null);
+const selectedTraining = ref<TrainingData | null>(null);
 const notes = ref('');
 const fullname = ref('');
 const address = ref('');
@@ -104,9 +109,14 @@ watch(selectedCampus, (newVal) => {
   emit('update:selected-campus', newVal);
 });
 
+watch(selectedTraining, (newVal) => {
+  emit('update:training-id', newVal?.id ?? '');
+});
+
 const participantsList = computed(() => participants?.value?.content || []);
 const productsList = computed(() => productsData?.value?.content || []);
 const discountsList = computed(() => discountsData?.value?.content || []);
+const trainingsList = computed(() => trainings.value || []);
 
 const selectedProductDetails = computed(() => {
   if (!selectedProduct.value) return null;
@@ -126,8 +136,16 @@ const searchClient = (s: string) => {
   participantSearch.value = s;
 };
 
+const searchTraining = (s: string) => {
+  debouncedSearch.value = s;
+};
+
 const handleParticipantChange = (participant: any) => {
   selectedParticipant.value = participant;
+};
+
+const handleTrainingChange = (training: any) => {
+  selectedTraining.value = training;
 };
 
 const handleProductChange = (product: any) => {
@@ -166,6 +184,8 @@ const resetTextFields = () => {
   selectedProduct.value = null;
   selectedDiscount.value = null;
   selectedCampus.value = null;
+  selectedTraining.value = null;
+  debouncedSearch.value = '';
   v$.$reset();
 };
 
@@ -403,7 +423,34 @@ defineExpose({ resetTextFields });
         ></v-text-field>
       </div>
     </div>
-
+    <div class="tw:grid tw:grid-cols-2 tw:gap-x-6">
+      <div class="tw:col-span-2">
+        <h3 class="tw:text-lg tw:font-semibold pb-2">Entrenamiento</h3>
+        <VCombobox
+          v-model="selectedTraining"
+          :items="trainingsList"
+          item-title="name"
+          item-value="id"
+          variant="outlined"
+          :placeholder="trainingsList.length > 0 ? 'Seleccionar Entrenamiento' : 'No hay entrenamientos disponibles'"
+          return-object
+          @update:search="searchTraining"
+          @update:model-value="handleTrainingChange"
+          class="tw:w-full"
+        >
+          <template v-slot:item="{ props, item }">
+            <v-list-item v-bind="props">
+              <template v-slot:prepend>
+                <v-avatar color="primary" size="32">
+                  <span class="tw:text-white">{{ item.raw.name?.charAt(0) || 'E' }}</span>
+                </v-avatar>
+              </template>
+              <v-list-item-subtitle>{{ item.raw?.courseLevelDisplay }}</v-list-item-subtitle>
+            </v-list-item>
+          </template>
+        </VCombobox>
+      </div>
+    </div>
     <!-- Notas -->
     <div>
       <h3 class="tw:text-lg tw:font-semibold pb-2">Notas</h3>

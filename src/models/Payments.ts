@@ -26,6 +26,7 @@ export interface PaymentRequest {
   total: number;
   totalDiscount: number;
   paymentsHistory?: PaymentHistory[];
+  trainingId: string;
   invoice: {
     type: string;
     fullName: string;

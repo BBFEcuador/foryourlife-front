@@ -52,6 +52,7 @@ const headers = [
   { title: 'Saldo Restante', value: 'remainingBalance' },
   { title: 'Todas las facturas enviadas', value: 'hasSomePaymentWithError', sortable: true },
   { title: 'Estado', value: 'status', sortable: true },
+  { title: 'Creado', value: 'created_at', sortable: true },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 const getProgramColor = (level: string): string => {
@@ -152,7 +153,7 @@ const formatDate = (date: string | Date) => {
         <template v-slot:top>
           <v-toolbar v-motion class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat
             :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
-            <VTextField v-model="debouncedSearch" placeholder="Buscar cobros..." variant="outlined"
+            <VTextField v-model="debouncedSearch" placeholder="Buscar cobros por nombre o identificación..." variant="outlined"
               density="comfortable" hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm" bg-color="white">
               <template #prepend-inner>
                 <div class="tw:relative">

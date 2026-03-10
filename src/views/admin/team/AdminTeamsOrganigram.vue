@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import TeamBanner from '@/components/team/TeamBanner.vue';
-import TeamDetails from '@/components/team/TeamDetails.vue';
-import TeamMasterLife from '@/components/team/TeamMasterLife.vue';
-import TeamParticipantsList from '@/components/team/TeamParticipantsList.vue';
-import TeamStaff from '@/components/team/TeamStaff.vue';
-import TeamVisionary from '@/components/team/TeamVisionary.vue';
+import TeamOrganizationalChart from '@/components/team/TeamOrganizationalChart.vue';
 import useAdminTeam from '@/composables/admin/team/useAdminTeam';
+import { checkPermission } from '@/service/ability';
+import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { checkPermission } from '@/service/ability';
-import { PermissionEnum } from '@/utils/locales/PermissionEnum';
-import TeamOrganizationalChart from '@/components/team/TeamOrganizationalChart.vue';
 
 const route = useRoute();
 const router = useRouter();

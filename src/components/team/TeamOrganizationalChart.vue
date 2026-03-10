@@ -152,8 +152,6 @@ const onDrop = (event: DragEvent) => {
 
   addNodes([newNode]);
 
-  // Auto-connect logic? 
-  // For now, let user connect manually or use "Auto Layout" to organize
 };
 
 // Recursive function to find all descendants
@@ -163,14 +161,14 @@ const getDescendants = (nodeId: string): string[] => {
 
   while (stack.length > 0) {
     const currentId = stack.pop()!;
-    const childrenEdges = edges.value.filter(e => e.source === currentId);
-    
-    childrenEdges.forEach(edge => {
-      if (!descendants.includes(edge.target)) {
-        descendants.push(edge.target);
-        stack.push(edge.target);
-      }
-    });
+    const edgeList = edges.value as unknown as Array<{ source: string; target: string }>;
+
+    for (const edge of edgeList) {
+      if (edge.source !== currentId) continue;
+      if (descendants.includes(edge.target)) continue;
+      descendants.push(edge.target);
+      stack.push(edge.target);
+    }
   }
   return descendants;
 };
@@ -366,7 +364,14 @@ const performSwap = () => {
   }
 
   // Get connected edges
-  const connectedEdges = edges.value.filter(e => e.source === oldNodeId || e.target === oldNodeId);
+  const edgeList = edges.value as unknown as Array<{ id: string; source: string; target: string; [key: string]: any }>;
+  const connectedEdges: Array<{ id: string; source: string; target: string; [key: string]: any }> = [];
+
+  for (const edge of edgeList) {
+    if (edge.source === oldNodeId || edge.target === oldNodeId) {
+      connectedEdges.push(edge);
+    }
+  }
 
   // Remove old node (edges are removed automatically by VueFlow usually, but we need them for reconstruction)
   removeNodes([oldNodeId]);
@@ -911,13 +916,19 @@ const fitView = () => {
       <v-card>
         <v-card-title class="d-flex align-center justify-space-between text-h6 font-weight-bold">
           Agregar Miembros
-          <v-btn icon="mdi:close" variant="text" size="small" @click="showBatchDialog = false"></v-btn>
+          <v-btn variant="text" size="small" @click="showBatchDialog = false">
+            <Icon icon="mdi:close" height="20" />
+          </v-btn>
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text style="max-height: 400px;">
           <div class="mb-4">
-            <v-text-field v-model="batchSearchQuery" prepend-inner-icon="mdi:magnify" label="Buscar miembro..."
-              variant="outlined" density="compact" hide-details></v-text-field>
+            <v-text-field v-model="batchSearchQuery" label="Buscar miembro..."
+              variant="outlined" density="compact" hide-details>
+            <template #prepend-inner>
+              <Icon icon="mdi:magnify" height="20" />
+            </template>
+            </v-text-field>
           </div>
 
           <div class="d-flex align-center justify-space-between mb-2">
@@ -946,7 +957,7 @@ const fitView = () => {
               <v-list-item-subtitle>{{ member.email }}</v-list-item-subtitle>
             </v-list-item>
           </v-list>
-          <div v-else class="text-center pa-8 text-grey bg-grey-lighten-5 rounded border border-dashed">
+          <div v-else class="d-flex flex-column align-center pa-8 text-grey bg-grey-lighten-5 rounded border border-dashed">
             <Icon icon="mdi:account-off-outline" width="40" class="mb-2 opacity-50" />
             <div>No hay miembros disponibles para agregar en este nivel.</div>
           </div>
@@ -956,7 +967,8 @@ const fitView = () => {
           <v-spacer></v-spacer>
           <v-btn color="grey-darken-1" variant="text" @click="showBatchDialog = false">Cancelar</v-btn>
           <v-btn color="primary" variant="elevated" @click="addBatchMembers"
-            :disabled="selectedMembersForBatch.length === 0" prepend-icon="mdi:plus">
+            :disabled="selectedMembersForBatch.length === 0">
+            <Icon icon="mdi:plus" class="mr-2" height="20" />
             Agregar ({{ selectedMembersForBatch.length }})
           </v-btn>
         </v-card-actions>
@@ -968,13 +980,19 @@ const fitView = () => {
       <v-card>
         <v-card-title class="d-flex align-center justify-space-between text-h6 font-weight-bold">
           Intercambiar {{ nodeToSwap?.role }}
-          <v-btn icon="mdi:close" variant="text" size="small" @click="showSwapDialog = false"></v-btn>
+          <v-btn variant="text" size="small" @click="showSwapDialog = false">
+            <Icon icon="mdi:close" height="20" />
+          </v-btn>
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text style="max-height: 400px;">
           <div class="mb-4">
-            <v-text-field v-model="swapSearchQuery" prepend-inner-icon="mdi:magnify" label="Buscar miembro..."
-              variant="outlined" density="compact" hide-details></v-text-field>
+            <v-text-field v-model="swapSearchQuery" label="Buscar miembro..."
+              variant="outlined" density="compact" hide-details>
+            <template #prepend-inner>
+              <Icon icon="mdi:magnify" height="20" />
+            </template>
+            </v-text-field>
           </div>
 
           <v-list v-if="availableSwapMembers.length > 0" lines="one" select-strategy="single-leaf"
@@ -994,7 +1012,7 @@ const fitView = () => {
               </template>
             </v-list-item>
           </v-list>
-          <div v-else class="text-center pa-8 text-grey bg-grey-lighten-5 rounded border border-dashed">
+          <div v-else class="d-flex flex-column align-center pa-8 text-grey bg-grey-lighten-5 rounded border border-dashed">
             <Icon icon="mdi:account-off-outline" width="40" class="mb-2 opacity-50" />
             <div>No hay miembros disponibles para intercambio.</div>
           </div>
@@ -1003,8 +1021,8 @@ const fitView = () => {
         <v-card-actions class="pa-4">
           <v-spacer></v-spacer>
           <v-btn color="grey-darken-1" variant="text" @click="showSwapDialog = false">Cancelar</v-btn>
-          <v-btn color="warning" variant="elevated" @click="performSwap" :disabled="!selectedSwapMemberId"
-            prepend-icon="mdi:account-switch">
+          <v-btn color="warning" variant="elevated" @click="performSwap" :disabled="!selectedSwapMemberId">
+            <Icon icon="mdi:swap-horizontal" class="mr-2" height="20" />
             Intercambiar
           </v-btn>
         </v-card-actions>
