@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
 import { required, numeric } from '@vuelidate/validators';
@@ -15,7 +15,7 @@ const props = withDefaults(
   defineProps<{
     modelValue: boolean;
     isLoading?: boolean;
-    stores: Store[];
+    store: Store;
   }>(),
   {
     isLoading: false
@@ -33,11 +33,7 @@ const form = ref<HTMLFormElement | null>(null);
 const createDefaultFormData = (): FormData => ({
   number: '',
   firstNumberInvoice: '',
-  store: {
-    id: '',
-    address: '',
-    number: ''
-  }
+  store: props.store
 });
 
 const formData = ref<FormData>(createDefaultFormData());
@@ -78,7 +74,6 @@ const saveCashBox = async () => {
     ...formData.value,
     firstNumberInvoice: parseInt(formData.value.firstNumberInvoice)
   };
-
   emit('save', cashBoxData);
   resetForm();
 };
@@ -125,22 +120,6 @@ defineExpose({
                 density="comfortable"
                 required
               ></v-text-field>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-select
-                v-model="formData.store"
-                label="Establecimiento"
-                :items="props.stores"
-                item-title="address"
-                :error-messages="v$.store.$errors.map((e: any) => e.$message.toString())"
-                @blur="v$.store.$touch"
-                variant="outlined"
-                density="comfortable"
-                required
-                return-object
-              ></v-select>
             </v-col>
           </v-row>
         </v-form>

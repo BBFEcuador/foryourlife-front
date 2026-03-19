@@ -10,63 +10,29 @@ import ProfileDD from './ProfileDD.vue';
 const customizer = useCustomizerStore();
 const priority = ref(customizer.setHorizontalLayout ? 0 : 0);
 const store = adminStore();
-
 const { campus } = useCampus();
 
-const selectCampus = ref(store.selectCampusId);
+/* campus seleccionado conectado directamente al store */
+const selectCampus = computed({
+  get: () => store.selectCampusId,
+  set: (value: string) => {
+    store.setSelectedCampusId(value);
+    store.setIsCampusSelected(!!value);
+    router.push({ name: 'home-admin' });
+  }
+});
 
 const hasFullAccess = computed(() => {
-  return (
-    Array.isArray(store.availableCampus) &&
-    Array.isArray(campus.value) &&
-    store.availableCampus.length > 0 &&
-    campus.value.length > 0 &&
-    store.availableCampus.length === campus.value.length
-  );
+  return store.availableCampus.length && campus.value.length && store.availableCampus.length === campus.value.length;
 });
 
 const vselectItems = computed(() => {
-  return hasFullAccess.value ? [{ city: 'Todas las sucursales', id: '' }, ...campus.value] : store.availableCampus;
+  if (hasFullAccess.value) {
+    return [{ city: 'Todas las sucursales', id: '' }, ...campus.value];
+  }
+
+  return store.availableCampus;
 });
-
-watch(
-  [() => store.availableCampus, () => campus.value, hasFullAccess],
-  async ([available, allCampuses, fullAccess]) => {
-    await nextTick();
-
-    if (!available?.length || !allCampuses?.length) {
-      selectCampus.value = '';
-      store.setSelectedCampusId('');
-      store.setIsCampusSelected(false);
-      return;
-    }
-
-    if (fullAccess) {
-      if (!store.selectCampusId) {
-        selectCampus.value = '';
-        store.setSelectedCampusId('');
-        store.setIsCampusSelected(false);
-      } else {
-        selectCampus.value = store.selectCampusId;
-      }
-    } else {
-      const defaultCampus = available[0];
-      if (defaultCampus && defaultCampus.id !== selectCampus.value) {
-        selectCampus.value = store.selectCampusId || defaultCampus.id;
-        store.setSelectedCampusId(selectCampus.value);
-        store.setIsCampusSelected(true);
-      }
-    }
-  },
-  { immediate: true }
-);
-
-const storeCampusOnAdmin = (id: string) => {
-  selectCampus.value = id;
-  store.setIsCampusSelected(!!id);
-  store.setSelectedCampusId(id);
-  router.push({ name: 'home-admin' });
-};
 </script>
 
 <template>
@@ -93,17 +59,8 @@ const storeCampusOnAdmin = (id: string) => {
     >
       <SvgSprite name="custom-menu-outline" style="width: 24px; height: 24px" />
     </v-btn>
-
     <v-spacer />
-    <v-select
-      class="mt-5"
-      :model-value="selectCampus"
-      placeholder="Elija el campus"
-      :items="vselectItems"
-      item-title="city"
-      item-value="id"
-      @update:model-value="storeCampusOnAdmin"
-    ></v-select>
+    <v-select class="mt-5" v-model="selectCampus" placeholder="Elija el campus" :items="vselectItems" item-title="city" item-value="id" />
     <v-spacer />
 
     <v-menu :close-on-content-click="false" offset="8, 0">

@@ -17,7 +17,7 @@ const stats = ref({
   participants: {
     total: 300,
     growth: 0,
-    history: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    history: [0, 4, 5, 6, 7, 10, 20, 0, 0, 0, 0, 30]
   },
   courses: {
     total: 10,

@@ -56,7 +56,7 @@ function onComponentLoaded() {
       </VCol>
       <!-- Columna derecha -->
       <VCol cols="12" md="8">
-        <PaymentsStaffsByTeam :data="data.paymentDashboard" @loaded="onComponentLoaded" />
+        <PaymentsStaffsByTeam :data="data.paymentFocusDashboard" @loaded="onComponentLoaded" />
         <ParticipantAttendancesByTeam :data="data.focusAttendanceDashboard" class="mt-4" @loaded="onComponentLoaded" />
       </VCol>
     </VRow>

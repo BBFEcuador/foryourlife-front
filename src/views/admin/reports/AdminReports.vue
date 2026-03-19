@@ -60,7 +60,7 @@ const onExcelDownload = (training_id: string) => {
 <template>
   <BaseBreadcrumb :title="'Por Entrenamiento'" :breadcrumbs="breadcrumbs" />
   <v-row>
-    <v-col cols="12">
+    <v-col cols="12" class="pt-0">
       <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
         <v-card-item class="pa-5 text-primary" style="background-color: #f0eff4">
           <div class="d-sm-flex align-center justify-space-between">
@@ -72,13 +72,23 @@ const onExcelDownload = (training_id: string) => {
             </v-card-title>
           </div>
         </v-card-item>
-        <v-card-item class="mt-0 pt-2 pb-0">
+        <v-card-item class="mt-0 pt-2 pb-3">
           <label class="tw-whitespace-normal tw-block">Seleccione un entrenamiento</label>
           <div class="d-sm-flex align-center justify-space-between mt-3">
-            <VCombobox v-model="selectedTraining" :items="trainings" item-title="name" item-value="id"
+            <VCombobox
+              v-model="selectedTraining"
+              :items="trainings"
+              item-title="name"
+              item-value="id"
               variant="outlined"
               :placeholder="trainings.length > 0 ? 'Seleccionar Entrenamiento' : 'No hay entrenamientos disponibles'"
-              return-object @update:search="searchTraining" @update:model-value="handleTrainingChange">
+              return-object
+              @update:search="searchTraining"
+              @update:model-value="handleTrainingChange"
+              hide-details
+              :loading="isLoadingMore"
+              :disabled="trainings.length === 0"
+            >
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
                   <template v-slot:prepend>
@@ -98,32 +108,24 @@ const onExcelDownload = (training_id: string) => {
   </v-row>
 
   <div v-if="nameTraining">
-    <v-row>
-      <v-col>
-        <v-card-item class="pa-5 text-primary" style="background-color: #f0eff4">
-          <v-card-title class="text-h5 d-flex align-center justify-space-between" style="line-height: 1.57">
-            <div class="d-flex align-center">
-              <Icon icon="mdi-account-group" class="mr-2" />
-              <div>{{ nameTraining }}</div>
-            </div>
-            <v-btn @click="onExcelDownload(trainingId)" color="primary" variant="outlined"
-              :loading="excelMutation.isPending.value">
-              <Icon icon="mdi-file-excel" height="20" class="mr-2" />
-              Reporte
-            </v-btn>
-          </v-card-title>
-        </v-card-item>
-      </v-col>
-    </v-row>
     <!-- LIFE DASHBOARD -->
-    <TeamMasterLifeReport v-if="selectedTraining?.courseLevel?.includes('LIFE') && trainingId && selectedTraining.name"
-      :trainingId="trainingId" :trainingDataName="selectedTraining.name" class="mb-2" />
+    <TeamMasterLifeReport
+      v-if="selectedTraining?.courseLevel?.includes('LIFE') && trainingId && selectedTraining.name"
+      :trainingId="trainingId"
+      :trainingDataName="selectedTraining.name"
+      class="mb-2"
+    />
     <!-- YOUR DASHBOARD -->
-    <TeamYourReport v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId"
-      class="mb-2" />
+    <TeamYourReport v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId" class="mb-2" />
     <!-- FOCUS DASHBOARD -->
-    <TeamFocusReport v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId"
-      class="mb-2" />
+    <TeamFocusReport v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2">
+      <template #actions>
+        <v-btn @click="onExcelDownload(trainingId)" color="primary" variant="outlined" :loading="excelMutation.isPending.value">
+          <Icon icon="mdi-file-excel" height="20" class="mr-2" />
+          Reporte
+        </v-btn>
+      </template>
+    </TeamFocusReport>
   </div>
 </template>
 

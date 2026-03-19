@@ -47,13 +47,13 @@ watch(postLoginMutation.isSuccess, () => {
       updateAbilitiesWithToken(response.token);
       store.setAdmin(response.admin);
       store.setAvailableCampus(response.admin.campus);
-      if (response.cashDrawer.length > 0) {
-        store.setCashDrawerOpen(true);
-        store.setCashDrawer(response.cashDrawer[0]);
-      } else {
-        store.setCashDrawerOpen(false);
-        store.setCashDrawer({});
-      }
+      // if (response.cashDrawer.length > 0) {
+      //   store.setCashDrawerOpen(true);
+      //   store.setCashDrawer(response.cashDrawer[0]);
+      // } else {
+      //   store.setCashDrawerOpen(false);
+      //   store.setCashDrawer({});
+      // }
       router.push({ name: 'home-admin' });
     }
   }

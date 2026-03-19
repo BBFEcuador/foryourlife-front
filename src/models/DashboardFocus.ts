@@ -1,3 +1,5 @@
+import type { N } from "node_modules/@fullcalendar/core/internal-common";
+
 export interface AttendanceRecord {
   userName: string;
   userEntity: string;
@@ -10,6 +12,10 @@ export interface FocusAttendanceDashboard {
   totalFocus: number;
   totalLingerer: number;
   attendances: AttendanceRecord[];
+  initialPx: number;
+  totalDistorter: number;
+  distortionPercentage: number;
+
 }
 export interface GenderByDay {
   day: string;
@@ -17,27 +23,74 @@ export interface GenderByDay {
   female: number;
 }
 export interface AgeDashboard {
-    day: string;
-    age_less_18: number;
-    age_18_27: number;
-    age_28_40: number;
-    age_41_65: number;
-    age_above_65: number;
+  day: string;
+  age_less_18: number;
+  age_18_27: number;
+  age_28_40: number;
+  age_41_65: number;
+  age_above_65: number;
 }
 export interface PaymentStaffDashboard {
+  // staffName: string;
+  // completedPaymentCount: number;
+  // partialPaymentCount: number;
+  // totalPayments: number;
+  // yourPartialPaymentsCount: number;
+  // yourCompletedPaymentsCount: number;
+  // lifePartialPaymentsCount: number;
+  // lifeCompletedPaymentsCount: number;
+
   staffName: string;
-  completedPaymentCount: number;
-  partialPaymentCount: number;
-  totalPayments: number;
-  yourPartialPaymentsCount: number;
-  yourCompletedPaymentsCount: number;
-  lifePartialPaymentsCount: number;
-  lifeCompletedPaymentsCount: number;
-}  
+  passPercentageFinal: number;
+  totalPaymentsFinal: number;
+  yourPaymentsFinal: number;
+  yourPlusLifePaymentsFinal: number;
+  passPercentageSunday: number;
+  totalPaymentsSunday: number;
+  yourPaymentsSunday: number;
+  yourPlusLifePaymentsSunday: number;
+}
 export interface DashboardFocus {
   focusAttendanceDashboard: FocusAttendanceDashboard;
   genderByDay: GenderByDay[];
   ageDashboard: AgeDashboard[];
-  paymentDashboard: PaymentStaffDashboard[];
+  paymentFocusDashboard: PaymentStaffDashboard[];
   totalTrainings: string[];
+  lingererStats: LingererStats;
+  lifeWeekendAssistants: LifeWeekendAssistants;
+  trainingName: string;
+  trainerName: string;
+  trainingDate: string;
+  nextTrainingAttendance: NextTrainingAttendance;
+  cityParticipantDashboard: CityParticipantDashboard[];
+}
+export interface LingererStats {
+  total: number;
+  attended: number;
+  notAttended: number;
+  finalJornal: TotalJornals;
+  penultimateJornal: TotalJornals;
+  penultimateMatchJornal: TotalJornals;
+  recovered: TotalJornals;
+}
+export interface TotalJornals {
+  total: number;
+  attended: number;
+}
+export interface LifeWeekendAssistantItem {
+  assistant: number;
+  enrolled: number;
+  percentage: number;
+}
+export interface LifeWeekendAssistants {
+  [key: string]: LifeWeekendAssistantItem;
+}
+export interface NextTrainingAttendance {
+  nextTrainingAttendancePercentage: number;
+  nextTrainingAttendanceCount: number;
+}
+export interface CityParticipantDashboard {
+  day: string;
+  province: number;
+  quito: number;
 }

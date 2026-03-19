@@ -17,12 +17,17 @@ onMounted(async () => {
 
 const search = ref('');
 const headers = [
+  //Solo Domingo
   { title: 'Staff', value: 'staffName', sortable: true },
-  { title: 'Abono YOUR', value: 'yourPartialPaymentsCount', sortable: true },
-  { title: 'Total YOUR', value: 'yourCompletedPaymentsCount', sortable: true },
-  { title: 'Abono LIFE', value: 'lifePartialPaymentsCount', sortable: true },
-  { title: 'Total LIFE', value: 'lifeCompletedPaymentsCount', sortable: true },
-  { title: 'Total', value: 'totalPayments', sortable: true }
+  { title: 'Abono YOUR', value: 'yourPaymentsSunday', sortable: true },
+  { title: 'Total YOUR + LIFE', value: 'yourPlusLifePaymentsSunday', sortable: true },
+  { title: 'Total', value: 'totalPaymentsSunday', sortable: true },
+  { title: 'Total (%)', value: 'passPercentageSunday', sortable: true },
+  //Solo Finales
+  { title: 'Abono Finales', value: 'yourPaymentsFinal', sortable: true },
+  { title: 'Total YOUR + LIFE', value: 'yourPlusLifePaymentsFinal', sortable: true },
+  { title: 'Total', value: 'totalPaymentsFinal', sortable: true },
+  { title: 'Total (%)', value: 'passPercentageFinal', sortable: true }
 ];
 
 const totalYourPartialPaymentsCount = computed(() => {
@@ -56,7 +61,7 @@ const totalRow = computed(() => ({
 </script>
 
 <template>
-  <v-card variant="flat" elevation="0" rounded="2" v-if="ready">
+  <v-card variant="flat" elevation="1" rounded="lg" v-if="ready">
     <v-card-text class="pa-3">
       <div class="tw:flex tw:items-center tw:gap-3 mb-3">
         <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-green-50 tw:flex tw:items-center tw:justify-center">

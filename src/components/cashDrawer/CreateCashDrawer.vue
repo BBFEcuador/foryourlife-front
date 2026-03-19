@@ -1,17 +1,14 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
-import { required, numeric } from '@vuelidate/validators';
-import { userStore } from '@/stores/useStore';
-import { adminStore } from '@/stores/adminStore';
+import { required } from '@vuelidate/validators';
 
 interface FormData {
   openingBalance: string;
   details: string;
 }
 
-const storeAdmin = adminStore();
 
 const props = withDefaults(
   defineProps<{
@@ -119,7 +116,8 @@ defineExpose({
             <v-col cols="12" class="pt-0">
               <v-text-field
                 v-model="formData.details"
-                label="Sucursal, observaciones, eventos, etc. (OPCIONAL)"
+                label="Detalle"
+                placeholder="Sucursal, observaciones, eventos, etc. (OPCIONAL)"
                 variant="outlined"
                 density="comfortable"
                 required

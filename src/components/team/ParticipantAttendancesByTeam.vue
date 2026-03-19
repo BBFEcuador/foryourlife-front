@@ -38,7 +38,7 @@ const attendances = computed(() => {
 </script>
 
 <template>
-  <v-card variant="flat" elevation="0" rounded="2" v-if="ready">
+  <v-card variant="flat" elevation="1" rounded="lg" v-if="ready">
     <v-card-text class="pa-3">
       <div class="tw:flex tw:items-center tw:gap-3 mb-3">
         <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-indigo-50 tw:flex tw:items-center tw:justify-center">
@@ -54,20 +54,6 @@ const attendances = computed(() => {
 
       <v-data-table :items="attendances" :headers="headers" :search="search" class="" dense>
         <template v-slot:top>
-          <v-alert color="pt-2 pb-2">
-            <div class="tw:flex tw:items-center tw:gap-6">
-              <div class="tw:flex-1">
-                <p class="tw:font-semibold tw:text-xs">Total Asistencias</p>
-                <p class="tw:text-sm tw:font-semibold text-end tw:text-indigo-900">{{ props.data?.totalFocus ?? '' }}</p>
-              </div>
-              <v-spacer></v-spacer>
-              <div class="tw:flex-1">
-                <p class="tw:font-semibold tw:text-xs">Total Rezagados</p>
-                <p class="tw:text-sm tw:font-semibold text-end tw:text-indigo-900">{{ props.data?.totalLingerer ?? '' }}</p>
-              </div>
-            </div>
-          </v-alert>
-          <v-divider class="my-2"></v-divider>
           <v-toolbar
             class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
             flat

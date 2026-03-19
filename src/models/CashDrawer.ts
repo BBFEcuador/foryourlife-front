@@ -10,6 +10,7 @@ export interface CashBox {
   firstNumberInvoice: number;
   store: Store;
   opened: boolean;
+  openedByUser: string;
 }
 
 export interface CashBoxRequest {
@@ -46,6 +47,6 @@ export interface CashDrawer {
   closedBalance: number;
   detail: string | null;
   cashBox: CashBox;
-  created_at: string;
+  createdAt: string;
   actualBalance: number;
 }

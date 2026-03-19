@@ -100,7 +100,7 @@ const chartOptions = computed(() => {
 </script>
 
 <template>
-  <v-card variant="flat" elevation="0" class="" rounded="2" v-if="ready">
+  <v-card variant="flat" elevation="1" class="" rounded="lg" v-if="ready">
     <v-card-text class="pa-3">
       <div class="tw:flex tw:items-center tw:gap-3 mb-3">
         <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-cyan-50 tw:flex tw:items-center tw:justify-center">

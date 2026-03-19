@@ -1,343 +1,66 @@
 <script setup lang="ts">
-import CreateCashBox from '@/components/cashDrawer/CreateCashBox.vue';
-import CreateCashDrawer from '@/components/cashDrawer/CreateCashDrawer.vue';
-import CreateStore from '@/components/cashDrawer/CreateStore.vue';
-import useContificoPosMutation from '@/composables/admin/contifico/useContificoPos';
-import useCashBoxes from '@/composables/admin/pos/useCashBoxes';
-import useCashBoxMutation from '@/composables/admin/pos/useCashBoxMutation';
-import useCashDrawerMutation from '@/composables/admin/pos/useCashDrawerMutation';
-import useStoreMutations from '@/composables/admin/pos/useStoreMutations';
-import useStores from '@/composables/admin/pos/useStores';
-import type { CashBox, CashBoxRequest, StoreRequest } from '@/models/CashDrawer';
+import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { router } from '@/router';
 import { adminStore } from '@/stores/adminStore';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum.ts';
 import { checkPermission } from '@/service/ability';
 import { Icon } from '@iconify/vue';
-import type { AxiosError } from 'axios';
-import { computed, ref } from 'vue';
-import { toast } from 'vue3-toastify';
+import { ref } from 'vue';
+import type { Store } from '@/models/CashDrawer';
+import StoresList from '@/components/cashDrawer/StoresList.vue';
+import StoreInfo from '@/components/cashDrawer/StoreInfo.vue';
+import StoreCashBoxes from '@/components/cashDrawer/StoreCashBoxes.vue';
+import useCashDrawerOpenedByUser from '@/composables/admin/pos/useCashDrawerOpenedByUser';
 
-const { cashBoxes, isCashBoxesLoading, refetchCashBoxes } = useCashBoxes();
-const { storesData, isStoresDataLoading, refetchStoresData } = useStores();
-const { saveCashBoxMutation } = useCashBoxMutation();
-const { openCashDrawerMutation } = useCashDrawerMutation();
-const { useContificoSyncPosMutations, isSyncPosLoading } = useContificoPosMutation();
-const { saveStoreMutation } = useStoreMutations();
-const { closeCashDrawerMutation } = useCashDrawerMutation();
-
+const selectedStore = ref<Store | null>(null);
 const store = adminStore();
-const showCreateCashBox = ref(false);
-const showCreateStore = ref(false);
-const auxCashBox = ref<CashBox>({} as CashBox);
-const showCreateCashDrawer = ref(false);
-
 const userIdref = ref(store.user.user.id);
-const disabledProperty = ref(!store.isCampusSelected);
-
-const sortedCashDrawers = computed(() => cashBoxes.value?.slice().sort((a, b) => parseInt(a.number) - parseInt(b.number)) || []);
-
-function formatDate(dateStr: string): string {
-  const [date, time] = dateStr.split('T');
-  return `${date} ${time.slice(0, 5)}`;
-}
-
-const handleSaveCashBox = async (cashBox: Partial<CashBox>) => {
-  const payload: CashBoxRequest = {
-    ...(cashBox as CashBox),
-    user: store.user.user
-  };
-
-  await saveCashBoxMutation.mutateAsync(payload, {
-    onSuccess: () => {
-      toast.success('Caja creada exitosamente');
-      showCreateCashBox.value = false;
-      refetchCashBoxes();
-    },
-    onError: (error) => {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || 'Error al crear caja');
-    }
-  });
-};
-
-const handleOpenCashDrawer = async (cashBox: CashBox) => {
-  if (store.isCashDrawerOpen) {
-    router.push({ name: 'payments-admin-create' });
-  } else {
-    auxCashBox.value = cashBox;
-    showCreateCashDrawer.value = true;
+const { cashDrawer, refetchCashDrawerOpenedByUser, isCashDrawerOpenedByUserLoading } = useCashDrawerOpenedByUser(userIdref.value);
+const breadcrumbs = ref([
+  {
+    title: 'Cajas disponibles',
+    disabled: false,
+    href: '/admin'
   }
-};
-
-const openCashDrawer = async (cashDrawerData: { openingBalance: number; details: string }) => {
-  const cashDrawer = {
-    cashBoxId: auxCashBox.value.id,
-    openingBalance: cashDrawerData.openingBalance,
-    detail: cashDrawerData.details
-  };
-  openCashDrawerMutation.mutate(cashDrawer, {
-    onSuccess: (response) => {
-      store.setCashDrawer(response);
-      store.setCashDrawerOpen(true);
-      toast.success('Caja abierta exitosamente');
-
-      router.push({ name: 'payments-admin-create' });
-    },
-    onError: (error) => {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || 'Error al procesar la caja');
-    }
-  });
-};
-
-const syncPos = async () => {
-  await useContificoSyncPosMutations(undefined, {
-    onSuccess: () => {
-      toast.success('Sincronización exitosa');
-      refetchStoresData();
-    },
-    onError: (error) => {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || 'Error al sincronizar');
-    }
-  });
-};
-
-const saveStore = (store: StoreRequest) => {
-  saveStoreMutation.mutate(store, {
-    onSuccess: () => {
-      toast.success('Establecimiento guardado exitosamente');
-      showCreateStore.value = false;
-      refetchStoresData();
-    },
-    onError: (error) => {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || 'Error al guardar el establecimiento');
-    }
-  });
-};
-
-const handleCloseCashDrawer = async () => {
-  const cashDrawer = {
-    cashDrawerId: store.cashDrawer.cashBox.id,
-    userId: userIdref.value
-  };
-
-  await closeCashDrawerMutation.mutateAsync(cashDrawer, {
-    onSuccess: async (data) => {
-      if (data) {
-        const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Cierre_Caja_${new Date().toLocaleDateString('es-EC').replace('/', '-')}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-
-      toast.success('Caja cerrada exitosamente');
-
-      store.setCashDrawer({});
-      store.setCashDrawerOpen(false);
-
-      await refetchCashBoxes();
-    },
-    onError: (error) => {
-      const err = error as AxiosError<{ message: string }>;
-      toast.error(err.response?.data?.message || 'Error al procesar la caja');
-    }
-  });
-};
+]);
 </script>
 
 <template>
-  <h3 class="text-h3 font-weight-bold tw:mb-16">Cajas disponibles</h3>
+  <BaseBreadcrumb :title="'Cajas disponibles'" :breadcrumbs="breadcrumbs" class="tw:mb-6">
+    <template #action>
+      <v-btn
+        v-if="checkPermission(PermissionEnum.SEE_PAYMENTS)"
+        variant="flat"
+        color="success"
+        @click="router.push({ name: 'payments-admin' })"
+      >
+        <Icon icon="mdi:eye" class="mr-2"></Icon>
+        <span class="">Ver pagos</span>
+      </v-btn>
+    </template>
+  </BaseBreadcrumb>
   <div class="tw:mt-5" v-if="checkPermission(PermissionEnum.SEE_EMISSION_POINTS)">
-    <v-card variant="text" class="d-flex align-center mb-2">
-      <v-spacer></v-spacer>
-      <div class="d-flex tw:flex-wrap tw:gap-2 tw:justify-end">
-        <v-btn
-          v-if="checkPermission(PermissionEnum.SEE_PAYMENTS)"
-          variant="flat"
-          color="success"
-          @click="router.push({ name: 'payments-admin' })"
-        >
-          <Icon icon="mdi:eye" class="mr-2"></Icon>
-          <span class="">Ver pagos</span>
-        </v-btn>
-        <v-btn
-          v-if="checkPermission(PermissionEnum.CREATE_EMISSION_POINTS)"
-          color="primary"
-          @click="showCreateCashBox = true"
-          :disabled="disabledProperty"
-        >
-          <Icon icon="mdi:plus" class="mr-2" />
-          Nueva caja
-        </v-btn>
-      </div>
-      <CreateCashBox
-        :model-value="showCreateCashBox"
-        :is-loading="isCashBoxesLoading"
-        @cancel="showCreateCashBox = false"
-        @save="handleSaveCashBox"
-        :stores="storesData"
-      />
-    </v-card>
-
-    <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
-      <Icon icon="cil:warning" height="48" class="mb-4" />
-      <p class="text-subtitle-1">Elija un campus para ver las Cajas Disponibles</p>
-    </div>
-
-    <v-card v-else variant="text">
-      <div v-if="isCashBoxesLoading" class="d-flex justify-center align-center pa-5">
-        <v-progress-circular indeterminate color="primary" />
-      </div>
-
-      <v-row v-else-if="sortedCashDrawers.length" dense>
-        <v-col v-for="cashBox in sortedCashDrawers.filter((x) => x.isActive)" :key="cashBox.id" cols="12" md="4">
-          <v-card variant="outlined" class="h-100 d-flex flex-column justify-space-between">
-            <v-card-item>
-              <div class="d-flex justify-space-between align-start text-h4 mb-2">
-                <span class="text-wrap">Caja No. {{ cashBox.number }}</span>
-              </div>
-
-              <v-chip :color="cashBox.isActive ? 'success' : 'red'" class="me-1">
-                {{ cashBox.isActive ? 'Activa' : 'Inactiva' }}
-              </v-chip>
-
-              <div>Creada por: {{ cashBox.createdBy }}</div>
-              <div>Fecha de creación: {{ formatDate(cashBox.createdDate) }}</div>
-              <div class="">Establecimiento: {{ cashBox.store.number }}</div>
-            </v-card-item>
-
-            <v-card-actions class="pa-3 d-flex flex-wrap gap-2">
-              <div v-if="store.isCashDrawerOpen && store.cashDrawer.cashBox.id === cashBox.id">
-                <v-btn
-                  v-if="checkPermission(PermissionEnum.CREATE_PAYMENTS)"
-                  class="flex-grow"
-                  variant="tonal"
-                  color="success"
-                  @click="handleOpenCashDrawer(cashBox)"
-                >
-                  <Icon icon="hugeicons:save-money-dollar" class="mr-1" />
-                  Crear cobros
-                </v-btn>
-                <v-btn
-                  v-if="checkPermission(PermissionEnum.UPDATE_EMISSION_POINTS)"
-                  variant="tonal"
-                  class="flex-grow ml-2"
-                  color="error"
-                  @click="handleCloseCashDrawer"
-                >
-                  <Icon icon="mdi:lock" class="mr-1" />
-                  Cerrar Caja
-                </v-btn>
-              </div>
-              <v-btn
-                v-if="!store.isCashDrawerOpen && !cashBox.opened && checkPermission(PermissionEnum.CREATE_PAYMENTS)"
-                class="flex-grow"
-                variant="tonal"
-                color="primary"
-                @click="handleOpenCashDrawer(cashBox)"
-              >
-                <Icon icon="mdi:key" class="mr-1" />
-                Abrir Caja
-              </v-btn>
-              <v-btn
-                v-if="checkPermission(PermissionEnum.UPDATE_EMISSION_POINTS)"
-                class="flex-grow"
-                variant="tonal"
-                color="info"
-                @click="
-                  router.push({
-                    name: 'cash-drawer-balances',
-                    params: { id: cashBox.id }
-                  })
-                "
-              >
-                <Icon icon="mdi:eye" class="mr-1" />
-                Ver balances de caja
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <div v-else class="d-flex flex-column align-center justify-center py-12 text-grey">
-        <Icon icon="mdi:cash-register" height="48" class="mb-4" />
-        <p class="text-subtitle-1">No se encontraron cajas</p>
-        <p class="text-body-2">Intenta crear una nueva</p>
-      </div>
-    </v-card>
-
-    <v-card variant="text" class="d-flex align-center mt-4 mb-4">
-      <h3 class="text-h3 font-weight-bold">Establecimientos</h3>
-      <v-spacer />
-      <div class="d-flex tw:flex-wrap tw:gap-2 tw:justify-end">
-        <v-btn
-          v-if="checkPermission(PermissionEnum.UPDATE_EMISSION_POINTS)"
-          :loading="isSyncPosLoading"
-          color="info"
-          @click="syncPos"
-          :disabled="disabledProperty"
-        >
-          <Icon icon="mdi:reload" class="mr-1" />
-          <span class="d-none d-sm-flex"> Sincronizar establecimientos de Contifico </span>
-        </v-btn>
-        <!-- <v-btn
-          v-if="checkPermission(PermissionEnum.CREATE_EMISSION_POINTS)"
-          color="primary"
-          @click="showCreateStore = true"
-          :disabled="disabledProperty"
-        >
-          <Icon icon="mdi:add" class="mr-1" />
-          <span class="d-none d-sm-flex">Agregar establecimiento</span>
-        </v-btn> -->
-      </div>
-      <CreateStore :model-value="showCreateStore" @cancel="showCreateStore = false" @save="saveStore" />
-    </v-card>
-
-    <div v-if="disabledProperty" class="d-flex flex-column align-center justify-center py-12 text-grey">
-      <Icon icon="cil:warning" height="48" class="mb-4" />
-      <p class="text-subtitle-1">Elija un campus para ver los establecimientos</p>
-    </div>
-
-    <v-card variant="text" v-else>
-      <div v-if="isStoresDataLoading || isSyncPosLoading" class="d-flex justify-center align-center pa-5">
-        <v-progress-circular indeterminate color="primary" />
-      </div>
-
-      <v-row v-else-if="storesData.length" dense>
-        <v-col v-for="store in storesData.filter((x) => x.isActive)" :key="store.id" cols="12" md="4">
-          <v-card variant="outlined" class="h-100 d-flex flex-column justify-space-between">
-            <v-card-item>
-              <div class="d-flex justify-space-between align-start text-h4 mb-2">
-                <span class="text-wrap">Establecimiento No. {{ store.number }}</span>
-              </div>
-              <div>{{ store.address }}</div>
-            </v-card-item>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <div v-else class="d-flex flex-column align-center justify-center py-12 text-grey">
-        <Icon icon="mdi:cash-register" height="48" class="mb-4" />
-        <p class="text-subtitle-1">No se encontraron puntos de venta</p>
-        <p class="text-body-2">Intenta sincronizar los datos</p>
-      </div>
-
-      <CreateCashDrawer
-        :model-value="showCreateCashDrawer"
-        :is-loading="openCashDrawerMutation.isPending.value"
-        @cancel="showCreateCashDrawer = false"
-        @save="openCashDrawer"
-      />
-    </v-card>
+    <v-row>
+      <v-col cols="12" md="3" sm="12">
+        <StoresList :selected-store="selectedStore" @update:selectedStore="selectedStore = $event" />
+      </v-col>
+      <v-col cols="12" md="9" sm="12">
+        <div v-if="selectedStore">
+          <StoreInfo :selected-store="selectedStore" />
+          <StoreCashBoxes
+            :key="selectedStore?.id"
+            :selected-store="selectedStore"
+            :cashDrawer="cashDrawer"
+            @reloadStoreCashByUser="refetchCashDrawerOpenedByUser"
+            :isLoadingCashDrawerOpenedByUser="isCashDrawerOpenedByUserLoading"
+          />
+        </div>
+        <div v-else class="d-flex flex-column align-center justify-center py-12 text-grey">
+          <Icon icon="mdi:store" height="48" class="mb-4" />
+          <p class="text-subtitle-1">Seleccione un establecimiento para ver las cajas disponibles</p>
+        </div>
+      </v-col>
+    </v-row>
   </div>
   <div v-else>
     <v-alert title="Acceso denegado" class="mt-5" variant="outlined" border="top" elevation="2" type="warning">
