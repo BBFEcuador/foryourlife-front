@@ -1,201 +1,169 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import type { PaymentStaffDashboard } from '@/models/DashboardFocus';
 import { computed, ref, onMounted } from 'vue';
+import type { PaymentStaffDashboard } from '@/models/DashboardFocus';
 
-interface Props {
-  data: PaymentStaffDashboard[];
-}
-const props = defineProps<Props>();
+const props = defineProps<{ data: PaymentStaffDashboard[] }>();
 const emit = defineEmits(['loaded']);
 const ready = ref(false);
+const search = ref('');
+
 onMounted(async () => {
   await new Promise((resolve) => setTimeout(resolve, 200));
   ready.value = true;
   emit('loaded');
 });
 
-const search = ref('');
+// Formateador de moneda para limpieza visual
+const fCurrency = (val: number) => 
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val ?? 0);
+
+// HEADERS CON GRUPOS (UI Mejorada)
 const headers = [
-  //Solo Domingo
-  { title: 'Staff', value: 'staffName', sortable: true },
-  { title: 'Abono YOUR', value: 'yourPaymentsSunday', sortable: true },
-  { title: 'Total YOUR + LIFE', value: 'yourPlusLifePaymentsSunday', sortable: true },
-  { title: 'Total', value: 'totalPaymentsSunday', sortable: true },
-  { title: 'Total (%)', value: 'passPercentageSunday', sortable: true },
-  //Solo Finales
-  { title: 'Abono Finales', value: 'yourPaymentsFinal', sortable: true },
-  { title: 'Total YOUR + LIFE', value: 'yourPlusLifePaymentsFinal', sortable: true },
-  { title: 'Total', value: 'totalPaymentsFinal', sortable: true },
-  { title: 'Total (%)', value: 'passPercentageFinal', sortable: true }
+  { title: 'Staff', key: 'staffName', align: 'start', sortable: true, width: '200px', class: 'sticky-column' },
+  {
+    title: 'DOMINGOS',
+    align: 'center',
+    children: [
+      { title: 'Abono YOUR', key: 'yourPaymentsSunday', align: 'end' },
+      { title: 'YOUR + LIFE', key: 'yourPlusLifePaymentsSunday', align: 'end' },
+      { title: 'Total', key: 'totalPaymentsSunday', align: 'end' },
+      { title: '%', key: 'passPercentageSunday', align: 'center' },
+    ],
+  },
+  {
+    title: 'FINALES',
+    align: 'center',
+    children: [
+      { title: 'Abono Final', key: 'yourPaymentsFinal', align: 'end' },
+      { title: 'YOUR + LIFE', key: 'yourPlusLifePaymentsFinal', align: 'end' },
+      { title: 'Total', key: 'totalPaymentsFinal', align: 'end' },
+      { title: '%', key: 'passPercentageFinal', align: 'center' },
+    ],
+  },
 ];
 
-const totalYourPartialPaymentsCount = computed(() => {
-  return (props.data ?? []).reduce((total, item) => total + (item.yourPartialPaymentsCount ?? 0), 0);
-});
+// Cálculo de totales simplificado
+const calculateTotal = (key: keyof PaymentStaffDashboard) => {
+  return props.data?.reduce((acc, item) => acc + (Number(item[key]) || 0), 0) || 0;
+};
 
-const totalYourCompletedPaymentsCount = computed(() => {
-  return (props.data ?? []).reduce((total, item) => total + (item.yourCompletedPaymentsCount ?? 0), 0);
-});
-
-const totalLifePartialPaymentsCount = computed(() => {
-  return (props.data ?? []).reduce((total, item) => total + (item.lifePartialPaymentsCount ?? 0), 0);
-});
-
-const totalLifeCompletedPaymentsCount = computed(() => {
-  return (props.data ?? []).reduce((total, item) => total + (item.lifeCompletedPaymentsCount ?? 0), 0);
-});
-
-const totalPayments = computed(() => {
-  return (props.data ?? []).reduce((total, item) => total + (item.totalPayments ?? 0), 0);
-});
-
-const totalRow = computed(() => ({
-  staffName: 'TOTAL',
-  yourPartialPaymentsCount: totalYourPartialPaymentsCount.value,
-  yourCompletedPaymentsCount: totalYourCompletedPaymentsCount.value,
-  lifePartialPaymentsCount: totalLifePartialPaymentsCount.value,
-  lifeCompletedPaymentsCount: totalLifeCompletedPaymentsCount.value,
-  totalPayments: totalPayments.value
+const totals = computed(() => ({
+  yourSunday: calculateTotal('yourPaymentsSunday'),
+  totalSunday: calculateTotal('totalPaymentsSunday'),
+  yourFinal: calculateTotal('yourPaymentsFinal'),
+  totalFinal: calculateTotal('totalPaymentsFinal'),
+  // ... agrega los demás si los necesitas en el footer
 }));
 </script>
 
 <template>
-  <v-card variant="flat" elevation="1" rounded="lg" v-if="ready">
-    <v-card-text class="pa-3">
-      <div class="tw:flex tw:items-center tw:gap-3 mb-3">
-        <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-green-50 tw:flex tw:items-center tw:justify-center">
-          <Icon icon="mdi-account-cash-outline" height="20" class="tw:text-green-600" />
+  <v-card variant="flat" border rounded="lg" v-if="ready" class="payment-card">
+    <v-card-item class="bg-grey-lighten-5">
+      <template v-slot:prepend>
+        <v-avatar color="green-lighten-5" rounded="lg">
+          <Icon icon="mdi-account-cash-outline" class="text-green-darken-2" width="24" />
+        </v-avatar>
+      </template>
+      <v-card-title class="text-subtitle-1 font-weight-bold">Resumen de Pagos por Staff</v-card-title>
+      <v-card-subtitle>Desglose de rendimiento Domingos vs Finales</v-card-subtitle>
+      
+      <template v-slot:append>
+        <v-text-field
+          v-model="search"
+          prepend-inner-icon="mdi-magnify"
+          label="Buscar Staff"
+          variant="solo"
+          density="compact"
+          hide-details
+          flat
+          bg-color="white"
+          class="search-field"
+        ></v-text-field>
+      </template>
+    </v-card-item>
+
+    <v-divider></v-divider>
+
+    <v-data-table
+      :headers="headers"
+      :items="props.data"
+      :search="search"
+      hover
+      fixed-header
+      class="custom-table"
+      density="comfortable"
+    >
+      <template #[`item.staffName`]="{ item }">
+        <div class="d-flex align-center py-2">
+          <v-avatar size="32" color="blue-grey-lighten-5" class="mr-3">
+            <span class="text-caption font-weight-bold">{{ item.staffName.charAt(0) }}</span>
+          </v-avatar>
+          <span class="font-weight-medium">{{ item.staffName }}</span>
         </div>
-        <div>
-          <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Resúmen de Pagos por Staff</h4>
-          <p class="tw:text-sm tw:text-gray-500">Listado de pagos por staff</p>
-        </div>
-      </div>
-      <v-data-table :items="props.data" :headers="headers" :search="search" class="" :loading="!ready" dense>
-        <template v-slot:top>
-          <v-toolbar
-            class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
-            flat
-            v-motion
-            :initial="{ opacity: 0, y: -10 }"
-            :enter="{ opacity: 1, y: 0 }"
-            :delay="200"
-            :duration="250"
-          >
-            <VTextField
-              v-model="search"
-              placeholder="Buscar Staff..."
-              variant="outlined"
-              density="compact"
-              class="tw:rounde d-lg tw:bg-white/80 backdrop-blur-sm"
-              clearable
-              hide-details
-            >
-              <template #prepend-inner>
-                <div class="tw:relative">
-                  <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                  <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
-                </div>
-              </template>
-            </VTextField>
-            <v-spacer></v-spacer>
-          </v-toolbar>
-        </template>
-        <template #item.staffName="{ item }">
-          <div class="tw:flex tw:items-center tw:gap-3 tw:py-1">
-            <div
-              class="tw:w-8 tw:h-8 tw:rounded-full tw:bg-gradient-to-br tw:from-green-100 tw:to-green-100 tw:flex tw:items-center tw:justify-center"
-            >
-              <Icon icon="mdi:account-tie" class="tw:text-green-600" height="18" />
-            </div>
-            <span class="tw:font-medium tw:text-gray-800">{{ item.staffName ?? '' }}</span>
-          </div>
-        </template>
-        <template #item.yourPartialPaymentsCount="{ item }">
-          <div class="text-end">
-            <span class="tw-font-semibold"> $ {{ (item.yourPartialPaymentsCount ?? 0).toFixed(2) }} </span>
-          </div>
-        </template>
-        <template #item.yourCompletedPaymentsCount="{ item }">
-          <div class="text-end">
-            <span class="tw-font-semibold"> $ {{ (item.yourCompletedPaymentsCount ?? 0).toFixed(2) }} </span>
-          </div>
-        </template>
-        <template #item.lifePartialPaymentsCount="{ item }">
-          <div class="text-end">
-            <span class="tw-font-semibold"> $ {{ (item.lifePartialPaymentsCount ?? 0).toFixed(2) }} </span>
-          </div>
-        </template>
-        <template #item.lifeCompletedPaymentsCount="{ item }">
-          <div class="text-end">
-            <span class="tw-font-semibold"> $ {{ (item.lifeCompletedPaymentsCount ?? 0).toFixed(2) }} </span>
-          </div>
-        </template>
-        <template #item.totalPayments="{ item }">
-          <div class="text-end">
-            <span class="tw-font-semibold"> $ {{ (item.totalPayments ?? 0).toFixed(2) }} </span>
-          </div>
-        </template>
-        <!-- Fila de totales -->
-        <template #body.append>
-          <tr class="tw:bg-green-50 tw:font-semibold">
-            <td class="text-end">{{ totalRow.staffName }}</td>
-            <td class="text-end">$ {{ totalRow.yourPartialPaymentsCount.toFixed(2) }}</td>
-            <td class="text-end">$ {{ totalRow.yourCompletedPaymentsCount.toFixed(2) }}</td>
-            <td class="text-end">$ {{ totalRow.lifePartialPaymentsCount.toFixed(2) }}</td>
-            <td class="text-end">$ {{ totalRow.lifeCompletedPaymentsCount.toFixed(2) }}</td>
-            <td class="text-end tw:text-green-800">$ {{ totalRow.totalPayments.toFixed(2) }}</td>
-          </tr>
-        </template>
-      </v-data-table>
-    </v-card-text>
+      </template>
+
+      <template v-for="col in ['yourPaymentsSunday', 'yourPlusLifePaymentsSunday', 'totalPaymentsSunday', 'yourPaymentsFinal', 'yourPlusLifePaymentsFinal', 'totalPaymentsFinal']" :key="col" #[`item.${col}`]="{ value }">
+        <span class="font-variant-numeric">{{ fCurrency(value) }}</span>
+      </template>
+
+      <template #[`item.passPercentageSunday`]="{ value }">
+        <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label>
+          {{ value }}%
+        </v-chip>
+      </template>
+
+      <template #[`item.passPercentageFinal`]="{ value }">
+        <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label>
+          {{ value }}%
+        </v-chip>
+      </template>
+
+      <template #body.append>
+        <tr class="bg-grey-lighten-4 font-weight-bold">
+          <td class="text-uppercase">Totales</td>
+          <td class="text-right">{{ fCurrency(totals.yourSunday) }}</td>
+          <td></td> <td class="text-right text-primary">{{ fCurrency(totals.totalSunday) }}</td>
+          <td></td> <td class="text-right">{{ fCurrency(totals.yourFinal) }}</td>
+          <td></td>
+          <td class="text-right text-primary">{{ fCurrency(totals.totalFinal) }}</td>
+          <td></td>
+        </tr>
+      </template>
+    </v-data-table>
   </v-card>
 </template>
+
 <style scoped>
-.v-data-table :deep(th) {
-  background-color: #f8fafc !important;
-  color: #64748b;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.v-data-table :deep(td) {
-  font-size: 0.875rem;
-  color: #334155;
-  padding: 16px;
-}
-
-.v-data-table :deep(.v-data-table-footer) {
-  border-top: 1px solid #e2e8f0;
-  background-color: #f8fafc;
-}
-
-.v-data-table :deep(.v-data-table__wrapper) {
+.search-field {
+  width: 250px;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow:
-    0 1px 3px 0 rgb(0 0 0 / 0.1),
-    0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
-.v-data-table :deep(.v-data-table-header__wrapper) {
-  background-color: #f8fafc;
+/* UI: Separación visual de grupos de cabeceras */
+:deep(.v-data-table-header__content) {
+  justify-content: center !important;
 }
 
-.v-data-table :deep(.v-data-table__wrapper table) {
-  border-collapse: separate;
-  border-spacing: 0;
+/* Colores sutiles para diferenciar grupos */
+:deep(thead tr:nth-child(1) th:nth-child(2)) {
+  background-color: #f0f7ff !important; /* Azul tenue para Domingos */
+  color: #1976d2 !important;
 }
 
-.v-data-table :deep(.v-data-table__wrapper tbody tr:hover) {
-  background-color: #f8fafc;
+:deep(thead tr:nth-child(1) th:nth-child(3)) {
+  background-color: #f5fcf5 !important; /* Verde tenue para Finales */
+  color: #2e7d32 !important;
 }
 
-.v-data-table :deep(.v-data-table__wrapper tbody tr) {
-  transition: background-color 0.2s ease;
+.font-variant-numeric {
+  font-variant-numeric: tabular-nums; /* Mantiene los números alineados */
+}
+
+.custom-table :deep(th) {
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 0.7rem !important;
 }
 </style>

@@ -244,13 +244,13 @@ const AdminRoutes: RouteRecordRaw[] = [
           permissions: [PermissionEnum.SEE_PAYMENTS]
         },
         component: () => import('@/views/admin/payments/PaymentsCreate.vue'),
-        beforeEnter: (to, from, next) => {
-          if (adminStore().isCashDrawerOpen) {
-            next();
-          } else {
-            next({ name: 'pos-main' });
-          }
-        }
+        // beforeEnter: (to, from, next) => {
+        //   if (adminStore().isCashDrawerOpen) {
+        //     next();
+        //   } else {
+        //     next({ name: 'pos-main' });
+        //   }
+        // }
       },
       {
         name: 'payment-methods',

@@ -5,7 +5,7 @@ import CashDrawerInfo from '@/components/cashDrawer/CashDrawerInfo.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import usePaymentMutations from '@/composables/admin/payments/usePaymentsMutations';
 import type { AxiosError } from 'axios';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Icon } from '@iconify/vue';
 import { toast } from 'vue3-toastify';
 import { adminStore } from '@/stores/adminStore';
@@ -17,6 +17,7 @@ import useContificoConfigByCampus from '@/composables/admin/contifico/useContifi
 import { router } from '@/router';
 import { helpers, numeric, required } from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
+import useCashDrawerOpenedByUser from '@/composables/admin/pos/useCashDrawerOpenedByUser';
 import useCashDrawerById from '@/composables/admin/pos/useCashDrawerById';
 
 // --- State ---
@@ -46,10 +47,16 @@ const selectPaymentIdPdf = ref('');
 
 // --- Store & API ---
 const store = adminStore();
-const { cashDrawer, isCashDrawerLoading, refetchCashDrawer } = useCashDrawerById(store.cashDrawer.id);
-const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = useContificoConfigByCampus(
-  store.cashDrawer.cashBox.store.campus.id
-);
+const userIdref = ref(store.user.user.id);
+const { cashDrawer, refetchCashDrawerOpenedByUser, isCashDrawerOpenedByUserLoading } = useCashDrawerOpenedByUser(userIdref.value);
+
+const campusId = computed(() => {
+  if (!cashDrawer?.value?.cashBox?.store?.campus?.id) return '';
+  return cashDrawer.value.cashBox.store.campus.id;
+});
+
+// const { cashDrawer, isCashDrawerLoading, refetchCashDrawer } = useCashDrawerById(store.cashDrawer.id);
+const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = useContificoConfigByCampus(campusId.value);
 const { savePaymentMutations } = usePaymentMutations();
 const { pdfArray, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
 
@@ -154,10 +161,10 @@ const changeAmount = computed(() => {
 });
 
 const paymentStatusColor = computed(() => {
-    if (totalPaid.value === 0) return 'grey';
-    if (totalPaid.value < grandTotal.value) return 'warning';
-    if (totalPaid.value >= grandTotal.value) return 'success';
-    return 'primary';
+  if (totalPaid.value === 0) return 'grey';
+  if (totalPaid.value < grandTotal.value) return 'warning';
+  if (totalPaid.value >= grandTotal.value) return 'success';
+  return 'primary';
 });
 
 // --- Methods ---
@@ -257,7 +264,7 @@ const addPaymentHistoryRow = (paymentHistoryRow: PaymentHistoryRequest) => {
     transactionId: paymentHistoryRow.paymentHistory.transactionId,
     pingType: paymentHistoryRow.paymentHistory.pingType
   };
-  
+
   if (editingIndex.value !== null) {
     paymentHistoryArr.value[editingIndex.value] = paymentHistory;
     editingIndex.value = null;
@@ -288,6 +295,16 @@ const openAddPaymentModal = () => {
 };
 
 defineExpose({ showSuccessModal, redirectCountdown });
+
+watch(
+  [cashDrawer, isCashDrawerOpenedByUserLoading],
+  ([drawer, loading]) => {
+    if (!loading && !drawer) {
+      router.push({ name: 'pos-main' });
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -299,8 +316,8 @@ defineExpose({ showSuccessModal, redirectCountdown });
     ]"
   />
 
-  <div v-if="cashDrawer && !isCashDrawerLoading" class="mb-6">
-    <CashDrawerInfo :cash-drawer="cashDrawer" @update-refetch="refetchCashDrawer" />
+  <div v-if="cashDrawer && !isCashDrawerOpenedByUserLoading" class="mb-6">
+    <CashDrawerInfo :cash-drawer="cashDrawer" @update-refetch="refetchCashDrawerOpenedByUser" />
   </div>
 
   <v-dialog v-model="showSuccessModal" width="400">
@@ -315,7 +332,7 @@ defineExpose({ showSuccessModal, redirectCountdown });
     </v-card>
   </v-dialog>
 
-  <div v-if="cashDrawer.status === 'LOCKED'">
+  <div v-if="cashDrawer?.status && cashDrawer.status === 'LOCKED'">
     <v-alert
       type="warning"
       variant="tonal"
@@ -382,7 +399,7 @@ defineExpose({ showSuccessModal, redirectCountdown });
           </v-card-text>
         </v-card>
 
-        <v-card class="mt-4 payment-card h-full" variant="outlined" style="border-color: #e2e8f0;">
+        <v-card class="mt-4 payment-card h-full" variant="outlined" style="border-color: #e2e8f0">
           <v-card-title class="d-flex justify-space-between align-center py-3 bg-grey-lighten-5">
             <div class="d-flex align-center">
               <Icon icon="solar:wallet-money-bold-duotone" class="mr-2 text-primary" height="24" />
@@ -392,7 +409,7 @@ defineExpose({ showSuccessModal, redirectCountdown });
               {{ totalPaid >= grandTotal && grandTotal > 0 ? 'COMPLETADO' : 'PENDIENTE' }}
             </v-chip>
           </v-card-title>
-          
+
           <v-divider></v-divider>
 
           <v-card-text class="pa-4">
@@ -420,7 +437,7 @@ defineExpose({ showSuccessModal, redirectCountdown });
             <div class="mb-6">
               <div class="d-flex justify-space-between text-caption mb-1">
                 <span>Progreso de pago</span>
-                <span>{{ Math.min(((totalPaid / (grandTotal || 1)) * 100), 100).toFixed(0) }}%</span>
+                <span>{{ Math.min((totalPaid / (grandTotal || 1)) * 100, 100).toFixed(0) }}%</span>
               </div>
               <v-progress-linear
                 :model-value="(totalPaid / (grandTotal || 1)) * 100"
@@ -434,11 +451,11 @@ defineExpose({ showSuccessModal, redirectCountdown });
             <!-- Action Buttons -->
             <v-row dense class="mb-6">
               <v-col cols="12" :md="remainingBalance > 0 ? 6 : 12">
-                <v-btn 
-                  block 
-                  variant="outlined" 
-                  color="primary" 
-                  class="border-dashed py-6" 
+                <v-btn
+                  block
+                  variant="outlined"
+                  color="primary"
+                  class="border-dashed py-6"
                   style="border-width: 2px"
                   height="auto"
                   @click="openAddPaymentModal"
@@ -451,11 +468,11 @@ defineExpose({ showSuccessModal, redirectCountdown });
                 </v-btn>
               </v-col>
               <v-col cols="12" md="6" v-if="remainingBalance > 0">
-                <v-btn 
-                  block 
-                  variant="tonal" 
-                  color="success" 
-                  class="py-6" 
+                <v-btn
+                  block
+                  variant="tonal"
+                  color="success"
+                  class="py-6"
                   height="auto"
                   @click="openAddPaymentModal"
                   v-tooltip="'Pagar el monto restante exacto'"
@@ -470,9 +487,7 @@ defineExpose({ showSuccessModal, redirectCountdown });
 
             <!-- Payment List -->
             <div v-if="paymentHistoryArr.length > 0" class="payment-list rounded-lg border pa-0 overflow-hidden mb-4">
-              <div class="bg-grey-lighten-4 px-4 py-2 text-caption font-weight-bold text-uppercase text-grey">
-                Desglose de pagos
-              </div>
+              <div class="bg-grey-lighten-4 px-4 py-2 text-caption font-weight-bold text-uppercase text-grey">Desglose de pagos</div>
               <v-list density="compact" class="pa-0">
                 <template v-for="(item, index) in paymentHistoryArr" :key="index">
                   <v-list-item class="px-4 py-2" @click="editPayment(index)" style="cursor: pointer" v-tooltip="'Clic para editar'">
@@ -481,16 +496,24 @@ defineExpose({ showSuccessModal, redirectCountdown });
                         <Icon icon="solar:card-transfer-bold-duotone" size="20" />
                       </v-avatar>
                     </template>
-                    
+
                     <v-list-item-title class="font-weight-bold">{{ item.paymentMethod.type }}</v-list-item-title>
                     <v-list-item-subtitle class="text-caption">
                       ID: {{ item.transactionId || 'N/A' }} • {{ new Date().toLocaleDateString() }}
                     </v-list-item-subtitle>
-                    
+
                     <template v-slot:append>
                       <div class="d-flex align-center">
                         <span class="font-weight-bold mr-3 text-body-2">${{ Number(item.amount).toFixed(2) }}</span>
-                        <v-btn icon size="small" variant="text" color="primary" @click.stop="editPayment(index)" class="mr-1" v-tooltip="'Editar pago'">
+                        <v-btn
+                          icon
+                          size="small"
+                          variant="text"
+                          color="primary"
+                          @click.stop="editPayment(index)"
+                          class="mr-1"
+                          v-tooltip="'Editar pago'"
+                        >
                           <Icon icon="solar:pen-new-square-bold-duotone" size="18" />
                         </v-btn>
                         <v-btn icon size="small" variant="text" color="grey" @click.stop="removePayment(index)" v-tooltip="'Eliminar pago'">
@@ -503,23 +526,22 @@ defineExpose({ showSuccessModal, redirectCountdown });
                 </template>
               </v-list>
             </div>
-            
+
             <div v-else class="d-flex flex-column align-center py-8 rounded-lg border border-dashed mb-4">
               <Icon icon="solar:bill-list-linear" height="48" class="mb-2 text-grey-lighten-1" />
               <div class="text-body-2 text-grey">No se han registrado pagos aún</div>
             </div>
-
           </v-card-text>
 
           <v-divider></v-divider>
 
           <v-card-actions class="pa-4 bg-grey-lighten-5">
-            <v-btn 
-              block 
-              size="x-large" 
-              color="primary" 
+            <v-btn
+              block
+              size="x-large"
+              color="primary"
               variant="elevated"
-              :loading="isLoading" 
+              :loading="isLoading"
               :disabled="isPaymentDisabled || totalPaid > grandTotal"
               @click="processPayment"
               class="font-weight-bold text-none rounded-lg"
