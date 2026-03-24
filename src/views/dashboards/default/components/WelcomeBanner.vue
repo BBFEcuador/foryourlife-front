@@ -50,7 +50,7 @@ const copyLink = async () => {
       <v-row>
         <v-col cols="12" xl="6" md="8" sm="10">
           <div class="pb-md-8 pt-md-7 pt-5 pb-6">
-            <h2 class="text-sm-h2 text-h3">Hola {{ stores.user.name }} </h2>
+            <h2 class="text-sm-h2 text-h3">Hola {{ stores.user.user.name }} </h2>
             <p class="text-h6 mb-7">
               Empieza o continua tus entrenamientos, ¡mucho ánimo!
             </p>

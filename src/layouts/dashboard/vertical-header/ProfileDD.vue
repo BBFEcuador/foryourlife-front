@@ -33,8 +33,8 @@ const profiledata2 = ref([
         <img src="@/assets/images/users/avatar-1.png" width="40" alt="profile" />
       </v-avatar>
       <div>
-        <h6 class="text-subtitle-1 mb-0">{{store.user.name}}</h6>
-        <p class="text-caption text-lightText mb-0">{{store.user.email}}</p>
+        <h6 class="text-subtitle-1 mb-0">{{store.user.user.name}}</h6>
+        <p class="text-caption text-lightText mb-0">{{store.user.user.email}}</p>
       </div>
       <div class="ml-auto">
         <v-btn variant="text" aria-label="logout" color="error" rounded="sm" icon size="large" @click="authStore.logout()">
