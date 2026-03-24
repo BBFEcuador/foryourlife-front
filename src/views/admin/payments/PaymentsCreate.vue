@@ -54,8 +54,6 @@ const campusId = computed(() => {
   if (!cashDrawer?.value?.cashBox?.store?.campus?.id) return '';
   return cashDrawer.value.cashBox.store.campus.id;
 });
-
-// const { cashDrawer, isCashDrawerLoading, refetchCashDrawer } = useCashDrawerById(store.cashDrawer.id);
 const { contificoConfig, isContificoConfigError, isContificoConfigLoading } = useContificoConfigByCampus(campusId.value);
 const { savePaymentMutations } = usePaymentMutations();
 const { pdfArray, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
@@ -221,7 +219,6 @@ const processPayment = async () => {
 
   await savePaymentMutations.mutateAsync(paymentData, {
     onSuccess: async (data) => {
-      store.cashDrawer.actualBalance += paymentHistoryArr.value.reduce((sum, row) => sum + parseFloat(row.amount), 0);
       resetAllFields();
       selectPaymentIdPdf.value = data;
       await refetchPaymentPdf();

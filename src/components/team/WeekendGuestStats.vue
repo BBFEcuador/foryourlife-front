@@ -18,12 +18,15 @@ onMounted(async () => {
 });
 
 const totals = computed(() => {
-  // totales de assistants
   const data = props.data ?? {};
   const totalEnrolled = Object.values(data).reduce((sum, item) => sum + (item.enrolled ?? 0), 0);
   const totalAssistant = Object.values(data).reduce((sum, item) => sum + (item.assistant ?? 0), 0);
-  const percentage = totalEnrolled > 0 ? Math.round((totalAssistant * 100) / totalEnrolled) : 0;
-  return { assistant: totalAssistant, enrolled: Math.round(totalEnrolled), percentage };
+  const percentage = totalEnrolled > 0 ? Math.round(((totalAssistant * 100) / totalEnrolled) * 100) / 100 : 0;
+  return {
+    assistant: totalAssistant,
+    enrolled: Math.round(totalEnrolled),
+    percentage
+  };
 });
 </script>
 
@@ -45,7 +48,7 @@ const totals = computed(() => {
         <span class="tw:font-semibold">{{ key }}</span>
         <div class="d-flex justify-space-between gap-4 text-medium-emphasis mb-1 text-grey-darken-2">
           <span>{{ item.assistant }} / {{ item.enrolled }}</span>
-          <span class="tw:font-semibold tw:text-cyan-700">{{ item.percentage }}%</span>
+          <span class="tw:font-semibold tw:text-cyan-700">{{ (totals.percentage).toFixed(2) }}%</span>
         </div>
         <div class="d-flex justify-space-between gap-4 text-medium-emphasis text-grey-darken-2">
           <v-progress-linear
@@ -59,11 +62,11 @@ const totals = computed(() => {
           ></v-progress-linear>
         </div>
       </div>
-      <v-alert  class="mt-6 tw:bg-cyan-50">
-        <div class="d-flex justify-space-between gap-4  mb-1 text-grey-darken-2">
+      <v-alert class="mt-6 tw:bg-cyan-50">
+        <div class="d-flex justify-space-between gap-4 mb-1 text-grey-darken-2">
           <span class="tw:font-semibold">Total</span>
-          
-          <span class="tw:font-semibold tw:text-cyan-700">{{ totals.percentage }} %</span>
+
+          <span class="tw:font-semibold tw:text-cyan-700">{{ (totals.percentage).toFixed(2) }} %</span>
         </div>
         <div class="d-flex justify-space-between tw:gap-4 text-medium-emphasis text-grey-darken-2 tw:content-center">
           <v-progress-linear

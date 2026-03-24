@@ -19,7 +19,7 @@ const currentSeries = computed(() => {
   const total = props.data?.total ?? 0;
   if (!total) return [0, 0];
 
-  return [Math.round(((props.data?.attended ?? 0) * 100) / total), Math.round(((props.data?.notAttended ?? 0) * 100) / total)];
+  return [(((props.data?.attended ?? 0) * 100) / total).toFixed(2), (((props.data?.notAttended ?? 0) * 100) / total).toFixed(2)];
 });
 
 const chartOptions = computed(() => ({
@@ -81,7 +81,7 @@ const chartOptions = computed(() => ({
     theme: 'dark',
     followCursor: true,
     y: {
-      formatter: (val: number) => `${Math.round(val)} %`
+      formatter: (val: number) => `${(Number(val) || 0).toFixed(2)} %`
     },
     style: {
       fontSize: '13px',
@@ -131,8 +131,8 @@ const jornals = ref([
 ]);
 
 const percentageJornal = (attended: number, total: number) => {
-  if (!total) return 0;
-  return Math.round((attended * 100) / total);
+  if (!total) return (0).toFixed(2);
+  return ((attended * 100) / total).toFixed(2);
 };
 </script>
 

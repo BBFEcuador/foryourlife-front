@@ -112,10 +112,10 @@ const submitForm = async () => {
   const { valid } = await formRef.value.validate();
   if (!valid) return;
 
-  if (!adminStore().isCashDrawerOpen) {
-    toast.error('Debe abrir una caja para añadir el pago');
-    return;
-  }
+  // if (!adminStore().isCashDrawerOpen) {
+  //   toast.error('Debe abrir una caja para añadir el pago');
+  //   return;
+  // }
 
   const paymentHistoryReq: PaymentHistoryRequest = {
     paymentId: paymentId.value!,

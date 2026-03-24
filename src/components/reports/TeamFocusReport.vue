@@ -52,7 +52,7 @@ const cards = ref([
   {
     title: 'Desertores',
     value: computed(() => data.value?.focusAttendanceDashboard?.totalDistorter ?? 0),
-    percentage: computed(() => data.value?.focusAttendanceDashboard?.distortionPercentage ?? 0),
+    percentage: computed(() => (Number(data.value?.focusAttendanceDashboard?.distortionPercentage ?? 0)).toFixed(2)),
     icon: 'mdi-calendar-check-outline',
     color: 'green'
   }
@@ -93,6 +93,13 @@ const cards = ref([
 
     <div class="mb-4 d-flex align-center mt-3">
       <div class="d-flex align-center ga-4 text-medium-emphasis">
+        <div class="d-flex align-center ga-1">
+          <Icon icon="mdi-signal" height="20" color="primary" />
+          <p class="tw:text-sm tw:text-gray-500 mb-0">
+            {{ data?.courseLevel }} 
+          </p>
+        </div>
+        <v-divider vertical length="20"></v-divider>
         <div class="d-flex align-center ga-1">
           <Icon icon="mdi-account-tie" height="20" color="primary" />
           <p class="tw:text-sm tw:text-gray-500 mb-0">

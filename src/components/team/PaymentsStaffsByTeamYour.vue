@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed, ref, onMounted } from 'vue';
-import type { PaymentStaffDashboard } from '@/models/DashboardFocus';
+import type { PaymentStaffDashboard } from '@/models/DashboardYour';
+import { ca } from 'vuetify/locale';
 
 const props = defineProps<{ data: PaymentStaffDashboard[] }>();
 const emit = defineEmits(['loaded']);
@@ -31,21 +32,26 @@ const headers = [
     }
   },
   {
-    title: 'DOMINGOS',
+    title: 'SÁBADOS',
     children: [
-      { title: 'Abono YOUR', value: 'yourPaymentsSunday', sortable: true },
-      { title: 'YOUR + LIFE', value: 'yourPlusLifePaymentsSunday', sortable: true },
-      { title: 'Total', value: 'totalPaymentsSunday', sortable: true },
-      { title: '%', value: 'passPercentageFinalSunday', sortable: true }
+      { title: 'Pagos', value: 'saturdayPayments', sortable: true },
+      { title: 'Pagos Acumulados', value: 'accumulatedSaturdayPayments', sortable: true },
+      { title: '% Pase', value: 'passPercentageSaturday', sortable: true }
     ]
   },
   {
-    title: 'FINALES',
+    title: 'DOMINGOS',
     children: [
-      { title: 'Abono Final', value: 'yourPaymentsFinal', sortable: true },
-      { title: 'YOUR + LIFE', value: 'yourPlusLifePaymentsFinal', sortable: true },
-      { title: 'Total', value: 'totalPaymentsFinal', sortable: true },
-      { title: '%', value: 'passPercentageFinal', sortable: true }
+      { title: 'Pagos', value: 'sundayPayments', sortable: true },
+      { title: 'Pagos Acumulados', value: 'accumulatedSundayPayments', sortable: true },
+      { title: '% Pase', value: 'passPercentageSunday', sortable: true }
+    ]
+  },
+  {
+    title: 'PREVIO',
+    children: [
+      { title: 'Pagos Life', value: 'previousLifePayments', sortable: true },
+      { title: '% Pagos', value: 'previousPaymentsPercentage', sortable: true },
     ]
   }
 ];
@@ -55,13 +61,14 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
   return props.data?.reduce((acc, item) => acc + (Number(item[key]) || 0), 0) || 0;
 };
 
-const totals = computed(() => ({
-  yourSunday: calculateTotal('yourPaymentsSunday'),
-  totalSunday: calculateTotal('totalPaymentsSunday'),
-  yourFinal: calculateTotal('yourPaymentsFinal'),
-  totalFinal: calculateTotal('totalPaymentsFinal')
-  // ... agrega los demás si los necesitas en el footer
-}));
+// const totals = computed(() => ({
+//   yourSunday: calculateTotal('yourPaymentsSunday'),
+//   totalSunday: calculateTotal('totalPaymentsSunday'),
+//   yourFinal: calculateTotal('yourPaymentsFinal'),
+//   totalFinal: calculateTotal('totalPaymentsFinal')
+
+// }));
+
 </script>
 
 <template>
@@ -87,7 +94,7 @@ const totals = computed(() => ({
             :delay="200"
             :duration="250"
           >
-            <v-spacer></v-spacer>
+          <v-spacer></v-spacer>
             <VTextField
               v-model="search"
               placeholder="Buscar Staff..."
@@ -117,12 +124,11 @@ const totals = computed(() => ({
 
         <template
           v-for="col in [
-            'yourPaymentsSunday',
-            'yourPlusLifePaymentsSunday',
-            'totalPaymentsSunday',
-            'yourPaymentsFinal',
-            'yourPlusLifePaymentsFinal',
-            'totalPaymentsFinal'
+            'saturdayPayments',
+            'accumulatedSaturdayPayments',
+            'sundayPayments',
+            'accumulatedSundayPayments',
+            'previousLifePayments',
           ]"
           :key="col"
           #[`item.${col}`]="{ value }"
@@ -132,11 +138,15 @@ const totals = computed(() => ({
           </div>
         </template>
 
-        <template #[`item.passPercentageFinalSunday`]="{ value }">
+        <template #[`item.passPercentageSaturday`]="{ value }">
           <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
         </template>
 
-        <template #[`item.passPercentageFinal`]="{ value }">
+        <template #[`item.passPercentageSunday`]="{ value }">
+          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
+        </template>
+        
+        <template #[`item.previousPaymentsPercentage`]="{ value }">
           <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
         </template>
 
@@ -181,6 +191,11 @@ const totals = computed(() => ({
   color: #2e7d32 !important;
 }
 
+:deep(thead tr:nth-child(1) th:nth-child(4)) {
+  background-color: #fff7ed !important; /* Naranja tenue para Previo */
+  color: #d97706 !important;
+}
+
 .font-variant-numeric {
   font-variant-numeric: tabular-nums; /* Mantiene los números alineados */
 }
@@ -201,8 +216,6 @@ const totals = computed(() => ({
 
 .v-data-table :deep(td) {
   font-size: 0.875rem;
-  /* color: #334155; */
-  /* padding: 16px; */
 }
 
 .v-data-table :deep(.v-data-table-footer) {

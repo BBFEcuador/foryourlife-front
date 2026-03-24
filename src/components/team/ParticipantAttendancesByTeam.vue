@@ -52,7 +52,7 @@ const attendances = computed(() => {
         </div>
       </div>
 
-      <v-data-table :items="attendances" :headers="headers" :search="search" class="" dense>
+      <v-data-table :items="attendances" :headers="headers" :search="search" hover fixed-header class="" dense>
         <template v-slot:top>
           <v-toolbar
             class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
@@ -81,7 +81,7 @@ const attendances = computed(() => {
             </VTextField>
             <v-spacer></v-spacer>
             <v-select
-              v-model="filterByTraining "
+              v-model="filterByTraining"
               placeholder="Invitados"
               :items="props.totalTrainings"
               clearable
@@ -95,11 +95,9 @@ const attendances = computed(() => {
         </template>
         <template #item.userName="{ item }">
           <div class="tw:flex tw:items-center tw:gap-3 tw:py-1">
-            <div
-              class="tw:w-8 tw:h-8 tw:rounded-full tw:bg-gradient-to-br tw:from-indigo-100 tw:to-purple-100 tw:flex tw:items-center tw:justify-center"
-            >
-              <Icon icon="mdi:account" class="tw:text-indigo-600" height="18" />
-            </div>
+            <v-avatar variant="tonal" size="32" color="secondary" class="mr-3">
+              <span class="text-caption font-weight-bold"><Icon icon="mdi:account" class="secondary" height="18" /></span>
+            </v-avatar>
             <span class="tw:font-medium tw:text-gray-800"
               >{{ item.userName ?? '' }}
               <p class="tw:text-sm tw:font-light">{{ item.forTrainingName ?? '' }}</p>

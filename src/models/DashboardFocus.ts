@@ -15,7 +15,6 @@ export interface FocusAttendanceDashboard {
   initialPx: number;
   totalDistorter: number;
   distortionPercentage: number;
-
 }
 export interface GenderByDay {
   day: string;
@@ -31,15 +30,6 @@ export interface AgeDashboard {
   age_above_65: number;
 }
 export interface PaymentStaffDashboard {
-  // staffName: string;
-  // completedPaymentCount: number;
-  // partialPaymentCount: number;
-  // totalPayments: number;
-  // yourPartialPaymentsCount: number;
-  // yourCompletedPaymentsCount: number;
-  // lifePartialPaymentsCount: number;
-  // lifeCompletedPaymentsCount: number;
-
   staffName: string;
   passPercentageFinal: number;
   totalPaymentsFinal: number;
@@ -63,6 +53,7 @@ export interface DashboardFocus {
   trainingDate: string;
   nextTrainingAttendance: NextTrainingAttendance;
   cityParticipantDashboard: CityParticipantDashboard[];
+  courseLevel: string;
 }
 export interface LingererStats {
   total: number;
