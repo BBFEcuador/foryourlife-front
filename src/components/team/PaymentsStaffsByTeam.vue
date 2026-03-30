@@ -1,23 +1,11 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
 import type { PaymentStaffDashboard } from '@/models/DashboardFocus';
 
 const props = defineProps<{ data: PaymentStaffDashboard[] }>();
-const emit = defineEmits(['loaded']);
-const ready = ref(false);
 const search = ref('');
-
-onMounted(async () => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  ready.value = true;
-  emit('loaded');
-});
-
-// Formateador de moneda para limpieza visual
 const fCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val ?? 0);
-
-// HEADERS CON GRUPOS (UI Mejorada)
 const headers = [
   {
     title: 'Staff',
@@ -65,7 +53,7 @@ const totals = computed(() => ({
 </script>
 
 <template>
-  <v-card variant="flat" elevation="1" rounded="lg" v-if="ready">
+  <v-card variant="flat" elevation="1" rounded="lg">
     <v-card-text class="pa-3">
       <div class="tw:flex tw:items-center tw:gap-3 mb-3">
         <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-green-50 tw:flex tw:items-center tw:justify-center">

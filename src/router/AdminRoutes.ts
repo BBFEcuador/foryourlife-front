@@ -319,7 +319,16 @@ const AdminRoutes: RouteRecordRaw[] = [
           permissions: [PermissionEnum.SEE_ATTENDANCES_DECLARATIONS]
         },
         component: () => import('@/views/admin/attendance/SelectAttendanceWithTraining.vue')
-      }
+      },
+      {
+        name: 'statements-admin',
+        path: 'statements',
+        meta: {
+          requiresAuth: true,
+          permissions: [PermissionEnum.SEE_ATTENDANCES_DECLARATIONS]
+        },
+        component: () => import('@/views/admin/statements/StatementsList.vue')
+      },
     ]
   }
 ];

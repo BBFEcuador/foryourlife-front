@@ -2,23 +2,13 @@
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { Attendance } from '@/models/DashboardYour';
 import type { FocusAttendanceDashboard } from '@/models/DashboardFocus';
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 interface Props {
   data?: Attendance | FocusAttendanceDashboard;
   totalTrainings?: string[];
 }
 const props = defineProps<Props>();
-// attendances is now defined after filterByTraining to avoid issues
-
-const emit = defineEmits(['loaded']);
-const ready = ref(false);
-onMounted(async () => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  ready.value = true;
-  emit('loaded');
-});
-
 const search = ref('');
 const filterByTraining = ref<string | null>(null);
 const headers = [
@@ -38,7 +28,7 @@ const attendances = computed(() => {
 </script>
 
 <template>
-  <v-card variant="flat" elevation="1" rounded="lg" v-if="ready">
+  <v-card variant="flat" elevation="1" rounded="lg">
     <v-card-text class="pa-3">
       <div class="tw:flex tw:items-center tw:gap-3 mb-3">
         <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-indigo-50 tw:flex tw:items-center tw:justify-center">

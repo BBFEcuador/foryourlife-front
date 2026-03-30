@@ -1,23 +1,14 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { AgeDashboard } from '@/models/DashboardFocus';
-import { computed, onMounted, ref } from 'vue';
+import { computed } from 'vue';
 
 interface Props {
   data: AgeDashboard[];
-  loading: boolean;
 }
 
 const props = defineProps<Props>();
 const ageLabels = ['Menor 18', '18 - 27', '28 - 40', '41 - 65', '65+'];
-const emit = defineEmits(['loaded']);
-const ready = ref(false);
-onMounted(async () => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  ready.value = true;
-  emit('loaded');
-});
-
 const chartSeries = computed(() => {
   const ageArr = props.data ?? [];
   const ageKeys = ['age_less_18', 'age_18_27', 'age_28_40', 'age_41_65', 'age_above_65'];
@@ -100,7 +91,7 @@ const chartOptions = computed(() => {
 </script>
 
 <template>
-  <v-card variant="flat" elevation="1" class="" rounded="lg" v-if="ready">
+  <v-card variant="flat" elevation="1" class="" rounded="lg">
     <v-card-text class="pa-3">
       <div class="tw:flex tw:items-center tw:gap-3 mb-3">
         <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-cyan-50 tw:flex tw:items-center tw:justify-center">

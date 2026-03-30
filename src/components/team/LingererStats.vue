@@ -1,20 +1,12 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { LingererStats } from '@/models/DashboardFocus';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
 
 interface Props {
   data: LingererStats;
 }
 const props = defineProps<Props>();
-const emit = defineEmits(['loaded']);
-const ready = ref(false);
-onMounted(async () => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  ready.value = true;
-  emit('loaded');
-});
-
 const currentSeries = computed(() => {
   const total = props.data?.total ?? 0;
   if (!total) return [0, 0];
@@ -137,7 +129,7 @@ const percentageJornal = (attended: number, total: number) => {
 </script>
 
 <template>
-  <v-card variant="flat" elevation="1" rounded="lg" v-if="ready">
+  <v-card variant="flat" elevation="1" rounded="lg">
     <v-card-text class="pa-3">
       <div class="tw:flex tw:items-center tw:gap-3 mb-3">
         <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-red-50 tw:flex tw:items-center tw:justify-center">
@@ -157,7 +149,7 @@ const percentageJornal = (attended: number, total: number) => {
         <v-col cols="12" md="7" sm="12">
           <v-row>
             <v-col v-for="item in jornals" :key="item.title" cols="12" class="">
-              <span class="tw:font-semibold">{{ item.title }}</span>
+              <span class="tw:font-semibold" style="color: #334155;">{{ item.title }}</span>
               <div class="d-flex justify-space-between gap-4 text-medium-emphasis mb-1 text-grey-darken-2">
                 <span>{{ item.attended }} / {{ item.total }}</span>
                 <span class="tw:font-semibold text-b">{{ percentageJornal(item.attended, item.total) }}%</span>

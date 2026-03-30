@@ -18,7 +18,6 @@ const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 const selectedTraining = ref<TrainingData | null>(null);
 const trainingId = ref('');
 const nameTraining = ref('');
-
 const { excelMutation } = useReportsMutations();
 
 // Cargar entrenamientos
@@ -60,7 +59,7 @@ const onExcelDownload = (training_id: string) => {
 <template>
   <BaseBreadcrumb :title="'Por Entrenamiento'" :breadcrumbs="breadcrumbs" />
   <v-row>
-    <v-col cols="12" class="pt-0">
+    <v-col cols="12" class="pt-0">  
       <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
         <v-card-item class="pa-5 text-primary" style="background-color: #f0eff4">
           <div class="d-sm-flex align-center justify-space-between">

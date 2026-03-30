@@ -1,36 +1,19 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useYourReport from '@/composables/admin/reports/useYourReport';
-import type { Team } from '@/models/Participants';
-import { computed, ref, reactive } from 'vue';
-import AgeChartByTeam from '../team/AgeChartByTeam.vue';
-import GenderChartByTeam from '../team/GenderChartByTeam.vue';
-import PaymentsStaffsByTeam from '../team/PaymentsStaffsByTeam.vue';
+import { computed, ref } from 'vue';
 import ParticipantAttendancesByTeam from '../team/ParticipantAttendancesByTeam.vue';
 import LingererStats from '../team/LingererStats.vue';
 import NextParticipantsTrainingStats from '../team/NextParticipantsTrainingStats.vue';
 import PaymentsStaffsByTeamYour from '../team/PaymentsStaffsByTeamYour.vue';
 import LifeRecoveryPaymentsStats from '../team/LifeRecoveryPaymentsStats.vue';
+import AttendeeLifePayments from '../team/AttendeeLifePayments.vue';
 
 interface props {
   trainingId: string;
 }
-
 const props = defineProps<props>();
 const { data, isLoading, isError } = useYourReport(props.trainingId);
-
-// Number of components pending to load
-const componentsPending = ref(4);
-const isComponentsLoading = ref(true);
-
-function onComponentLoaded() {
-  componentsPending.value--;
-  // Cuando todos terminaron → quitar loading
-  if (componentsPending.value === 0) {
-    isComponentsLoading.value = false;
-  }
-}
-
 const cards = ref([
   {
     title: 'Participantes Iniciales',
@@ -53,7 +36,7 @@ const cards = ref([
   {
     title: 'Desertores',
     value: computed(() => data.value?.attendance?.totalDistorter ?? 0),
-    percentage: computed(() => (Number(data.value?.attendance?.distortionPercentage ?? 0)).toFixed(2)),
+    percentage: computed(() => Number(data.value?.attendance?.distortionPercentage ?? 0).toFixed(2)),
     icon: 'mdi-calendar-check-outline',
     color: 'green'
   }
@@ -61,15 +44,15 @@ const cards = ref([
 </script>
 
 <template>
-  <div v-show="isLoading || isComponentsLoading" class="text-center pa-4">
+  <div v-if="isLoading" class="text-center pa-4">
     <v-card elevation="0" rounded="xl">
       <v-card-text>
-        <v-progress-circular indeterminate size="24" />
+        <v-progress-circular indeterminate color="primary" size="80" width="8"> </v-progress-circular>
         <p class="text-caption mt-2">Cargando datos...</p>
       </v-card-text>
     </v-card>
   </div>
-  <div v-if="isError" class="text-center pa-4">
+  <div v-else-if="isError" class="text-center pa-4">
     <v-card elevation="0" rounded="xl">
       <v-card-text>
         <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
@@ -79,7 +62,7 @@ const cards = ref([
       </v-card-text>
     </v-card>
   </div>
-  <div v-show="!isLoading && !isComponentsLoading">
+  <div v-else>
     <v-row>
       <v-col cols="12" md="6" sm="12">
         <div class="text-overline text-primary mb-1 mt-3">Entrenamiento</div>
@@ -91,22 +74,21 @@ const cards = ref([
         <slot name="actions"></slot>
       </v-col>
     </v-row>
-    <div class="mb-4 d-flex align-center mt-3">
-      <div class="d-flex align-center ga-4 text-medium-emphasis">
+
+    <div class="mb-4 d-flex align-center mt-3 flex-wrap ga-2">
+      <div class="d-flex align-center ga-4 text-medium-emphasis flex-wrap">
         <div class="d-flex align-center ga-1">
           <Icon icon="mdi-signal" height="20" color="primary" />
           <p class="tw:text-sm tw:text-gray-500 mb-0">
-            {{ data?.courseLevel }} 
+            {{ data?.courseLevel }}
           </p>
         </div>
-        <v-divider vertical length="20"></v-divider>
-        <div class="d-flex align-center ga-1">
+        <v-divider vertical length="20" class="d-none d-md-flex"></v-divider>
+        <div class="d-flex align-center ga-1 tw:text-nowrap">
           <Icon icon="mdi-account-tie" height="20" color="primary" />
-          <p class="tw:text-sm tw:text-gray-500 mb-0">
-            {{ data?.trainerName }} 
-          </p>
+          <p class="tw:text-sm tw:text-gray-500 mb-0">{{ data?.trainerName }}</p>
         </div>
-        <v-divider vertical length="20"></v-divider>
+        <v-divider vertical length="20" class="d-none d-md-flex"></v-divider>
         <div class="d-flex align-center ga-1">
           <Icon icon="mdi-calendar-range" height="20" />
           <p class="tw:text-sm tw:text-gray-500 mb-0 tw:text-nowrap">
@@ -116,6 +98,7 @@ const cards = ref([
       </div>
       <v-divider class="flex-grow-1 ms-4"></v-divider>
     </div>
+
     <VRow class="tw-gap-4 mb-2">
       <v-col v-for="card in cards" :key="card.title" cols="12" md="3" sm="6">
         <v-alert border="start" border-color="primary" elevation="1" class="tw:bg-white pb-2 h-100">
@@ -141,17 +124,16 @@ const cards = ref([
     </VRow>
     <VRow class="tw-gap-4">
       <!-- Columna izquierda -->
-      <VCol cols="12" md="4" class="tw-flex tw-flex-col tw-gap-4">
-        <NextParticipantsTrainingStats :data="data.nextTrainingAttendance" :loading="isLoading" @loaded="onComponentLoaded" />
-        <LifeRecoveryPaymentsStats :data="data.yourRecoveryPaymentStats" :loading="isLoading" @loaded="onComponentLoaded" class="mt-4"/>
-        <!-- <AgeChartByTeam :data="data.ageDashboard" :loading="isLoading" @loaded="onComponentLoaded" class="mt-4"/>
-        <GenderChartByTeam :data="data.genderByDay" :loading="isLoading" @loaded="onComponentLoaded" class="mt-4" /> -->
+      <VCol cols="12" md="8">
+        <PaymentsStaffsByTeamYour :data="data.paymentYourDashboard" />
+        <ParticipantAttendancesByTeam :data="data.attendance" class="mt-4" />
+        <LingererStats :data="data.lingererStats" class="mt-4" />
       </VCol>
       <!-- Columna derecha -->
-      <VCol cols="12" md="8">
-        <PaymentsStaffsByTeamYour :data="data.paymentYourDashboard" @loaded="onComponentLoaded" />
-        <ParticipantAttendancesByTeam :data="data.attendance" class="mt-4" @loaded="onComponentLoaded" />
-        <LingererStats :data="data.lingererStats" class="mt-4" @loaded="onComponentLoaded" />
+      <VCol cols="12" md="4" class="tw-flex tw-flex-col tw-gap-4">
+        <NextParticipantsTrainingStats :data="data.nextTrainingAttendance" />
+        <LifeRecoveryPaymentsStats :data="data.yourRecoveryPaymentStats" class="mt-4" />
+        <AttendeeLifePayments :data="data.previousTrainingStats" class="mt-4" />
       </VCol>
     </VRow>
   </div>

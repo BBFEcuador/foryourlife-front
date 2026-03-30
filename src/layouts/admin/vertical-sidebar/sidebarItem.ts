@@ -121,6 +121,11 @@ const sidebarItem = [
         title: 'Staff',
         to: 'staff-admin',
         permissions: [PermissionEnum.SEE_STAFF]
+      },
+      {
+        title: 'Declaraciones Focus / Your',
+        to: 'statements-admin',
+        permissions: [PermissionEnum.SEE_ATTENDANCES_DECLARATIONS]
       }
     ]
   },

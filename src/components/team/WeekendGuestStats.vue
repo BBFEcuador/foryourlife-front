@@ -1,22 +1,12 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { LifeWeekendAssistants } from '@/models/DashboardFocus';
-import { computed, onMounted, ref } from 'vue';
+import { computed } from 'vue';
 
 interface Props {
   data: LifeWeekendAssistants;
-  loading: boolean;
 }
-
 const props = defineProps<Props>();
-const emit = defineEmits(['loaded']);
-const ready = ref(false);
-onMounted(async () => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  ready.value = true;
-  emit('loaded');
-});
-
 const totals = computed(() => {
   const data = props.data ?? {};
   const totalEnrolled = Object.values(data).reduce((sum, item) => sum + (item.enrolled ?? 0), 0);
@@ -31,7 +21,7 @@ const totals = computed(() => {
 </script>
 
 <template>
-  <v-card variant="flat" elevation="1" class="" rounded="lg" v-if="ready">
+  <v-card variant="flat" elevation="1" class="" rounded="lg">
     <v-card-text class="pa-3">
       <div class="tw:flex tw:items-center tw:gap-3 mb-3">
         <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-cyan-50 tw:flex tw:items-center tw:justify-center">
@@ -45,7 +35,7 @@ const totals = computed(() => {
     </v-card-text>
     <v-card-item class="pt-1">
       <div v-for="(item, key) in data" :key="key" cols="12" class="mb-3">
-        <span class="tw:font-semibold">{{ key }}</span>
+        <span class="tw:font-semibold" style="color: #334155;">{{ key }}</span>
         <div class="d-flex justify-space-between gap-4 text-medium-emphasis mb-1 text-grey-darken-2">
           <span>{{ item.assistant }} / {{ item.enrolled }}</span>
           <span class="tw:font-semibold tw:text-cyan-700">{{ (totals.percentage).toFixed(2) }}%</span>
@@ -64,7 +54,7 @@ const totals = computed(() => {
       </div>
       <v-alert class="mt-6 tw:bg-cyan-50">
         <div class="d-flex justify-space-between gap-4 mb-1 text-grey-darken-2">
-          <span class="tw:font-semibold">Total</span>
+          <span class="tw:font-semibold" style="color: #334155;">Total</span>
 
           <span class="tw:font-semibold tw:text-cyan-700">{{ (totals.percentage).toFixed(2) }} %</span>
         </div>

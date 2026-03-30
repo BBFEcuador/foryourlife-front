@@ -16,10 +16,12 @@ import { VDateInput } from 'vuetify/labs/components';
 import InputSection from '../forms/InputSection.vue';
 import EditInvoice from '../invoices/EditInvoice.vue';
 import InvoiceDetail from '../invoices/InvoiceDetail.vue';
+import type { CashDrawer } from '@/models/CashDrawer';
 
 const props = defineProps<{
   modelValue: boolean;
   originPos?: boolean;
+  cashDrawer?: CashDrawer;
   payment: Payment;
   isRefetching: boolean;
 }>();
@@ -28,6 +30,7 @@ const itemsPerPage = 5;
 const page = ref(1);
 const showDetails = ref(false);
 const selectedInvoice = ref<Invoice>({} as Invoice);
+const cashDrawerId = ref<string | undefined>(props.cashDrawer?.id);
 
 const emit = defineEmits(['update:modelValue', 'update:payment-posOrigin', 'payment-updated', 'save']);
 
@@ -126,8 +129,8 @@ const paginatedHistory = computed(() => {
 const submitForm = async () => {
   const { valid } = await formRef.value.validate();
   if (!valid) return;
-
-  if (!adminStore().isCashDrawerOpen) {
+  console.log('Cash Drawer ID:', cashDrawerId.value); 
+  if (!cashDrawerId.value) {
     toast.error('Debe abrir una caja para añadir el pago');
     return;
   }
@@ -141,7 +144,7 @@ const submitForm = async () => {
       transactionId: form.value.transactionId,
       pingType: form.value.paymentMethod.code === 'TC' ? form.value.pingType : undefined
     },
-    cashDrawerId: adminStore().cashDrawer.id
+    cashDrawerId: cashDrawerId.value
   };
 
   if (props.originPos) {
@@ -201,8 +204,7 @@ const hasInvoicesWithContificoError = computed(() => {
     <v-card>
       <v-toolbar color="primary" title="Historial de facturas">
         <v-spacer />
-        <v-btn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
-          @click="close">
+        <v-btn icon variant="text" size="small" class="tw:text-gray-400 hover:tw:text-error tw:transition-colors" @click="close">
           <Icon icon="mdi:close" height="18" />
         </v-btn>
       </v-toolbar>
@@ -211,65 +213,93 @@ const hasInvoicesWithContificoError = computed(() => {
           <InputSection label="Registrar nuevo pago">
             <v-row dense>
               <v-col cols="12" md="6">
-                <v-select variant="outlined" :items="paymentMethodsList" item-title="type" item-value="id"
-                  :rules="[(v) => !!v || 'El metodo de pago es obligatorio']" label="Payment Method" density="compact"
-                  @update:model-value="onPaymentMethodSelected">
+                <v-select
+                  variant="outlined"
+                  :items="paymentMethodsList"
+                  item-title="type"
+                  item-value="id"
+                  :rules="[(v) => !!v || 'El metodo de pago es obligatorio']"
+                  label="Payment Method"
+                  density="compact"
+                  @update:model-value="onPaymentMethodSelected"
+                >
                 </v-select>
               </v-col>
               <v-col cols="12" md="6">
-                <v-text-field v-model="form.amount" label="Monto" type="number" variant="outlined"
-                  :rules="[(v) => !!v || 'Campo requerido']" />
+                <v-text-field
+                  v-model="form.amount"
+                  label="Monto"
+                  type="number"
+                  variant="outlined"
+                  :rules="[(v) => !!v || 'Campo requerido']"
+                />
               </v-col>
               <v-col cols="12" :md="form.paymentMethod.code === 'TC' ? 4 : 6">
-                <VDateInput v-model="form.date" variant="outlined" :disabled="originPos"
-                  :rules="[(v) => !!v || 'Campo requerido']" />
+                <VDateInput v-model="form.date" variant="outlined" :disabled="originPos" :rules="[(v) => !!v || 'Campo requerido']" />
               </v-col>
               <v-col cols="12" :md="form.paymentMethod.code === 'TC' ? 4 : 6">
-                <v-text-field v-model="form.transactionId" label="Codigo de la transacción" type="text"
-                  variant="outlined" :rules="[(v) => !!v || 'Campo requerido']"
-                  :disabled="form.paymentMethod.code === 'EF'" />
+                <v-text-field
+                  v-model="form.transactionId"
+                  label="Codigo de la transacción"
+                  type="text"
+                  variant="outlined"
+                  :rules="[(v) => !!v || 'Campo requerido']"
+                  :disabled="form.paymentMethod.code === 'EF'"
+                />
               </v-col>
               <v-col v-if="form.paymentMethod.code === 'TC'" cols="12" md="4">
-                <v-select v-model="form.pingType" label="Pasarela de Pago" :items="[
-                  {
-                    id: 'D',
-                    name: 'Datafast'
-                  },
-                  {
-                    id: 'M',
-                    name: 'Medianet'
-                  },
-                  {
-                    id: 'E',
-                    name: 'DataExpress'
-                  },
-                  {
-                    id: 'P',
-                    name: 'PlaceToPay'
-                  },
-                  {
-                    id: 'A',
-                    name: 'Alignet'
-                  }
-                ]" variant="outlined" item-title="name" item-value="id" :rules="[(v) => !!v || 'Campo requerido']" />
+                <v-select
+                  v-model="form.pingType"
+                  label="Pasarela de Pago"
+                  :items="[
+                    {
+                      id: 'D',
+                      name: 'Datafast'
+                    },
+                    {
+                      id: 'M',
+                      name: 'Medianet'
+                    },
+                    {
+                      id: 'E',
+                      name: 'DataExpress'
+                    },
+                    {
+                      id: 'P',
+                      name: 'PlaceToPay'
+                    },
+                    {
+                      id: 'A',
+                      name: 'Alignet'
+                    }
+                  ]"
+                  variant="outlined"
+                  item-title="name"
+                  item-value="id"
+                  :rules="[(v) => !!v || 'Campo requerido']"
+                />
               </v-col>
             </v-row>
           </InputSection>
           <div class="d-flex tw:justify-between tw:items-center">
             <div v-if="!props.originPos" class="text-h3">$ {{ props.payment?.remainingBalance }} Restante</div>
-            <v-btn type="submit" color="primary" class="mt-2"
-              :loading="savePaymentRecordMutations.isPending.value">Guardar</v-btn>
+            <v-btn type="submit" color="primary" class="mt-2" :loading="savePaymentRecordMutations.isPending.value">Guardar</v-btn>
           </div>
         </v-form>
       </v-card-text>
 
       <v-card-text v-if="!originPos">
-        <v-data-table-server :headers="headers" :items="paginatedHistory"
+        <v-data-table-server
+          :headers="headers"
+          :items="paginatedHistory"
           :loading="isRefetching || sendInvoicesToContificoMutation.isPending.value || savePaymentRecordMutations.isPending.value"
-          :items-length="total" :items-per-page="itemsPerPage" class="mt-4" @update:options="onUpdateOptions">
+          :items-length="total"
+          :items-per-page="itemsPerPage"
+          class="mt-4"
+          @update:options="onUpdateOptions"
+        >
           <template #top>
-            <v-btn v-if="hasInvoicesWithContificoError" variant="elevated" color="info" class="mt-2"
-              @click="sendInvoices">
+            <v-btn v-if="hasInvoicesWithContificoError" variant="elevated" color="info" class="mt-2" @click="sendInvoices">
               <Icon class="mr-2" icon="meteor-icons:paper-plane" />
               Enviar a Contifico
             </v-btn>
@@ -308,12 +338,22 @@ const hasInvoicesWithContificoError = computed(() => {
                 <v-btn color="info" variant="tonal" @click="handleShowDetails(item)">
                   <Icon icon="mdi:eye" class="mr-2" />
                 </v-btn>
-                <InvoiceDetail v-if="showDetails" :invoice="selectedInvoice" :showDialog="true"
-                  @cancel="showDetails = false" :campus="props.payment!!.campus"
-                  :remainingBalance="props.payment?.remainingBalance || 0" />
+                <InvoiceDetail
+                  v-if="showDetails"
+                  :invoice="selectedInvoice"
+                  :showDialog="true"
+                  @cancel="showDetails = false"
+                  :campus="props.payment!!.campus"
+                  :remainingBalance="props.payment?.remainingBalance || 0"
+                />
 
-                <EditInvoice v-if="showEdit" :invoice="selectedInvoice" :showDialog="true" @cancel="showEdit = false"
-                  :campus="props.payment!!.campus" />
+                <EditInvoice
+                  v-if="showEdit"
+                  :invoice="selectedInvoice"
+                  :showDialog="true"
+                  @cancel="showEdit = false"
+                  :campus="props.payment!!.campus"
+                />
               </div>
             </div>
           </template>

@@ -13,6 +13,8 @@ import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
+import { adminStore } from '@/stores/adminStore';
+import useCashDrawerOpenedByUser from '@/composables/admin/pos/useCashDrawerOpenedByUser';
 
 const showPaymentHistory = ref(false);
 const selectPaymentIdPdf = ref('');
@@ -24,6 +26,10 @@ const breadcrumbs = ref([
     href: '#'
   }
 ]);
+
+const store = adminStore();
+const userIdref = ref(store.user.user.id);
+const { cashDrawer } = useCashDrawerOpenedByUser(userIdref.value);
 
 const { isPaymentPdfLoading, refetchPaymentPdf } = usePaymentPdf(selectPaymentIdPdf);
 
@@ -281,7 +287,7 @@ const formatDate = (date: string | Date) => {
         </template>
       </v-data-table-server>
       <PaymentInvoicesList v-model="showPaymentHistory" :payment="payment" @payment-updated="refetchPayment"
-        :isRefetching="isPaymentLoading" />
+        :isRefetching="isPaymentLoading" :cash-drawer="cashDrawer" :key="selectedPaymentId" />
     </UiParentCard>
   </div>
   <div v-else>

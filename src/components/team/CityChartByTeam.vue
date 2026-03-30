@@ -1,22 +1,12 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import type { CityParticipantDashboard } from '@/models/DashboardFocus';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
 
 interface Props {
   data: CityParticipantDashboard[];
 }
-
 const props = defineProps<Props>();
-const emit = defineEmits(['loaded']);
-const ready = ref(false);
-onMounted(async () => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  ready.value = true;
-  emit('loaded');
-});
-
-// Usamos únicamente gender (male / female) en este componente
 const cityLabels = ['Quito', 'Provincia'];
 const cityKeys = ['quito', 'province'];
 const cityColors = ['#4F6F64', '#7A5C45'];
@@ -64,7 +54,7 @@ const chartOptions = computed(() => ({
 </script>
 
 <template>
-  <v-card variant="flat" elevation="1" rounded="lg" v-if="ready">
+  <v-card variant="flat" elevation="1" rounded="lg">
     <v-card-text class="pa-3">
       <div class="tw:flex tw:items-center tw:gap-3 mb-3">
         <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-cyan-50 tw:flex tw:items-center tw:justify-center">
