@@ -60,7 +60,7 @@ const totals = computed(() => ({
           <Icon icon="mdi-account-cash-outline" height="20" class="tw:text-green-600" />
         </div>
         <div>
-          <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Resúmen de Pagos por Staff</h4>
+          <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Resumen de Pagos por Staff</h4>
           <p class="tw:text-sm tw:text-gray-500">Listado de pagos por staff</p>
         </div>
       </div>
@@ -223,7 +223,7 @@ const totals = computed(() => ({
 
 :deep(.sticky-col),
 :deep(.sticky-col-header) {
-  box-shadow: 2px 0 1px rgba(0,0,0,0.08);
+  box-shadow: 2px 0 1px rgba(0, 0, 0, 0.08);
 }
 
 :deep(table) {

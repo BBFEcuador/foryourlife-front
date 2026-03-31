@@ -36,7 +36,7 @@ const attendances = computed(() => {
         </div>
         <div>
           <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">
-            Resúmen de Asistencias por Participantes
+            Resumen de Asistencias por Participantes
           </h4>
           <p class="tw:text-sm tw:text-gray-500">Listado de asistencias por participantes</p>
         </div>
@@ -149,6 +149,12 @@ const attendances = computed(() => {
               "
               height="20"
             />
+          </div>
+        </template>
+        <template v-slot:no-data>
+          <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
+            <Icon icon="mdi-alert-circle-outline" height="48" class="tw:mb-4" />
+            <p class="tw:text-lg text-center">No se encontraron participantes.</p>
           </div>
         </template>
       </v-data-table>

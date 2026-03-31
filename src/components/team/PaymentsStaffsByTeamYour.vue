@@ -6,7 +6,6 @@ import type { PaymentStaffDashboard } from '@/models/DashboardYour';
 const props = defineProps<{ data: PaymentStaffDashboard[] }>();
 const search = ref('');
 
-
 // Formateador de moneda para limpieza visual
 const fCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val ?? 0);
 
@@ -43,7 +42,7 @@ const headers = [
     title: 'PREVIO',
     children: [
       { title: 'Pagos Life', value: 'previousLifePayments', sortable: true },
-      { title: '% Pagos', value: 'previousPaymentsPercentage', sortable: true },
+      { title: '% Pagos', value: 'previousPaymentsPercentage', sortable: true }
     ]
   }
 ];
@@ -60,7 +59,6 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
 //   totalFinal: calculateTotal('totalPaymentsFinal')
 
 // }));
-
 </script>
 
 <template>
@@ -71,7 +69,7 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
           <Icon icon="mdi-account-cash-outline" height="20" class="tw:text-green-600" />
         </div>
         <div>
-          <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Resúmen de Pagos por Staff</h4>
+          <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Resumen de Pagos por Staff</h4>
           <p class="tw:text-sm tw:text-gray-500">Listado de pagos por staff</p>
         </div>
       </div>
@@ -86,7 +84,7 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
             :delay="200"
             :duration="250"
           >
-          <v-spacer></v-spacer>
+            <v-spacer></v-spacer>
             <VTextField
               v-model="search"
               placeholder="Buscar Staff..."
@@ -120,7 +118,7 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
             'accumulatedSaturdayPayments',
             'sundayPayments',
             'accumulatedSundayPayments',
-            'previousLifePayments',
+            'previousLifePayments'
           ]"
           :key="col"
           #[`item.${col}`]="{ value }"
@@ -137,7 +135,7 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
         <template #[`item.passPercentageSunday`]="{ value }">
           <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
         </template>
-        
+
         <template #[`item.previousPaymentsPercentage`]="{ value }">
           <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
         </template>
@@ -240,7 +238,7 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
 
 :deep(.sticky-col),
 :deep(.sticky-col-header) {
-  box-shadow: 2px 0 1px rgba(0,0,0,0.08);
+  box-shadow: 2px 0 1px rgba(0, 0, 0, 0.08);
 }
 
 :deep(table) {

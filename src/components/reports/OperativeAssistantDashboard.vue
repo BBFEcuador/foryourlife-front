@@ -27,17 +27,7 @@ watch(
   { immediate: true }
 );
 
-// Number of components pending to load
-const componentsPending = ref(4);
-const isComponentsLoading = ref(true);
 
-function onComponentLoaded() {
-  componentsPending.value--;
-  // Cuando todos terminaron → quitar loading
-  if (componentsPending.value === 0) {
-    isComponentsLoading.value = false;
-  }
-}
 </script>
 
 <template>
@@ -78,7 +68,7 @@ function onComponentLoaded() {
 </template>
 
 <style lang="scss" scoped>
-ç .tw\:block {
+.tw\:block {
   display: block !important;
 }
 </style>

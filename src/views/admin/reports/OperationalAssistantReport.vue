@@ -10,96 +10,122 @@ import { toast } from 'vue3-toastify';
 import type { AxiosError } from 'axios';
 import type { ErrorApiResponse } from '@/models/ApiResponse';
 
+import type { TrainingData } from '@/models/Training';
+import useTrainings from '@/composables/admin/training/useTrainings';
+import OperativeAssistantYour from '@/components/reports/OperativeAssistantYour.vue';
+import OperativeAssistantFocus from '@/components/reports/OperativeAssistantFocus.vue';
+
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 
-const selectedTeam = ref<Team | null>(null);
-const teamId = ref('');
-const nameTeam = ref('');
-const debouncedSearch = ref('');
+// const selectedTeam = ref<Team | null>(null);
+// const teamId = ref('');
+// const nameTeam = ref('');
+// const debouncedSearch = ref('');
 
-const { isLoading, criteriaMutations, refetchTeams, teamsData, page, perPage, search } = useAdminTeams();
+// const { isLoading, criteriaMutations, refetchTeams, teamsData, page, perPage, search } = useAdminTeams();
 
-const handleTeamChange = (team: Team | null) => {
-  selectedTeam.value = team;
-  teamId.value = team?.id ?? '';
-  nameTeam.value = team?.name ? `${team.name}` : '';
-  console.log('Selected Team:', teamId.value);
+// const handleTeamChange = (team: Team | null) => {
+//   selectedTeam.value = team;
+//   teamId.value = team?.id ?? '';
+//   nameTeam.value = team?.name ? `${team.name}` : '';
+//   console.log('Selected Team:', teamId.value);
+// };
+
+// let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+// watch(debouncedSearch, (val) => {
+//   if (debounceTimeout) clearTimeout(debounceTimeout);
+//   debounceTimeout = setTimeout(() => {
+//     search.value = val;
+//   }, 400);
+// });
+
+// Buscador
+const searchTraining = (s: string) => {
+  debouncedSearch.value = s;
 };
 
-let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+// Entrenamiento seleccionado
+const selectedTraining = ref<TrainingData | null>(null);
+const trainingId = ref('');
+const nameTraining = ref('');
 
-watch(debouncedSearch, (val) => {
-  if (debounceTimeout) clearTimeout(debounceTimeout);
-  debounceTimeout = setTimeout(() => {
-    search.value = val;
-  }, 400);
-});
+// Cargar entrenamientos
+const { trainings, debouncedSearch, loadMoreTrainings, hasMoreTrainings, isLoadingMore } = useTrainings();
 
-const { excelMutation } = useOperativeAssistantReportMutations();
-const onExcelDownload = () => {
-  excelMutation.mutate(selectedTeam.value?.id ?? '', {
-    onSuccess(data, variables, context) {
-      const blob = data;
-      if (!blob) return;
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `reporte_asistente_operativo.xlsx`;
-      link.click();
-      window.URL.revokeObjectURL(url);
-      toast.success('Reporte generado correctamente');
-    },
-    onError(error, variables, context) {
-      let e = error as AxiosError<ErrorApiResponse>;
-      toast.error(e.response?.data.message ?? 'No se pudo generar el excel');
-    }
-  });
+// Cuando cambia el training, automáticamente hace fetch (por enabled)
+const handleTrainingChange = (training: TrainingData) => {
+  selectedTraining.value = training;
+  trainingId.value = training?.id ?? '';
+  nameTraining.value = training?.name && training?.courseLevelDisplay ? `${training.name} - ${training.courseLevelDisplay}` : '';
 };
 </script>
 
 <template>
   <BaseBreadcrumb :title="'Asistente Operativo'" :breadcrumbs="breadcrumbs" />
-  <div class="mb-4">
-    <div class="d-flex tw:items-center text-primary">
-      <Icon icon="mdi-account-group" height="24" class="mr-2" />
-      <div class="tw:font-bold">Equipo</div>
-    </div>
-    <div class="d-sm-flex align-center justify-space-between mt-1">
-      <VCombobox
-        v-model="selectedTeam"
-        :items="teamsData.content"
-        item-title="name"
-        item-value="id"
-        variant="outlined"
-        :placeholder="teamsData.totalElements > 0 ? 'Seleccionar Equipo' : 'No hay equipos disponibles'"
-        return-object
-        :search="debouncedSearch"
-        @update:model-value="handleTeamChange"
-        hide-details
-        class="tw:bg-white mb-4"
-      >
-        <template v-slot:item="{ props, item }">
-          <v-list-item v-bind="props">
-            <template v-slot:prepend>
-              <v-avatar color="primary" size="32">
-                <span class="tw:text-white">{{ item.raw.name?.charAt(0) || 'C' }}</span>
-              </v-avatar>
-            </template>
-            <v-list-item-subtitle>{{ item.raw?.trainingNumber }}</v-list-item-subtitle>
-          </v-list-item>
-        </template>
-      </VCombobox>
-      <v-spacer></v-spacer>
-      <div class="align-center tw:align-middle ml-5 text-end">
-        <VBtn v-if="selectedTeam?.id" class="" color="success" variant="flat" @click="onExcelDownload()">
-          <Icon icon="mdi-microsoft-excel" class="mr-2" height="20" />
-          Exportar
-        </VBtn>
-      </div>
-    </div>
-  </div>
+  <v-row>
+    <v-col cols="12" class="pt-0">
+      <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
+        <v-card-item class="pa-5 text-primary" style="background-color: #f0eff4">
+          <div class="d-sm-flex align-center justify-space-between">
+            <v-card-title class="text-h5" style="line-height: 1.57">
+              <div class="d-flex tw:items-center">
+                <Icon icon="mdi-teach" class="mr-2" />
+                <div>Entrenamiento</div>
+              </div>
+            </v-card-title>
+          </div>
+        </v-card-item>
+        <v-card-item class="mt-0 pt-2 pb-3">
+          <label class="tw-whitespace-normal tw-block">Seleccione un entrenamiento</label>
+          <div class="d-sm-flex align-center justify-space-between mt-3">
+            <VCombobox
+              v-model="selectedTraining"
+              :items="trainings"
+              item-title="name"
+              item-value="id"
+              variant="outlined"
+              :placeholder="trainings.length > 0 ? 'Seleccionar Entrenamiento' : 'No hay entrenamientos disponibles'"
+              return-object
+              @update:search="searchTraining"
+              @update:model-value="handleTrainingChange"
+              hide-details
+              :loading="isLoadingMore"
+              :disabled="trainings.length === 0"
+            >
+              <template v-slot:item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template v-slot:prepend>
+                    <v-avatar color="primary" size="32">
+                      <span class="tw:text-white">{{ item.raw.name?.charAt(0) || 'C' }}</span>
+                    </v-avatar>
+                  </template>
+                  <v-list-item-subtitle>{{ item.raw?.courseLevelDisplay }}</v-list-item-subtitle>
+                </v-list-item>
+              </template>
+            </VCombobox>
+            <v-spacer></v-spacer>
+          </div>
+        </v-card-item>
+      </v-card>
+    </v-col>
+  </v-row>
 
-  <OperativeAssistantDashboard :teamId="teamId" :teamName="nameTeam" />
+  <!-- <OperativeAssistantDashboard :teamId="teamId" :teamName="nameTeam" /> -->
+  <div v-if="nameTraining">
+    <!-- LIFE DASHBOARD -->
+    <!-- <TeamMasterLifeReport
+      v-if="selectedTraining?.courseLevel?.includes('LIFE') && trainingId && selectedTraining.name"
+      :trainingId="trainingId"
+      :trainingDataName="selectedTraining.name"
+      class="mb-2"
+    /> -->
+    <!-- YOUR DASHBOARD -->
+    <OperativeAssistantYour v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId" class="mb-2" />
+    <OperativeAssistantFocus v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2" />
+    <!-- FOCUS DASHBOARD -->
+    <!-- <TeamFocusReport v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2" /> -->
+  </div>
 </template>
 
 <style scoped>

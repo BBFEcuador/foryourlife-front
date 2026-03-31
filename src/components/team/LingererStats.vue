@@ -136,7 +136,7 @@ const percentageJornal = (attended: number, total: number) => {
           <Icon icon="mdi-walk" height="20" class="tw:text-red-600" />
         </div>
         <div>
-          <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Resúmen de Rezagados</h4>
+          <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Resumen de Rezagados</h4>
           <p class="tw:text-sm tw:text-gray-500">Listado de rezagados</p>
         </div>
       </div>
@@ -149,7 +149,7 @@ const percentageJornal = (attended: number, total: number) => {
         <v-col cols="12" md="7" sm="12">
           <v-row>
             <v-col v-for="item in jornals" :key="item.title" cols="12" class="">
-              <span class="tw:font-semibold" style="color: #334155;">{{ item.title }}</span>
+              <span class="tw:font-semibold" style="color: #334155">{{ item.title }}</span>
               <div class="d-flex justify-space-between gap-4 text-medium-emphasis mb-1 text-grey-darken-2">
                 <span>{{ item.attended }} / {{ item.total }}</span>
                 <span class="tw:font-semibold text-b">{{ percentageJornal(item.attended, item.total) }}%</span>

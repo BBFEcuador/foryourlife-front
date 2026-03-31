@@ -1,5 +1,3 @@
-import type { N } from "node_modules/@fullcalendar/core/internal-common";
-
 export interface AttendanceRecord {
   userName: string;
   userEntity: string;

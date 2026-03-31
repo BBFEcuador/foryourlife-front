@@ -1,46 +1,39 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import useFocusReport from '@/composables/admin/reports/useFocusReport';
 import { computed, ref } from 'vue';
-import AgeChartByTeam from '../team/AgeChartByTeam.vue';
-import GenderChartByTeam from '../team/GenderChartByTeam.vue';
-import PaymentsStaffsByTeam from '../team/PaymentsStaffsByTeam.vue';
 import ParticipantAttendancesByTeam from '../team/ParticipantAttendancesByTeam.vue';
-import LingererStats from '../team/LingererStats.vue';
-import WeekendGuestStats from '../team/WeekendGuestStats.vue';
-import NextParticipantsTrainingStats from '../team/NextParticipantsTrainingStats.vue';
-import CityChartByTeam from '../team/CityChartByTeam.vue';
+import useYourOperativeAssistantReport from '@/composables/admin/reports/useYourOperativeAssistantReport.ts';
+import WeeklyPaymentStats from './WeeklyPaymentStats.vue';
+import OperativeAssistantPaymentsYour from './OperativeAssistantPaymentsYour.vue';
 
 interface props {
   trainingId: string;
 }
-
 const props = defineProps<props>();
-const { data, isLoading, isError } = useFocusReport(props.trainingId);
-
+const { data, isLoading, isError } = useYourOperativeAssistantReport(props.trainingId);
 const cards = ref([
   {
     title: 'Participantes Iniciales',
-    value: computed(() => data.value?.focusAttendanceDashboard?.initialPx ?? 0),
+    value: computed(() => data.value?.attendance?.initialPx ?? 0),
     icon: 'mdi-cash-multiple',
     color: 'orange'
   },
   {
-    title: 'Total Focus',
-    value: computed(() => data.value?.focusAttendanceDashboard?.totalFocus ?? 0),
+    title: 'Total Your',
+    value: computed(() => data.value?.attendance?.totalFocus ?? 0),
     icon: 'mdi-account-group-outline',
     color: 'primary'
   },
   {
     title: 'Rezagados',
-    value: computed(() => data.value?.focusAttendanceDashboard?.totalLingerer ?? 0),
+    value: computed(() => data.value?.attendance?.totalLingerer ?? 0),
     icon: 'mdi-calendar-check-outline',
     color: 'green'
   },
   {
     title: 'Desertores',
-    value: computed(() => data.value?.focusAttendanceDashboard?.totalDistorter ?? 0),
-    percentage: computed(() => Number(data.value?.focusAttendanceDashboard?.distortionPercentage ?? 0).toFixed(2)),
+    value: computed(() => data.value?.attendance?.totalDistorter ?? 0),
+    percentage: computed(() => Number(data.value?.attendance?.distortionPercentage ?? 0).toFixed(2)),
     icon: 'mdi-calendar-check-outline',
     color: 'green'
   }
@@ -95,16 +88,10 @@ const cards = ref([
             <Icon icon="mdi-account-tie" height="20" color="primary" class="text-primary" />
             <p class="tw:text-sm tw:text-gray-500 mb-0">{{ data?.trainerName }}</p>
           </div>
-          <v-divider vertical length="20" class="d-none d-md-flex"></v-divider>
-          <div class="d-flex align-center ga-1">
-            <Icon icon="mdi-calendar-range" height="20" class="text-primary" />
-            <p class="tw:text-sm tw:text-gray-500 mb-0 tw:text-nowrap">
-              {{ data?.trainingDate }}
-            </p>
-          </div>
         </div>
         <v-divider class="flex-grow-1 ms-4"></v-divider>
       </div>
+
       <VRow class="tw-gap-4 mb-2">
         <v-slide-y-transition group appear>
           <v-col v-for="card in cards" :key="card.title" cols="12" md="3" sm="6">
@@ -132,20 +119,61 @@ const cards = ref([
       </VRow>
       <VRow class="tw-gap-4">
         <VCol cols="12" md="4" class="tw-flex tw-flex-col tw-gap-4">
-          <v-scroll-x-transition group appear>
-            <NextParticipantsTrainingStats key="next-training" :data="data.nextTrainingAttendance" />
-            <AgeChartByTeam key="age-chart" :data="data.ageDashboard" class="mt-4" />
-            <GenderChartByTeam key="gender-chart" :data="data.genderByDay" class="mt-4" />
-            <CityChartByTeam key="city-chart" :data="data.cityParticipantDashboard" class="mt-4" />
-            <WeekendGuestStats key="weekend-guests" :data="data.lifeWeekendAssistants" class="mt-4" />
+          <v-scroll-x-transition appear>
+            <VCard variant="flat" elevation="1" rounded="lg">
+              <VCardItem class="pa-4">
+                <div class="tw:flex tw:items-center tw:gap-3 mb-3">
+                  <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-cyan-50 tw:flex tw:items-center tw:justify-center">
+                    <Icon icon="mdi-account-group" height="20" class="tw:text-cyan-600" />
+                  </div>
+                  <div>
+                    <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">Resumen de Equipo</h4>
+                    <p class="tw:text-sm tw:text-gray-500">Resumen de capitanes y staffs</p>
+                  </div>
+                </div>
+                <VRow no-gutters class="align-center">
+                  <VCol cols="5">
+                    <div class="d-flex flex-column">
+                      <span class="tw:font-medium tw:text-gray-800 text-center">
+                        {{ data?.captainCount || 0 }}
+                      </span>
+                      <div class="d-flex align-center ga-1 mb-1 tw:justify-center">
+                        <Icon icon="mdi-shield-star" height="16" class="tw:text-amber-500" />
+                        <span class="tw:text-sm tw:font-medium tw:text-slate-600">Capitanes</span>
+                      </div>
+                    </div>
+                  </VCol>
+                  <VCol cols="2" class="d-flex justify-center">
+                    <VDivider vertical length="40" class="tw-border-gray-100" />
+                  </VCol>
+                  <VCol cols="5">
+                    <div class="d-flex flex-column">
+                      <span class="tw:font-medium tw:text-gray-800 text-center">
+                        {{ data?.staffCount || 0 }}
+                      </span>
+                      <div class="d-flex align-center ga-1 mb-1 tw:justify-center">
+                        <Icon icon="mdi-account-wrench" height="16" class="tw:text-blue-400" />
+                        <span class="tw:text-sm tw:font-medium tw:text-slate-600">Staff</span>
+                      </div>
+                    </div>
+                  </VCol>
+                </VRow>
+              </VCardItem>
+            </VCard>
+          </v-scroll-x-transition>
+          <v-scroll-x-transition appear>
+            <OperativeAssistantPaymentsYour :is-loading="isLoading" :data="data.operativeYourPayments" class="mt-4" />
           </v-scroll-x-transition>
         </VCol>
         <VCol cols="12" md="8">
-          <v-scroll-x-transition group appear>
-            <PaymentsStaffsByTeam key="payment-focus" :data="data.paymentFocusDashboard" />
-            <ParticipantAttendancesByTeam key="participant-attendance" :data="data.focusAttendanceDashboard" :totalTrainings="data.totalTrainings" class="mt-4" />
-            <LingererStats key="lingerer-stats" :data="data.lingererStats" class="mt-4" />
-          </v-scroll-x-transition>
+          <v-fade-transition appear>
+            <ParticipantAttendancesByTeam :data="data?.attendance" />
+          </v-fade-transition>
+        </VCol>
+        <VCol cols="12">
+          <v-fade-transition appear>
+            <WeeklyPaymentStats :data="data?.operativeYourPayments" :is-loading="isLoading" />
+          </v-fade-transition>
         </VCol>
       </VRow>
     </div>
