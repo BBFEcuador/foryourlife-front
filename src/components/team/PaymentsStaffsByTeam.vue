@@ -5,7 +5,6 @@ import type { PaymentStaffDashboard } from '@/models/DashboardFocus';
 
 const props = defineProps<{ data: PaymentStaffDashboard[] }>();
 const search = ref('');
-const fCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val ?? 0);
 const headers = [
   {
     title: 'Staff',
@@ -116,7 +115,7 @@ const totals = computed(() => ({
           #[`item.${col}`]="{ value }"
         >
           <div class="tw:text-end">
-            <span class="font-variant-numeric">{{ fCurrency(value) }}</span>
+            <span class="font-variant-numeric">{{ value }}</span>
           </div>
         </template>
 
@@ -127,20 +126,6 @@ const totals = computed(() => ({
         <template #[`item.passPercentageFinal`]="{ value }">
           <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
         </template>
-
-        <!-- <template #body.append>
-          <tr class="tw:bg-gray-100 font-weight-bold">
-            <td class="text-uppercase">Totales</td>
-            <td class="text-right">{{ fCurrency(totals.yourSunday) }}</td>
-            <td></td>
-            <td class="text-right text-primary">{{ fCurrency(totals.totalSunday) }}</td>
-            <td></td>
-            <td class="text-right">{{ fCurrency(totals.yourFinal) }}</td>
-            <td></td>
-            <td class="text-right text-primary">{{ fCurrency(totals.totalFinal) }}</td>
-            <td></td>
-          </tr>
-        </template> -->
       </v-data-table>
     </v-card-text>
   </v-card>

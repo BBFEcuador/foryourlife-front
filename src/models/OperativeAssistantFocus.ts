@@ -3,7 +3,7 @@ export interface DashboardOperativeAssistantFocus {
     trainerName: string;
     courseLevel: string;
     weekendFocusReport: WeekendFocusReport;
-    operativeFocusPayments: OperativeYourPayments;
+    operativeFocusPayments: OperativeFocusPayments;
 }
 
 export interface WeekendFocusReport {
@@ -16,13 +16,13 @@ export interface WeekendFocusReport {
     staffsCount: number;
 }
 
-export interface OperativeYourPayments {
+export interface OperativeFocusPayments {
     yourPaymentsCount: number;
     yourPlusLifePaymentsCount: number;
     totalPaymentsCount: number;
     pendingPaymentsCount: number;
     possibilityPaymentsCount: number;
-    focusweeklyPaymentStats: FocusWeeklyPaymentStats[];
+    focusWeeklyPaymentStats: FocusWeeklyPaymentStats[];
 }
 
 export interface FocusWeeklyPaymentStats {

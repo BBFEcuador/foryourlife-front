@@ -3,8 +3,9 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed, ref } from 'vue';
 import ParticipantAttendancesByTeam from '../team/ParticipantAttendancesByTeam.vue';
 import useFocusOperativeAssistantReport from '@/composables/admin/reports/useFocusOperativeAssistantReport.ts';
-import WeeklyPaymentStats from './WeeklyPaymentStats.vue';
+import WeeklyPaymentFocusStats from './WeeklyPaymentFocusStats.vue';
 import OperativeAssistantPaymentsYour from './OperativeAssistantPaymentsYour.vue';
+import OperativeAssistantPaymentsFocus from './OperativeAssistantPaymentsFocus.vue';
 
 interface props {
   trainingId: string;
@@ -105,12 +106,12 @@ const cards = ref([
           </v-col>
         </v-slide-y-transition>
       </VRow>
-      <VRow class="tw-gap-4">
-        <VCol cols="12" md="4" class="tw-flex tw-flex-col tw-gap-4">
+      <VRow class="fill-height">
+        <VCol cols="12" md="4" class="d-flex flex-column">
           <v-scroll-x-transition appear>
-            <VCard variant="flat" elevation="1" rounded="lg">
-              <VCardItem class="pa-4">
-                <div class="tw:flex tw:items-center tw:gap-3 mb-3">
+            <VCard variant="flat" elevation="1" rounded="lg" class="d-flex flex-column">
+              <VCardItem class="pa-4 flex-grow-1 d-flex flex-column justify-center">
+                <div class="tw:flex tw:items-center tw:gap-3 mb-6">
                   <div class="tw:w-10 tw:h-10 tw:rounded-lg tw:bg-cyan-50 tw:flex tw:items-center tw:justify-center">
                     <Icon icon="mdi-account-group" height="20" class="tw:text-cyan-600" />
                   </div>
@@ -119,10 +120,11 @@ const cards = ref([
                     <p class="tw:text-sm tw:text-gray-500">Resumen de visionarios, capitanes y staffs</p>
                   </div>
                 </div>
+
                 <VRow no-gutters class="align-center">
-                  <VCol cols="12" class="mb-2">
+                  <VCol cols="12" class="">
                     <div class="d-flex flex-column">
-                      <span class="tw:font-medium tw:text-gray-800 text-center">
+                      <span class="tw:text-2xl tw:font-bold tw:text-gray-800 text-center">
                         {{ data?.weekendFocusReport?.visionariesCount || 0 }}
                       </span>
                       <div class="d-flex align-center ga-1 mb-1 tw:justify-center">
@@ -131,23 +133,26 @@ const cards = ref([
                       </div>
                     </div>
                   </VCol>
+
                   <VCol cols="5">
                     <div class="d-flex flex-column">
-                      <span class="tw:font-medium tw:text-gray-800 text-center">
+                      <span class="tw:font-bold tw:text-gray-800 text-center">
                         {{ data?.weekendFocusReport?.captainsCount || 0 }}
                       </span>
                       <div class="d-flex align-center ga-1 mb-1 tw:justify-center">
                         <Icon icon="mdi-shield-star" height="16" class="tw:text-amber-500" />
-                        <span class="tw:text-sm tw:font-medium tw:text-slate-600">Capitanes</span>
+                        <span class="tw:text-sm tw:font-medium tw:text-slate-600 text-center">Capitanes</span>
                       </div>
                     </div>
                   </VCol>
+
                   <VCol cols="2" class="d-flex justify-center">
-                    <VDivider vertical length="40" class="tw-border-gray-100" />
+                    <VDivider vertical length="30" class="tw-border-gray-100" />
                   </VCol>
+
                   <VCol cols="5">
                     <div class="d-flex flex-column">
-                      <span class="tw:font-medium tw:text-gray-800 text-center">
+                      <span class="tw:font-bold tw:text-gray-800 text-center">
                         {{ data?.weekendFocusReport?.staffsCount || 0 }}
                       </span>
                       <div class="d-flex align-center ga-1 mb-1 tw:justify-center">
@@ -160,19 +165,23 @@ const cards = ref([
               </VCardItem>
             </VCard>
           </v-scroll-x-transition>
-          <!-- <v-scroll-x-transition appear>
-            <OperativeAssistantPaymentsYour :is-loading="isLoading" :data="data.operativeYourPayments" class="mt-4" />
-          </v-scroll-x-transition> -->
         </VCol>
-        <VCol cols="12" md="8">
-          <!-- <v-fade-transition appear>
-            <ParticipantAttendancesByTeam :data="data?.attendance" />
-          </v-fade-transition> -->
+
+        <VCol cols="12" md="8" class="d-flex flex-column">
+          <v-scroll-x-transition appear>
+            <OperativeAssistantPaymentsFocus class="h-100" :is-loading="isLoading" :data="data.operativeFocusPayments" />
+          </v-scroll-x-transition>
         </VCol>
+      </VRow>
+      <VRow>
         <VCol cols="12">
-          <!-- <v-fade-transition appear>
-            <WeeklyPaymentStats :data="data?.operativeYourPayments" :is-loading="isLoading" />
-          </v-fade-transition> -->
+          <v-fade-transition appear>
+            <WeeklyPaymentFocusStats
+              :data="data?.operativeFocusPayments"
+              :is-loading="isLoading"
+              :real-participants-count="data?.weekendFocusReport?.realParticipantsCount ?? 0"
+            />
+          </v-fade-transition>
         </VCol>
       </VRow>
     </div>

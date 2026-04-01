@@ -91,7 +91,6 @@ const handleTrainingChange = (training: TrainingData) => {
               @update:model-value="handleTrainingChange"
               hide-details
               :loading="isLoadingMore"
-              :disabled="trainings.length === 0"
             >
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">

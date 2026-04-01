@@ -1,44 +1,82 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed, ref } from 'vue';
-import type { OperativeYourPayments } from '@/models/OperativeAssistantYour';
+import type { OperativeFocusPayments } from '@/models/OperativeAssistantFocus';
 import { DayOfWeekLabels } from '@/models/OperativeAssistantYour';
 
 interface Props {
-  data: OperativeYourPayments | null;
+  data: OperativeFocusPayments | null;
+  realParticipantsCount: number;
   isLoading: boolean;
 }
 
 const props = defineProps<Props>();
 const groupBy = ref([{ key: 'week', order: 'asc' as const }]);
-
-const headers = [
-  { title: 'Día de la Semana', key: 'day', sortable: true, width: '200px' },
-  { title: 'Pagos Final', key: 'final', align: 'center' as const },
-  { title: 'Pagos en Acuerdo', key: 'agreed', align: 'center' as const },
-  { title: 'Pagos Totales', key: 'total', align: 'center' as const },
-  { title: '% Pase', key: 'passPercentage', align: 'center' as const, width: '180px' },
-  { title: '% Proyectado', key: 'projected', align: 'center' as const, width: '180px' }
+const metricDefinitions = [
+  { label: 'Participantes Finales', key: 'finalParticipants' },
+  { label: 'Your', key: 'yourPaymentsCount' },
+  { label: 'Your+Life', key: 'yourPlusLifePaymentsCount' },
+  { label: 'Pagos Totales', key: 'totalPaymentsCount' },
+  { label: 'Pagos Parciales', key: 'pendingPaymentsCount' },
+  { label: 'Acuerdos', key: 'agreedPaymentsCount' },
+  { label: 'Posibilidad', key: 'possiblePaymentsCount' },
+  { label: 'No Interesa', key: 'notInterestPaymentsCount' },
+  { label: 'Cuadre', key: 'square' },
+  { label: '% Pase', key: 'passPercentage', isPercent: true },
+  { label: '% Proyectado', key: 'projected', isPercent: true }
 ];
 
-const flattenedData = computed(() => {
-  if (!props.data?.weeklyPaymentStats) return [];
-
-  return props.data.weeklyPaymentStats.flatMap((week) => {
-    return Object.entries(week.weeklyPayments).map(([day, values]) => ({
-      week: week.weekNumber,
-      day: day,
-      final: values.finalPaymentsCount,
-      agreed: values.agreedPaymentsCount,
-      total: values.totalPaymentsCount,
-      passPercentage: values.passPaymentsPercentage,
-      projected: values.projectedPaymentsPercentage,
-      id: `${week.weekNumber}-${day}`
-    }));
+const headers = computed(() => {
+  const days = [{ title: 'Métrica', key: 'metricLabel', sortable: false, width: '200px', fixed: true }];
+  Object.entries(DayOfWeekLabels).forEach(([key, label]) => {
+    days.push({ title: label, key: key, sortable: true, width: '120px', fixed: false });
   });
+
+  return days;
 });
 
-// Función para determinar color según porcentaje
+const flattenedData = computed(() => {
+  if (!props.data?.focusWeeklyPaymentStats) return [];
+
+  const rows: any[] = [];
+
+  props.data.focusWeeklyPaymentStats.forEach((week) => {
+    metricDefinitions.forEach((metric) => {
+      const row: any = {
+        week: week.weekNumber,
+        metricLabel: metric.label,
+        metricKey: metric.key,
+        isPercent: metric.isPercent || false,
+        id: `${week.weekNumber}-${metric.key}`
+      };
+      Object.keys(DayOfWeekLabels).forEach((dayKey) => {
+        const dayData = week.focusWeeklyPayments[dayKey as keyof typeof week.focusWeeklyPayments];
+        if (dayData) {
+          if (metric.key === 'square') {
+            row[dayKey] =
+              props.realParticipantsCount -
+              (dayData.totalPaymentsCount +
+                dayData.pendingPaymentsCount +
+                dayData.agreedPaymentsCount +
+                dayData.possiblePaymentsCount +
+                dayData.notInterestPaymentsCount);
+          } else if (metric.key === 'projected') {
+            row[dayKey] = dayData.projectedPercentage;
+          } else if (metric.key === 'finalParticipants') {
+            row[dayKey] = props.realParticipantsCount;
+          } else {
+            row[dayKey] = dayData[metric.key as keyof typeof dayData];
+          }
+        } else {
+          row[dayKey] = 0;
+        }
+      });
+      rows.push(row);
+    });
+  });
+  return rows;
+});
+
 const getStatusColor = (value: number) => {
   if (value >= 80) return 'success';
   if (value >= 50) return 'warning';
@@ -82,53 +120,23 @@ const getStatusColor = (value: number) => {
           </tr>
         </template>
 
-        <template v-slot:item.day="{ value }">
+        <template v-slot:item.metricLabel="{ item }">
           <div class="d-flex align-center py-2">
             <div class="day-indicator mr-3"></div>
-            <span class="tw:text-sm tw:font-medium tw:text-gray-800">{{ DayOfWeekLabels[value as keyof typeof DayOfWeekLabels] }}</span>
+            <span class="tw:text-sm tw:font-semibold tw:text-gray-700">{{ item.metricLabel }}</span>
           </div>
         </template>
 
-        <template v-slot:item.final="{ value }">
-          <span class="tw:text-sm tw:font-medium tw:text-gray-800">{{ value }}</span>
-        </template>
-
-        <template v-slot:item.agreed="{ value }">
-          <span class="tw:text-sm tw:font-medium tw:text-gray-800">{{ value }}</span>
-        </template>
-
-        <template v-slot:item.total="{ value }">
-          <span class="tw:text-sm tw:font-medium tw:text-gray-800">{{ value }}</span>
-        </template>
-
-        <template v-slot:item.passPercentage="{ item }">
-          <div class="tw-min-w-[120px] py-2">
+        <template v-for="day in Object.keys(DayOfWeekLabels)" :key="day" v-slot:[`item.${day}`]="{ value, item }">
+          <div v-if="item.isPercent" class="tw-min-w-[100px] py-1">
             <div class="d-flex justify-end tw-mb-1">
-              <span :class="`tw:text-sm  tw:font-medium text-${getStatusColor(item.passPercentage)}`"> {{ item.passPercentage }}% </span>
+              <span :class="`tw:text-xs tw:font-bold text-${getStatusColor(value)}`">{{ value.toFixed(2) }}%</span>
             </div>
-            <VProgressLinear
-              :model-value="item.passPercentage"
-              :color="getStatusColor(item.passPercentage)"
-              height="6"
-              rounded
-              bg-color="grey-lighten-3"
-            />
+            <VProgressLinear :model-value="value" :color="getStatusColor(value)" height="4" rounded bg-color="grey-lighten-3" />
           </div>
-        </template>
-
-        <template v-slot:item.projected="{ item }">
-          <div class="tw-min-w-[120px] py-2">
-            <div class="d-flex justify-end tw-mb-1">
-              <span :class="`tw-text-sm  tw:font-medium text-${getStatusColor(item.projected)}`"> {{ item.projected }}% </span>
-            </div>
-            <VProgressLinear
-              :model-value="item.projected"
-              :color="getStatusColor(item.projected)"
-              height="6"
-              rounded
-              bg-color="grey-lighten-3"
-            />
-          </div>
+          <span v-else class="tw:text-sm tw:font-medium tw:text-gray-800">
+            {{ value }}
+          </span>
         </template>
 
         <template v-slot:loading>
@@ -143,14 +151,23 @@ const getStatusColor = (value: number) => {
 </template>
 
 <style scoped>
+.modern-table :deep(.v-data-table__td) {
+  padding: 8px 12px !important;
+}
+.day-indicator {
+  width: 4px;
+  height: 16px;
+  background-color: #663c84;
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
 .modern-table {
-  /* Quitar bordes internos por defecto de Vuetify */
   :deep(table) {
     border-collapse: separate;
     border-spacing: 0;
   }
 
-  /* Estilo de la cabecera */
   :deep(.v-data-table__th) {
     background-color: #f8fafc !important;
     text-transform: uppercase !important;
@@ -161,12 +178,10 @@ const getStatusColor = (value: number) => {
     height: 48px !important;
   }
 
-  /* Filas de datos */
   :deep(.v-data-table__tr) {
     transition: all 0.2s;
   }
 
-  /* Estilo fila de grupo */
   .group-header-row {
     background-color: #f0eff4 !important;
     td {
@@ -175,7 +190,6 @@ const getStatusColor = (value: number) => {
     }
   }
 
-  /* Indicador decorativo al lado del día */
   .day-indicator {
     width: 4px;
     height: 16px;
@@ -184,7 +198,6 @@ const getStatusColor = (value: number) => {
     opacity: 0.5;
   }
 
-  /* Ajuste de celdas */
   :deep(.v-data-table__td) {
     font-size: 0.875rem !important;
     color: #334155 !important;

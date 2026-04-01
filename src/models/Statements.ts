@@ -35,9 +35,9 @@ export const PaymentStatusMeta: Record<
     { label: string; icon: string; color: string }
 > = {
     [PaymentStatus.FULL_PAYMENT]: {
-        label: 'Pendiente',
-        icon: 'mdi-clock-outline',
-        color: 'info'
+        label: 'Pagado',
+        icon: 'mdi-check-circle-outline',
+        color: 'success'
     },
     [PaymentStatus.NOT_PAYMENT]: {
         label: 'No Pago',
@@ -45,9 +45,9 @@ export const PaymentStatusMeta: Record<
         color: 'error'
     },
     [PaymentStatus.PAYMENT]: {
-        label: 'Pago Completo',
-        icon: 'mdi-check-circle-outline',
-        color: 'success'
+        label: 'Abono',
+        icon: 'mdi-clock-outline',
+        color: 'info'
     }
 };
 

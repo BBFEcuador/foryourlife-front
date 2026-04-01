@@ -6,10 +6,6 @@ import type { PaymentStaffDashboard } from '@/models/DashboardYour';
 const props = defineProps<{ data: PaymentStaffDashboard[] }>();
 const search = ref('');
 
-// Formateador de moneda para limpieza visual
-const fCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val ?? 0);
-
-// HEADERS CON GRUPOS (UI Mejorada)
 const headers = [
   {
     title: 'Staff',
@@ -47,7 +43,6 @@ const headers = [
   }
 ];
 
-// Cálculo de totales simplificado
 const calculateTotal = (key: keyof PaymentStaffDashboard) => {
   return props.data?.reduce((acc, item) => acc + (Number(item[key]) || 0), 0) || 0;
 };
@@ -124,7 +119,7 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
           #[`item.${col}`]="{ value }"
         >
           <div class="tw:text-end">
-            <span class="font-variant-numeric">{{ fCurrency(value) }}</span>
+            <span class="font-variant-numeric">{{ value }}</span>
           </div>
         </template>
 
@@ -139,20 +134,6 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
         <template #[`item.previousPaymentsPercentage`]="{ value }">
           <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
         </template>
-
-        <!-- <template #body.append>
-          <tr class="tw:bg-gray-100 font-weight-bold">
-            <td class="text-uppercase">Totales</td>
-            <td class="text-right">{{ fCurrency(totals.yourSunday) }}</td>
-            <td></td>
-            <td class="text-right text-primary">{{ fCurrency(totals.totalSunday) }}</td>
-            <td></td>
-            <td class="text-right">{{ fCurrency(totals.yourFinal) }}</td>
-            <td></td>
-            <td class="text-right text-primary">{{ fCurrency(totals.totalFinal) }}</td>
-            <td></td>
-          </tr>
-        </template> -->
       </v-data-table>
     </v-card-text>
   </v-card>

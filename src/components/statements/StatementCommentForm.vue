@@ -20,9 +20,6 @@ const commentRequest = ref<StatementCommentRequest>({
 });
 
 const rules = {
-  comment: {
-    required: helpers.withMessage('El comentario es requerido', required)
-  },
   status: {
     required: helpers.withMessage('El estado es requerido', required)
   }
@@ -62,12 +59,9 @@ const statusItems = computed(() =>
       </InputSection>
     </VCol>
     <VCol cols="12">
-      <InputSection label="Comentario">
-        <VTextarea
-          placeholder="Comentario para el estado de la declaración"
-          v-model="commentRequest.comment"
-          :error-messages="validator.comment.$errors.map((x) => x.$message.toString())"
-        />
+      <InputSection label="">
+        <label>Comentario <span class="tw:text-sm tw:italic">(Opcional)</span></label>
+        <VTextarea placeholder="Comentario para el estado de la declaración" v-model="commentRequest.comment" />
       </InputSection>
     </VCol>
 
