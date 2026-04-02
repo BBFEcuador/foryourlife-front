@@ -40,7 +40,7 @@ const paymentDetails = computed(() => [
           </div>
 
           <div class="d-flex flex-column">
-            <div class="d-flex align-center gap-1 tw:justify-center">
+            <div class="d-flex align-center tw:gap-1 tw:justify-center">
               <span class="tw:text-sm tw:font-medium tw:text-slate-600">Parciales</span>
             </div>
             <span class="tw:font-bold tw:text-gray-800 text-center">
@@ -51,7 +51,7 @@ const paymentDetails = computed(() => [
         <VCol cols="12" md="8">
           <div class="tw:grid tw:grid-cols-1 tw:gap-y-2">
             <div v-for="(item, index) in paymentDetails" :key="index" class="d-flex justify-space-between align-center tw:group">
-              <div class="d-flex align-center gap-2">
+              <div class="d-flex align-center tw:gap-3 p-4">
                 <div class="tw:w-1.5 tw:h-1.5 tw:rounded-full tw:bg-slate-300 group-hover:tw:bg-cyan-500 tw:transition-colors"></div>
                 <span class="tw:text-sm tw:font-medium tw:text-slate-600">{{ item.label }}</span>
               </div>
@@ -63,13 +63,13 @@ const paymentDetails = computed(() => [
           <v-divider class="tw-border-dashed my-2"></v-divider>
           <div class="mx-3">
             <span class="tw:font-medium tw:text-gray-800">Total Pagos</span>
-            <div class="d-flex justify-space-between gap-4 text-medium-emphasis text-grey-darken-2">
+            <div class="d-flex justify-space-between tw:gap-4 text-medium-emphasis text-grey-darken-2">
               <span class="tw:font-semibold text-b">69%</span>
               <span class="tw:font-medium tw:text-gray-800">
                 {{ data?.totalPaymentsCount || 0 }}
               </span>
             </div>
-            <div class="d-flex justify-space-between gap-4 text-medium-emphasis text-grey-darken-2">
+            <div class="d-flex justify-space-between tw:gap-4 text-medium-emphasis text-grey-darken-2">
               <v-progress-linear
                 :model-value="69"
                 color="primary"

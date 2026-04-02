@@ -14,6 +14,7 @@ import type { TrainingData } from '@/models/Training';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import OperativeAssistantYour from '@/components/reports/OperativeAssistantYour.vue';
 import OperativeAssistantFocus from '@/components/reports/OperativeAssistantFocus.vue';
+import OperativeAssistantLife from '@/components/reports/OperativeAssistantLife.vue';
 
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 
@@ -122,6 +123,7 @@ const handleTrainingChange = (training: TrainingData) => {
     <!-- YOUR DASHBOARD -->
     <OperativeAssistantYour v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId" class="mb-2" />
     <OperativeAssistantFocus v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2" />
+    <OperativeAssistantLife v-if="selectedTraining?.courseLevel?.includes('LIFE') && trainingId" :trainingId="trainingId" class="mb-2" />
     <!-- FOCUS DASHBOARD -->
     <!-- <TeamFocusReport v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2" /> -->
   </div>

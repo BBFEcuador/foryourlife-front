@@ -270,6 +270,7 @@ watch(debouncedSearch, (val) => {
         class="!tw:bg-red-50 tw:rounded-xl !tw:shadow-sm hover:!tw:bg-red-100 tw:transition-all group"
         v-tooltip="'Agregar Comentario'"
         @click="onCommentStatement(item.statement.id)"
+        v-if="item.statement.status !== 'CONFIRMED' "
       >
         <div class="tw:relative">
           <Icon icon="mdi:comment" class="tw:transition-transform group-hover:tw:scale-110" />

@@ -120,11 +120,11 @@ const totals = computed(() => ({
         </template>
 
         <template #[`item.passPercentageFinalSunday`]="{ value }">
-          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
+          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value.toFixed(2) }}% </v-chip>
         </template>
 
         <template #[`item.passPercentageFinal`]="{ value }">
-          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
+          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value.toFixed(2) }}% </v-chip>
         </template>
       </v-data-table>
     </v-card-text>

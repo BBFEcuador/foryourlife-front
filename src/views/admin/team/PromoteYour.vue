@@ -125,7 +125,7 @@ watch(promoteToLifeMutation.isSuccess, () => {
                                 <Icon icon="mdi-account-group" size="32" class="text-primary" />
                             </div>
                             <span class="tw:flex-1">
-                                Promover al equipo "<strong class="text-primary">{{ team.name }}</strong>" al nivel
+                                Promover del equipo "<strong class="text-primary">{{ team.name }}</strong>" al nivel
                                 <v-chip color="info" variant="tonal" class="tw:ml-2">
                                     {{ team?.training?.nextLevel?.courseLevel }}
                                 </v-chip>
@@ -285,7 +285,7 @@ watch(promoteToLifeMutation.isSuccess, () => {
                 Confirmar promoción
             </v-card-title>
             <v-card-text class="tw:py-6 tw:px-6">
-                ¿Estás seguro de promover al equipo "<strong>{{ team.name }}</strong>" al nivel
+                ¿Estás seguro de promover del equipo "<strong>{{ team.name }}</strong>" al nivel
                 <strong>{{ team?.training?.nextLevel?.courseLevel }}</strong>?
             </v-card-text>
             <v-card-actions class="tw:p-4 tw:bg-gray-50">

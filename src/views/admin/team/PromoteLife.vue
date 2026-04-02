@@ -167,7 +167,7 @@ const isPromoting = computed(() => {
                 <Icon icon="mdi:account-group" size="32" class="text-primary" />
               </div>
               <span class="tw:flex-1">
-                Promover al equipo "<strong class="text-primary">{{ team.name }}</strong>" al nivel
+                Promover del equipo "<strong class="text-primary">{{ team.name }}</strong>" al nivel
                 <v-chip color="info" variant="tonal" class="tw:ml-2">
                   {{ team?.training?.nextLevel?.courseLevel }}
                 </v-chip>
@@ -327,7 +327,7 @@ const isPromoting = computed(() => {
           ¿Está seguro de graduar al equipo "<strong>{{ team.name }}</strong>"?
         </template>
         <template v-else>
-          ¿Estás seguro de promover al equipo "<strong>{{ team.name }}</strong>" al nivel <strong>{{
+          ¿Estás seguro de promover del equipo "<strong>{{ team.name }}</strong>" al nivel <strong>{{
             team?.training?.nextLevel?.courseLevel }}</strong>?
         </template>
       </v-card-text>

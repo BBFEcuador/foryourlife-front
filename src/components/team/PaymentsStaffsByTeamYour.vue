@@ -124,15 +124,15 @@ const calculateTotal = (key: keyof PaymentStaffDashboard) => {
         </template>
 
         <template #[`item.passPercentageSaturday`]="{ value }">
-          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
+          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value.toFixed(2) }}% </v-chip>
         </template>
 
         <template #[`item.passPercentageSunday`]="{ value }">
-          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
+          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value.toFixed(2) }}% </v-chip>
         </template>
 
         <template #[`item.previousPaymentsPercentage`]="{ value }">
-          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value }}% </v-chip>
+          <v-chip size="small" :color="value >= 80 ? 'green' : 'orange'" variant="tonal" label> {{ value.toFixed(2) }}% </v-chip>
         </template>
       </v-data-table>
     </v-card-text>

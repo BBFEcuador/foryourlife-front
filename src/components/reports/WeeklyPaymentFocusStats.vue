@@ -134,8 +134,8 @@ const getStatusColor = (value: number) => {
             </div>
             <VProgressLinear :model-value="value" :color="getStatusColor(value)" height="4" rounded bg-color="grey-lighten-3" />
           </div>
-          <span v-else class="tw:text-sm tw:font-medium tw:text-gray-800">
-            {{ value }}
+          <span v-else class="tw:text-sm tw:font-medium tw:text-gray-800 text-center">
+            <div class="text-center">{{ value }}</div>
           </span>
         </template>
 

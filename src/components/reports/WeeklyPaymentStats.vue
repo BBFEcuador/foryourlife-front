@@ -104,7 +104,7 @@ const getStatusColor = (value: number) => {
         <template v-slot:item.passPercentage="{ item }">
           <div class="tw-min-w-[120px] py-2">
             <div class="d-flex justify-end tw-mb-1">
-              <span :class="`tw:text-sm  tw:font-medium text-${getStatusColor(item.passPercentage)}`"> {{ item.passPercentage }}% </span>
+              <span :class="`tw:text-sm  tw:font-medium text-${getStatusColor(item.passPercentage)}`"> {{ item.passPercentage.toFixed(2) }}% </span>
             </div>
             <VProgressLinear
               :model-value="item.passPercentage"
@@ -119,7 +119,7 @@ const getStatusColor = (value: number) => {
         <template v-slot:item.projected="{ item }">
           <div class="tw-min-w-[120px] py-2">
             <div class="d-flex justify-end tw-mb-1">
-              <span :class="`tw-text-sm  tw:font-medium text-${getStatusColor(item.projected)}`"> {{ item.projected }}% </span>
+              <span :class="`tw-text-sm  tw:font-medium text-${getStatusColor(item.projected)}`"> {{ item.projected.toFixed(2) }}% </span>
             </div>
             <VProgressLinear
               :model-value="item.projected"

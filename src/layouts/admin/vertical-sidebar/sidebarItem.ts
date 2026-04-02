@@ -143,11 +143,11 @@ const sidebarItem = [
         to: 'operative-assistant-report',
         permissions: [PermissionEnum.SEE_OPERATIVE_DASHBOARD]
       },
-      {
-        title: 'Financiero',
-        to: 'financial-administrator-report',
-        permissions: [PermissionEnum.SEE_FINANCIAL_DASHBOARD]
-      }
+      // {
+      //   title: 'Financiero',
+      //   to: 'financial-administrator-report',
+      //   permissions: [PermissionEnum.SEE_FINANCIAL_DASHBOARD]
+      // }
     ]
   },
   {
