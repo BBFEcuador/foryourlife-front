@@ -39,7 +39,7 @@ const tablesByCallType = computed(() => {
     // 1. FILA: Total Inscritos
     const enrollmentRow: any = { statusLabel: 'Total Inscritos', isHeader: true, type: 'enrollment', rowTotal: 0 };
     props.data.forEach((t) => {
-      const val = t.weekendReport?.totalEnrollmentsCount || 0;
+      const val = t.weekendReport?.initialParticipantsCount || 0;
       enrollmentRow[t.trainingName] = val;
       enrollmentRow.rowTotal += val; // Suma horizontal
     });
