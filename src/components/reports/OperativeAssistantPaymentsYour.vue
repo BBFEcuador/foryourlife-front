@@ -11,9 +11,13 @@ interface Props {
 const props = defineProps<Props>();
 
 const paymentDetails = computed(() => [
-  { label: 'Pagos previos', value: props.data?.previousPayments || 0 },
-  { label: 'Pagos sábado', value: props.data?.saturdayPayments || 0 },
-  { label: 'Pagos domingo', value: props.data?.sundayPayments || 0 }
+  {
+    label: 'Pagos previos',
+    value: props.data?.previousPayments || 0,
+    percentage: (props.data?.previousPaymentsPercentage || 0).toFixed(2)
+  },
+  { label: 'Pagos sábado', value: props.data?.saturdayPayments || 0, percentage: (props.data?.saturdayPaymentsPercentage || 0).toFixed(2) },
+  { label: 'Pagos domingo', value: props.data?.sundayPayments || 0, percentage: (props.data?.sundayPaymentsPercentage || 0).toFixed(2) }
 ]);
 </script>
 
@@ -36,9 +40,10 @@ const paymentDetails = computed(() => [
             <div class="tw:w-1.5 tw:h-1.5 tw:rounded-full tw:bg-slate-300 group-hover:tw:bg-cyan-500 tw:transition-colors"></div>
             <span class="tw:text-sm tw:font-medium tw:text-slate-600">{{ item.label }}</span>
           </div>
-          <span class="tw:text-sm tw-font-bold tw:text-slate-800 tw:bg-slate-50 tw:px-3 tw:py-1 tw:rounded-lg">
-            {{ item.value }}
+          <span class="tw:text-sm tw-font-bold tw:text-slate-800 tw:px-3 tw:py-1 tw:rounded-lg">
+            {{ item.value }} <span class="tw:text-xs tw:italic">({{ item.percentage }} %)</span>
           </span>
+          
         </div>
 
         <v-divider class="my-1 tw-border-dashed"></v-divider>

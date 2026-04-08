@@ -16,10 +16,9 @@ const breadcrumbs = ref([
   {
     title: 'Equipos',
     disabled: false,
-    href: '/admin'
+    href: '/admin/teams'
   }
 ]);
-
 </script>
 <template>
   <BaseBreadcrumb :title="'Organigrama del equipo'" :breadcrumbs="breadcrumbs" class="tw:mb-6"> </BaseBreadcrumb>

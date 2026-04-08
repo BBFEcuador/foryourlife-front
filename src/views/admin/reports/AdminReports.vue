@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
-import useTrainings from '@/composables/admin/training/useTrainings';
+import { toast } from 'vue3-toastify';
 import type { TrainingData } from '@/models/Training';
+import type { AxiosError } from 'axios';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
+import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
+import useTrainings from '@/composables/admin/training/useTrainings';
 import TeamMasterLifeReport from '@/components/reports/TeamMasterLifeReport.vue';
 import TeamFocusReport from '@/components/reports/TeamFocusReport.vue';
 import TeamYourReport from '@/components/reports/TeamYourReport.vue';
 import useReportsMutations from '@/composables/admin/reports/useReportsMutations';
-import { toast } from 'vue3-toastify';
-import type { AxiosError } from 'axios';
-import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 
@@ -27,7 +27,7 @@ const { trainings, debouncedSearch, loadMoreTrainings, hasMoreTrainings, isLoadi
 const handleTrainingChange = (training: TrainingData) => {
   selectedTraining.value = training;
   trainingId.value = training?.id ?? '';
-  nameTraining.value = training?.name && training?.courseLevelDisplay ? `${training.name} - ${training.courseLevelDisplay}` : '';
+  nameTraining.value = training?.name ? `${training.name}` : '';
 };
 
 // Buscador
@@ -114,9 +114,9 @@ const onExcelDownload = (training_id: string) => {
       class="mb-2"
     />
     <!-- YOUR DASHBOARD -->
-    <TeamYourReport v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId" class="mb-2" />
+    <TeamYourReport v-else-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId" class="mb-2" />
     <!-- FOCUS DASHBOARD -->
-    <TeamFocusReport v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2">
+    <TeamFocusReport v-else-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2">
       <template #actions>
         <v-btn @click="onExcelDownload(trainingId)" color="primary" variant="outlined" :loading="excelMutation.isPending.value">
           <Icon icon="mdi-file-excel" height="20" class="mr-2" />

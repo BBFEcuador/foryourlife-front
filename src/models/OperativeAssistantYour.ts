@@ -14,6 +14,9 @@ export interface OperativeYourPayments {
     sundayPayments: number;
     totalPayments: number;
     totalPaymentsPercentage: number;
+    previousPaymentsPercentage: number;
+    saturdayPaymentsPercentage: number;
+    sundayPaymentsPercentage: number;
     weeklyPaymentStats: WeeklyPaymentStats[];
 }
 

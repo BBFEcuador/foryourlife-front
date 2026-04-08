@@ -25,19 +25,19 @@ export interface AttendanceDashboard {
   masterSundayCount: number;
 }
 
-export interface PromiseDashboard {
-  totalFirstPromise: number;
-  totalSecondPromise: number;
-  totalThirdPromise: number;
-  totalAchieved: number;
-  totalPaid: number;
-  totalMasterLifePromise: number;
-  totalMasterLifeAchieved: number;
-  totalMasterLifePaid: number;
-  totalFirstMasterLifePromise: number;
-  totalSecondMasterLifePromise: number;
-  totalThirdMasterLifePromise: number;
-}
+// export interface PromiseDashboard {
+//   totalFirstPromise: number;
+//   totalSecondPromise: number;
+//   totalThirdPromise: number;
+//   totalAchieved: number;
+//   totalPaid: number;
+//   totalMasterLifePromise: number;
+//   totalMasterLifeAchieved: number;
+//   totalMasterLifePaid: number;
+//   totalFirstMasterLifePromise: number;
+//   totalSecondMasterLifePromise: number;
+//   totalThirdMasterLifePromise: number;
+// }
 
 export interface UserTraining {
   userName: string;
@@ -57,6 +57,6 @@ export interface TrainingMasterLifeDashboard {
   trainingName: string;
   trainerName: string;
   attendanceDashboard: AttendanceDashboard;
-  promiseDashboard: PromiseDashboard;
+  // promiseDashboard: PromiseDashboard;
   users: UserTraining[];
 }

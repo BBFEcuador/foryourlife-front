@@ -70,7 +70,7 @@ const attendances = computed(() => {
               </template>
             </VTextField>
             <v-spacer></v-spacer>
-            <v-select
+            <!-- <v-select
               v-model="filterByTraining"
               placeholder="Invitados"
               :items="props.totalTrainings"
@@ -80,7 +80,7 @@ const attendances = computed(() => {
               variant="outlined"
               class="tw:rounded-lg tw:bg-white/80"
               hide-details
-            ></v-select>
+            ></v-select> -->
           </v-toolbar>
         </template>
         <template #item.userName="{ item }">

@@ -28,7 +28,7 @@ const props = defineProps<Props>();
           color="primary"
           class="mr-4"
         >
-          <span class="text-caption font-weight-bold"> {{ props?.data?.nextTrainingAttendancePercentage }}% </span>
+          <span class="text-caption font-weight-bold"> {{ props?.data?.nextTrainingAttendancePercentage?.toFixed(2) }}% </span>
         </v-progress-circular>
         <v-divider vertical class="mx-6" />
         <div>

@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref, watch } from 'vue';
-import useTrainings from '@/composables/admin/training/useTrainings';
+import { ref } from 'vue';
 import type { TrainingData } from '@/models/Training';
+import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
+import useTrainings from '@/composables/admin/training/useTrainings';
 import TeamFinancialReport from '@/components/reports/TeamFinancialReport.vue';
-import useReportsMutations from '@/composables/admin/reports/useReportsMutations';
-import { toast } from 'vue3-toastify';
-import type { AxiosError } from 'axios';
-import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
 

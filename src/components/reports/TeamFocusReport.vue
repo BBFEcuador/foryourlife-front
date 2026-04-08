@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import useFocusReport from '@/composables/admin/reports/useFocusReport';
 import { computed, ref } from 'vue';
+import useFocusReport from '@/composables/admin/reports/useFocusReport';
 import AgeChartByTeam from '../team/AgeChartByTeam.vue';
 import GenderChartByTeam from '../team/GenderChartByTeam.vue';
 import PaymentsStaffsByTeam from '../team/PaymentsStaffsByTeam.vue';
@@ -49,13 +49,9 @@ const cards = ref([
 
 <template>
   <v-fade-transition mode="out-in">
-    <div v-if="isLoading" class="text-center pa-4">
-      <v-card elevation="0" rounded="xl">
-        <v-card-text>
-          <v-progress-circular indeterminate color="primary" size="80" width="8"> </v-progress-circular>
-          <p class="text-caption mt-2">Cargando datos...</p>
-        </v-card-text>
-      </v-card>
+    <div v-if="isLoading" class="text-center pa-12">
+      <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+      <p class="text-caption mt-4">Cargando datos...</p>
     </div>
     <div v-else-if="isError" class="text-center pa-4">
       <v-scale-transition appear>
@@ -143,7 +139,12 @@ const cards = ref([
         <VCol cols="12" md="8">
           <v-scroll-x-transition group appear>
             <PaymentsStaffsByTeam key="payment-focus" :data="data.paymentFocusDashboard" />
-            <ParticipantAttendancesByTeam key="participant-attendance" :data="data.focusAttendanceDashboard" :totalTrainings="data.totalTrainings" class="mt-4" />
+            <ParticipantAttendancesByTeam
+              key="participant-attendance"
+              :data="data.focusAttendanceDashboard"
+              :totalTrainings="data.totalTrainings"
+              class="mt-4"
+            />
             <LingererStats key="lingerer-stats" :data="data.lingererStats" class="mt-4" />
           </v-scroll-x-transition>
         </VCol>

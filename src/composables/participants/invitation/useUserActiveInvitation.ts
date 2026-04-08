@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/vue-query';
 
 const userSt = userStore();
 
-const fetchActiveInvitations = async (): Promise<Invitation> => {
+const fetchActiveInvitations = async (): Promise<Invitation[]> => {
   const { data } = await userApi.get('/invitation/user/invitation/' + userSt.user.user.id);
   return data;
 };
@@ -16,7 +16,7 @@ const useUserActiveInvitation = () => {
     queryFn: fetchActiveInvitations,
     queryKey: ['participant-active-invitation'],
     retry: false,
-    initialData: {} as Invitation
+    initialData: [] as Invitation[]
   });
 
   return { data, error, isError, isLoading, refetch };

@@ -14,12 +14,15 @@ export interface WeekendFocusReport {
     visionariesCount: number;
     captainsCount: number;
     staffsCount: number;
+    declarationPercentage: number;
+    desertionPercentage: number;
 }
 
 export interface OperativeFocusPayments {
     yourPaymentsCount: number;
     yourPlusLifePaymentsCount: number;
     totalPaymentsCount: number;
+    totalPaymentsPercentage: number;
     pendingPaymentsCount: number;
     possibilityPaymentsCount: number;
     focusWeeklyPaymentStats: FocusWeeklyPaymentStats[];

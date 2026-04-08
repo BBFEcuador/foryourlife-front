@@ -64,14 +64,14 @@ const paymentDetails = computed(() => [
           <div class="mx-3">
             <span class="tw:font-medium tw:text-gray-800">Total Pagos</span>
             <div class="d-flex justify-space-between tw:gap-4 text-medium-emphasis text-grey-darken-2">
-              <span class="tw:font-semibold text-b">69%</span>
+              <span class="tw:font-semibold text-b">{{ (data?.totalPaymentsPercentage || 0).toFixed(2) }} %</span>
               <span class="tw:font-medium tw:text-gray-800">
                 {{ data?.totalPaymentsCount || 0 }}
               </span>
             </div>
             <div class="d-flex justify-space-between tw:gap-4 text-medium-emphasis text-grey-darken-2">
               <v-progress-linear
-                :model-value="69"
+                :model-value="data?.totalPaymentsPercentage || 0"
                 color="primary"
                 class="tw-bg-amber-400"
                 bg-color="#475569"

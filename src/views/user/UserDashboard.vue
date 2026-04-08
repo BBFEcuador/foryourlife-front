@@ -51,7 +51,7 @@ const getErrorMessage = () => {
     </v-col>
   </v-row>
   <v-row class="mb-0" v-else>
-    <v-col cols="12" md="6">
+    <v-col cols="12" md="12">
       <QrComponent :invitations="data!" />
     </v-col>
 

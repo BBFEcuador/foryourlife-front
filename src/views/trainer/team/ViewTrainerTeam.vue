@@ -11,7 +11,7 @@ interface TrainerTeamProps {
 const props = defineProps<TrainerTeamProps>();
 </script>
 
-<template>
+<template>d
   <TeamBanner :team class="mb-5" />
   <!-- LIFE DASHBOARD -->
   <TeamMasterLifeDashboard v-if="team?.trainingData?.curseLevel?.includes('LIFE')" :team="team" class="mb-2" />

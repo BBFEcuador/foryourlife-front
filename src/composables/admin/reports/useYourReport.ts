@@ -1,7 +1,6 @@
 import { api } from '@/api/axios';
-import { userStore } from '@/stores/useStore';
 import { useQuery } from '@tanstack/vue-query';
-import { computed} from 'vue';
+import { computed } from 'vue';
 import type { DashboardYour } from '@/models/DashboardYour';
 
 const fetchYourReport = async (id: string): Promise<DashboardYour> => {
@@ -10,7 +9,7 @@ const fetchYourReport = async (id: string): Promise<DashboardYour> => {
 };
 
 const useYourReport = (id: string) => {
-    const { data, error, isError, isFetching, isPending, refetch } = useQuery({
+  const { data, error, isError, isFetching, isPending, refetch } = useQuery({
     queryFn: () => fetchYourReport(id),
     queryKey: ['your-report', id],
     initialData: {} as DashboardYour,

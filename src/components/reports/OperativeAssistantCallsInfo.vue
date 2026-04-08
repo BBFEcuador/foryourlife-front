@@ -3,7 +3,6 @@ import { computed, ref } from 'vue';
 import type { DashboardOperativeAssistantLife } from '@/models/OperativeAssistantLife';
 import { CallStatus, CallStatusMeta, CallType, CallTypeMeta } from '@/models/OperativeAssistantLife';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { numeric } from '@vuelidate/validators';
 
 interface Props {
   data: DashboardOperativeAssistantLife[];

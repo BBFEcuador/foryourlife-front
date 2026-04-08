@@ -1,9 +1,7 @@
 import { api } from '@/api/axios';
-// import { userStore } from '@/stores/useStore';
 import { useQuery } from '@tanstack/vue-query';
-
+import { computed, type Ref, type ComputedRef } from 'vue';
 import type { DashboardOperativeAssistant } from '@/models/DashboardOperativeAssistant';
-import { ref, watch, computed, type Ref, type ComputedRef } from 'vue';
 
 const fetchOperativeAssistantReport = async (id: string): Promise<DashboardOperativeAssistant> => {
   const { data } = await api.get('/operative-assistant-dashboard/' + id);

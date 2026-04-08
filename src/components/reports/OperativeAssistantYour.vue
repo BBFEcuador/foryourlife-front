@@ -51,16 +51,12 @@ const cards = ref([
       </v-card>
     </div>
     <div v-else-if="isError" class="text-center pa-4">
-      <v-scale-transition appear>
-        <v-card elevation="0" rounded="xl">
-          <v-card-text>
-            <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
-              <Icon icon="mdi-alert-circle-outline" height="48" class="tw:mb-4" />
-              <p class="tw:text-lg text-center">Error al cargar los datos del dashboard de Your</p>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-scale-transition>
+      <v-card variant="flat" border class="rounded-xl text-center pa-8">
+        <div class="d-flex align-center justify-center ">
+          <Icon icon="solar:danger-bold-duotone" class="text-warning text-center mb-4" height="48" />
+        </div>
+        <p class="text-h6">Error al cargar los datos</p>
+      </v-card>
     </div>
     <div v-else>
       <v-row>
@@ -166,13 +162,14 @@ const cards = ref([
           </v-scroll-x-transition>
         </VCol>
         <VCol cols="12" md="8">
-          <v-fade-transition appear>
+          <v-fade-transition group appear>
             <ParticipantAttendancesByTeam :data="data?.attendance" />
+            <WeeklyPaymentStats :data="data?.operativeYourPayments" :is-loading="isLoading" class="mt-4"/>
           </v-fade-transition>
         </VCol>
         <VCol cols="12">
           <v-fade-transition appear>
-            <WeeklyPaymentStats :data="data?.operativeYourPayments" :is-loading="isLoading" />
+            <!-- <WeeklyPaymentStats :data="data?.operativeYourPayments" :is-loading="isLoading" /> -->
           </v-fade-transition>
         </VCol>
       </VRow>

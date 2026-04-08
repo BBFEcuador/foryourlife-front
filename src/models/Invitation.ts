@@ -9,7 +9,7 @@ export interface Invitation {
   quantity: number;
   enrolled: Enrolled;
   admin: boolean;
-  used: boolean;
+  active: boolean;
 }
 
 export interface Enrolled {
@@ -18,7 +18,7 @@ export interface Enrolled {
   trainingName: any;
   contact: string;
 }
-
+  
 export interface User {
   userId: string;
   name: string;

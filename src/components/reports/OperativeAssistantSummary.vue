@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed, ref, reactive, onMounted, watch } from 'vue';
-import type { TrainingInfo, WeeklyPaymentStats, DailyPaymentStats } from '@/models/DashboardOperativeAssistant';
 import { CallStatusLabels, DayOfWeek, CallTypeLabels, DayOfWeekLabels } from '@/models/DashboardOperativeAssistant';
-import { ca } from 'vuetify/locale';
+import type { TrainingInfo, WeeklyPaymentStats, DailyPaymentStats } from '@/models/DashboardOperativeAssistant';
 
 interface props {
   trainingInfo: TrainingInfo | null;

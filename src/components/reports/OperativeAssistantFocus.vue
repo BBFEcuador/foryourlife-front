@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed, ref } from 'vue';
-import ParticipantAttendancesByTeam from '../team/ParticipantAttendancesByTeam.vue';
 import useFocusOperativeAssistantReport from '@/composables/admin/reports/useFocusOperativeAssistantReport.ts';
 import WeeklyPaymentFocusStats from './WeeklyPaymentFocusStats.vue';
-import OperativeAssistantPaymentsYour from './OperativeAssistantPaymentsYour.vue';
 import OperativeAssistantPaymentsFocus from './OperativeAssistantPaymentsFocus.vue';
 
 interface props {
@@ -28,12 +26,14 @@ const cards = ref([
   {
     title: 'Px Desertores',
     value: computed(() => data.value?.weekendFocusReport?.deserterParticipantsCount ?? 0),
+    percentage: computed(() => Number(data.value?.weekendFocusReport?.desertionPercentage ?? 0).toFixed(2)),
     icon: 'mdi-calendar-check-outline',
     color: 'green'
   },
   {
     title: 'Declaración',
     value: computed(() => data.value?.weekendFocusReport?.declarationsCount ?? 0),
+    percentage: computed(() => Number(data.value?.weekendFocusReport?.declarationPercentage ?? 0).toFixed(2)),
     icon: 'mdi-calendar-check-outline',
     color: 'green'
   }
@@ -51,16 +51,12 @@ const cards = ref([
       </v-card>
     </div>
     <div v-else-if="isError" class="text-center pa-4">
-      <v-scale-transition appear>
-        <v-card elevation="0" rounded="xl">
-          <v-card-text>
-            <div class="tw:flex tw:flex-col tw:items-center tw:justify-center tw:py-12 tw:text-gray-500">
-              <Icon icon="mdi-alert-circle-outline" height="48" class="tw:mb-4" />
-              <p class="tw:text-lg text-center">Error al cargar los datos del dashboard de Focus</p>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-scale-transition>
+      <v-card variant="flat" border class="rounded-xl text-center pa-8">
+        <div class="d-flex align-center justify-center">
+          <Icon icon="solar:danger-bold-duotone" class="text-warning text-center mb-4" height="48" />
+        </div>
+        <p class="text-h6">Error al cargar los datos</p>
+      </v-card>
     </div>
     <div v-else>
       <v-row>
@@ -101,6 +97,28 @@ const cards = ref([
                 <h3 class="text-h3 heading text-primary">
                   {{ card.value }}
                 </h3>
+                <div v-if="card.title == 'Px Desertores'" class="text-end mt-1">
+                  <v-tooltip location="bottom">
+                    <template #activator="{ props }">
+                      <v-chip v-bind="props" class="font-weight-semibold" style="font-size: 0.75rem">
+                        <Icon icon="mdi-walk" class="mr-2" width="16" />
+                        {{ card.percentage }} %
+                      </v-chip>
+                    </template>
+                    Porcentaje de desertores
+                  </v-tooltip>
+                </div>
+                <div v-else-if="card.title == 'Declaración'" class="text-end mt-1">
+                  <v-tooltip location="bottom">
+                    <template #activator="{ props }">
+                      <v-chip v-bind="props" class="font-weight-semibold" style="font-size: 0.75rem">
+                        <Icon icon="mdi-check" class="mr-2" width="16" />
+                        {{ card.percentage }} %
+                      </v-chip>
+                    </template>
+                    Porcentaje de declaraciones
+                  </v-tooltip>
+                </div>
               </div>
             </v-alert>
           </v-col>
@@ -166,7 +184,6 @@ const cards = ref([
             </VCard>
           </v-scroll-x-transition>
         </VCol>
-
         <VCol cols="12" md="8" class="d-flex flex-column">
           <v-scroll-x-transition appear>
             <OperativeAssistantPaymentsFocus class="h-100" :is-loading="isLoading" :data="data.operativeFocusPayments" />

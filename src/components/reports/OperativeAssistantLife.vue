@@ -1,23 +1,26 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
-import { computed, ref, shallowRef } from 'vue';
-import useLifeOperativeAssistantReport from '@/composables/admin/reports/useLifeOperativeAssistantReport';
+import { computed, ref } from 'vue';
 import type { WeekendReport } from '@/models/OperativeAssistantLife';
+import useLifeOperativeAssistantReport from '@/composables/admin/reports/useLifeOperativeAssistantReport';
 import OperativeAssistantCallsInfo from './OperativeAssistantCallsInfo.vue';
 
 interface Props {
   trainingId: string;
+  trainingName: string;
 }
 const props = defineProps<Props>();
 const { data, isLoading, isError } = useLifeOperativeAssistantReport(props.trainingId);
-const tab = ref('tab-0');
+console.log('name:', props.trainingName);
+const tab = ref('tab-'+props.trainingName);
 
 const tabs = computed(() => {
   if (!data.value || !Array.isArray(data.value)) return [];
 
   return data.value.map((item, index) => ({
     title: item.trainingName || `Entrenamiento ${index + 1}`,
-    value: `tab-${index}`,
+    // value: `tab-${index}`,
+    value: `tab-${item.trainingName}`,
     report: item
   }));
 });
@@ -61,8 +64,10 @@ const getCardsByReport = (weekendReport?: WeekendReport) => {
     </div>
 
     <div v-else-if="isError" class="text-center pa-12">
-      <v-card variant="flat" border class="rounded-xl pa-8">
-        <Icon icon="solar:danger-bold-duotone" class="text-error mb-4" height="48" />
+      <v-card variant="flat" border class="rounded-xl text-center pa-8">
+        <div class="d-flex align-center justify-center ">
+          <Icon icon="solar:danger-bold-duotone" class="text-warning text-center mb-4" height="48" />
+        </div>
         <p class="text-h6">Error al cargar los datos</p>
       </v-card>
     </div>

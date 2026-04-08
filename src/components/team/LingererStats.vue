@@ -5,6 +5,7 @@ import { computed, ref } from 'vue';
 
 interface Props {
   data: LingererStats;
+  small?: boolean;
 }
 const props = defineProps<Props>();
 const currentSeries = computed(() => {
@@ -41,9 +42,19 @@ const chartOptions = computed(() => ({
       },
 
       dataLabels: {
-        name: { show: false },
-        value: { show: false },
-        total: { show: false }
+        name: { show: true },
+        value: {
+          show: true,
+          formatter: function (val: any, opts: any) {
+            // Si es la serie 0 (Asistió)
+            if (opts.seriesIndex === 0) {
+              return `${val}% (${props.data?.attended} pers.)`;
+            }
+            // Si es la serie 1 (No asistió)
+            return `${props.data?.notAttended}`;
+          }
+        },
+        total: { show: true, label: 'Total', formatter: () => `${props.data?.total ?? 0}` }
       },
       barLabels: {
         enabled: true,
@@ -143,13 +154,13 @@ const percentageJornal = (attended: number, total: number) => {
     </v-card-text>
     <v-card-item class="pt-1">
       <v-row>
-        <v-col cols="12" md="5" sm="12" class="chart-container">
-          <apexchart v-if="props.data" type="radialBar" width="100%" height="100%" :options="chartOptions" :series="currentSeries" />
+        <v-col cols="12" :md="props.small ? 12 : 5" sm="12" class="chart-container">
+          <apexchart v-if="props.data" type="radialBar" width="100%" :height="props.small ? 250 : '100%'" :options="chartOptions" :series="currentSeries" />
         </v-col>
-        <v-col cols="12" md="7" sm="12">
+        <v-col cols="12" :md="props.small ? 12 : 7" sm="12">
           <v-row>
-            <v-col v-for="item in jornals" :key="item.title" cols="12" class="">
-              <span class="tw:font-semibold" style="color: #334155">{{ item.title }}</span>
+            <v-col v-for="item in jornals" :key="item.title" cols="12" class="pb-0">
+              <span class="tw:font-semibold tw:text-sm" style="color: #334155">{{ item.title }}</span>
               <div class="d-flex justify-space-between gap-4 text-medium-emphasis mb-1 text-grey-darken-2">
                 <span>{{ item.attended }} / {{ item.total }}</span>
                 <span class="tw:font-semibold text-b">{{ percentageJornal(item.attended, item.total) }}%</span>

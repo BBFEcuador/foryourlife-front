@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import useOperativeAssistantReport from '@/composables/admin/reports/useOperativeAssistantReport.ts';
-import type { Team } from '@/models/Participants';
 import { computed, ref, reactive, watch } from 'vue';
-import OperativeAssistantSummary from './OperativeAssistantSummary.vue';
 import type { TrainingInfo } from '@/models/DashboardOperativeAssistant';
+import useOperativeAssistantReport from '@/composables/admin/reports/useOperativeAssistantReport.ts';
+import OperativeAssistantSummary from './OperativeAssistantSummary.vue';
 
 interface props {
   teamId: string;

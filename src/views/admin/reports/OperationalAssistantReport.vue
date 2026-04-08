@@ -1,15 +1,7 @@
 <script setup lang="ts">
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref, watch } from 'vue';
-import useAdminTeams from '@/composables/admin/team/useAdminTeams';
-import type { Team } from '@/models/Participants';
-import OperativeAssistantDashboard from '@/components/reports/OperativeAssistantDashboard.vue';
-import useOperativeAssistantReportMutations from '@/composables/admin/reports/useOperativeAssistantReportMutations';
-import { toast } from 'vue3-toastify';
-import type { AxiosError } from 'axios';
-import type { ErrorApiResponse } from '@/models/ApiResponse';
-
+import { ref } from 'vue';
 import type { TrainingData } from '@/models/Training';
 import useTrainings from '@/composables/admin/training/useTrainings';
 import OperativeAssistantYour from '@/components/reports/OperativeAssistantYour.vue';
@@ -17,30 +9,6 @@ import OperativeAssistantFocus from '@/components/reports/OperativeAssistantFocu
 import OperativeAssistantLife from '@/components/reports/OperativeAssistantLife.vue';
 
 const breadcrumbs = ref([{ title: 'Reportes', disabled: false, href: '#' }]);
-
-// const selectedTeam = ref<Team | null>(null);
-// const teamId = ref('');
-// const nameTeam = ref('');
-// const debouncedSearch = ref('');
-
-// const { isLoading, criteriaMutations, refetchTeams, teamsData, page, perPage, search } = useAdminTeams();
-
-// const handleTeamChange = (team: Team | null) => {
-//   selectedTeam.value = team;
-//   teamId.value = team?.id ?? '';
-//   nameTeam.value = team?.name ? `${team.name}` : '';
-//   console.log('Selected Team:', teamId.value);
-// };
-
-// let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
-
-// watch(debouncedSearch, (val) => {
-//   if (debounceTimeout) clearTimeout(debounceTimeout);
-//   debounceTimeout = setTimeout(() => {
-//     search.value = val;
-//   }, 400);
-// });
-
 // Buscador
 const searchTraining = (s: string) => {
   debouncedSearch.value = s;
@@ -58,7 +26,7 @@ const { trainings, debouncedSearch, loadMoreTrainings, hasMoreTrainings, isLoadi
 const handleTrainingChange = (training: TrainingData) => {
   selectedTraining.value = training;
   trainingId.value = training?.id ?? '';
-  nameTraining.value = training?.name && training?.courseLevelDisplay ? `${training.name} - ${training.courseLevelDisplay}` : '';
+  nameTraining.value = training?.name ? `${training.name}` : '';
 };
 </script>
 
@@ -114,18 +82,16 @@ const handleTrainingChange = (training: TrainingData) => {
   <!-- <OperativeAssistantDashboard :teamId="teamId" :teamName="nameTeam" /> -->
   <div v-if="nameTraining">
     <!-- LIFE DASHBOARD -->
-    <!-- <TeamMasterLifeReport
-      v-if="selectedTraining?.courseLevel?.includes('LIFE') && trainingId && selectedTraining.name"
+    <OperativeAssistantLife
+      v-if="selectedTraining?.courseLevel?.includes('LIFE') && trainingId"
       :trainingId="trainingId"
-      :trainingDataName="selectedTraining.name"
+      :training-name="nameTraining"
       class="mb-2"
-    /> -->
+    />
     <!-- YOUR DASHBOARD -->
     <OperativeAssistantYour v-if="selectedTraining?.courseLevel?.includes('YOUR') && trainingId" :trainingId="trainingId" class="mb-2" />
-    <OperativeAssistantFocus v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2" />
-    <OperativeAssistantLife v-if="selectedTraining?.courseLevel?.includes('LIFE') && trainingId" :trainingId="trainingId" class="mb-2" />
     <!-- FOCUS DASHBOARD -->
-    <!-- <TeamFocusReport v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2" /> -->
+    <OperativeAssistantFocus v-if="selectedTraining?.courseLevel?.includes('FOCUS') && trainingId" :trainingId="trainingId" class="mb-2" />
   </div>
 </template>
 

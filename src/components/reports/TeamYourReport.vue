@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import useYourReport from '@/composables/admin/reports/useYourReport';
 import { computed, ref } from 'vue';
+import useYourReport from '@/composables/admin/reports/useYourReport';
 import ParticipantAttendancesByTeam from '../team/ParticipantAttendancesByTeam.vue';
 import LingererStats from '../team/LingererStats.vue';
 import NextParticipantsTrainingStats from '../team/NextParticipantsTrainingStats.vue';
@@ -45,13 +45,9 @@ const cards = ref([
 
 <template>
   <v-fade-transition mode="out-in">
-    <div v-if="isLoading" class="text-center pa-4">
-      <v-card elevation="0" rounded="xl">
-        <v-card-text>
-          <v-progress-circular indeterminate color="primary" size="80" width="8"> </v-progress-circular>
-          <p class="text-caption mt-2">Cargando datos...</p>
-        </v-card-text>
-      </v-card>
+    <div v-if="isLoading" class="text-center pa-12">
+      <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+      <p class="text-caption mt-4">Cargando datos...</p>
     </div>
     <div v-else-if="isError" class="text-center pa-4">
       <v-scale-transition appear>
@@ -133,15 +129,16 @@ const cards = ref([
           <v-scroll-x-transition group appear>
             <PaymentsStaffsByTeamYour key="payment-staff" :data="data.paymentYourDashboard" />
             <ParticipantAttendancesByTeam key="participant-attendance" :data="data.attendance" class="mt-4" />
-            <LingererStats key="lingerer-stats" :data="data.lingererStats" class="mt-4" />
+            
           </v-scroll-x-transition>
         </VCol>
         <!-- Columna derecha -->
         <VCol cols="12" md="4" class="tw-flex tw-flex-col tw-gap-4">
           <v-scroll-x-transition group appear>
             <NextParticipantsTrainingStats key="next-training" :data="data.nextTrainingAttendance" />
-            <LifeRecoveryPaymentsStats key="recovery-payments" :data="data.yourRecoveryPaymentStats" class="mt-4" />
             <AttendeeLifePayments key="attendee-payments" :data="data.previousTrainingStats" class="mt-4" />
+            <LifeRecoveryPaymentsStats key="recovery-payments" :data="data.yourRecoveryPaymentStats" class="mt-4" />
+            <LingererStats key="lingerer-stats" :data="data.lingererStats" :small="true" class="mt-4" />
           </v-scroll-x-transition>
         </VCol>
       </VRow>

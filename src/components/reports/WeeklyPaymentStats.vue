@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { computed, ref } from 'vue';
-import type { OperativeYourPayments } from '@/models/OperativeAssistantYour';
 import { DayOfWeekLabels } from '@/models/OperativeAssistantYour';
+import type { OperativeYourPayments } from '@/models/OperativeAssistantYour';
 
 interface Props {
   data: OperativeYourPayments | null;

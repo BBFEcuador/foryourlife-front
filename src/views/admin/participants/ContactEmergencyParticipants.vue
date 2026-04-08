@@ -44,7 +44,7 @@ const breadcrumbs = ref([
   {
     title: 'Participantes',
     disabled: false,
-    href: '#'
+    href: '/admin/participants'
   }
 ]);
 
