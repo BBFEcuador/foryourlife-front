@@ -12,7 +12,7 @@ export interface Payment {
   paymentshistory: PaymentHistory[];
   total: number;
   remainingBalance: number;
-  status: string;
+  status: Status;
   note: any;
   invoice: Invoice[];
   hasSomePaymentWithError: boolean;
@@ -102,3 +102,20 @@ export interface BankAccountRequest {
   number: string;
   campusId: string;
 }
+
+export enum Status {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  REJECTED = 'REJECTED',
+  APPROVED = 'APPROVED',
+  CANCELLED = 'CANCELLED'
+}
+
+export const StatusMeta: Record<Status, { label: string; color: string; icon: string }> = {
+  [Status.PENDING]: { label: 'Pendiente', color: 'warning', icon: 'mdi-clock-outline' },
+  [Status.COMPLETED]: { label: 'Completado', color: 'success', icon: 'mdi-check-circle-outline' },
+  [Status.REJECTED]: { label: 'Rechazado', color: 'error', icon: 'mdi-close-circle-outline' },
+  [Status.APPROVED]: { label: 'Aprobado', color: 'info', icon: 'mdi-check-circle' },
+  [Status.CANCELLED]: { label: 'Cancelado', color: 'secondary', icon: 'mdi-cancel' }
+};
+

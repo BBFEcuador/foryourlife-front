@@ -66,3 +66,48 @@ const headers = [
     </v-card>
   </v-dialog>
 </template>
+<style scoped>
+.v-data-table :deep(th) {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(td) {
+  color: #334155 !important;
+  font-size: 0.875rem !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(.v-data-table-footer) {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 1rem 1.5rem !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper) {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+}
+
+.v-data-table :deep(.v-data-table-header__wrapper) {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper table) {
+  border-spacing: 0 0.25rem !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr:hover) {
+  background-color: #f8fafc !important;
+}
+
+.v-data-table :deep(.v-data-table__wrapper tbody tr) {
+  transition: all 0.2s ease-in-out !important;
+}
+</style>

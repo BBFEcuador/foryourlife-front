@@ -32,6 +32,7 @@ const getLink = (token: string) => {
   <v-row align="stretch">
     <v-col cols="12" md="4" class="d-flex">
       <v-card
+        v-if="invitations.length > 0"
         variant="tonal"
         class="tw:w-full tw:!border-2 tw:!border-dashed tw:!border-primary pa-4"
         style="border-style: dashed !important"
@@ -69,7 +70,8 @@ const getLink = (token: string) => {
                 <Icon icon="mdi:check" class="tw:text-primary" height="14" />
               </div>
               <p class="tw:text-sm tw:text-gray-600 tw:leading-snug">
-                <span class="tw:font-bold tw:text-gray-700">Registro:</span> El sistema los vinculará automáticamente al completar sus datos.
+                <span class="tw:font-bold tw:text-gray-700">Registro:</span> El sistema los vinculará automáticamente al completar sus
+                datos.
               </p>
             </div>
           </div>

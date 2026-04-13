@@ -3,8 +3,10 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue';
 import type { Payment } from '@/models/Payments';
+import { StatusMeta } from '@/models/Payments';
 import useUserPayments from '@/composables/participants/payments/useUserPayments';
 import UserPaymentHistory from '@/components/payments/UserPaymentHistory.vue';
+import UiParentCard from '@/components/shared/UiParentCard.vue';
 
 const showPaymentHistory = ref(false);
 const selectPayment = ref<Payment>({
@@ -61,10 +63,15 @@ const onPaymentHistoryShow = (items: Payment) => {
   showPaymentHistory.value = true;
   selectPayment.value = items;
 };
+
+const formatCurrency = (value: number): string => {
+  if (!value) return '$0.00';
+  return new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(value);
+};
 </script>
 
 <template>
-  <BaseBreadcrumb :title="'Cobros'" :breadcrumbs="breadcrumbs" />
+  <BaseBreadcrumb :title="'Cobros'" :breadcrumbs="breadcrumbs" home-route="UserDashboard" />
   <UiParentCard title="Lista de Cobros">
     <v-data-table-server
       :headers="headers"
@@ -96,8 +103,17 @@ const onPaymentHistoryShow = (items: Payment) => {
           </v-chip>
         </div>
       </template>
+      <template #item.total="{ item }">
+        {{ formatCurrency(item.total) }}
+      </template>
+      <template #item.status="{ item }">
+        <v-chip :color="StatusMeta[item.status].color" size="small" variant="tonal">
+          <Icon :icon="StatusMeta[item.status].icon" height="16" class="mr-1" />
+          {{ StatusMeta[item.status].label }}
+        </v-chip>
+      </template>
       <template #item.actions="{ item }">
-        <div class="d-flex ga-2">
+        <div class="text-center">
           <v-btn
             v-tooltip="'Ver lista de pagos'"
             icon
@@ -109,7 +125,7 @@ const onPaymentHistoryShow = (items: Payment) => {
           >
             <Icon icon="mdi:list-box-outline" height="20" />
           </v-btn>
-          <v-btn
+          <!-- <v-btn
             v-tooltip="'Realizar un pago'"
             icon
             color="success"
@@ -119,7 +135,7 @@ const onPaymentHistoryShow = (items: Payment) => {
             @click=""
           >
             <Icon icon="hugeicons:payment-02" height="20" />
-          </v-btn>
+          </v-btn> -->
         </div>
       </template>
     </v-data-table-server>
@@ -145,48 +161,46 @@ const onPaymentHistoryShow = (items: Payment) => {
 }
 
 .v-data-table :deep(th) {
-  background-color: #663c84 !important;
-  color: #ffffff !important;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  white-space: nowrap;
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 1rem 1.5rem !important;
 }
 
 .v-data-table :deep(td) {
-  font-size: 0.875rem;
-  color: #334155;
-  padding: 16px;
+  color: #334155 !important;
+  font-size: 0.875rem !important;
+  padding: 1rem 1.5rem !important;
 }
 
 .v-data-table :deep(.v-data-table-footer) {
-  border-top: 1px solid #e2e8f0;
-  background-color: #f8fafc;
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 1rem 1.5rem !important;
 }
 
 .v-data-table :deep(.v-data-table__wrapper) {
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow:
-    0 1px 3px 0 rgb(0 0 0 / 0.1),
-    0 1px 2px -1px rgb(0 0 0 / 0.1);
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
 }
 
 .v-data-table :deep(.v-data-table-header__wrapper) {
-  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0 !important;
 }
 
 .v-data-table :deep(.v-data-table__wrapper table) {
-  border-collapse: separate;
-  border-spacing: 0;
+  border-spacing: 0 0.25rem !important;
 }
 
 .v-data-table :deep(.v-data-table__wrapper tbody tr:hover) {
-  background-color: #f8fafc;
+  background-color: #f8fafc !important;
 }
 
 .v-data-table :deep(.v-data-table__wrapper tbody tr) {
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease-in-out !important;
 }
 </style>
