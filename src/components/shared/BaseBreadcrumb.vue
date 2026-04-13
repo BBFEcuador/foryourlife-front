@@ -10,7 +10,11 @@ type Breadcrumb = {
 const props = defineProps({
   title: String,
   breadcrumbs: Array as () => Breadcrumb[],
-  icon: String
+  icon: String,
+  homeRoute: {
+    type: String,
+    default: 'home-admin' // Valor por defecto por si olvidas pasarlo
+  }
 });
 </script>
 
@@ -28,8 +32,7 @@ const props = defineProps({
                 </div>
               </template>
               <template v-slot:prepend>
-                <router-link :to="{ name: 'home-admin' }" class="text-darkText text-h6 text-decoration-none"> Home
-                </router-link>
+                <router-link :to="{ name: props.homeRoute }" class="text-darkText text-h6 text-decoration-none"> Home </router-link>
                 <div class="d-flex align-center px-2">
                   <SvgSprite name="custom-chevron-outline" style="width: 12px; height: 12px" />
                 </div>

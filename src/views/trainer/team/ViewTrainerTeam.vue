@@ -4,6 +4,7 @@ import TeamBanner from '@/components/team/TeamBanner.vue';
 import TeamMasterLifeDashboard from '@/components/team/TeamMasterLifeDashboard.vue';
 import TeamFocusDashboard from '@/components/team/TeamFocusDashboard.vue';
 import TeamYourDashboard from '@/components/team/TeamYourDashboard.vue';
+import TeamMasterLifeReport from '@/components/reports/TeamMasterLifeReport.vue';
 interface TrainerTeamProps {
   team: Team;
 }
@@ -11,7 +12,7 @@ interface TrainerTeamProps {
 const props = defineProps<TrainerTeamProps>();
 </script>
 
-<template>d
+<template>
   <TeamBanner :team class="mb-5" />
   <!-- LIFE DASHBOARD -->
   <TeamMasterLifeDashboard v-if="team?.trainingData?.curseLevel?.includes('LIFE')" :team="team" class="mb-2" />

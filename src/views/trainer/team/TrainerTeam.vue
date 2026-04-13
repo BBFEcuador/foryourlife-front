@@ -12,7 +12,7 @@ const breadcrumbs = ref();
 </script>
 
 <template>
-  <BaseBreadcrumb :title="'Equipo'" :breadcrumbs="breadcrumbs" />
+  <BaseBreadcrumb :title="'Equipo'" :breadcrumbs="breadcrumbs" homeRoute="trainer-home" />
   <vRow>
     <v-col class="tw:grid tw:place-content-center tw:h-96" cols="12" v-if="isTeamLoading">
       <v-progress-circular indeterminate color="primary" class="tw:rounded-t-xl" size="80" width="8" />

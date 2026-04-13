@@ -13,13 +13,12 @@ const fmtPct = (val: number | undefined | null) => {
   const safeValue = val ?? 0;
   return `${Number(safeValue).toFixed(2)} %`;
 };
-// Formateador de números (índices)
-const fmtNum = (val: number | undefined | null) => (val ?? 0).toFixed(2);
 
 // Agrupación de datos para la interfaz
 const sections = computed(() => [
   {
     title: 'Inciales',
+    subtitle: 'Datos al inicio del entrenamiento',
     icon: 'mdi:play-circle-outline',
     items: [
       { label: 'Participantes iniciales', val: props.data.totalParticipants, md: 6 },
@@ -29,6 +28,7 @@ const sections = computed(() => [
   },
   {
     title: 'Finales',
+    subtitle: 'Datos al final del entrenamiento',
     icon: 'mdi:flag-checkered',
     items: [
       { label: 'Participantes finales', val: props.data.participantAttendancesCount, md: 6 },
@@ -38,6 +38,7 @@ const sections = computed(() => [
   },
   {
     title: 'Deserción',
+    subtitle: 'Métricas de abandono',
     icon: 'mdi:account-minus-outline',
     items: [
       { label: 'Personas deserción', val: props.data.deserterParticipantsCount, md: 6 },
@@ -120,9 +121,10 @@ const sections = computed(() => [
             </div>
             <div>
               <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">{{ section.title }}</h4>
+              <p class="tw:text-sm tw:text-gray-500">{{ section.subtitle }}</p>
             </div>
           </div>
-          <v-row>
+          <v-row class="mt-2">
             <v-col
               v-for="item in section.items"
               :key="item.label"
@@ -131,8 +133,6 @@ const sections = computed(() => [
               cols="12"
               :md="item.md"
             >
-              <span class="text-medium-emphasis tw:text-center">{{ item.label }}</span>
-
               <div v-if="item.bold" class="d-flex align-center justify-center">
                 <v-chip color="white" label class="text-primary font-weight-bold text-16">
                   {{ item.val }}
@@ -141,6 +141,7 @@ const sections = computed(() => [
               <span v-else class="tw:text-center tw:font-bold text-16">
                 {{ item.val }}
               </span>
+              <span class="text-medium-emphasis tw:text-center mt-1 mb-2">{{ item.label }}</span>
             </v-col>
           </v-row>
         </v-card-text>

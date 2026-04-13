@@ -20,6 +20,7 @@ const fmtNum = (val: number | undefined | null) => (val ?? 0).toFixed(2);
 const sections = computed(() => [
   {
     title: 'Inciales',
+    subtitle: 'Datos al inicio del entrenamiento',
     icon: 'mdi:play-circle-outline',
     items: [
       { label: 'Participantes iniciales', val: props.data.totalParticipants, md: 6 },
@@ -29,6 +30,7 @@ const sections = computed(() => [
   },
   {
     title: 'Finales',
+    subtitle: 'Datos al final del entrenamiento',
     icon: 'mdi:flag-checkered',
     items: [
       { label: 'Participantes finales', val: props.data.participantAttendancesCount, md: 6 },
@@ -38,6 +40,7 @@ const sections = computed(() => [
   },
   {
     title: 'Deserción',
+    subtitle: 'Métricas de abandono',
     icon: 'mdi:account-minus-outline',
     items: [
       { label: 'Personas deserción', val: props.data.deserterParticipantsCount, md: 12 },
@@ -46,6 +49,7 @@ const sections = computed(() => [
   },
   {
     title: 'Métricas de Enrolamiento',
+    subtitle: 'Datos de inscripción',
     icon: 'mdi:chart-line',
     items: [
       { label: 'Enrolamiento Personas', val: props.data.participantEnrolledCount, md: 6 },
@@ -57,12 +61,13 @@ const sections = computed(() => [
   },
   {
     title: 'Efectividad Focus',
+    subtitle: 'Métricas de efectividad',
     icon: 'mdi:target',
     items: [
       { label: 'Personas que enrolan', val: props.data.totalUsersEnrollersCount, md: 6 },
       { label: '% Personas enrolan', val: fmtPct(props.data.totalUsersEnrollersPercentage), isPct: true, md: 6 },
       { label: 'Llegan al Focus', val: props.data.totalFocusAttendancesCount, md: 12, bold: true },
-      { label: 'Efectividad', val: fmtPct(props.data.enrollmentEffectiveness), isPct: true,  md: 12 }
+      { label: 'Efectividad', val: fmtPct(props.data.enrollmentEffectiveness), isPct: true, md: 12 }
     ]
   }
 ]);
@@ -85,9 +90,10 @@ const sections = computed(() => [
             </div>
             <div>
               <h4 class="tw:text-sm tw:font-semibold tw:text-gray-700 tw:uppercase tw:tracking-wide">{{ section.title }}</h4>
+              <p class="tw:text-sm tw:text-gray-500">{{ section.subtitle }}</p>
             </div>
           </div>
-          <v-row>
+          <v-row class="mt-2">
             <v-col
               v-for="item in section.items"
               :key="item.label"
@@ -96,31 +102,20 @@ const sections = computed(() => [
               cols="12"
               :md="item.md"
             >
-              <span class="text-medium-emphasis tw:text-center">{{ item.label }}</span>
-
               <div v-if="item.bold" class="d-flex align-center justify-center">
                 <v-chip color="white" label class="text-primary font-weight-bold tw:text-2xl">
                   {{ item.val }}
                 </v-chip>
               </div>
 
-              <span v-else
-                :class="[
-                  item.bold ? 'tw:text-xl tw:text-slate-900' : 'tw:text-base tw:text-slate-700',
-                ]"
+              <span
+                v-else
+                :class="[item.bold ? 'tw:text-xl tw:text-slate-900' : 'tw:text-base tw:text-slate-700']"
                 class="tw:text-center tw:font-bold tw:text-${section.color}-600"
               >
                 {{ item.val }}
               </span>
-              <!-- <span
-                :class="[
-                  item.bold ? 'tw:text-xl tw:text-slate-900' : 'tw:text-base tw:text-slate-700',
-                  item.isPct ? `tw:font-bold tw:text-${section.color}-600` : 'tw:font-semibold'
-                ]"
-                class="tw:text-center"
-              >
-                {{ item.val }}
-              </span> -->
+              <span class="text-medium-emphasis tw:text-center mt-1 mb-2">{{ item.label }}</span>
             </v-col>
           </v-row>
         </v-card-text>

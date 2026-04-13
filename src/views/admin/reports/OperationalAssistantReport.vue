@@ -19,7 +19,7 @@ const selectedTraining = ref<TrainingData | null>(null);
 const trainingId = ref('');
 const nameTraining = ref('');
 
-// Cargar entrenamientos
+// Cargar entrenamientos  
 const { trainings, debouncedSearch, loadMoreTrainings, hasMoreTrainings, isLoadingMore } = useTrainings();
 
 // Cuando cambia el training, automáticamente hace fetch (por enabled)
