@@ -11,15 +11,56 @@ interface props {
 
 const props = defineProps<props>();
 
+// const copyToClipboard = async (token: string, active: boolean) => {
+//   // Validación para no permitir copiar si está inactivo
+//   if (!active) return;
+
+//   try {
+//     await navigator?.clipboard?.writeText(getLink(token));
+//     showSuccessToast('Link copiado al portapapeles');
+//   } catch (err) {
+//     console.error('Error al copiar:', err);
+//   }
+// };
+
 const copyToClipboard = async (token: string, active: boolean) => {
-  // Validación para no permitir copiar si está inactivo
   if (!active) return;
 
+  const textToCopy = getLink(token);
+
+  // Intento con la API moderna
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      showSuccessToast('Link copiado al portapapeles');
+      return;
+    } catch (err) {
+      console.error('Error con Clipboard API:', err);
+    }
+  }
+
+  // Fallback: Método tradicional (crear un input temporal)
   try {
-    await navigator?.clipboard?.writeText(getLink(token));
-    showSuccessToast('Link copiado al portapapeles');
+    const textArea = document.createElement('textarea');
+    textArea.value = textToCopy;
+    // Asegurar que no sea visible pero esté en el DOM
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+
+    if (successful) {
+      showSuccessToast('Link copiado al portapapeles');
+    } else {
+      throw new Error('Fallback copy failed');
+    }
   } catch (err) {
-    console.error('Error al copiar:', err);
+    console.error('Error total al copiar:', err);
   }
 };
 
@@ -138,7 +179,7 @@ const getLink = (token: string) => {
                         color="primary"
                         size="small"
                         :disabled="!invite.active"
-                        @click="copyToClipboard(invite.token, invite.active)"
+                        @click.stop="copyToClipboard(invite.token, invite.active)"
                         class="!tw:bg-primary/10 tw:rounded-lg group"
                         v-tooltip="invite.active ? 'Copiar link' : 'Deshabilitado'"
                       >
