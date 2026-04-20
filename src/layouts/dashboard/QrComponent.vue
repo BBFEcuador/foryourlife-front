@@ -16,7 +16,7 @@ const copyToClipboard = async (token: string, active: boolean) => {
   if (!active) return;
 
   try {
-    await navigator.clipboard.writeText(getLink(token));
+    await navigator?.clipboard?.writeText(getLink(token));
     showSuccessToast('Link copiado al portapapeles');
   } catch (err) {
     console.error('Error al copiar:', err);
