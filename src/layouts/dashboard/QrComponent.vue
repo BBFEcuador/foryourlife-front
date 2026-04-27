@@ -11,18 +11,6 @@ interface props {
 
 const props = defineProps<props>();
 
-// const copyToClipboard = async (token: string, active: boolean) => {
-//   // Validación para no permitir copiar si está inactivo
-//   if (!active) return;
-
-//   try {
-//     await navigator?.clipboard?.writeText(getLink(token));
-//     showSuccessToast('Link copiado al portapapeles');
-//   } catch (err) {
-//     console.error('Error al copiar:', err);
-//   }
-// };
-
 const copyToClipboard = async (token: string, active: boolean) => {
   if (!active) return;
 

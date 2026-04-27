@@ -22,10 +22,13 @@ const props = defineProps<{
   payment?: Payment;
   defaultAmount?: number;
   editData?: PaymentHistory | null;
+  campusId: string;
 }>();
 
 const emit = defineEmits(['update:modelValue', 'payment-updated', 'update:payment-posOrigin']);
-
+const campusId = computed(() => {
+  return props.campusId;
+});
 const formRef = ref();
 const loading = ref(false);
 const visible = computed({
@@ -76,7 +79,7 @@ watch(
 
 const paymentId = computed(() => props.payment?.id!!);
 const { payment, refetchPayment } = usePayment(paymentId);
-const { paymentMethodsData } = usePaymentMethods();
+const { paymentMethodsData } = usePaymentMethods(campusId);
 const { savePaymentRecordMutations } = usePaymentRecordMutations();
 const { sendPaymentHistoryToContificoMutation } = useInvoiceMutations();
 
@@ -106,8 +109,6 @@ const paginatedHistory = computed(() => {
 
 const close = () => (visible.value = false);
 
-
-
 const submitForm = async () => {
   const { valid } = await formRef.value.validate();
   if (!valid) return;
@@ -124,7 +125,7 @@ const submitForm = async () => {
       amount: form.value.amount,
       paymentMethod: form.value.paymentMethod,
       transactionId: form.value.transactionId,
-      pingType: form.value.paymentMethod.code === 'TC' ? form.value.pingType : "D"
+      pingType: form.value.paymentMethod.code === 'TC' ? form.value.pingType : 'D'
     },
     cashDrawerId: adminStore().cashDrawer.id
   };

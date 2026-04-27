@@ -350,6 +350,7 @@ watch(
             <GeneralPayment
               ref="generalPaymentRef"
               :v$="v$"
+              :campus-id="campusId"
               @update:selected-participant="selectedParticipant = $event"
               @update:selected-product="selectedProduct = $event"
               @update:training-id="trainingId = $event"
@@ -557,6 +558,7 @@ watch(
       :origin-pos="true"
       :default-amount="remainingBalance"
       :edit-data="editingPayment"
+      :campus-id="campusId"
       @update:model-value="closePaymentHistoryModal"
       @update:payment-pos-origin="addPaymentHistoryRow"
     />

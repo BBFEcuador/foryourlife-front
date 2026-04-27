@@ -6,7 +6,7 @@ import { adminStore } from '@/stores/adminStore';
 import { useMutation, useQuery } from '@tanstack/vue-query';
 import { ref, watch } from 'vue';
 
-const useParticipants = () => {
+const useParticipants = (campusId?: string) => {
   const page = ref(0);
   const perPage = ref(10);
   const search = ref('');
@@ -26,7 +26,7 @@ const useParticipants = () => {
       page: page.value,
       perPage: perPage.value,
       search: search.value,
-      campusId: adminStore().selectCampusId
+      campusId: campusId ?? ''
     };
 
     const { data } = await api.get('/users', { params });
@@ -43,8 +43,9 @@ const useParticipants = () => {
   });
 
   const { data, isError, isFetching, refetch } = useQuery({
-    queryFn: fetchParticipants,
-    queryKey: ['participants', page, perPage, search],
+    queryFn: () => fetchParticipants(),
+    queryKey: ['participants', campusId ?? '', page, perPage, search],
+    
     initialData: {
       totalElements: 0
     } as PageableApiResponse<Participant[]>

@@ -5,7 +5,7 @@ import { adminStore } from '@/stores/adminStore';
 import { useQuery } from '@tanstack/vue-query';
 import { computed, ref, toValue, watch, type MaybeRef } from 'vue';
 
-const useAvailableProducts = () => {
+const useAvailableProducts = (campusId?: string) => {
     const page = ref(0);
     const perPage = ref(10);
     const search = ref('');
@@ -25,7 +25,7 @@ const useAvailableProducts = () => {
             page: page.value,
             perPage: perPage.value,
             search: search.value,
-            campusId: adminStore().selectCampusId
+            campusId: campusId ?? ''
         }
 
         const { data } = await api.get('/product/available', {

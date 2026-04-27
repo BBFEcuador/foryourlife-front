@@ -13,9 +13,10 @@ import { ref, computed, watch } from 'vue';
 
 interface props {
   v$: Validation<{ fullname: string; document: string; phone: string; email: string; address: string }>;
+  campusId?: string;
 }
 
-const { v$ } = defineProps<props>();
+const { v$, campusId } = defineProps<props>();
 
 const emit = defineEmits([
   'update:modelValue',
@@ -33,8 +34,8 @@ const emit = defineEmits([
   'update:training-id'
 ]);
 
-const { participants, participantSearch } = useParticipants();
-const { productsData, productSearch } = useAvailableProducts();
+const { participants, participantSearch } = useParticipants(campusId || '');
+const { productsData, productSearch } = useAvailableProducts(campusId || '');
 const { discountsData } = useDiscounts();
 const { trainings, debouncedSearch } = useTrainings();
 
