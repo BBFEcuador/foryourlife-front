@@ -202,7 +202,17 @@ const sendPaymentHistory = () => {
                   item-title="type"
                   return-object
                   :rules="[(v) => !!v || 'Campo requerido']"
-                />
+                >
+                  <template #item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <v-list-item-title>
+                        <span class="text-primary tw:font-medium" style="font-size: 11pt">
+                          {{ item?.raw?.campus?.country ?? '' }} - {{ item?.raw?.campus?.city ?? '' }}</span
+                        >
+                      </v-list-item-title>
+                    </v-list-item>
+                  </template>
+                </v-select>
               </v-col>
               <v-col cols="12" md="6">
                 <v-text-field
