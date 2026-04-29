@@ -10,13 +10,24 @@ import { router } from '@/router';
 import type { Validation } from '@vuelidate/core';
 import Swal from 'sweetalert2';
 import { ref, computed, watch } from 'vue';
+import useCashDrawerOpenedByUser from '@/composables/admin/pos/useCashDrawerOpenedByUser';
+import { adminStore } from '@/stores/adminStore';
 
 interface props {
   v$: Validation<{ fullname: string; document: string; phone: string; email: string; address: string }>;
-  campusId?: string;
+
 }
 
-const { v$, campusId } = defineProps<props>();
+const store = adminStore();
+const userIdref = ref(store.user.user.id);
+const { cashDrawer, refetchCashDrawerOpenedByUser, isCashDrawerOpenedByUserLoading } = useCashDrawerOpenedByUser(userIdref.value);
+
+const campusId = computed(() => {
+  if (!cashDrawer?.value?.cashBox?.store?.campus?.id) return '';
+  return cashDrawer.value.cashBox.store.campus.id;
+});
+
+const { v$ } = defineProps<props>();
 
 const emit = defineEmits([
   'update:modelValue',
@@ -34,8 +45,8 @@ const emit = defineEmits([
   'update:training-id'
 ]);
 
-const { participants, participantSearch } = useParticipants(campusId || '');
-const { productsData, productSearch } = useAvailableProducts(campusId || '');
+const { participants, participantSearch } = useParticipants(campusId.value || '');
+const { productsData, productSearch } = useAvailableProducts(campusId);
 const { discountsData } = useDiscounts();
 const { trainings, debouncedSearch } = useTrainings();
 

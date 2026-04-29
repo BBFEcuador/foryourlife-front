@@ -350,7 +350,7 @@ watch(
             <GeneralPayment
               ref="generalPaymentRef"
               :v$="v$"
-              :campus-id="campusId"
+              
               @update:selected-participant="selectedParticipant = $event"
               @update:selected-product="selectedProduct = $event"
               @update:training-id="trainingId = $event"

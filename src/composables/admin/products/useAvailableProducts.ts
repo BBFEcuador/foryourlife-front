@@ -5,7 +5,7 @@ import { adminStore } from '@/stores/adminStore';
 import { useQuery } from '@tanstack/vue-query';
 import { computed, ref, toValue, watch, type MaybeRef } from 'vue';
 
-const useAvailableProducts = (campusId?: string) => {
+const useAvailableProducts = (campusId?: MaybeRef<string>) => {
     const page = ref(0);
     const perPage = ref(10);
     const search = ref('');
@@ -25,17 +25,24 @@ const useAvailableProducts = (campusId?: string) => {
             page: page.value,
             perPage: perPage.value,
             search: search.value,
-            campusId: campusId ?? ''
+            campusId: toValue(campusId) ?? ''
         }
 
-        const { data } = await api.get('/product/available', {
-            params: params
-        });
+        const { data } = await api.get('/product/available', { params });
         return data;
     };
 
+
+    const queryKey = computed(() => [
+        'admin-available-products-p',
+        page.value,
+        perPage.value,
+        search.value,
+        toValue(campusId)
+    ]);
+
     const { data, isFetching, isError, refetch } = useQuery({
-        queryKey: ['admin-available-products-p', page, perPage, search],
+        queryKey,
         queryFn: fetchAvailableProducts,
         initialData: {
             numberOfElements: 0,
