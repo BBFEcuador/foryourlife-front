@@ -39,7 +39,8 @@ const useAvailableProducts = (campusId?: string) => {
         queryFn: fetchAvailableProducts,
         initialData: {
             numberOfElements: 0,
-        } as PageableApiResponse<Product[]>
+        } as PageableApiResponse<Product[]>,
+        gcTime: 0
     });
 
     return {

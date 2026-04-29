@@ -17,6 +17,7 @@ const usePayment = (id: MaybeRef<string>) => {
     queryKey: ['payment', paymentId.value],
     queryFn: () => fetchPayment(paymentId.value),
     enabled: computed(() => !!paymentId.value),
+    gcTime: 0
   });
 
   watch(data, (newVal) => {

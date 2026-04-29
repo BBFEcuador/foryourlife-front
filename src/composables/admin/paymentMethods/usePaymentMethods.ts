@@ -23,7 +23,8 @@ const usePaymentMethods = (campusId?: MaybeRef<string | undefined>) => {
       const resolvedCampusId = unref(campusId) ?? store.selectCampusId ?? '';
       return fetchPaymentMethods(resolvedCampusId);
     },
-    initialData: []
+    initialData: [],
+    gcTime: 0
   });
 
   return {

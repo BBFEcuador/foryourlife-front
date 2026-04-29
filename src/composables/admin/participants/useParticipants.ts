@@ -48,7 +48,8 @@ const useParticipants = (campusId?: string) => {
     
     initialData: {
       totalElements: 0
-    } as PageableApiResponse<Participant[]>
+    } as PageableApiResponse<Participant[]>,
+    gcTime: 0
   });
 
   return {
