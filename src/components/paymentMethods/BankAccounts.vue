@@ -22,9 +22,9 @@ const disabledProperty = !store.isCampusSelected;
 const selectedBankAccount = ref({} as BankAccount);
 
 const headers = [
-  { title: 'Nombre', value: 'name', sortable: true },
-  { title: 'Nro. Cuenta', value: 'number', sortable: true },
-  { title: 'Campus', value: 'campus.city', sortable: true },
+  { title: 'Nombre', value: 'name', sortable: false },
+  { title: 'Nro. Cuenta', value: 'number', sortable: false },
+  { title: 'Campus', value: 'campus.city', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 

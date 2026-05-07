@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useDiscounts from '@/composables/admin/discounts/useDiscounts';
+import useDiscountsAvailables from '@/composables/admin/discounts/useDiscountsAvailables';
 import useParticipants from '@/composables/admin/participants/useParticipants';
 import useAvailableProducts from '@/composables/admin/products/useAvailableProducts';
 import useTrainings from '@/composables/admin/training/useTrainings';
@@ -47,7 +47,7 @@ const emit = defineEmits([
 
 const { participants, participantSearch } = useParticipants(campusId.value || '');
 const { productsData, productSearch } = useAvailableProducts(campusId);
-const { discountsData } = useDiscounts();
+const { discountsData } = useDiscountsAvailables();
 const { trainings, debouncedSearch } = useTrainings();
 
 const selectedParticipant = ref<Participant | null>(null);

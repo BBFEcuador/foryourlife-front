@@ -46,9 +46,9 @@ watch(availableStaffMutations.isSuccess, () => {
 });
 
 const headers = ref([
-    { title: 'Nombre', value: 'user.name', class: 'my-header-style', sortable: true },
-    { title: 'Cédula', value: 'user.email', class: 'my-header-style', sortable: true },
-    { title: 'Telefono', value: 'role', sortable: true },
+    { title: 'Nombre', value: 'user.name', class: 'my-header-style', sortable: false },
+    { title: 'Cédula', value: 'user.email', class: 'my-header-style', sortable: false },
+    { title: 'Telefono', value: 'role', sortable: false },
 ]);
 
 const searchQuery = ref('');

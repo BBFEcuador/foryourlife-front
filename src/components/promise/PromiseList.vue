@@ -10,6 +10,7 @@ import { toast } from 'vue3-toastify';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
+import { fa } from 'vuetify/locale';
 
 const props = defineProps<{
   trainingId: string;
@@ -19,13 +20,13 @@ const searchPromise = ref('');
 const searchPromiseParticipant = ref(''); 
 
 const TABLE_HEADERS = [
-  { title: 'Participante', value: 'user.name', sortable: true },
-  { title: 'Viernes', value: 'fridayPromise' },
-  { title: 'Sábado', value: 'saturdayPromise' },
-  { title: 'Domingo', value: 'sundayPromise' },
-  { title: 'Personas registradas', value: 'achievedCount', sortable: true },
-  { title: 'Compras realizadas', value: 'paidCount', sortable: true },
-  { title: 'Fecha de Fin', value: 'endDate', sortable: true }
+  { title: 'Participante', value: 'user.name', sortable: false },
+  { title: 'Viernes', value: 'fridayPromise', sortable: false },
+  { title: 'Sábado', value: 'saturdayPromise', sortable: false },
+  { title: 'Domingo', value: 'sundayPromise', sortable: false },
+  { title: 'Personas registradas', value: 'achievedCount', sortable: false },
+  { title: 'Compras realizadas', value: 'paidCount', sortable: false },
+  { title: 'Fecha de Fin', value: 'endDate', sortable: false }
 ];
 
 const { promises, isPromisesLoading, refetchPromises } = usePromises(computed(() => props.trainingId));

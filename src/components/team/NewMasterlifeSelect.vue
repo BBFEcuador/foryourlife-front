@@ -47,9 +47,9 @@ watch(availableMasterlifeMutations.isSuccess, () => {
 });
 
 const headers = ref([
-  { title: 'Nombre', value: 'user.name', class: 'my-header-style', sortable: true },
-  { title: 'Correo', value: 'user.email', class: 'my-header-style', sortable: true },
-  { title: 'Teléfono', value: 'user.phone', sortable: true }
+  { title: 'Nombre', value: 'user.name', class: 'my-header-style', sortable: false },
+  { title: 'Correo', value: 'user.email', class: 'my-header-style', sortable: false },
+  { title: 'Teléfono', value: 'user.phone', sortable: false }
 ]);
 
 const searchQuery = ref('');

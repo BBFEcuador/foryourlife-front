@@ -17,6 +17,7 @@ import useMembersMutations from '@/composables/admin/team/useAdminTeamAddUserMut
 import { toast } from 'vue3-toastify';
 import type { AxiosError } from 'axios';
 import useAdminTeamMutations from '@/composables/admin/team/useAdminTeamMutations';
+import ChangeTrainerTeam from '@/components/team/ChangeTrainerTeam.vue';
 
 interface props {
   team: Team;
@@ -24,7 +25,8 @@ interface props {
   isTeamError: boolean;
   isForEdit: boolean;
 }
-const { generateGafetesMutation, generateMasiveContractMutation, generateMasiveListMutation } = useAdminTeamMutations();
+const { generateGafetesMutation, generateMasiveContractMutation, generateMasiveListMutation, changeTrainerMutation } =
+  useAdminTeamMutations();
 const tab = ref('1');
 const props = defineProps<props>();
 const emits = defineEmits(['fetch-team']);
@@ -60,6 +62,7 @@ const onPromoteTeam = () => {
 };
 
 const showAddMembersDialog = ref(false);
+const showChangeTrainerDialog = ref(false);
 const { saveAddMembersMutations } = useMembersMutations();
 const saveAddedMembers = (members: AddUsers) => {
   saveAddMembersMutations.mutate(
@@ -74,6 +77,23 @@ const saveAddedMembers = (members: AddUsers) => {
         console.error('Error al agregar miembros:', error);
         const err = error as AxiosError<{ message: string }>;
         toast.error(err.response?.data?.message || 'Error al agregar miembros');
+      }
+    }
+  );
+};
+
+const saveChangedTrainer = (trainerId: string) => {
+  changeTrainerMutation.mutate(
+    { teamId: props.team.id, trainerId },
+    {
+      onSuccess: async () => {
+        showChangeTrainerDialog.value = false;
+        toast.success('Entrenador cambiado exitosamente');
+        await fetchTeamData();
+      },
+      onError(error) {
+        const err = error as AxiosError<{ message: string }>;
+        toast.error(err.response?.data?.message || 'Error al cambiar entrenador');
       }
     }
   );
@@ -176,10 +196,16 @@ const handleGenerateMasiveList = async () => {
     <TeamBanner :team class="mb-2" />
     <v-row>
       <VCol cols="12" md="3" sm="12" class="tw:flex tw:flex-col tw:items-center">
+        <div class="mb-4 mt-4">
+          <v-btn class="mb-1" color="primary" variant="tonal" @click="showChangeTrainerDialog = true">
+            <Icon class="mr-2" icon="mdi:account-switch" height="24" />
+            Cambiar Entrenador
+          </v-btn>
+        </div>
         <TeamDetails :team />
       </VCol>
       <VCol cols="12" md="9" sm="12" class="tw:gap-4">
-        <div cols="12" md="12" sm="12" class="tw:text-end mb-4 mt-4">
+        <div class="tw:text-end mb-4 mt-4">
           <v-btn class="mb-1" color="secondary" @click="showAddMembersDialog = true">
             <Icon class="mr-2" icon="mdi:account-plus" height="24" />
             Agregar miembros
@@ -310,6 +336,14 @@ const handleGenerateMasiveList = async () => {
     @save="saveAddedMembers"
     :team="team"
     :is-loading="saveAddMembersMutations.isPending.value"
+  />
+
+  <ChangeTrainerTeam
+    :model-value="showChangeTrainerDialog"
+    @cancel="showChangeTrainerDialog = false"
+    @save="saveChangedTrainer"
+    :team="team"
+    :is-loading="changeTrainerMutation.isPending.value"
   />
 </template>
 

@@ -29,11 +29,11 @@ const showDetails = ref(false);
 const showEdit = ref(false);
 
 const headers = [
-  { title: 'Nro. Factura', value: 'invoiceContifico.documento', sortable: true },
-  { title: 'Fecha', value: 'invoiceDate', sortable: true },
-  { title: 'Identificación', value: 'document', sortable: true },
-  { title: 'Nombre Completo', value: 'fullName', sortable: true },
-  { title: 'Total', value: 'amount', sortable: true },
+  { title: 'Nro. Factura', value: 'invoiceContifico.documento', sortable: false },
+  { title: 'Fecha', value: 'invoiceDate', sortable: false },
+  { title: 'Identificación', value: 'document', sortable: false },
+  { title: 'Nombre Completo', value: 'fullName', sortable: false },
+  { title: 'Total', value: 'amount', sortable: false },
   { title: 'Enviada a Contifico', value: 'sentContifico', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];

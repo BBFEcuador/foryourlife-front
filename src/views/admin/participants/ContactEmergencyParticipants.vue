@@ -35,9 +35,9 @@ const onlyDigits = helpers.withMessage('Solo se permiten números', (v: string) 
 
 const headers = [
   { title: 'Nombre', key: 'name' },
-  { title: 'Relación', value: 'relationship', sortable: true },
-  { title: 'Teléfono', value: 'phone', sortable: true },
-  { title: 'Acciones', value: 'actions', sortable: true }
+  { title: 'Relación', value: 'relationship', sortable: false },
+  { title: 'Teléfono', value: 'phone', sortable: false },
+  { title: 'Acciones', value: 'actions', sortable: false }
 ];
 
 const breadcrumbs = ref([

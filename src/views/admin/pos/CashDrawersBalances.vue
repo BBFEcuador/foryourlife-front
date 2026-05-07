@@ -6,16 +6,20 @@ import type { CashDrawer } from '@/models/CashDrawer';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import useCashDrawerExcelMutations from '@/composables/admin/pos/useCashDrawerExcelMutations';
+import { toast } from 'vue3-toastify';
+import type { AxiosError } from 'axios';
+import type { ErrorApiResponse } from '@/models/ApiResponse';
 
 const id = useRoute().params.id.toString();
 const headers = [
-  { title: 'Abierto por', value: 'openedByUser.name', sortable: true },
-  { title: 'Cerrado por', value: 'closedByUser.name', sortable: true },
-  { title: 'Fecha de apertura', value: 'startDate', sortable: true },
-  { title: 'Fecha de cierre', value: 'closeDate', sortable: true },
-  { title: 'Monto inicial', value: 'openingBalance', sortable: true },
-  { title: 'Monto final', value: 'closedBalance', sortable: true },
-  { title: 'Estado', value: 'status', sortable: true },
+  { title: 'Abierto por', value: 'openedByUser.name', sortable: false },
+  { title: 'Cerrado por', value: 'closedByUser.name', sortable: false },
+  { title: 'Fecha de apertura', value: 'startDate', sortable: false },
+  { title: 'Fecha de cierre', value: 'closeDate', sortable: false },
+  { title: 'Monto inicial', value: 'openingBalance', sortable: false },
+  { title: 'Monto final', value: 'closedBalance', sortable: false },
+  { title: 'Estado', value: 'status', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 
@@ -31,6 +35,7 @@ const selectedCashDrawerId = ref('');
 
 const { cashDrawers, isCashDrawerLoading, isCashDrawersError, refetchCashDrawer, page, perPage, search } = useCashDrawersByCashBox(id);
 const { isPaymentPdfLoading, refetchPaymentPdf } = useCashDrawerBalancePdfMutationPdf(selectedCashDrawerId);
+const { excelMutation } = useCashDrawerExcelMutations();
 
 function formatDate(dateStr: string): string {
   const [date, time] = dateStr.split('T');
@@ -67,6 +72,11 @@ const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; g
   }
 };
 
+function formatCurrency(value: number) {
+  if (typeof value !== 'number') return '-';
+  return `$ ${value.toFixed(2)}`;
+}
+
 const debouncedSearch = ref('');
 
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -77,6 +87,26 @@ watch(debouncedSearch, (val) => {
     search.value = val;
   }, 400);
 });
+
+const handleDownloadBalance = (item: CashDrawer) => {
+  excelMutation.mutate(item.id, {
+    onSuccess(data, variables, context) {
+      const blob = data;
+      if (!blob) return;
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `cierre_caja.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toast.success('Reporte generado correctamente');
+    },
+    onError(error, variables, context) {
+      let e = error as AxiosError<ErrorApiResponse>;
+      toast.error(e.response?.data.message ?? 'No se pudo generar el excel');
+    }
+  });
+};
 </script>
 <template>
   <BaseBreadcrumb :title="'Balances'" :breadcrumbs="breadcrumbs" />
@@ -143,7 +173,11 @@ watch(debouncedSearch, (val) => {
     </template>
 
     <template #item.closedBalance="{ item }">
-      <span>{{ item.closedBalance || item.actualBalance }}</span>
+      <span>{{ formatCurrency(item.closedBalance || item.actualBalance) }}</span>
+    </template>
+
+    <template #item.openingBalance="{ item }">
+      <span>{{ formatCurrency(item.openingBalance) }}</span>
     </template>
 
     <template #item.status="{ item }">
@@ -153,16 +187,29 @@ watch(debouncedSearch, (val) => {
     </template>
 
     <template #item.actions="{ item }">
-      <v-btn
-        v-tooltip="'Imprimir balance de caja'"
-        icon
-        color="info"
-        variant="text"
-        class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
-        @click="handlePrintBalance(item)"
-      >
-        <Icon icon="material-symbols:print-outline-rounded" />
-      </v-btn>
+      <div class="d-flex tw:justify-center tw:gap-2">
+        <v-btn
+          v-tooltip="'Imprimir balance de caja'"
+          icon
+          color="info"
+          variant="text"
+          class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+          @click="handlePrintBalance(item)"
+        >
+          <Icon icon="material-symbols:print-outline-rounded" height="20" />
+        </v-btn>
+        <v-btn
+          v-tooltip="'Descargar cierre de caja'"
+          icon
+          color="success"
+          variant="text"
+          class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+          @click="handleDownloadBalance(item)"
+          :loading="excelMutation.isPending.value"
+        >
+          <Icon icon="mdi:file-excel-outline" height="20" />
+        </v-btn>
+      </div>
     </template>
   </v-data-table-server>
 </template>

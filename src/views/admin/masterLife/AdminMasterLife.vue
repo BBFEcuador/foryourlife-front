@@ -65,11 +65,11 @@ watch(debouncedSearch, (val) => {
 });
 
 const headers = [
-  { title: 'Nombre', value: 'user.name', sortable: true },
-  { title: 'E-mail', value: 'user.email', sortable: true },
-  { title: 'Teléfono', value: 'user.phone', sortable: true },
-  { title: 'Activo', value: 'active', sortable: true },
-  { title: 'Roles Adicionales', value: 'user.entityMap', sortable: true },
+  { title: 'Nombre', value: 'user.name', sortable: false },
+  { title: 'E-mail', value: 'user.email', sortable: false },
+  { title: 'Teléfono', value: 'user.phone', sortable: false },
+  { title: 'Activo', value: 'active', sortable: false },
+  { title: 'Roles Adicionales', value: 'user.entityMap', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false, width: 50 }
 ];
 

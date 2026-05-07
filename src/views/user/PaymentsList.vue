@@ -23,11 +23,11 @@ const breadcrumbs = ref([
 const { payments, page, perPage, isUserPaymentsLoading } = useUserPayments();
 
 const headers = [
-  { title: 'Nombre', value: 'participant.user.name', sortable: true },
-  { title: 'Producto', value: 'products', sortable: true },
-  { title: 'Programas', value: 'programs', sortable: true },
-  { title: 'Precio', value: 'total', sortable: true },
-  { title: 'Estado', value: 'status', sortable: true },
+  { title: 'Nombre', value: 'participant.user.name', sortable: false },
+  { title: 'Producto', value: 'products', sortable: false },
+  { title: 'Programas', value: 'programs', sortable: false },
+  { title: 'Precio', value: 'total', sortable: false },
+  { title: 'Estado', value: 'status', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 

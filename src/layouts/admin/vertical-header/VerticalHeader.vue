@@ -33,6 +33,16 @@ const vselectItems = computed(() => {
 
   return store.availableCampus;
 });
+
+watch(
+  vselectItems,
+  (items) => {
+    if (items.length && !selectCampus.value) {
+      selectCampus.value = items[0].id;
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>

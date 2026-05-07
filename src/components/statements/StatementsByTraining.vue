@@ -23,16 +23,16 @@ const showCommentForm = ref(false);
 const selectStatementId = ref<string>('');
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 const headers = [
-  { title: 'Staff', value: 'staffName', sortable: true },
-  { title: 'Participante', value: 'participantName', sortable: true },
-  { title: 'Equipo Enrolador', value: 'enrollmentTeam', sortable: true },
-  { title: 'Gafete', value: 'nickname', sortable: true },
-  { title: 'Enrolador', value: 'enrollerName', sortable: true },
-  { title: 'Asistencia', value: 'attendanceStatus', sortable: true },
-  { title: 'YOUR', value: 'yourPaymentStatus', sortable: true },
-  { title: 'LIFE', value: 'lifePaymentStatus', sortable: true },
-  { title: 'Declaración', value: 'statement.status', sortable: true },
-  { title: 'Acciones', value: 'actions', sortable: true }
+  { title: 'Staff', value: 'staffName', sortable: false },
+  { title: 'Participante', value: 'participantName', sortable: false },
+  { title: 'Equipo Enrolador', value: 'enrollmentTeam', sortable: false },
+  { title: 'Gafete', value: 'nickname', sortable: false },
+  { title: 'Enrolador', value: 'enrollerName', sortable: false },
+  { title: 'Asistencia', value: 'attendanceStatus', sortable: false },
+  { title: 'YOUR', value: 'yourPaymentStatus', sortable: false },
+  { title: 'LIFE', value: 'lifePaymentStatus', sortable: false },
+  { title: 'Declaración', value: 'statement.status', sortable: false },
+  { title: 'Acciones', value: 'actions', sortable: false }
 ];
 
 const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {

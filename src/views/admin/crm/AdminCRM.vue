@@ -20,10 +20,10 @@ import SeeCallsLog from '@/components/crm/SeeCallsLog.vue';
 const breadcrumbs = ref([{ title: 'CRM', disabled: false, href: '#' }]);
 
 const headers = [
-  { title: 'Participante', value: 'participant.user.name', sortable: true },
-  { title: 'Teléfono', value: 'participant.user.phone', sortable: true },
-  { title: 'Correo', value: 'participant.user.email', sortable: true },
-  { title: 'Equipo', value: 'team', sortable: true },
+  { title: 'Participante', value: 'participant.user.name', sortable: false },
+  { title: 'Teléfono', value: 'participant.user.phone', sortable: false },
+  { title: 'Correo', value: 'participant.user.email', sortable: false },
+  { title: 'Equipo', value: 'team', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 

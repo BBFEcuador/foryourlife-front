@@ -15,10 +15,10 @@ const porps = defineProps<props>()
 const search = ref('');
 
 const headers = [
-    { title: 'Nombre', value: 'user.name', sortable: true },
-    { title: 'E-mail', value: 'user.email', sortable: true },
-    { title: 'Rol', value: 'role', sortable: true },
-    { title: 'Estado', value: 'active', sortable: true }
+    { title: 'Nombre', value: 'user.name', sortable: false },
+    { title: 'E-mail', value: 'user.email', sortable: false },
+    { title: 'Rol', value: 'role', sortable: false },
+    { title: 'Estado', value: 'active', sortable: false }
 ] as const;
 </script>
 

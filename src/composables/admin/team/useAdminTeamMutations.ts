@@ -77,6 +77,11 @@ const generateMasiveList = async (teamId: string): Promise<Uint8Array> => {
   return data;
 };
 
+const changeTrainer = async (req: { teamId: string; trainerId: string }): Promise<any> => {
+  const { data } = await api.put(`/teams/${req.teamId}/trainer/${req.trainerId}`);
+  return data;
+};
+
 const useAdminTeamMutations = () => {
   const saveTeamMutations = useMutation({ mutationFn: saveTeam });
   const removeParticipantsMutations = useMutation({ mutationFn: removeParticipants });
@@ -89,6 +94,7 @@ const useAdminTeamMutations = () => {
   const generateGafetesMutation = useMutation({ mutationFn: generateGafetes });
   const generateMasiveContractMutation = useMutation({ mutationFn: generateMasiveContract });
   const generateMasiveListMutation = useMutation({ mutationFn: generateMasiveList });
+  const changeTrainerMutation = useMutation({ mutationFn: changeTrainer });
   return {
     saveTeamMutations,
     removeParticipantsMutations,
@@ -100,7 +106,8 @@ const useAdminTeamMutations = () => {
     promoteToLifeGraduateMutation,
     generateGafetesMutation,
     generateMasiveContractMutation,
-    generateMasiveListMutation
+    generateMasiveListMutation,
+    changeTrainerMutation
   };
 };
 

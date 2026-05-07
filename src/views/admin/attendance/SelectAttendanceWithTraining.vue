@@ -14,6 +14,7 @@ import SwAlert from 'sweetalert2';
 import PromiseList from '@/components/promise/PromiseList.vue';
 import { checkPermission } from '@/service/ability';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
+import { fa } from 'vuetify/locale';
 
 const ATTENDANCE_OPTIONS_FRIDAY = [
   { title: 'Asistió', value: AttendanceStatus.ASISTIO },
@@ -32,7 +33,7 @@ const ATTENDANCE_OPTIONS = [
 // ] as const;
 
 const TABLE_HEADERS = [
-  { title: 'Participante', value: 'participant.user.name', width: '40%', sortable: true },
+  { title: 'Participante', value: 'participant.user.name', width: '40%', sortable: false },
   { title: 'Viernes', value: 'fridayAttendance' },
   { title: 'Sábado', value: 'saturdayAttendance' },
   { title: 'Domingo', value: 'sundayAttendance' }

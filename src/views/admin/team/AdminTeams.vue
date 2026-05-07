@@ -38,35 +38,35 @@ const headers = ref([
     value: 'trainingData.startDate',
     width: '150',
     class: 'tw:text-nowrap',
-    sortable: true
+    sortable: false
   },
   {
     title: 'Equipo',
     value: 'name',
     width: '200',
     class: 'tw:text-nowrap',
-    sortable: true
+    sortable: false
   },
   {
     title: 'Entrenador',
     value: 'trainer.name',
     width: '200',
     class: 'tw:text-nowrap',
-    sortable: true
+    sortable: false
   },
   {
     title: 'Nivel',
     value: 'training.courseLevel',
     width: '200',
     class: 'tw:text-nowrap',
-    sortable: true
+    sortable: false
   },
   {
     title: 'Sede',
     value: 'training.campus.city',
     width: '150',
     class: 'tw:text-nowrap',
-    sortable: true
+    sortable: false
   },
   {
     title: 'Ajustes',

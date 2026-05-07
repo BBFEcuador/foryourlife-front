@@ -39,10 +39,10 @@ const { paymentMethodsData, isPaymentMethodsError, isPaymentMethodsLoading, refe
 const { savePaymentMethodMutation, changePaymentMethodStatusMutation } = usePaymentMethodMutations();
 
 const headers = [
-  { title: 'Nombre', value: 'type', sortable: true },
-  { title: 'Tipo de pago SRI', value: 'code', sortable: true },
-  { title: 'Campus', value: 'campus', sortable: true },
-  { title: 'Estado', value: 'isActive', sortable: true },
+  { title: 'Nombre', value: 'type', sortable: false },
+  { title: 'Tipo de pago SRI', value: 'code', sortable: false },
+  { title: 'Campus', value: 'campus', sortable: false },
+  { title: 'Estado', value: 'isActive', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 

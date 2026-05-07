@@ -117,6 +117,7 @@ const onSelectedStore = (store: Store) => {
               class="pb-2 pt-2 tw:border-5"
               :class="{ 'v-list-item--active': selectedStore?.id === store.id }"
               @click="onSelectedStore(store)"
+              :disabled="!store.isActive"
             >
               <v-list-item-title>
                 <span class="tw:font-semibold">Establecimiento {{ store.number }}</span>

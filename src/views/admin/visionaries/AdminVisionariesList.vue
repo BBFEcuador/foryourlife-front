@@ -92,11 +92,11 @@ const staffRules = {
   }
 };
 const headers = [
-  { title: 'Nombre', value: 'user.name', width: '50', sortable: true },
-  { title: 'E-mail', value: 'user.email', width: '200', sortable: true },
-  { title: 'Teléfono', value: 'user.phone', width: '150', sortable: true },
-  { title: 'Activo', value: 'active', width: '100', sortable: true },
-  { title: 'Roles Adicionales', value: 'user.entityMap', sortable: true },
+  { title: 'Nombre', value: 'user.name', width: '50', sortable: false },
+  { title: 'E-mail', value: 'user.email', width: '200', sortable: false },
+  { title: 'Teléfono', value: 'user.phone', width: '150', sortable: false },
+  { title: 'Activo', value: 'active', width: '100', sortable: false },
+  { title: 'Roles Adicionales', value: 'user.entityMap', sortable: false },
   { title: 'Acciones', value: 'actions', width: '100', sortable: false, align: 'center' as const }
 ];
 

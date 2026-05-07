@@ -14,10 +14,10 @@ const props = defineProps<props>();
 
 const headers = [
   { title: '', key: 'data-table-expand' },
-  { title: 'CREADO POR', value: 'calledBy.name', sortable: true },
-  { title: 'FECHA', value: 'date', sortable: true },
-  { title: 'TIPO', value: 'type', sortable: true },
-  { title: 'ESTADO', value: 'status', sortable: true }
+  { title: 'CREADO POR', value: 'calledBy.name', sortable: false },
+  { title: 'FECHA', value: 'date', sortable: false },
+  { title: 'TIPO', value: 'type', sortable: false },
+  { title: 'ESTADO', value: 'status', sortable: false }
 ];
 
 const callTypes = Object.values(CallType).map((type) => ({

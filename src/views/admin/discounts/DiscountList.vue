@@ -24,11 +24,11 @@ const breadcrumbs = ref([
 const { discountsData, page, perPage, search, setSearch, isDiscountsError, isDiscountsLoading, refetchDiscounts } = useDiscounts();
 const { saveDiscountMutations, updateDiscountMutations, changeStatusMutations } = useDiscountMutations();
 const headers = [
-  { title: 'Nombre', value: 'name', sortable: true },
-  { title: 'Tipo', value: 'discountType', sortable: true },
-  { title: 'Valor', value: 'discountValue', sortable: true },
+  { title: 'Nombre', value: 'name', sortable: false },
+  { title: 'Tipo', value: 'discountType', sortable: false },
+  { title: 'Valor', value: 'discountValue', sortable: false },
   { title: 'Autoriza Supervisión', value: 'needSupervision', sortable: false },
-  { title: 'Estado', value: 'isActive', sortable: true },
+  { title: 'Estado', value: 'isActive', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 

@@ -26,21 +26,21 @@ const headers = props.isForEdit
         value: 'user.name',
         width: '200',
         class: 'tw:text-nowrap',
-        sortable: true
+        sortable: false
       },
       {
         title: 'Contacto',
         value: 'user.phone',
         width: '200',
         class: 'tw:text-nowrap',
-        sortable: true
+        sortable: false
       },
       {
         title: 'Correo',
         value: 'user.email',
         width: '200',
         class: 'tw:text-nowrap',
-        sortable: true
+        sortable: false
       },
       {
         title: 'Ajustes',
@@ -56,21 +56,21 @@ const headers = props.isForEdit
         value: 'user.name',
         width: '200',
         class: 'tw:text-nowrap',
-        sortable: true
+        sortable: false
       },
       {
         title: 'Contacto',
         value: 'user.phone',
         width: '200',
         class: 'tw:text-nowrap',
-        sortable: true
+        sortable: false
       },
       {
         title: 'Correo',
         value: 'user.email',
         width: '200',
         class: 'tw:text-nowrap',
-        sortable: true
+        sortable: false
       }
     ];
 

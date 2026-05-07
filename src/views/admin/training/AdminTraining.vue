@@ -96,10 +96,10 @@ watch(disableTrainerMutation.isError, () => {
 const showCreateForm = ref(false);
 const showEditForm = ref(false);
 const headers = [
-  { title: 'Nombre', value: 'name', sortable: true },
-  { title: 'E-mail', value: 'email', sortable: true },
-  { title: 'Teléfono', value: 'phone', sortable: true },
-  { title: 'Activo', value: 'active', sortable: true },
+  { title: 'Nombre', value: 'name', sortable: false },
+  { title: 'E-mail', value: 'email', sortable: false },
+  { title: 'Teléfono', value: 'phone', sortable: false },
+  { title: 'Activo', value: 'active', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false, width: 50 }
 ];
 

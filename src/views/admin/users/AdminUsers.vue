@@ -15,10 +15,10 @@ import { ref, watch, computed } from 'vue';
 import { toast } from 'vue3-toastify';
 import { VBtn } from 'vuetify/components';
 
-const { isError, isFetching, users } = useAdminUsers();
+const { isError, isFetching, users, page, perPage, setSearch, search } = useAdminUsers();
 const { disableAdminMutation, changeRoleMutation } = useAdminUserMutations();
 const { isRolesLoading, isRolesError, roles } = useAdminRoles();
-const search = ref();
+// const search = ref();
 const showForm = ref(false);
 const headers = [
   { title: 'Nombre', value: 'name', class: 'my-header-style' },
@@ -34,6 +34,24 @@ const breadcrumbs = ref([
     href: '#'
   }
 ]);
+
+const loadItems = (data: { page: number; itemsPerPage: number; sortBy: string; groupBy: string; search: string }) => {
+  if (data.page) {
+    if (data.page != page.value - 1) {
+      page.value = data.page - 1;
+    }
+  }
+
+  if (data.page) {
+    if (data.itemsPerPage != perPage.value) {
+      if (data.itemsPerPage == -1) {
+        perPage.value = users.value.totalElements;
+      } else {
+        perPage.value = data.itemsPerPage;
+      }
+    }
+  }
+};
 
 const onToggleUserStatus = (user: Admin) => {
   const isCurrentlyActive = user.active;
@@ -62,7 +80,8 @@ const onToggleUserStatus = (user: Admin) => {
 
 watch(disableAdminMutation.isSuccess, () => {
   if (disableAdminMutation.isSuccess.value) {
-    users.value.find((x) => x.id == disableAdminMutation.variables.value?.id)!.active = disableAdminMutation.variables.value!.isActive!;
+    users.value.content.find((x) => x.id == disableAdminMutation.variables.value?.id)!.active =
+      disableAdminMutation.variables.value!.isActive!;
     toast.success('Acción exitosa', {
       autoClose: 3000,
       closeButton: true
@@ -111,6 +130,10 @@ watch(changeRoleMutation.isError, () => {
     showErrorToast(error);
   }
 });
+
+watch(search, () => {
+  page.value = 0;
+});
 </script>
 <template>
   <BaseBreadcrumb :title="'Usuarios'" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
@@ -119,11 +142,14 @@ watch(changeRoleMutation.isError, () => {
       <v-col cols="12" md="12">
         <v-card variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <v-data-table
+            <v-data-table-server
               :headers="headers"
               :search="search"
-              :items="users"
+              :items="users.content"
               :loading="isFetching"
+              :items-per-page="10"
+              :items-length="users.totalElements"
+              @update:options="loadItems"
               hover
               class="tw:rounded-xl elevation-0 !tw:border-gray-100"
             >
@@ -138,7 +164,8 @@ watch(changeRoleMutation.isError, () => {
                   :duration="250"
                 >
                   <VTextField
-                    v-model="search"
+                    :model-value="search"
+                    @update:model-value="setSearch"
                     placeholder="Buscar Usuarios..."
                     variant="outlined"
                     density="comfortable"
@@ -157,7 +184,7 @@ watch(changeRoleMutation.isError, () => {
                         icon
                         variant="text"
                         size="small"
-                        @click="search = ''"
+                        @click="setSearch('')"
                         class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
                       >
                         <Icon icon="mdi:close" height="18" />
@@ -258,7 +285,7 @@ watch(changeRoleMutation.isError, () => {
                   <p class="tw:text-sm tw:mt-1">Intenta con otros términos de búsqueda</p>
                 </div>
               </template>
-            </v-data-table>
+            </v-data-table-server>
           </v-card-text>
         </v-card>
       </v-col>

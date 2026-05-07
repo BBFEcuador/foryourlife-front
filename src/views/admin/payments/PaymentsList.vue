@@ -51,14 +51,14 @@ watch(debouncedSearch, (val) => {
 });
 
 const headers = [
-  { title: 'Nombre', value: 'participant.user.name', sortable: true },
-  { title: 'Producto', value: 'products', sortable: true },
-  { title: 'Programas', value: 'programs', sortable: true },
-  { title: 'Precio', value: 'total', sortable: true },
-  { title: 'Saldo Restante', value: 'remainingBalance' },
-  { title: 'Todas las facturas enviadas', value: 'hasSomePaymentWithError', sortable: true },
-  { title: 'Estado', value: 'status', sortable: true },
-  { title: 'Creado', value: 'created_at', sortable: true },
+  { title: 'Nombre', value: 'participant.user.name', sortable: false },
+  { title: 'Producto', value: 'products', sortable: false },
+  { title: 'Programas', value: 'programs', sortable: false },
+  { title: 'Precio', value: 'total', sortable: false },
+  { title: 'Saldo Restante', value: 'remainingBalance', sortable: false },
+  { title: 'Todas las facturas enviadas', value: 'hasSomePaymentWithError', sortable: false },
+  { title: 'Estado', value: 'status', sortable: false },
+  { title: 'Creado', value: 'created_at', sortable: false },
   { title: 'Acciones', value: 'actions', sortable: false }
 ];
 const getProgramColor = (level: string): string => {

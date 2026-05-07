@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 import useSriPaymentMethods from '@/composables/admin/paymentMethods/useSriPaymentMethods';
 import useCampus from '@/composables/admin/useCampus';
 import { Icon } from '@iconify/vue/dist/iconify.js';

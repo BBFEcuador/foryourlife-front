@@ -16,9 +16,9 @@ const selectedTrainer = ref<Trainers | null>(null);
 
 const search = ref();
 const headers = [
-    { title: 'Nombre', value: 'name', sortable: true },
-    { title: 'E-mail', value: 'email', sortable: true },
-    { title: 'Teléfono', value: 'phone', sortable: true }
+    { title: 'Nombre', value: 'name', sortable: false },
+    { title: 'E-mail', value: 'email', sortable: false },
+    { title: 'Teléfono', value: 'phone', sortable: false }
 ];
 
 const confirmTrainer = () => {

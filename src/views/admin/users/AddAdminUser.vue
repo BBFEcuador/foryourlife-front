@@ -11,11 +11,12 @@ import { router } from '@/router';
 import { showErrorToast, showSuccessToast } from '@/service/sweetAlert';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import useVuelidate from '@vuelidate/core';
-import { email, required } from '@vuelidate/validators';
+import { email, required,  } from '@vuelidate/validators';
 import type { AxiosError } from 'axios';
 import { ref, watch } from 'vue';
 import { PermissionEnum } from '@/utils/locales/PermissionEnum';
 import { checkPermission } from '@/service/ability';
+import { max } from 'moment';
 
 const { campus, isFetching } = useCampus();
 const { isRolesLoading, roles } = useAdminRoles();
@@ -34,7 +35,7 @@ const rules = {
   lastName1: { required },
   lastName2: { required },
   password: { required },
-  phone: { required },
+  phone: { required, maxLength: 10 },
   email: { required, email },
   campus: { required },
   role: { required }
@@ -132,6 +133,7 @@ watch(saveAdminMutation.isSuccess, () => {
               variant="outlined"
               bg-color="surface"
               class="rounded-lg"
+
             />
           </InputSection>
         </UiParentCard>
