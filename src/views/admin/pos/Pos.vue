@@ -20,7 +20,7 @@ const breadcrumbs = ref([
   {
     title: 'Cajas disponibles',
     disabled: false,
-    href: '/admin'
+    href: '#'
   }
 ]);
 </script>
