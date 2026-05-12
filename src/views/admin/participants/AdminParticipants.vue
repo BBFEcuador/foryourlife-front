@@ -23,10 +23,20 @@ import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
 import { VNumberInput } from 'vuetify/labs/VNumberInput';
+import { PingTypeMeta } from '@/models/Payments';
 
-const { isParticipantsError, isParticipantsLoading, participants, criteriaMutations, page, perPage, participantSearch, refetchParticipants } = useParticipants();
+const {
+  isParticipantsError,
+  isParticipantsLoading,
+  participants,
+  criteriaMutations,
+  page,
+  perPage,
+  participantSearch,
+  refetchParticipants
+} = useParticipants();
 const { generateInvitationMutation, generateInvitationWithQuantityMutation } = useInvitationMutation();
-const { campusData, isError, isFetching, refetch } = useCampus()
+const { campusData, isError, isFetching, refetch } = useCampus();
 const { resetPasswordMutation, generateContractMutation, changeCampusMutation } = useParticipantMutations();
 const showPaymentsDialog = ref(false);
 const selectedParticipantId = ref('');
@@ -155,8 +165,8 @@ const contactEmergency = (item: string) => {
   router.push({ name: 'participants-admin-contact-emergency', params: { id: item } });
 };
 
-const showChangeCampus = ref(false)
-const selectedCampus = ref()
+const showChangeCampus = ref(false);
+const selectedCampus = ref();
 const changeCampus = (item: Participant) => {
   selectedParticipant.value = item;
   showChangeCampus.value = true;
@@ -174,7 +184,7 @@ const onParticiapntChangeCampus = () => {
       onSuccess: () => {
         toast.success('Sede cambiada correctamente');
         showChangeCampus.value = false;
-        refetchParticipants()
+        refetchParticipants();
       },
       onError: (error) => {
         const er = error as AxiosError<ErrorApiResponse>;
@@ -182,7 +192,7 @@ const onParticiapntChangeCampus = () => {
       }
     }
   );
-}
+};
 
 const getLevelColor = (level: string) => {
   const colors = {
@@ -194,7 +204,7 @@ const getLevelColor = (level: string) => {
     LIFE_2: 'error',
     LIFE_3: 'darkprimary',
     MASTER_LIFE: 'background',
-    LIFE_GRADUATE: 'background',
+    LIFE_GRADUATE: 'background'
   };
   const l = level as keyof typeof colors;
   return colors[l] || 'gray';
@@ -226,15 +236,20 @@ const getCodePayment = (paymentMethod: string) => {
   } else {
     return paymentMethod === 'TRANSFER' ? 'Transferencia' : paymentMethod;
   }
-}
+};
 
 const getPaymentMethodIcon = (code: string) => {
   switch (code) {
-    case 'EF': return 'solar:wad-of-money-bold-duotone';
-    case 'CQ': return 'solar:document-text-bold-duotone';
-    case 'TC': return 'solar:card-bold-duotone';
-    case 'TRANSFER': return 'solar:transfer-horizontal-bold-duotone';
-    default: return 'solar:wallet-bold-duotone';
+    case 'EF':
+      return 'solar:wad-of-money-bold-duotone';
+    case 'CQ':
+      return 'solar:document-text-bold-duotone';
+    case 'TC':
+      return 'solar:card-bold-duotone';
+    case 'TRANSFER':
+      return 'solar:transfer-horizontal-bold-duotone';
+    default:
+      return 'solar:wallet-bold-duotone';
   }
 };
 
@@ -383,42 +398,82 @@ watch(showContractDialog, (newVal) => {
       <VCol cols="12">
         <VCard variant="outlined" elevation="0" class="bg-surface" rounded="lg">
           <v-card-text>
-            <VDataTableServer :items="participants.content" :headers="headers" :search="participantSearch"
-              :loading="isParticipantsLoading" :loading-text="'Cargando participantes...'"
-              :no-data-text="'No se encontraron participantes'" hover class="tw:rounded-xl elevation-0" v-motion
-              :initial="{ opacity: 0, y: 20 }" :enter="{ opacity: 1, y: 0 }" :delay="200"
-              :items-length="participants.totalElements" :items-per-page="10" :page="page + 1"
-              @update:options="loadItems">
+            <VDataTableServer
+              :items="participants.content"
+              :headers="headers"
+              :search="participantSearch"
+              :loading="isParticipantsLoading"
+              :loading-text="'Cargando participantes...'"
+              :no-data-text="'No se encontraron participantes'"
+              hover
+              class="tw:rounded-xl elevation-0"
+              v-motion
+              :initial="{ opacity: 0, y: 20 }"
+              :enter="{ opacity: 1, y: 0 }"
+              :delay="200"
+              :items-length="participants.totalElements"
+              :items-per-page="10"
+              :page="page + 1"
+              @update:options="loadItems"
+            >
               <template #top>
-                <v-toolbar class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50" flat v-motion
-                  :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0 }" :delay="200" :duration="250">
+                <v-toolbar
+                  class="px-6 tw:bg-gradient-to-r tw:from-white tw:to-gray-50/50"
+                  flat
+                  v-motion
+                  :initial="{ opacity: 0, y: -10 }"
+                  :enter="{ opacity: 1, y: 0 }"
+                  :delay="200"
+                  :duration="250"
+                >
                   <div class="tw:flex-1 tw:max-w-md tw:relative">
-                    <VTextField v-model="participantSearch" placeholder="Buscar participantes..." variant="outlined"
-                      density="comfortable" hide-details class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
-                      bg-color="white">
+                    <VTextField
+                      v-model="participantSearch"
+                      placeholder="Buscar participantes..."
+                      variant="outlined"
+                      density="comfortable"
+                      hide-details
+                      class="tw:rounded-lg tw:bg-white/80 backdrop-blur-sm"
+                      bg-color="white"
+                    >
                       <template #prepend-inner>
                         <div class="tw:relative">
                           <Icon icon="mdi:magnify" height="18" class="tw:text-primary tw:relative tw:z-10" />
-                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full">
-                          </div>
+                          <div class="tw:absolute tw:inset-0 tw:bg-primary tw:opacity-20 tw:blur-sm tw:rounded-full"></div>
                         </div>
                       </template>
                       <template #append v-if="participantSearch">
-                        <VBtn icon variant="text" size="small" @click="participantSearch = ''"
-                          class="tw:text-gray-400 hover:tw:text-error tw:transition-colors">
+                        <VBtn
+                          icon
+                          variant="text"
+                          size="small"
+                          @click="participantSearch = ''"
+                          class="tw:text-gray-400 hover:tw:text-error tw:transition-colors"
+                        >
                           <Icon icon="mdi:close" height="18" />
                         </VBtn>
                       </template>
                     </VTextField>
                   </div>
                   <VSpacer />
-                  <VBtn v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)" variant="elevated" color="primary"
-                    class="mr-2" @click="openCreateInvitation" :loading="generateInvitationMutation.isPending.value">
+                  <VBtn
+                    v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)"
+                    variant="elevated"
+                    color="primary"
+                    class="mr-2"
+                    @click="openCreateInvitation"
+                    :loading="generateInvitationMutation.isPending.value"
+                  >
                     <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
                     Invitar Participante
                   </VBtn>
-                  <VBtn v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)" variant="elevated" color="primary"
-                    @click="showInvitationLot = true" :loading="generateInvitationMutation.isPending.value">
+                  <VBtn
+                    v-if="checkPermission(PermissionEnum.CREATE_PARTICIPANTS)"
+                    variant="elevated"
+                    color="primary"
+                    @click="showInvitationLot = true"
+                    :loading="generateInvitationMutation.isPending.value"
+                  >
                     <Icon icon="weui:add-friends-filled" class="mr-2" height="20" />
                     Invitar lote
                   </VBtn>
@@ -426,16 +481,16 @@ watch(showContractDialog, (newVal) => {
               </template>
               <template #item.user.name="{ item }">
                 <div class="tw:flex tw:items-center tw:gap-3 tw:text-nowrap">
-                  <div
-                    class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
+                  <div class="tw:bg-gray-100 tw:rounded-full tw:p-2 tw:w-8 tw:h-8 tw:flex tw:items-center tw:justify-center">
                     <Icon icon="mdi:account" class="tw:text-gray-600" />
                   </div>
                   <div
-                    class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity">
-                  </div>
+                    class="tw:absolute tw:inset-0 tw:bg-primary tw:blur-lg tw:rounded-full group-hover:tw:opacity-10 tw:transition-opacity"
+                  ></div>
                   <div>
                     <span class="tw:font-medium tw:text-gray-800 group-hover:tw:text-primary tw:transition-colors">{{
-                      item.user.name }}</span>
+                      item.user.name
+                    }}</span>
                   </div>
                 </div>
                 {{ item.user.email }}
@@ -459,14 +514,21 @@ watch(showContractDialog, (newVal) => {
 
               <template #item.participantLevel.courseLevel="{ item }">
                 <div class="tw:text-nowrap tw:flex tw:flex-col tw:gap-1">
-                  <VChip :color="item.participantLevel.courseLevel === 'LIFE_GRADUATE' ? undefined : getLevelColor(item.participantLevel.courseLevel)
-                    " variant="flat"
+                  <VChip
+                    :color="
+                      item.participantLevel.courseLevel === 'LIFE_GRADUATE' ? undefined : getLevelColor(item.participantLevel.courseLevel)
+                    "
+                    variant="flat"
                     class="!tw:font-medium tw:min-w-[120px] !tw:justify-center tw:transition-all group-hover:tw:shadow-md group-hover:tw:scale-105"
                     :class="{ 'animated-gradient': item.participantLevel.courseLevel === 'LIFE_GRADUATE' }"
-                    size="small">
+                    size="small"
+                  >
                     <div class="tw:relative">
-                      <Icon :icon="getLevelIcon(item.participantLevel.courseLevel)" height="20"
-                        class="mr-2 tw:transition-transform group-hover:tw:scale-110" />
+                      <Icon
+                        :icon="getLevelIcon(item.participantLevel.courseLevel)"
+                        height="20"
+                        class="mr-2 tw:transition-transform group-hover:tw:scale-110"
+                      />
                     </div>
                     <div v-if="item.participantLevel.courseLevel === 'LIFE_GRADUATE'">GRADUADO</div>
                     <div v-else>{{ item.participantLevel.courseLevel }}</div>
@@ -480,9 +542,16 @@ watch(showContractDialog, (newVal) => {
                   <v-menu location="end" transition="slide-y-transition" :close-on-content-click="false">
                     <template v-slot:activator="{ props }">
                       <!-- <v-btn color="primary" v-bind="props"> Dropdown </v-btn> -->
-                      <VBtn v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)" v-bind="props" icon
-                        variant="text" color="primary" height="40"
-                        class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100" v-tooltip="'Acciones'">
+                      <VBtn
+                        v-if="checkPermission(PermissionEnum.UPDATE_PARTICIPANTS)"
+                        v-bind="props"
+                        icon
+                        variant="text"
+                        color="primary"
+                        height="40"
+                        class="!tw:bg-blue-50 tw:rounded-lg !tw:shadow-sm hover:!tw:bg-blue-100"
+                        v-tooltip="'Acciones'"
+                      >
                         <Icon icon="mdi:dots-vertical" />
                       </VBtn>
                     </template>
@@ -497,13 +566,13 @@ watch(showContractDialog, (newVal) => {
                         </v-list-item-title>
                       </v-list-item>
                       <v-list-item class="point">
-                        <v-list-item-title @click="
-                          showResetPasswordDialog = true;
-                        selectedParticipant = item;
-                        ">
-                          <div class="d-flex tw:gap-1">
-                            <Icon icon="mdi:lock-reset" height="20" /> Resetear contraseña
-                          </div>
+                        <v-list-item-title
+                          @click="
+                            showResetPasswordDialog = true;
+                            selectedParticipant = item;
+                          "
+                        >
+                          <div class="d-flex tw:gap-1"><Icon icon="mdi:lock-reset" height="20" /> Resetear contraseña</div>
                         </v-list-item-title>
                       </v-list-item>
                       <v-list-item class="point">
@@ -567,13 +636,17 @@ watch(showContractDialog, (newVal) => {
         </VCardTitle>
         <VCardText class="tw:p-6">
           <InputSection label="Campus">
-            <VSelect placeholder="Elija el campus" v-model="campusId" :items="adminS.availableCampus" item-title="city"
-              item-value="id"></VSelect>
+            <VSelect
+              placeholder="Elija el campus"
+              v-model="campusId"
+              :items="adminS.availableCampus"
+              item-title="city"
+              item-value="id"
+            ></VSelect>
           </InputSection>
         </VCardText>
         <VCardActions class="tw:flex tw:justify-end">
-          <VBtn color="primary" variant="elevated" @click="handleGenerateInvitation" class="!tw:font-normal"> Invitar
-          </VBtn>
+          <VBtn color="primary" variant="elevated" @click="handleGenerateInvitation" class="!tw:font-normal"> Invitar </VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
@@ -584,8 +657,7 @@ watch(showContractDialog, (newVal) => {
           <h3 class="tw:text-xl tw:font-medium">Invitar Participante</h3>
         </VCardTitle>
         <VCardText class="tw:p-6">
-          <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details
-            class="tw:mb-2">
+          <VTextField v-model="invitationLink" readonly variant="outlined" density="comfortable" hide-details class="tw:mb-2">
             <template #append>
               <VBtn color="primary" variant="elevated" @click="copyLink" class="!tw:font-normal">
                 {{ copied ? 'Copiado!' : 'Copiar enlace' }}
@@ -602,12 +674,17 @@ watch(showContractDialog, (newVal) => {
           <VNumberInput variant="outlined" placeholder="cantidad de usos para este token" v-model="quantity" :min="1" />
         </InputSection>
         <InputSection label="Campus">
-          <VSelect placeholder="Elija el campus" v-model="campusId" :items="adminS.availableCampus" item-title="city"
-            item-value="id"></VSelect>
+          <VSelect
+            placeholder="Elija el campus"
+            v-model="campusId"
+            :items="adminS.availableCampus"
+            item-title="city"
+            item-value="id"
+          ></VSelect>
         </InputSection>
         <div class="tw:flex tw:justify-end">
-          <VBtn color="primary" @click="handleGenerateInvitationLot"
-            :loading="generateInvitationWithQuantityMutation.isPending.value">Generar
+          <VBtn color="primary" @click="handleGenerateInvitationLot" :loading="generateInvitationWithQuantityMutation.isPending.value"
+            >Generar
           </VBtn>
         </div>
       </UiParentCard>
@@ -621,11 +698,22 @@ watch(showContractDialog, (newVal) => {
         <v-divider class="mb-4"></v-divider>
         <VCardText class="tw:p-6">
           <!-- <p>¿Estás seguro de que deseas resetear la contraseña de este participante?</p> -->
-          <VTextField v-model="newPassword" label="Nueva Contraseña" :type="showPassword ? 'text' : 'password'"
-            variant="outlined" density="comfortable" hide-details class="tw:mt-4">
+          <VTextField
+            v-model="newPassword"
+            label="Nueva Contraseña"
+            :type="showPassword ? 'text' : 'password'"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            class="tw:mt-4"
+          >
             <template #append-inner>
-              <Icon :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'" height="18"
-                class="cursor-pointer" @click="togglePasswordVisibility" />
+              <Icon
+                :icon="!showPassword ? 'weui:eyes-on-outlined' : 'weui:eyes-off-outlined'"
+                height="18"
+                class="cursor-pointer"
+                @click="togglePasswordVisibility"
+              />
             </template>
           </VTextField>
         </VCardText>
@@ -644,11 +732,20 @@ watch(showContractDialog, (newVal) => {
         <VCardText class="tw:p-6">
           <!-- <p>¿Estás seguro de que deseas resetear la contraseña de este participante?</p> -->
           <!-- <label class="mb-2">Listado de Productos</label> -->
-          <VCombobox v-model="selectedProduct" :items="productsData.content" item-title="name" item-value="id"
+          <VCombobox
+            v-model="selectedProduct"
+            :items="productsData.content"
+            item-title="name"
+            item-value="id"
             variant="outlined"
             :placeholder="productsData.totalElements > 0 ? 'Seleccionar Producto' : 'No hay productos disponibles'"
-            return-object @update:search="searchProduct" @update:model-value="handleProductChange" hide-details
-            class="tw:bg-white mb-4" label="Producto">
+            return-object
+            @update:search="searchProduct"
+            @update:model-value="handleProductChange"
+            hide-details
+            class="tw:bg-white mb-4"
+            label="Producto"
+          >
             <template v-slot:item="{ props, item }">
               <v-list-item v-bind="props">
                 <template v-slot:prepend>
@@ -660,10 +757,18 @@ watch(showContractDialog, (newVal) => {
             </template>
           </VCombobox>
 
-          <VCombobox v-model="selectedTraining" :items="trainings" item-title="name" item-value="id" variant="outlined"
+          <VCombobox
+            v-model="selectedTraining"
+            :items="trainings"
+            item-title="name"
+            item-value="id"
+            variant="outlined"
             :placeholder="trainings.length > 0 ? 'Seleccionar Entrenamiento' : 'No hay entrenamientos disponibles'"
-            return-object @update:search="searchTraining" @update:model-value="handleTrainingChange"
-            label="Entrenamiento">
+            return-object
+            @update:search="searchTraining"
+            @update:model-value="handleTrainingChange"
+            label="Entrenamiento"
+          >
             <template v-slot:item="{ props, item }">
               <v-list-item v-bind="props">
                 <template v-slot:prepend>
@@ -677,8 +782,13 @@ watch(showContractDialog, (newVal) => {
           </VCombobox>
         </VCardText>
         <VCardActions class="tw:flex tw:justify-end">
-          <VBtn color="primary" variant="elevated" @click="generateContracts" class="!tw:font-normal"
-            :loading="generateContractMutation.isPending.value">
+          <VBtn
+            color="primary"
+            variant="elevated"
+            @click="generateContracts"
+            class="!tw:font-normal"
+            :loading="generateContractMutation.isPending.value"
+          >
             Generar Contrato
           </VBtn>
         </VCardActions>
@@ -688,15 +798,22 @@ watch(showContractDialog, (newVal) => {
       <UiParentCard title="Cambiar de sede">
         <VRow>
           <VCol cols="12">
-            <p>Estás a punto de cambiar la sede del participante
-              <strong>{{ selectedParticipant?.user.name }}</strong> de
-              <strong>{{ selectedParticipant?.campus.city }}</strong>.
+            <p>
+              Estás a punto de cambiar la sede del participante <strong>{{ selectedParticipant?.user.name }}</strong> de
+              <strong>{{ selectedParticipant?.campus.city }}</strong
+              >.
             </p>
           </VCol>
           <VCol cols="12">
             <InputSection label="Seleccionar sede">
-              <VSelect v-model="selectedCampus" :items="campusData.filter(x => x.id != selectedParticipant?.campus.id)"
-                item-title="city" item-value="id" placeholder="Elija el campus" :loading="isFetching">
+              <VSelect
+                v-model="selectedCampus"
+                :items="campusData.filter((x) => x.id != selectedParticipant?.campus.id)"
+                item-title="city"
+                item-value="id"
+                placeholder="Elija el campus"
+                :loading="isFetching"
+              >
                 <template #append>
                   <VBtn icon variant="text" @click="refetch" :loading="isFetching">
                     <Icon icon="mdi:refresh" height="18" />
@@ -706,8 +823,12 @@ watch(showContractDialog, (newVal) => {
             </InputSection>
           </VCol>
           <VCol cols="12">
-            <VBtn :disabled="!selectedCampus" color="primary" @click="onParticiapntChangeCampus"
-              :loading="changeCampusMutation.isPending.value">
+            <VBtn
+              :disabled="!selectedCampus"
+              color="primary"
+              @click="onParticiapntChangeCampus"
+              :loading="changeCampusMutation.isPending.value"
+            >
               Cambiar
             </VBtn>
           </VCol>
@@ -727,27 +848,26 @@ watch(showContractDialog, (newVal) => {
           <div v-if="isPaymentLoading" class="d-flex justify-center my-4">
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
           </div>
-          <div v-else-if="isPaymentError" class="text-error text-center my-4">
-            Error al cargar los cobros.
-          </div>
+          <div v-else-if="isPaymentError" class="text-error text-center my-4">Error al cargar los cobros.</div>
           <div v-else-if="payments && payments.length === 0" class="text-center my-4">
             No hay cobros registrados para este participante.
           </div>
           <div v-else class="d-flex flex-column gap-4">
-            <v-card v-for="payment in payments" :key="payment.id" elevation="0" border
-              class="rounded-lg overflow-hidden mb-4">
+            <v-card v-for="payment in payments" :key="payment.id" elevation="0" border class="rounded-lg overflow-hidden mb-4">
               <div class="pa-4 d-flex justify-space-between align-center bg-white border-b">
                 <div>
                   <div class="text-subtitle-1 font-weight-bold d-flex align-center">
-                    {{payment.products.map(p => p.name).join(', ')}}
+                    {{ payment.products.map((p) => p.name).join(', ') }}
                   </div>
-                  <div class="text-caption text-grey">
-                    Registrado el {{ new Date(payment.createdDate).toLocaleDateString() }}
-                  </div>
+                  s
+                  <div class="text-caption text-grey">Registrado el {{ new Date(payment.createdDate).toLocaleDateString() }}</div>
                 </div>
                 <v-chip
                   :color="payment.status === 'PAID' ? 'success' : payment.status === 'PARTIAL' ? 'warning' : 'error'"
-                  variant="flat" size="small" class="font-weight-bold">
+                  variant="flat"
+                  size="small"
+                  class="font-weight-bold"
+                >
                   {{ payment.status === 'PAID' ? 'Pagado' : payment.status === 'PARTIAL' ? 'Parcial' : 'Pendiente' }}
                 </v-chip>
               </div>
@@ -764,8 +884,13 @@ watch(showContractDialog, (newVal) => {
                   </v-col>
                   <v-col cols="12" md="4">
                     <div class="text-caption text-grey mb-1">Progreso</div>
-                    <v-progress-linear :model-value="((payment.total - payment.remainingBalance) / payment.total) * 100"
-                      color="success" height="8" rounded striped></v-progress-linear>
+                    <v-progress-linear
+                      :model-value="((payment.total - payment.remainingBalance) / payment.total) * 100"
+                      color="success"
+                      height="8"
+                      rounded
+                      striped
+                    ></v-progress-linear>
                     <div class="text-right text-caption mt-1">
                       {{ Math.round(((payment.total - payment.remainingBalance) / payment.total) * 100) }}% Pagado
                     </div>
@@ -779,18 +904,19 @@ watch(showContractDialog, (newVal) => {
                     <v-expansion-panel-text>
                       <div class="d-flex justify-center align-center">
                         <v-timeline density="compact" align="start" truncate-line="start" class="ma-3" side="end">
-                          <v-timeline-item v-for="(hist, index) in payment.paymentshistory" :key="index"
+                          <v-timeline-item
+                            v-for="(hist, index) in payment.paymentshistory"
+                            :key="index"
                             :dot-color="getCodePayment(hist.paymentMethod?.code) === 'EF' ? 'success' : 'info'"
-                            size="small">
+                            size="small"
+                          >
                             <template v-slot:icon>
                               <Icon :icon="getPaymentMethodIcon(hist.paymentMethod?.code)" color="white" height="14" />
                             </template>
                             <v-card variant="outlined" class="mb-2">
                               <v-card-text class="pa-3">
                                 <div class="d-flex justify-space-between align-center mb-2">
-                                  <div class="font-weight-bold text-subtitle-2 text-primary">
-                                    Abono: ${{ hist.amount }}
-                                  </div>
+                                  <div class="font-weight-bold text-subtitle-2 text-primary">Abono: ${{ hist.amount }}</div>
                                   <div class="text-caption text-grey-darken-1 d-flex align-center tw:gap-2">
                                     <Icon icon="solar:calendar-bold-duotone" />
                                     {{ hist.date }}
@@ -802,8 +928,7 @@ watch(showContractDialog, (newVal) => {
                                     <Icon icon="solar:wallet-money-bold-duotone" class="text-grey" height="16" />
                                     <span class="font-weight-medium">Método:</span>
                                     <span>{{ getCodePayment(hist.paymentMethod?.code) }}</span>
-                                    <v-chip size="x-small" density="comfortable" variant="tonal" color="primary"
-                                      class="ml-1">
+                                    <v-chip size="x-small" density="comfortable" variant="tonal" color="primary" class="ml-1">
                                       {{ hist.paymentMethod?.code }}
                                     </v-chip>
                                   </div>
@@ -815,20 +940,20 @@ watch(showContractDialog, (newVal) => {
                                   <div v-if="hist.paymentMethod?.bank" class="d-flex align-center tw:gap-2">
                                     <Icon icon="mdi:bank" class="text-grey" height="16" />
                                     <span class="font-weight-medium">Banco:</span>
-                                    <span>{{ hist.paymentMethod.bank }}</span>
+                                    <span>{{ hist.paymentMethod?.bank?.name ?? ' - ' }}</span>
+                                    <span v-if="hist.paymentMethod?.bank?.number"> - {{ hist.paymentMethod?.bank?.number }}</span>
                                   </div>
                                   <div v-if="hist.paymentMethod?.campus" class="d-flex align-center tw:gap-2">
                                     <Icon icon="solar:buildings-bold-duotone" class="text-grey" height="16" />
                                     <span class="font-weight-medium">Sede:</span>
-                                    <span>{{ hist.paymentMethod.campus.city }}</span>
+                                    <span>{{ hist.paymentMethod?.campus?.city ?? ' - ' }}</span>
                                   </div>
                                   <div class="d-flex align-center tw:gap-2 mt-1">
-                                    <v-chip size="x-small" :color="hist.sent ? 'success' : 'warning'"
-                                      variant="outlined">
+                                    <v-chip size="x-small" :color="hist.sent ? 'success' : 'warning'" variant="outlined">
                                       {{ hist.sent ? 'Enviado' : 'No Enviado' }}
                                     </v-chip>
                                     <v-chip v-if="hist.pingType" size="x-small" color="info" variant="outlined">
-                                      Ping: {{ hist.pingType }}
+                                      Pings: {{ PingTypeMeta[hist.pingType]?.label }}
                                     </v-chip>
                                   </div>
                                 </div>
@@ -840,7 +965,6 @@ watch(showContractDialog, (newVal) => {
                           </div>
                         </v-timeline>
                       </div>
-
                     </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>

@@ -62,7 +62,7 @@ export interface PaymentHistory {
   paymentMethod: PaymentMethod;
   transactionId: string;
   sent?: boolean;
-  pingType?: string;
+  pingType?: PingType;
   notSendError?: string;
 }
 
@@ -119,3 +119,18 @@ export const StatusMeta: Record<Status, { label: string; color: string; icon: st
   [Status.CANCELLED]: { label: 'Cancelado', color: 'secondary', icon: 'mdi-cancel' }
 };
 
+export enum PingType {
+  D = 'D',
+  M = 'M',
+  P = 'P',
+  E = 'E',
+  A = 'A', 
+}
+
+export const PingTypeMeta: Record<PingType, { label: string }> = {
+  [PingType.D]: { label: 'Débito' },
+  [PingType.M]: { label: 'Crédito'  },
+  [PingType.P]: { label: 'Efectivo' },
+  [PingType.E]: { label: 'Transferencia' },
+  [PingType.A]: { label: 'Otro' },
+};
