@@ -935,7 +935,7 @@ watch(showContractDialog, (newVal) => {
                                   <div v-if="hist.transactionId" class="d-flex align-center tw:gap-2">
                                     <Icon icon="solar:bill-list-bold-duotone" class="text-grey" height="16" />
                                     <span class="font-weight-medium">Ref:</span>
-                                    <span class="font-monospace">{{ hist.transactionId }}</span>
+                                    <span class="font-monospace">{{ hist.transactionId }}</span> 
                                   </div>
                                   <div v-if="hist.paymentMethod?.bank" class="d-flex align-center tw:gap-2">
                                     <Icon icon="mdi:bank" class="text-grey" height="16" />

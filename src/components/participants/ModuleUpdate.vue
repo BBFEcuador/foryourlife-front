@@ -2,7 +2,7 @@
 import useParticipantMutations from '@/composables/admin/participants/useParticipantMutations';
 import type { Participant } from '@/models/Participants';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { watch } from 'vue';
+import { watch, ref } from 'vue';
 import Swal from 'sweetalert2';
 import { toast } from 'vue3-toastify';
 
@@ -10,8 +10,10 @@ interface props {
   participant: Participant;
 }
 const props = defineProps<props>();
-
-const { setCourseLevelMutation } = useParticipantMutations();
+const levels = ['FOCUS', 'YOUR', 'LIFE'];
+const selectedLevel = ref(props.participant.participantLevel.courseLevel);
+const { setCourseLevelMutation, setParticipantLevelMutation } = useParticipantMutations();
+const emit = defineEmits(['update-refetch']);
 
 const checkFocus = (type: 'hasFocus' | 'hasYour' | 'hasLife', value: boolean) => {
   if (value) {
@@ -54,6 +56,30 @@ const checkFocus = (type: 'hasFocus' | 'hasYour' | 'hasLife', value: boolean) =>
   }
 };
 
+const onLevelChange = (value: string) => {
+  if (value) {
+    Swal.fire({
+      text: `¿Estas seguro de cambiar al participante al nivel ${value.toUpperCase()}?`,
+      title: 'Confirmación',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, estoy seguro!',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setParticipantLevelMutation.mutate({
+          userId: props.participant.id,
+          courseLevel: value
+        });
+      } else {
+        selectedLevel.value = props.participant.participantLevel.courseLevel;
+      }
+    });
+  }
+};
+
 watch(setCourseLevelMutation.isError, () => {
   if (setCourseLevelMutation.isError.value) {
     (props.participant.modules.hasFocus = false), (props.participant.modules.hasFocus = false);
@@ -68,9 +94,47 @@ watch(setCourseLevelMutation.isSuccess, () => {
     });
   }
 });
+
+watch(
+  () => setParticipantLevelMutation.error.value,
+  (error: any) => {
+    if (error) {
+      selectedLevel.value = props.participant.participantLevel.courseLevel;
+      const message = error?.response?.data?.message || error?.message || 'Ocurrió un error';
+      toast.error(message, {
+        autoClose: 3000,
+        closeButton: true
+      });
+    }
+  }
+);
+
+watch(setParticipantLevelMutation.isSuccess, () => {
+  if (setParticipantLevelMutation.isSuccess.value) {
+    emit('update-refetch');
+    toast.success('Nivel Actualizado', {
+      autoClose: 3000,
+      closeButton: true
+    });
+  }
+});
 </script>
 
 <template>
+  <v-card class="tw:p-5 mb-2" elevation="0">
+    <v-card-item>
+      <h4 class="text-h4 mb-2 font-weight-bold">Nivel</h4>
+      <v-select
+        v-model="selectedLevel"
+        :items="levels"
+        label="Nivel del participante"
+        hide-details
+        @update:model-value="onLevelChange"
+        :loading="setParticipantLevelMutation.isPending.value"
+        :disabled="setParticipantLevelMutation.isPending.value"
+      ></v-select>
+    </v-card-item>
+  </v-card>
   <v-card class="tw:p-5" elevation="0">
     <v-card-item>
       <h4 class="text-h4 mb-2 font-weight-bold">Entrenamientos que posee</h4>

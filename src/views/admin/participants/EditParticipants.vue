@@ -21,7 +21,11 @@ const breadcrumbs = ref([
     href: '/admin/participants'
   }
 ]);
-const { isParticipantError, isParticipantLoading, participant } = useParticipant(route.params.id.toString());
+const { isParticipantError, isParticipantLoading, participant, refetchParticipants } = useParticipant(route.params.id.toString());
+const onModuleUpdated = () => {
+  console.log('Module updated, refetching participant data...');
+  refetchParticipants();
+};
 </script>
 <template>
   <BaseBreadcrumb :title="'Editar participante'" :breadcrumbs="breadcrumbs" />
@@ -45,7 +49,7 @@ const { isParticipantError, isParticipantLoading, participant } = useParticipant
           <ParticipantUpdate :participant />
         </VCol>
         <VCol cols="12" md="3" sm="12" class="tw:flex tw:flex-col tw:items-center">
-          <ModuleUpdate :participant />
+          <ModuleUpdate :participant @update-refetch="onModuleUpdated" />
         </VCol>
       </v-row>
     </div>

@@ -11,7 +11,7 @@ const fetchParticipant = async (id: string): Promise<Participant> => {
 }
 
 const useParticipant = (id: string) => {
-    const { data, isError, isFetching } = useQuery({
+    const { data, isError, isFetching, refetch } = useQuery({
         queryKey: ['participant', id],
         queryFn: () => fetchParticipant(id),
         gcTime: 0,
@@ -26,6 +26,7 @@ const useParticipant = (id: string) => {
         participant,
         isParticipantError: isError,
         isParticipantLoading: isFetching,
+        refetchParticipants: refetch
     };
 }
 

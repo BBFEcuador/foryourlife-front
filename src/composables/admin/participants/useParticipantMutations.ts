@@ -83,6 +83,11 @@ const changeCampus = async (req: { userId: string; campusId: string }): Promise<
   return data;
 };
 
+const setParticipantLevel = async (req: { userId: string; courseLevel: string }): Promise<any> => {
+  const { data } = await api.put(`/users/set-course-level/${req.userId}/${req.courseLevel}`, req);
+  return data;
+}
+
 const useParticipantMutations = () => {
   const updateParticipantMutation = useMutation({ mutationFn: updateParticipant });
   const setCourseLevelMutation = useMutation({ mutationFn: setFocus });
@@ -99,6 +104,7 @@ const useParticipantMutations = () => {
   const deleteContactMutation = useMutation({ mutationFn: deleteContact });
   const changeCampusMutation = useMutation({ mutationFn: changeCampus });
   const globalMutateMutation = useMutation({ mutationFn: globalMutate });
+  const setParticipantLevelMutation = useMutation({ mutationFn: setParticipantLevel });
 
   return {
     updateParticipantMutation,
@@ -115,7 +121,8 @@ const useParticipantMutations = () => {
     updateContactEmergencyMutation,
     createContactEmergencyMutation,
     deleteContactMutation,
-    changeCampusMutation
+    changeCampusMutation,
+    setParticipantLevelMutation
   };
 };
 
